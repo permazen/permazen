@@ -281,6 +281,18 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="io.permazen.kv.mvcc">
 <h2>Uses of <a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a> in <a href="../mvcc/package-summary.html">io.permazen.kv.mvcc</a></h2>
+<div class="caption"><span>Classes in <a href="../mvcc/package-summary.html">io.permazen.kv.mvcc</a> that implement <a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../mvcc/BranchedKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">A <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
+ later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.</div>
+</div>
+</div>
 <div class="caption"><span>Methods in <a href="../mvcc/package-summary.html">io.permazen.kv.mvcc</a> that return <a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -295,11 +307,14 @@ loadScripts(document, 'script');</script>
 <div class="block">Create a read-only "snapshot" view of this instance equal to its current state.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">MemoryAtomicKVStore.</span><code><a href="../mvcc/MemoryAtomicKVStore.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">BranchedKVTransaction.</span><code><a href="../mvcc/BranchedKVTransaction.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SnapshotKVTransaction.</span><code><a href="../mvcc/SnapshotKVTransaction.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">MemoryAtomicKVStore.</span><code><a href="../mvcc/MemoryAtomicKVStore.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code><a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SnapshotKVTransaction.</span><code><a href="../mvcc/SnapshotKVTransaction.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot</a>()</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -432,17 +447,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code><a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">PrefixKVTransaction.</span><code><a href="../util/PrefixKVTransaction.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-</div>
-<div class="caption"><span>Constructors in <a href="../util/package-summary.html">io.permazen.kv.util</a> with parameters of type <a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier</div>
-<div class="table-header col-second">Constructor</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../util/CloseableForwardingKVStore.html#%3Cinit%3E(io.permazen.kv.CloseableKVStore)" class="member-name-link">CloseableForwardingKVStore</a><wbr>(<a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a>&nbsp;kvstore)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Convenience constructor.</div>
-</div>
 </div>
 </section>
 </li>

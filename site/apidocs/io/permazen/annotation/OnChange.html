@@ -100,7 +100,7 @@ loadScripts(document, 'script');</script>
 
  <pre>
    &#64;PermazenType
-   public abstract class Account implements JObject {
+   public abstract class Account implements PermazenObject {
 
    // Database fields
 
@@ -137,12 +137,12 @@ loadScripts(document, 'script');</script>
    }
 
    &#64;PermazenType
-   public abstract class User implements JObject {
+   public abstract class User implements PermazenObject {
 
    // Database fields
 
        &#64;NotNull
-       &#64;JField(indexed = true, unique = true)
+       &#64;PermazenField(indexed = true, unique = true)
        public abstract String getUsername();
        public abstract void setUsername(String username);
 
@@ -291,7 +291,7 @@ loadScripts(document, 'script');</script>
  containing <code>myfield</code> appears multiple times in <code>mylist</code>).
 
  <p>
- Some notifications may need to be ignored by objects in <a href="../DetachedJTransaction.html" title="class in io.permazen">detached</a> transactions;
+ Some notifications may need to be ignored by objects in <a href="../DetachedPermazenTransaction.html" title="class in io.permazen">detached</a> transactions;
  you can use <code>this.isDetached()</code> to detect that situation.
 
  <p>

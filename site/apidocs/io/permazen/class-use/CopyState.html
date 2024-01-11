@@ -70,8 +70,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>default <a href="../JObject.html" title="interface in io.permazen">JObject</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">JObject.</span><code><a href="../JObject.html#copyTo(io.permazen.JTransaction,int,io.permazen.CopyState,java.lang.String...)" class="member-name-link">copyTo</a><wbr>(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;dest,
+<div class="col-first even-row-color"><code>default <a href="../PermazenObject.html" title="interface in io.permazen">PermazenObject</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">PermazenObject.</span><code><a href="../PermazenObject.html#copyTo(io.permazen.PermazenTransaction,int,io.permazen.CopyState,java.lang.String...)" class="member-name-link">copyTo</a><wbr>(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;dest,
  int&nbsp;recursionLimit,
  <a href="../CopyState.html" title="class in io.permazen">CopyState</a>&nbsp;copyState,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;cascades)</code></div>
@@ -80,16 +80,16 @@ loadScripts(document, 'script');</script>
  specified destination transaction.</div>
 </div>
 <div class="col-first odd-row-color"><code>void</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">JTransaction.</span><code><a href="../JTransaction.html#copyTo(io.permazen.JTransaction,io.permazen.CopyState,io.permazen.core.util.ObjIdSet)" class="member-name-link">copyTo</a><wbr>(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;dest,
+<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../PermazenTransaction.html#copyTo(io.permazen.PermazenTransaction,io.permazen.CopyState,io.permazen.core.util.ObjIdSet)" class="member-name-link">copyTo</a><wbr>(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;dest,
  <a href="../CopyState.html" title="class in io.permazen">CopyState</a>&nbsp;copyState,
  <a href="../core/util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a>&nbsp;ids)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Copy the specified objects into the specified destination transaction.</div>
 </div>
 <div class="col-first even-row-color"><code>void</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">JTransaction.</span><code><a href="../JTransaction.html#copyTo(io.permazen.JTransaction,io.permazen.CopyState,java.util.stream.Stream)" class="member-name-link">copyTo</a><wbr>(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;dest,
+<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../PermazenTransaction.html#copyTo(io.permazen.PermazenTransaction,io.permazen.CopyState,java.util.stream.Stream)" class="member-name-link">copyTo</a><wbr>(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;dest,
  <a href="../CopyState.html" title="class in io.permazen">CopyState</a>&nbsp;copyState,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../JObject.html" title="interface in io.permazen">JObject</a>&gt;&nbsp;jobjs)</code></div>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;&nbsp;pobjs)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Copy the specified objects into the specified destination transaction.</div>
 </div>

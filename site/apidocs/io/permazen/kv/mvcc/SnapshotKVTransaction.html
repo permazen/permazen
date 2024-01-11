@@ -358,7 +358,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  to multiple objects and/or fields can detected and consolidated using an
  <a href="../../annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> method that increments a single <a href="../../Counter.html" title="class in io.permazen"><code>Counter</code></a>
  field, whose key is then watched (to determine the key corresponding to a Java model object field, use
- <a href="../../JField.html#getKey(io.permazen.JObject)"><code>JField.getKey()</code></a>).
+ <a href="../../PermazenField.html#getKey(io.permazen.PermazenObject)"><code>PermazenField.getKey()</code></a>).
 
  <p>
  Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
@@ -398,8 +398,8 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="../../JTransaction.html#getKey(io.permazen.JObject)"><code>JTransaction.getKey()</code></a></li>
-<li><a href="../../JField.html#getKey(io.permazen.JObject)"><code>JField.getKey()</code></a></li>
+<li><a href="../../PermazenTransaction.html#getKey(io.permazen.PermazenObject)"><code>PermazenTransaction.getKey()</code></a></li>
+<li><a href="../../PermazenField.html#getKey(io.permazen.PermazenObject)"><code>PermazenField.getKey()</code></a></li>
 </ul>
 </dd>
 </dl>
@@ -439,6 +439,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
   <li><a href="../KVTransaction.html#setReadOnly(boolean)"><code>setReadOnly()</code></a> may only be invoked prior to mutating data; and/or</li>
   <li>Once set to read-only, a transaction may not be set back to read-write</li>
  </ul>
+ If one of the above constraints is violated, an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a> is thrown.
 
  <p>
  Note: for some implementations, the data read from a transaction that is never <a href="../KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a>'ed is
@@ -492,7 +493,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <p>
  This method may be invoked at any time, even after a previous invocation of
  <a href="../KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.
- In particular, this method should <b>not</b> throw <a href="../StaleTransactionException.html" title="class in io.permazen.kv"><code>StaleTransactionException</code></a>.</div>
+ In particular, this method must <b>not</b> throw <a href="../StaleTransactionException.html" title="class in io.permazen.kv"><code>StaleTransactionException</code></a>.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../KVTransaction.html#rollback()">rollback</a></code>&nbsp;in interface&nbsp;<code><a href="../KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></code></dd>

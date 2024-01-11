@@ -163,9 +163,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Represents a 64-bit counter value that can be adjusted concurrently by multiple transactions,
  typically without locking (depending on the underlying key/value store).</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">A <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> that is not actually connected to a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database instance, but instead exists
+<div class="block">A <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> that is not actually connected to a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database instance, but instead exists
  just to hold objects in memory.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="EnumConverter.html" title="class in io.permazen">EnumConverter</a>&lt;T extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link">Enum</a>&lt;T&gt;&gt;</div>
@@ -174,96 +174,96 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="ExportContext.html" title="class in io.permazen">ExportContext</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Context for exporting plain (POJO) objects from a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.</div>
+<div class="block">Context for exporting plain (POJO) objects from a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ImportContext.html" title="class in io.permazen">ImportContext</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Context for importing plain (POJO) objects into a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.</div>
+<div class="block">Context for importing plain (POJO) objects into a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;T&gt;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Permazen.html" title="class in io.permazen">Permazen</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a specific Permazen object type in a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JCollectionField.html" title="class in io.permazen">JCollectionField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Represents a collection field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JComplexField.html" title="class in io.permazen">JComplexField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a complex field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JCompositeIndex.html" title="class in io.permazen">JCompositeIndex</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">A composite index.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JCounterField.html" title="class in io.permazen">JCounterField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a counter field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JEnumArrayField.html" title="class in io.permazen">JEnumArrayField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Represents an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link"><code>Enum</code></a> array field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JEnumField.html" title="class in io.permazen">JEnumField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link"><code>Enum</code></a> field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JField.html" title="class in io.permazen">JField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Represents a field in a Java model object.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="JFieldSwitch.html" title="interface in io.permazen">JFieldSwitch</a>&lt;R&gt;</div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
-<div class="block">Visitor pattern interface for <a href="JField.html" title="class in io.permazen"><code>JField</code></a>s.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JListField.html" title="class in io.permazen">JListField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Represents a list field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JMapField.html" title="class in io.permazen">JMapField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a map field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="JObject.html" title="interface in io.permazen">JObject</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">Interface implemented by <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> Java model objects.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JReferenceField.html" title="class in io.permazen">JReferenceField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a reference field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> or a reference sub-field of a complex field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JSchemaItem.html" title="class in io.permazen">JSchemaItem</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Superclass for the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>, <a href="JField.html" title="class in io.permazen"><code>JField</code></a>, and <a href="JCompositeIndex.html" title="class in io.permazen"><code>JCompositeIndex</code></a> classes
- which describe the schema associated with a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instance.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JSetField.html" title="class in io.permazen">JSetField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a set field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JSimpleField.html" title="class in io.permazen">JSimpleField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Represents a simple field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> or a simple sub-field of a complex field in a <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">A transaction associated with a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instance.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Permazen.html" title="class in io.permazen">Permazen</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Permazen Java persistence layer.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenConfig.html" title="class in io.permazen">PermazenConfig</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;T&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents a specific Permazen object type in a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenCollectionField.html" title="class in io.permazen">PermazenCollectionField</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Represents a collection field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenComplexField.html" title="class in io.permazen">PermazenComplexField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents a complex field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenCompositeIndex.html" title="class in io.permazen">PermazenCompositeIndex</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">A composite index.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenConfig.html" title="class in io.permazen">PermazenConfig</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Configuration object used to create new <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instances.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenConfig.Builder.html" title="class in io.permazen">PermazenConfig.Builder</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenConfig.Builder.html" title="class in io.permazen">PermazenConfig.Builder</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Builder for <a href="PermazenConfig.html" title="class in io.permazen"><code>PermazenConfig</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenCounterField.html" title="class in io.permazen">PermazenCounterField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents a counter field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenEnumArrayField.html" title="class in io.permazen">PermazenEnumArrayField</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Represents an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link"><code>Enum</code></a> array field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenEnumField.html" title="class in io.permazen">PermazenEnumField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link"><code>Enum</code></a> field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab5"><a href="PermazenException.html" title="class in io.permazen">PermazenException</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">Superclass of all unchecked exceptions thrown by the <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> API.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenField.html" title="class in io.permazen">PermazenField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents a field in a Java model object.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="PermazenFieldSwitch.html" title="interface in io.permazen">PermazenFieldSwitch</a>&lt;R&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="block">Visitor pattern interface for <a href="PermazenField.html" title="class in io.permazen"><code>PermazenField</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenListField.html" title="class in io.permazen">PermazenListField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents a list field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenMapField.html" title="class in io.permazen">PermazenMapField</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Represents a map field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="block">Interface implemented by <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> Java model objects.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenReferenceField.html" title="class in io.permazen">PermazenReferenceField</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Represents a reference field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> or a reference sub-field of a complex field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenSchemItem.html" title="class in io.permazen">PermazenSchemItem</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Superclass for the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>, <a href="PermazenField.html" title="class in io.permazen"><code>PermazenField</code></a>, and <a href="PermazenCompositeIndex.html" title="class in io.permazen"><code>PermazenCompositeIndex</code></a> classes
+ which describe the schema associated with a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instance.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenSetField.html" title="class in io.permazen">PermazenSetField</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Represents a set field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenSimpleField.html" title="class in io.permazen">PermazenSimpleField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Represents a simple field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> or a simple sub-field of a complex field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">A transaction associated with a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instance.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ReferencePath.html" title="class in io.permazen">ReferencePath</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
@@ -273,14 +273,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">JSR 303 validation group for Permazen uniqueness constraints.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="UntypedJObject.html" title="class in io.permazen">UntypedJObject</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="UntypedPermazenObject.html" title="class in io.permazen">UntypedPermazenObject</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Represents a <a href="JObject.html" title="interface in io.permazen"><code>JObject</code></a> for which no Java model type is defined in the instance's associated schema.</div>
+<div class="block">Represents a <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> for which no Java model type is defined in the instance's associated schema.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab5"><a href="UpgradeConversionException.html" title="class in io.permazen">UpgradeConversionException</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">Exception thrown when an object is upgraded, some simple field's type changes, the field is
- <a href="annotation/JField.html#upgradeConversion()">configured</a> with <a href="UpgradeConversionPolicy.html#REQUIRE"><code>UpgradeConversionPolicy.REQUIRE</code></a>,
+ <a href="annotation/PermazenField.html#upgradeConversion()">configured</a> with <a href="UpgradeConversionPolicy.html#REQUIRE"><code>UpgradeConversionPolicy.REQUIRE</code></a>,
  and automated conversion of the field's value to the new type fails.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab3"><a href="UpgradeConversionPolicy.html" title="enum class in io.permazen">UpgradeConversionPolicy</a></div>
@@ -293,11 +293,11 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab5"><a href="ValidationException.html" title="class in io.permazen">ValidationException</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab5">
-<div class="block">Thrown when <a href="JTransaction.html#validate()"><code>JTransaction.validate()</code></a> (or <a href="JTransaction.html#commit()"><code>JTransaction.commit()</code></a>) fails due to one or more validation errors.</div>
+<div class="block">Thrown when <a href="PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a> (or <a href="PermazenTransaction.html#commit()"><code>PermazenTransaction.commit()</code></a>) fails due to one or more validation errors.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab3"><a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab3">
-<div class="block">Configures whether and how objects are enqueued for validation in a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.</div>
+<div class="block">Configures whether and how objects are enqueued for validation in a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Version.html" title="class in io.permazen">Version</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">

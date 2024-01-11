@@ -79,10 +79,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">ImportContext</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Context for importing plain (POJO) objects into a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.
+<div class="block">Context for importing plain (POJO) objects into a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.
 
  <p>
- Plain objects (POJO's) can be imported into a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> to the extent that the POJO class and
+ Plain objects (POJO's) can be imported into a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> to the extent that the POJO class and
  the corresponding Permazen model class share the same properties. The simplest example of this is when
  the POJO class is also the Permazen model class (implying a non-abstract class; see also
  <a href="annotation/PermazenType.html#autogenNonAbstract()"><code>&#64;PermazenType.autogenNonAbstract()</code></a>). Also possible are POJO
@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
  The <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a> for the corresponding imported Permazen object is determined by the configured <code>objectIdMapper</code>.
  If <code>objectIdMapper</code> returns null, the POJO is not imported, and nulls replace any copied references to it; otherwise,
  the returned object must exist in the transaction. If <code>objectIdMapper</code> is itself null, the default behavior is
- to create a new Permazen object using <a href="JTransaction.html#create(java.lang.Class)"><code>JTransaction.create(Class)</code></a>, providing the POJO's class as the model class.
+ to create a new Permazen object using <a href="PermazenTransaction.html#create(java.lang.Class)"><code>PermazenTransaction.create(Class)</code></a>, providing the POJO's class as the model class.
 
  <p>
  Instances ensure that an already-imported POJO will be recognized and not imported twice.
@@ -130,11 +130,11 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.JTransaction)" class="member-name-link">ImportContext</a><wbr>(<a href="JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.PermazenTransaction)" class="member-name-link">ImportContext</a><wbr>(<a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;ptx)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.JTransaction,java.util.function.Function)" class="member-name-link">ImportContext</a><wbr>(<a href="JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.PermazenTransaction,java.util.function.Function)" class="member-name-link">ImportContext</a><wbr>(<a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;ptx,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>,<wbr><a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMapper)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
@@ -153,17 +153,17 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJTransaction()" class="member-name-link">getJTransaction</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>,<wbr><a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObjectMap()" class="member-name-link">getObjectMap</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the destination transaction for imported objects.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>,<wbr><a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObjectMap()" class="member-name-link">getObjectMap</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the mapping from already imported POJO's to their corresponding database objects.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JObject.html" title="interface in io.permazen">JObject</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenTransaction()" class="member-name-link">getPermazenTransaction</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the destination transaction for imported objects.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#importPlain(java.lang.Object)" class="member-name-link">importPlain</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Import a plain Java object (POJO), along with all other objects reachable from it via copied reference fields.</div>
@@ -186,32 +186,32 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.JTransaction)">
+<section class="detail" id="&lt;init&gt;(io.permazen.PermazenTransaction)">
 <h3>ImportContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ImportContext</span><wbr><span class="parameters">(<a href="JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ImportContext</span><wbr><span class="parameters">(<a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;ptx)</span></div>
 <div class="block">Constructor.
 
  <p>
  Uses a default <code>objectIdMapper</code> that creates new instances for imported objects via
- <a href="JTransaction.html#create(java.lang.Class)"><code>JTransaction.create(Class)</code></a>, using the Permazen model type found by
- <a href="Permazen.html#findJClass(java.lang.Class)"><code>Permazen.findJClass(Class)</code></a> when given the POJO's class.</div>
+ <a href="PermazenTransaction.html#create(java.lang.Class)"><code>PermazenTransaction.create(Class)</code></a>, using the Permazen model type found by
+ <a href="Permazen.html#findPermazenClass(java.lang.Class)"><code>Permazen.findPermazenClass(Class)</code></a> when given the POJO's class.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jtx</code> - the transaction in which to import objects</dd>
+<dd><code>ptx</code> - the transaction in which to import objects</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>jtx</code> is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>ptx</code> is null</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.JTransaction,java.util.function.Function)">
+<section class="detail" id="&lt;init&gt;(io.permazen.PermazenTransaction,java.util.function.Function)">
 <h3>ImportContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ImportContext</span><wbr><span class="parameters">(<a href="JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ImportContext</span><wbr><span class="parameters">(<a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;ptx,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>,<wbr><a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMapper)</span></div>
 <div class="block">Constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jtx</code> - the transaction in which to import objects</dd>
+<dd><code>ptx</code> - the transaction in which to import objects</dd>
 <dd><code>objectIdMapper</code> - function assigning <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>'s to imported objects (or null to skip the corresponding object)</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if either parameter is null</dd>
@@ -227,9 +227,9 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getJTransaction()">
-<h3>getJTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">getJTransaction</span>()</div>
+<section class="detail" id="getPermazenTransaction()">
+<h3>getPermazenTransaction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">getPermazenTransaction</span>()</div>
 <div class="block">Get the destination transaction for imported objects.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -251,11 +251,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="importPlain(java.lang.Object)">
 <h3>importPlain</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JObject.html" title="interface in io.permazen">JObject</a></span>&nbsp;<span class="element-name">importPlain</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a></span>&nbsp;<span class="element-name">importPlain</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <div class="block">Import a plain Java object (POJO), along with all other objects reachable from it via copied reference fields.
 
  <p>
- If <code>obj</code> has already been imported, the previously assigned <a href="JObject.html" title="interface in io.permazen"><code>JObject</code></a> is returned.</div>
+ If <code>obj</code> has already been imported, the previously assigned <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> is returned.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>obj</code> - object to import; must not be null</dd>

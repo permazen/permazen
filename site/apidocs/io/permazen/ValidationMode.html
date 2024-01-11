@@ -85,13 +85,13 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public enum </span><span class="element-name type-name-label">ValidationMode</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link">Enum</a>&lt;<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&gt;</span></div>
-<div class="block">Configures whether and how objects are enqueued for validation in a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.</div>
+<div class="block">Configures whether and how objects are enqueued for validation in a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list-long">
-<li><a href="JTransaction.html#validate()"><code>JTransaction.validate()</code></a></li>
-<li><a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a></li>
+<li><a href="PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a></li>
+<li><a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a></li>
 <li><a href="annotation/OnValidate.html" title="annotation interface in io.permazen.annotation"><code>OnValidate</code></a></li>
 </ul>
 </dd>
@@ -126,7 +126,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color"><code><a href="#MANUAL" class="member-name-link">MANUAL</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Objects are enqueued for validation only when <a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is explicitly invoked.</div>
+<div class="block">Objects are enqueued for validation only when <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is explicitly invoked.</div>
 </div>
 </div>
 </section>
@@ -177,14 +177,14 @@ the order they are declared.</div>
 <section class="detail" id="DISABLED">
 <h3>DISABLED</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></span>&nbsp;<span class="element-name">DISABLED</span></div>
-<div class="block">Validation is disabled. No objects are enqueued for validation, even if <a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is invoked.</div>
+<div class="block">Validation is disabled. No objects are enqueued for validation, even if <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is invoked.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="MANUAL">
 <h3>MANUAL</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></span>&nbsp;<span class="element-name">MANUAL</span></div>
-<div class="block">Objects are enqueued for validation only when <a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is explicitly invoked.</div>
+<div class="block">Objects are enqueued for validation only when <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is explicitly invoked.</div>
 </section>
 </li>
 <li>
@@ -194,12 +194,12 @@ the order they are declared.</div>
 <div class="block">Objects are enqueued for validation automatically (if necessary) when they are modified.
 
  <p>
- In this mode, objects are enqueued for validation whenever <a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is invoked; in addition,
- objects are enqueued for validation automatically as if by <a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> when:
+ In this mode, objects are enqueued for validation whenever <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is invoked; in addition,
+ objects are enqueued for validation automatically as if by <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> when:
  <ul>
-  <li>An instance is <a href="JTransaction.html#create(java.lang.Class)">created</a>, and the Java model type (or any super-type)
+  <li>An instance is <a href="PermazenTransaction.html#create(java.lang.Class)">created</a>, and the Java model type (or any super-type)
       has a JSR 303 annotated public method or <a href="annotation/OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> annoted method</li>
-  <li>An instance is <a href="JObject.html#migrateSchema()">migrated</a>, and the Java model type (or any super-type)
+  <li>An instance is <a href="PermazenObject.html#migrateSchema()">migrated</a>, and the Java model type (or any super-type)
       has a JSR 303 annotated public method or <a href="annotation/OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> annoted method</li>
   <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
  </ul>
@@ -208,10 +208,10 @@ the order they are declared.</div>
  Note that the presence of a <a href="annotation/OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> annotation on a method
  does <b>not</b> in itself result in automatic validation when any field changes (it merely specifies an action
  to take when validation occurs). To trigger revalidation after field changes, add
- <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated method(s) that invoke <a href="JObject.html#revalidate(java.lang.Class...)"><code>this.revalidate()</code></a>.
+ <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated method(s) that invoke <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>this.revalidate()</code></a>.
 
  <p>
- Note that <a href="#AUTOMATIC"><code>AUTOMATIC</code></a> enqueues as if by <a href="JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a>, i.e., the
+ Note that <a href="#AUTOMATIC"><code>AUTOMATIC</code></a> enqueues as if by <a href="PermazenObject.html#revalidate(java.lang.Class...)"><code>PermazenObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a>, i.e., the
  <code>Default</code> validation group applies. Therefore, if a constraint has explicit <code>groups()</code>,
  and none extend <code>Default</code>, then it will not be applied automatically.</div>
 </section>

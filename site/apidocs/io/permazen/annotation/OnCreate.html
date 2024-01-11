@@ -76,11 +76,11 @@ loadScripts(document, 'script');</script>
 
  <p>
  Note that there is a subtle distinction between (a) the creation of database objects in the database, and
- (b) the instantiation of Java model objects that represent database objects (i.e., <a href="../JObject.html" title="interface in io.permazen"><code>JObject</code></a>s).
+ (b) the instantiation of Java model objects that represent database objects (i.e., <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s).
  These two events do not occur at the same time; in particular, distinct Java model objects are instantiated to
  represent the same database object in different transactions. In addition, it's even possible for a Java model
  object to be instantiated when no corresponding database object exists in the database, e.g., via
- <a href="../JTransaction.html#get(io.permazen.core.ObjId)"><code>JTransaction.get(io.permazen.core.ObjId)</code></a>.
+ <a href="../PermazenTransaction.html#get(io.permazen.core.ObjId)"><code>PermazenTransaction.get(io.permazen.core.ObjId)</code></a>.
 
  <p>
  Methods that are annotated with <a href="OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> are invoked only for events of type (a).
@@ -130,7 +130,7 @@ loadScripts(document, 'script');</script>
  It may have any level of access, including <code>private</code>.
 
  <p>
- Some notifications may need to be ignored by objects in <a href="../DetachedJTransaction.html" title="class in io.permazen">detached</a> transactions;
+ Some notifications may need to be ignored by objects in <a href="../DetachedPermazenTransaction.html" title="class in io.permazen">detached</a> transactions;
  you can use <code>this.isDetached()</code> to detect that situation.
 
  <p>

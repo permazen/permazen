@@ -88,7 +88,8 @@ loadScripts(document, 'script');</script>
 <div class="block"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/BitSet.html" title="class or interface in java.util" class="external-link"><code>BitSet</code></a> type. Null values are not supported by this class.
 
  <p>
- Instances are ordered like boolean numbers, i.e., lexicographically, with higher index bits being more significant.</div>
+ Instances are ordered as if they were giant unsigned integers, i.e., whichever instance has the highest bit set
+ to one where the other instance has it set to zero is considered bigger. So the empty instance is the smallest possible.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>

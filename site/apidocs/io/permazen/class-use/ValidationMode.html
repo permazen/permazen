@@ -79,7 +79,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">JTransaction.</span><code><a href="../JTransaction.html#getValidationMode()" class="member-name-link">getValidationMode</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../PermazenTransaction.html#getValidationMode()" class="member-name-link">getValidationMode</a>()</code></div>
 <div class="col-last even-row-color">
 <div class="block">Get the <a href="../ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> configured for this instance.</div>
 </div>
@@ -100,34 +100,34 @@ the order they are declared.</div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">JTransaction.</span><code><a href="../JTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
+<div class="col-first even-row-color"><code><a href="../DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
+ <a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Create a new <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> based on the provided key/value store.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="../DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createDetachedTransaction(io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Create a new, empty <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> backed by a <a href="../kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="../DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../PermazenTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Create an empty detached transaction based on this instance.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
- <a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Create a new <a href="../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> based on the provided key/value store.</div>
-</div>
-<div class="col-first even-row-color"><code><a href="../DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createDetachedTransaction(io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Create a new, empty <a href="../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> backed by a <a href="../kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
-</div>
-<div class="col-first odd-row-color"><code><a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first odd-row-color"><code><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createTransaction(io.permazen.kv.KVTransaction,io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="../kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
  <a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Create a new transaction using an already-opened <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first even-row-color"><code><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createTransaction(io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Create a new transaction.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first odd-row-color"><code><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">Permazen.</span><code><a href="../Permazen.html#createTransaction(io.permazen.ValidationMode,java.util.Map)" class="member-name-link">createTransaction</a><wbr>(<a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
 <div class="col-last odd-row-color">

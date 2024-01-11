@@ -91,12 +91,12 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">ValidationException</span>
 <span class="extends-implements">extends <a href="core/DatabaseException.html" title="class in io.permazen.core">DatabaseException</a></span></div>
-<div class="block">Thrown when <a href="JTransaction.html#validate()"><code>JTransaction.validate()</code></a> (or <a href="JTransaction.html#commit()"><code>JTransaction.commit()</code></a>) fails due to one or more validation errors.</div>
+<div class="block">Thrown when <a href="PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a> (or <a href="PermazenTransaction.html#commit()"><code>PermazenTransaction.commit()</code></a>) fails due to one or more validation errors.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="JTransaction.html#validate()"><code>JTransaction.validate()</code></a></li>
+<li><a href="PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a></li>
 <li><a href="../../serialized-form.html#io.permazen.ValidationException">Serialized Form</a></li>
 </ul>
 </dd>
@@ -112,19 +112,19 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.JObject,java.lang.String)" class="member-name-link">ValidationException</a><wbr>(<a href="JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.PermazenObject,java.lang.String)" class="member-name-link">ValidationException</a><wbr>(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.JObject,java.lang.String,java.lang.Throwable)" class="member-name-link">ValidationException</a><wbr>(<a href="JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.PermazenObject,java.lang.String,java.lang.Throwable)" class="member-name-link">ValidationException</a><wbr>(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;cause)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
 </div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.JObject,java.util.Set,java.lang.String)" class="member-name-link">ValidationException</a><wbr>(<a href="JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="JObject.html" title="interface in io.permazen">JObject</a>&gt;&gt;&nbsp;violations,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.PermazenObject,java.util.Set,java.lang.String)" class="member-name-link">ValidationException</a><wbr>(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;&gt;&nbsp;violations,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor.</div>
@@ -143,12 +143,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JObject.html" title="interface in io.permazen">JObject</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObject()" class="member-name-link">getObject</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the object that failed to validate.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="JObject.html" title="interface in io.permazen">JObject</a>&gt;&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getViolations()" class="member-name-link">getViolations</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the validation errors in case validation failed due to a failed JSR 303 validation check.</div>
@@ -174,43 +174,43 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.JObject,java.util.Set,java.lang.String)">
+<section class="detail" id="&lt;init&gt;(io.permazen.PermazenObject,java.util.Set,java.lang.String)">
 <h3>ValidationException</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ValidationException</span><wbr><span class="parameters">(<a href="JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="JObject.html" title="interface in io.permazen">JObject</a>&gt;&gt;&nbsp;violations,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ValidationException</span><wbr><span class="parameters">(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;&gt;&nbsp;violations,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</span></div>
 <div class="block">Constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jobj</code> - the object that failed validation</dd>
+<dd><code>pobj</code> - the object that failed validation</dd>
 <dd><code>violations</code> - JSR 303 validation errors, if any, otherwise null</dd>
 <dd><code>message</code> - exception message</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.JObject,java.lang.String)">
+<section class="detail" id="&lt;init&gt;(io.permazen.PermazenObject,java.lang.String)">
 <h3>ValidationException</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ValidationException</span><wbr><span class="parameters">(<a href="JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ValidationException</span><wbr><span class="parameters">(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</span></div>
 <div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jobj</code> - the object that failed validation</dd>
+<dd><code>pobj</code> - the object that failed validation</dd>
 <dd><code>message</code> - exception message</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.JObject,java.lang.String,java.lang.Throwable)">
+<section class="detail" id="&lt;init&gt;(io.permazen.PermazenObject,java.lang.String,java.lang.Throwable)">
 <h3>ValidationException</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ValidationException</span><wbr><span class="parameters">(<a href="JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ValidationException</span><wbr><span class="parameters">(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;cause)</span></div>
 <div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jobj</code> - the object that failed validation</dd>
+<dd><code>pobj</code> - the object that failed validation</dd>
 <dd><code>message</code> - exception message</dd>
 <dd><code>cause</code> - underlying cause, or null for none</dd>
 </dl>
@@ -227,7 +227,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getObject()">
 <h3>getObject</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JObject.html" title="interface in io.permazen">JObject</a></span>&nbsp;<span class="element-name">getObject</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a></span>&nbsp;<span class="element-name">getObject</span>()</div>
 <div class="block">Get the object that failed to validate.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -238,7 +238,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getViolations()">
 <h3>getViolations</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="JObject.html" title="interface in io.permazen">JObject</a>&gt;&gt;</span>&nbsp;<span class="element-name">getViolations</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;jakarta.validation.ConstraintViolation&lt;<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;&gt;</span>&nbsp;<span class="element-name">getViolations</span>()</div>
 <div class="block">Get the validation errors in case validation failed due to a failed JSR 303 validation check.</div>
 <dl class="notes">
 <dt>Returns:</dt>

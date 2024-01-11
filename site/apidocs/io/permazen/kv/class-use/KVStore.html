@@ -153,11 +153,11 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../../DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></code></div>
+<div class="col-first even-row-color"><code><a href="../../DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">Permazen.</span><code><a href="../../Permazen.html#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
  <a href="../../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Create a new <a href="../../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> based on the provided key/value store.</div>
+<div class="block">Create a new <a href="../../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> based on the provided key/value store.</div>
 </div>
 </div>
 </section>
@@ -527,19 +527,25 @@ loadScripts(document, 'script');</script>
  using individual transactions for each operation.</div>
 </div>
 <div class="col-first odd-row-color"><code>class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../mvcc/MemoryAtomicKVStore.html" class="type-name-link" title="class in io.permazen.kv.mvcc">MemoryAtomicKVStore</a></code></div>
+<div class="col-second odd-row-color"><code><a href="../mvcc/BranchedKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block">A <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
+ later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.</div>
+</div>
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../mvcc/MemoryAtomicKVStore.html" class="type-name-link" title="class in io.permazen.kv.mvcc">MemoryAtomicKVStore</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Provides a <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> view of an underlying <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ConcurrentNavigableMap.html" title="class or interface in java.util.concurrent" class="external-link"><code>ConcurrentNavigableMap&lt;byte[], byte[]&gt;</code></a>
  whose keys are sorted lexicographically as unsigned bytes.</div>
 </div>
-<div class="col-first even-row-color"><code>class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../mvcc/MutableView.html" class="type-name-link" title="class in io.permazen.kv.mvcc">MutableView</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../mvcc/MutableView.html" class="type-name-link" title="class in io.permazen.kv.mvcc">MutableView</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Straightforward implementation of the <a href="../mvcc/DeltaKVStore.html" title="interface in io.permazen.kv.mvcc"><code>DeltaKVStore</code></a> interface.</div>
 </div>
-<div class="col-first odd-row-color"><code>class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../mvcc/SnapshotKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../mvcc/SnapshotKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></code></div>
+<div class="col-last even-row-color">
 <div class="block"><a href="../mvcc/SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc"><code>SnapshotKVDatabase</code></a> transaction.</div>
 </div>
 </div>
@@ -554,12 +560,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Get the underlying <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">DeltaKVStore.</span><code><a href="../mvcc/DeltaKVStore.html#getKVStore()" class="member-name-link">getKVStore</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">DeltaKVStore.</span><code><a href="../mvcc/DeltaKVStore.html#getBaseKVStore()" class="member-name-link">getBaseKVStore</a>()</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Get the <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> that underlies this instance.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">MutableView.</span><code><a href="../mvcc/MutableView.html#getKVStore()" class="member-name-link">getKVStore</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">MutableView.</span><code><a href="../mvcc/MutableView.html#getBaseKVStore()" class="member-name-link">getBaseKVStore</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="caption"><span>Methods in <a href="../mvcc/package-summary.html">io.permazen.kv.mvcc</a> with parameters of type <a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a></span></div>
@@ -991,62 +997,57 @@ loadScripts(document, 'script');</script>
 <div class="block">Primary constructor.</div>
 </div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../util/CloseableForwardingKVStore.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">CloseableForwardingKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor for a do-nothing <a href="../util/CloseableForwardingKVStore.html#close()"><code>CloseableForwardingKVStore.close()</code></a>.</div>
-</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../util/CloseableForwardingKVStore.html#%3Cinit%3E(io.permazen.kv.KVStore,java.io.Closeable)" class="member-name-link">CloseableForwardingKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>&nbsp;resource)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Primary constructor.</div>
-</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../util/KVNavigableMap.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">KVNavigableMap</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor for when there are no range restrictions.</div>
-</div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../util/KVNavigableMap.html#%3Cinit%3E(io.permazen.kv.KVStore,boolean,io.permazen.kv.KeyRange,io.permazen.kv.KeyFilter)" class="member-name-link">KVNavigableMap</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
- boolean&nbsp;reversed,
- <a href="../KeyRange.html" title="class in io.permazen.kv">KeyRange</a>&nbsp;keyRange,
- <a href="../KeyFilter.html" title="interface in io.permazen.kv">KeyFilter</a>&nbsp;keyFilter)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Primary constructor.</div>
-</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../util/KVNavigableMap.html#%3Cinit%3E(io.permazen.kv.KVStore,byte%5B%5D)" class="member-name-link">KVNavigableMap</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
- byte[]&nbsp;prefix)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor for when the range of visible <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> keys is all keys sharing a given <code>byte[]</code> prefix.</div>
-</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../util/KVNavigableSet.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">KVNavigableSet</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor for when there are no range restrictions.</div>
-</div>
-<div class="col-first odd-row-color"><code>protected </code></div>
-<div class="col-second odd-row-color"><code><a href="../util/KVNavigableSet.html#%3Cinit%3E(io.permazen.kv.KVStore,boolean,io.permazen.kv.KeyRange,io.permazen.kv.KeyFilter)" class="member-name-link">KVNavigableSet</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
- boolean&nbsp;reversed,
- <a href="../KeyRange.html" title="class in io.permazen.kv">KeyRange</a>&nbsp;keyRange,
- <a href="../KeyFilter.html" title="interface in io.permazen.kv">KeyFilter</a>&nbsp;keyFilter)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Primary constructor.</div>
-</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../util/KVNavigableSet.html#%3Cinit%3E(io.permazen.kv.KVStore,byte%5B%5D)" class="member-name-link">KVNavigableSet</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
- byte[]&nbsp;prefix)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor for when the range of visible <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> keys is all keys sharing a given <code>byte[]</code> prefix.</div>
-</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../util/UnmodifiableKVStore.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">UnmodifiableKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore)</code></div>
+<div class="col-second odd-row-color"><code><a href="../util/CloseableForwardingKVStore.html#%3Cinit%3E(io.permazen.kv.KVStore,java.lang.Runnable)" class="member-name-link">CloseableForwardingKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;closeAction)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
 </div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../util/XMLSerializer.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">XMLSerializer</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
+<div class="col-second even-row-color"><code><a href="../util/KVNavigableMap.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">KVNavigableMap</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Constructor for when there are no range restrictions.</div>
+</div>
+<div class="col-first odd-row-color"><code>protected </code></div>
+<div class="col-second odd-row-color"><code><a href="../util/KVNavigableMap.html#%3Cinit%3E(io.permazen.kv.KVStore,boolean,io.permazen.kv.KeyRange,io.permazen.kv.KeyFilter)" class="member-name-link">KVNavigableMap</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
+ boolean&nbsp;reversed,
+ <a href="../KeyRange.html" title="class in io.permazen.kv">KeyRange</a>&nbsp;keyRange,
+ <a href="../KeyFilter.html" title="interface in io.permazen.kv">KeyFilter</a>&nbsp;keyFilter)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Primary constructor.</div>
+</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../util/KVNavigableMap.html#%3Cinit%3E(io.permazen.kv.KVStore,byte%5B%5D)" class="member-name-link">KVNavigableMap</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
+ byte[]&nbsp;prefix)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Constructor for when the range of visible <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> keys is all keys sharing a given <code>byte[]</code> prefix.</div>
+</div>
+<div class="col-first odd-row-color"><code>&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../util/KVNavigableSet.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">KVNavigableSet</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Constructor for when there are no range restrictions.</div>
+</div>
+<div class="col-first even-row-color"><code>protected </code></div>
+<div class="col-second even-row-color"><code><a href="../util/KVNavigableSet.html#%3Cinit%3E(io.permazen.kv.KVStore,boolean,io.permazen.kv.KeyRange,io.permazen.kv.KeyFilter)" class="member-name-link">KVNavigableSet</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
+ boolean&nbsp;reversed,
+ <a href="../KeyRange.html" title="class in io.permazen.kv">KeyRange</a>&nbsp;keyRange,
+ <a href="../KeyFilter.html" title="interface in io.permazen.kv">KeyFilter</a>&nbsp;keyFilter)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Primary constructor.</div>
+</div>
+<div class="col-first odd-row-color"><code>&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../util/KVNavigableSet.html#%3Cinit%3E(io.permazen.kv.KVStore,byte%5B%5D)" class="member-name-link">KVNavigableSet</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv,
+ byte[]&nbsp;prefix)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Constructor for when the range of visible <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> keys is all keys sharing a given <code>byte[]</code> prefix.</div>
+</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../util/UnmodifiableKVStore.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">UnmodifiableKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Constructor.</div>
+</div>
+<div class="col-first odd-row-color"><code>&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../util/XMLSerializer.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">XMLSerializer</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
 </div>
 </div>

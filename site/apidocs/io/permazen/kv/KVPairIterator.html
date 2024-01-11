@@ -85,9 +85,12 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="../util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a>&lt;<a href="KVPair.html" title="class in io.permazen.kv">KVPair</a>&gt;</span></div>
 <div class="block">An <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html" title="class or interface in java.util" class="external-link"><code>Iterator</code></a> that iterates over all key/value pairs in a <a href="KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> within a range of keys,
- without using the <a href="KVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)"><code>KVStore.getRange()</code></a> method. Therefore, it can be used to implement
- <a href="KVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)"><code>KVStore.getRange()</code></a> in <a href="KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> implementations that don't natively support iteration.
- Instances support forward or reverse iteration and <a href="#remove()"><code>java.util.Iterator.remove()</code></a>.
+ without using the <a href="KVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)"><code>KVStore.getRange()</code></a> method.
+
+ <p>
+ This class can be used to implement <a href="KVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)"><code>KVStore.getRange()</code></a> in <a href="KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> implementations that
+ don't natively support iteration. Instances support forward and reverse iteration and
+ <a href="#remove()"><code>java.util.Iterator.remove()</code></a>.
 
  <p>
  The iteration is instead implemented using <a href="KVStore.html#getAtLeast(byte%5B%5D,byte%5B%5D)"><code>KVStore.getAtLeast()</code></a>,

@@ -92,7 +92,7 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
  annotation to perform transactions on a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database.
 
  <p>
- Properly integrates with <a href="../JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a> to participate in
+ Properly integrates with <a href="../PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> to participate in
  existing transactions when appropriate.
 
  <p>
@@ -198,15 +198,15 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterPropertiesSet()" class="member-name-link">afterPropertiesSet</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureTransaction(io.permazen.JTransaction,org.springframework.transaction.TransactionDefinition)" class="member-name-link">configureTransaction</a><wbr>(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureTransaction(io.permazen.PermazenTransaction,org.springframework.transaction.TransactionDefinition)" class="member-name-link">configureTransaction</a><wbr>(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;jtx,
  <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/TransactionDefinition.html" title="class or interface in org.springframework.transaction" class="external-link">TransactionDefinition</a>&nbsp;txDef)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Configure a new transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(java.util.Map)" class="member-name-link">createTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;options)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create the underlying <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> for a new transaction.</div>
+<div class="block">Create the underlying <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> for a new transaction.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doBegin(java.lang.Object,org.springframework.transaction.TransactionDefinition)" class="member-name-link">doBegin</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;txObj,
@@ -238,10 +238,10 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Suspend the current transaction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCurrent()" class="member-name-link">getCurrent</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Like <a href="../JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a>, but returns null instead of throwing <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.</div>
+<div class="block">Like <a href="../PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a>, but returns null instead of throwing <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getResourceFactory()" class="member-name-link">getResourceFactory</a>()</code></div>
@@ -264,7 +264,7 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setValidateBeforeCommit(boolean)" class="member-name-link">setValidateBeforeCommit</a><wbr>(boolean&nbsp;validateBeforeCommit)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Configure whether to invoke <a href="../JTransaction.html#validate()"><code>JTransaction.validate()</code></a> just prior to commit (and prior to any
+<div class="block">Configure whether to invoke <a href="../PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a> just prior to commit (and prior to any
  synchronization callbacks).</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
@@ -394,7 +394,7 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <section class="detail" id="setValidateBeforeCommit(boolean)">
 <h3>setValidateBeforeCommit</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setValidateBeforeCommit</span><wbr><span class="parameters">(boolean&nbsp;validateBeforeCommit)</span></div>
-<div class="block">Configure whether to invoke <a href="../JTransaction.html#validate()"><code>JTransaction.validate()</code></a> just prior to commit (and prior to any
+<div class="block">Configure whether to invoke <a href="../PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a> just prior to commit (and prior to any
  synchronization callbacks). This also causes validation to be performed at the end of each inner
  transaction that is participating in an outer transaction.
  If set to false, validation still occurs, but only when the outermost transaction commits.
@@ -451,8 +451,8 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <li>
 <section class="detail" id="createTransaction(java.util.Map)">
 <h3>createTransaction</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;options)</span></div>
-<div class="block">Create the underlying <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> for a new transaction.
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;options)</span></div>
+<div class="block">Create the underlying <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> for a new transaction.
 
  <p>
  The implementation in <a href="PermazenTransactionManager.html" title="class in io.permazen.spring"><code>PermazenTransactionManager</code></a> just delegates to
@@ -462,7 +462,7 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <dt>Parameters:</dt>
 <dd><code>options</code> - transaction options</dd>
 <dt>Returns:</dt>
-<dd>newly created <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a></dd>
+<dd>newly created <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a></dd>
 <dt>Throws:</dt>
 <dd><code><a href="../core/DatabaseException.html" title="class in io.permazen.core">DatabaseException</a></code> - if an error occurs</dd>
 </dl>
@@ -492,9 +492,9 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 </section>
 </li>
 <li>
-<section class="detail" id="configureTransaction(io.permazen.JTransaction,org.springframework.transaction.TransactionDefinition)">
+<section class="detail" id="configureTransaction(io.permazen.PermazenTransaction,org.springframework.transaction.TransactionDefinition)">
 <h3>configureTransaction</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureTransaction</span><wbr><span class="parameters">(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureTransaction</span><wbr><span class="parameters">(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;jtx,
  <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/TransactionDefinition.html" title="class or interface in org.springframework.transaction" class="external-link">TransactionDefinition</a>&nbsp;txDef)</span></div>
 <div class="block">Configure a new transaction.
 
@@ -573,8 +573,8 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <li>
 <section class="detail" id="getCurrent()">
 <h3>getCurrent</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">getCurrent</span>()</div>
-<div class="block">Like <a href="../JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a>, but returns null instead of throwing <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">getCurrent</span>()</div>
+<div class="block">Like <a href="../PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a>, but returns null instead of throwing <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the transaction associated with the current thread, or null if there is none</dd>

@@ -149,7 +149,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../../JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first even-row-color"><code><a href="../../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">Permazen.</span><code><a href="../../Permazen.html#createTransaction(io.permazen.kv.KVTransaction,io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="../KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
  <a href="../../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color">
@@ -440,8 +440,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../mvcc/SnapshotKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></code></div>
+<div class="col-second even-row-color"><code><a href="../mvcc/BranchedKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">A <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
+ later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.</div>
+</div>
+<div class="col-first odd-row-color"><code>class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../mvcc/SnapshotKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block"><a href="../mvcc/SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc"><code>SnapshotKVDatabase</code></a> transaction.</div>
 </div>
 </div>

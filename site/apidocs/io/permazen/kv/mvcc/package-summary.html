@@ -99,62 +99,67 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Extension of the <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Conflict.html" title="class in io.permazen.kv.mvcc">Conflict</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="BranchedKVTransaction.html" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">A <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
+ later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Conflict.html" title="class in io.permazen.kv.mvcc">Conflict</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Represents an MVCC conflict.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Presents a mutable view of an underlying read-only <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> and records the mutations in memory.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MemoryAtomicKVStore.html" title="class in io.permazen.kv.mvcc">MemoryAtomicKVStore</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MemoryAtomicKVStore.html" title="class in io.permazen.kv.mvcc">MemoryAtomicKVStore</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Provides a <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> view of an underlying <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ConcurrentNavigableMap.html" title="class or interface in java.util.concurrent" class="external-link"><code>ConcurrentNavigableMap&lt;byte[], byte[]&gt;</code></a>
  whose keys are sorted lexicographically as unsigned bytes.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MutableView.html" title="class in io.permazen.kv.mvcc">MutableView</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MutableView.html" title="class in io.permazen.kv.mvcc">MutableView</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Straightforward implementation of the <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc"><code>DeltaKVStore</code></a> interface.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Mutations.html" title="interface in io.permazen.kv.mvcc">Mutations</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Mutations.html" title="interface in io.permazen.kv.mvcc">Mutations</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Represents a set of mutations that can be applied to a <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ReadAdjustConflict.html" title="class in io.permazen.kv.mvcc">ReadAdjustConflict</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ReadAdjustConflict.html" title="class in io.permazen.kv.mvcc">ReadAdjustConflict</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Represents an MVCC conflict in which a key that was read in one transaction was adjusted via
  <a href="../KVStore.html#adjustCounter(byte%5B%5D,long)"><code>KVStore.adjustCounter()</code></a> in another, simultaneous transaction.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ReadRemoveConflict.html" title="class in io.permazen.kv.mvcc">ReadRemoveConflict</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ReadRemoveConflict.html" title="class in io.permazen.kv.mvcc">ReadRemoveConflict</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Represents an MVCC conflict in which a key or range of keys that was read in one transaction was removed
  in another, simultaneous transaction.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Reads.html" title="class in io.permazen.kv.mvcc">Reads</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Reads.html" title="class in io.permazen.kv.mvcc">Reads</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Holds a set of reads from a <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ReadWriteConflict.html" title="class in io.permazen.kv.mvcc">ReadWriteConflict</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ReadWriteConflict.html" title="class in io.permazen.kv.mvcc">ReadWriteConflict</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Represents an MVCC conflict in which a key that was read in one transaction had its value changed
  in another, simultaneous transaction.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc">SnapshotKVDatabase</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc">SnapshotKVDatabase</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block"><a href="../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementation based on an underlying <a href="AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> using
  <a href="AtomicKVStore.html#readOnlySnapshot()">snapshot</a> views and optimistic locking to provide concurrent
  transactions and linearizable ACID consistency.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SnapshotKVTransaction.html" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SnapshotKVTransaction.html" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block"><a href="SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc"><code>SnapshotKVDatabase</code></a> transaction.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="TransactionConflictException.html" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="TransactionConflictException.html" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">Exception thrown when a transaction fails because of an MVCC conflict.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Writes.html" title="class in io.permazen.kv.mvcc">Writes</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Writes.html" title="class in io.permazen.kv.mvcc">Writes</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Holds a set of writes to a <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
 </div>

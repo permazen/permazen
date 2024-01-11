@@ -124,8 +124,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#apply(io.permazen.JTransaction,io.permazen.JObject)" class="member-name-link">apply</a><wbr>(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx,
- <a href="../JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#apply(io.permazen.PermazenTransaction,io.permazen.PermazenObject)" class="member-name-link">apply</a><wbr>(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;jtx,
+ <a href="../PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;jobj)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Apply this change to the given object in the given transaction.</div>
 </div>
@@ -156,7 +156,7 @@ loadScripts(document, 'script');</script>
 <code><a href="FieldChange.html#getFieldName()">getFieldName</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.change.Change">Methods inherited from class&nbsp;io.permazen.change.<a href="Change.html" title="class in io.permazen.change">Change</a></h3>
-<code><a href="Change.html#apply()">apply</a>, <a href="Change.html#apply(io.permazen.JObject)">apply</a>, <a href="Change.html#apply(io.permazen.JTransaction)">apply</a>, <a href="Change.html#getJObject()">getJObject</a>, <a href="Change.html#getObject()">getObject</a></code></div>
+<code><a href="Change.html#apply()">apply</a>, <a href="Change.html#apply(io.permazen.PermazenObject)">apply</a>, <a href="Change.html#apply(io.permazen.PermazenTransaction)">apply</a>, <a href="Change.html#getJObject()">getJObject</a>, <a href="Change.html#getObject()">getObject</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -215,15 +215,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="apply(io.permazen.JTransaction,io.permazen.JObject)">
+<section class="detail" id="apply(io.permazen.PermazenTransaction,io.permazen.PermazenObject)">
 <h3>apply</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">apply</span><wbr><span class="parameters">(<a href="../JTransaction.html" title="class in io.permazen">JTransaction</a>&nbsp;jtx,
- <a href="../JObject.html" title="interface in io.permazen">JObject</a>&nbsp;jobj)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="Change.html#apply(io.permazen.JTransaction,io.permazen.JObject)">Change</a></code></span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">apply</span><wbr><span class="parameters">(<a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a>&nbsp;jtx,
+ <a href="../PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;jobj)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="Change.html#apply(io.permazen.PermazenTransaction,io.permazen.PermazenObject)">Change</a></code></span></div>
 <div class="block">Apply this change to the given object in the given transaction.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="Change.html#apply(io.permazen.JTransaction,io.permazen.JObject)">apply</a></code>&nbsp;in class&nbsp;<code><a href="Change.html" title="class in io.permazen.change">Change</a>&lt;<a href="SetFieldRemove.html" title="type parameter in SetFieldRemove">T</a>&gt;</code></dd>
+<dd><code><a href="Change.html#apply(io.permazen.PermazenTransaction,io.permazen.PermazenObject)">apply</a></code>&nbsp;in class&nbsp;<code><a href="Change.html" title="class in io.permazen.change">Change</a>&lt;<a href="SetFieldRemove.html" title="type parameter in SetFieldRemove">T</a>&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>jtx</code> - the transaction in which to apply this change</dd>
 <dd><code>jobj</code> - the target object to which to apply this change</dd>

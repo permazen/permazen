@@ -82,7 +82,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Simple changes that only modify a simple field's type can often be handled automatically; see
- <a href="../UpgradeConversionPolicy.html" title="enum class in io.permazen"><code>UpgradeConversionPolicy</code></a>, <a href="JField.html#upgradeConversion()"><code>&#64;JField.upgradeConversion()</code></a>,
+ <a href="../UpgradeConversionPolicy.html" title="enum class in io.permazen"><code>UpgradeConversionPolicy</code></a>, <a href="PermazenField.html#upgradeConversion()"><code>&#64;PermazenField.upgradeConversion()</code></a>,
  and <a href="../encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)"><code>Encoding.convert()</code></a> for details.
 
  <p>
@@ -116,7 +116,7 @@ loadScripts(document, 'script');</script>
  </pre>
 
  <p>
- Note: <a href="../JCounterField.html" title="class in io.permazen">JCounterField</a> values are represented in <code>oldValues</code> as <code>Long</code>s.
+ Note: <a href="../PermazenCounterField.html" title="class in io.permazen">PermazenCounterField</a> values are represented in <code>oldValues</code> as <code>Long</code>s.
 
  <p>
  A class may have multiple <a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a>-annotated methods.
@@ -129,7 +129,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  First, if an object's type no longer exists in the new schema, migration is not possible, and any attempt to do so will
- throw a <a href="../core/TypeNotInSchemaException.html" title="class in io.permazen.core"><code>TypeNotInSchemaException</code></a>. Such objects are still accessible however (see <a href="../UntypedJObject.html" title="class in io.permazen"><code>UntypedJObject</code></a>).
+ throw a <a href="../core/TypeNotInSchemaException.html" title="class in io.permazen.core"><code>TypeNotInSchemaException</code></a>. Such objects are still accessible however (see <a href="../UntypedPermazenObject.html" title="class in io.permazen"><code>UntypedPermazenObject</code></a>).
 
  <p>
  Secondly, it's possible for an old field to have a value that simply doesn't exist in the new schema. When this happens,
@@ -145,7 +145,7 @@ loadScripts(document, 'script');</script>
  <p>
  Therefore, the following special rules apply to the <code>oldValues</code> map:
  <ul>
- <li>For a reference field whose type no longer exists, the referenced object will appear as an <a href="../UntypedJObject.html" title="class in io.permazen"><code>UntypedJObject</code></a>.
+ <li>For a reference field whose type no longer exists, the referenced object will appear as an <a href="../UntypedPermazenObject.html" title="class in io.permazen"><code>UntypedPermazenObject</code></a>.
  <li>For <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link"><code>Enum</code></a> fields, old values are always represented as <a href="../core/EnumValue.html" title="class in io.permazen.core"><code>EnumValue</code></a> objects.
       For consistency's sake, this is true <i>even if the associated field's type has not changed</i>.</li>
  </ul>
@@ -161,7 +161,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="see-list-long">
 <li><a href="../encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)"><code>Encoding.convert()</code></a></li>
-<li><a href="JField.html#upgradeConversion()"><code>&#64;JField.upgradeConversion()</code></a></li>
+<li><a href="PermazenField.html#upgradeConversion()"><code>&#64;PermazenField.upgradeConversion()</code></a></li>
 </ul>
 </dd>
 </dl>

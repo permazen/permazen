@@ -92,40 +92,6 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color class-summary class-summary-tab7"><a href="FollowPath.html" title="annotation interface in io.permazen.annotation">FollowPath</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab7">
-<div class="block">Annotates Java methods that should return all objects found at the far end of a <a href="../ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="JCompositeIndex.html" title="annotation interface in io.permazen.annotation">JCompositeIndex</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab7">
-<div class="block">Java annotation that defines a composite index.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab7"><a href="JCompositeIndexes.html" title="annotation interface in io.permazen.annotation">JCompositeIndexes</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab7">
-<div class="block">Container for the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Repeatable.html" title="class or interface in java.lang.annotation" class="external-link"><code>&#64;Repeatable</code></a> annotation <a href="JCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>JCompositeIndex</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="JField.html" title="annotation interface in io.permazen.annotation">JField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab7">
-<div class="block">Java annotation for defining simple fields (including reference fields that refer to other Java model object types)
- and <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> fields.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab7"><a href="JListField.html" title="annotation interface in io.permazen.annotation">JListField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab7">
-<div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> fields.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="JMapField.html" title="annotation interface in io.permazen.annotation">JMapField</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab7">
-<div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> fields.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab7"><a href="JSetField.html" title="annotation interface in io.permazen.annotation">JSetField</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab7">
-<div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link"><code>Set</code></a> fields.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="JTransient.html" title="annotation interface in io.permazen.annotation">JTransient</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab7">
-<div class="block">Eliminates the annotated method from consideration for Permazen field auto-generation.</div>
-</div>
 <div class="col-first even-row-color class-summary class-summary-tab7"><a href="OnChange.html" title="annotation interface in io.permazen.annotation">OnChange</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab7">
 <div class="block">Annotates methods to be invoked whenever some target field in some target object changes during a transaction.</div>
@@ -147,9 +113,43 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab7">
 <div class="block">Annotates a Permazen model class method that should be invoked any time the associated model object is validated.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="PermazenType.html" title="annotation interface in io.permazen.annotation">PermazenType</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation">PermazenCompositeIndex</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab7">
+<div class="block">Java annotation that defines a composite index.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab7"><a href="PermazenCompositeIndexes.html" title="annotation interface in io.permazen.annotation">PermazenCompositeIndexes</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab7">
+<div class="block">Container for the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Repeatable.html" title="class or interface in java.lang.annotation" class="external-link"><code>&#64;Repeatable</code></a> annotation <a href="PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>PermazenCompositeIndex</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="PermazenField.html" title="annotation interface in io.permazen.annotation">PermazenField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab7">
+<div class="block">Java annotation for defining simple fields (including reference fields that refer to other Java model object types)
+ and <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> fields.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab7"><a href="PermazenListField.html" title="annotation interface in io.permazen.annotation">PermazenListField</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab7">
+<div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> fields.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation">PermazenMapField</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab7">
+<div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> fields.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab7"><a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation">PermazenSetField</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab7">
+<div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link"><code>Set</code></a> fields.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="PermazenTransient.html" title="annotation interface in io.permazen.annotation">PermazenTransient</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab7">
+<div class="block">Eliminates the annotated method from consideration for Permazen field auto-generation.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab7"><a href="PermazenType.html" title="annotation interface in io.permazen.annotation">PermazenType</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab7">
 <div class="block">Java annotation for Java classes that represent Permazen database object types.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab7"><a href="ReferencePath.html" title="annotation interface in io.permazen.annotation">ReferencePath</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab7">
+<div class="block">Annotates Java methods that should return all objects found at the far end of a <a href="../ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a>.</div>
 </div>
 </div>
 </div>

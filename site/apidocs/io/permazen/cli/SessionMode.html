@@ -96,7 +96,7 @@ loadScripts(document, 'script');</script>
   <li>The core API database layer, providing <a href="../core/Database.html" title="class in io.permazen.core"><code>Database</code></a>
       and <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> and represented by <a href="#CORE_API"><code>CORE_API</code></a></li>
   <li>The Permazen Java layer, providing <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
-      and <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> and represented by <a href="#PERMAZEN"><code>PERMAZEN</code></a></li>
+      and <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> and represented by <a href="#PERMAZEN"><code>PERMAZEN</code></a></li>
  </ul></div>
 </section>
 <section class="summary">
@@ -152,7 +152,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPermazen()" class="member-name-link">hasPermazen</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Determine whether the Permazen Java API (e.g., <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>) based on a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
+<div class="block">Determine whether the Permazen Java API (e.g., <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>) based on a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
  instance is available in this mode.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
@@ -194,7 +194,7 @@ the order they are declared.</div>
 
  <p>
  This is the lowest level CLI mode, where only the raw <code>byte[]</code> key/value store is available.
- This mode provides a <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>, but no <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> or <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.</div>
+ This mode provides a <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>, but no <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> or <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -213,7 +213,7 @@ the order they are declared.</div>
 
  <p>
  Supports access to low level schema information, core API "objects" and fields, but no Java-specific operations.
- This mode provides a <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>, but no <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.
+ This mode provides a <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>, but no <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.
 
  <p>
  Schema information may be provided either by a schema XML file or by
@@ -231,7 +231,7 @@ the order they are declared.</div>
 <div class="block">Permazen Java mode.
 
  <p>
- Provides database access through standard Java model objects and transaction access via <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.
+ Provides database access through standard Java model objects and transaction access via <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.
  Requires and provides a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instance and its associated Java model classes.
 
  <p>
@@ -282,7 +282,7 @@ not permitted.)</div>
 <section class="detail" id="hasPermazen()">
 <h3>hasPermazen</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasPermazen</span>()</div>
-<div class="block">Determine whether the Permazen Java API (e.g., <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>) based on a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
+<div class="block">Determine whether the Permazen Java API (e.g., <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>) based on a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
  instance is available in this mode.</div>
 <dl class="notes">
 <dt>Returns:</dt>

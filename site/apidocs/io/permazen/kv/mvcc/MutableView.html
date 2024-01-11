@@ -175,7 +175,7 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
 <div class="block">Get the value associated with the given key, if any.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKVStore()" class="member-name-link">getKVStore</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBaseKVStore()" class="member-name-link">getBaseKVStore</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> that underlies this instance.</div>
 </div>
@@ -196,40 +196,45 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="Writes.html" title="class in io.permazen.kv.mvcc"><code>Writes</code></a> associated with this instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#put(byte%5B%5D,byte%5B%5D)" class="member-name-link">put</a><wbr>(byte[]&nbsp;key,
- byte[]&nbsp;value)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isReadOnly()" class="member-name-link">isReadOnly</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Determine if this instance is read-only.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#put(byte%5B%5D,byte%5B%5D)" class="member-name-link">put</a><wbr>(byte[]&nbsp;key,
+ byte[]&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the value associated with the given key.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#remove(byte%5B%5D)" class="member-name-link">remove</a><wbr>(byte[]&nbsp;key)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#remove(byte%5B%5D)" class="member-name-link">remove</a><wbr>(byte[]&nbsp;key)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeRange(byte%5B%5D,byte%5B%5D)" class="member-name-link">removeRange</a><wbr>(byte[]&nbsp;minKey,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeRange(byte%5B%5D,byte%5B%5D)" class="member-name-link">removeRange</a><wbr>(byte[]&nbsp;minKey,
  byte[]&nbsp;maxKey)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove all key/value pairs whose keys are in a given range.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKVStore(io.permazen.kv.KVStore)" class="member-name-link">setKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKVStore(io.permazen.kv.KVStore)" class="member-name-link">setKVStore</a><wbr>(<a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kv)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Swap out the underlying <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> associated with this instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadOnly()" class="member-name-link">setReadOnly</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadOnly()" class="member-name-link">setReadOnly</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Configure this instance as read-only.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withoutReadTracking(boolean,java.lang.Runnable)" class="member-name-link">withoutReadTracking</a><wbr>(boolean&nbsp;allowWrites,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withoutReadTracking(boolean,java.lang.Runnable)" class="member-name-link">withoutReadTracking</a><wbr>(boolean&nbsp;allowWrites,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Temporarily disable read tracking in the current thread while performing the given action.</div>
 </div>
 </div>
@@ -329,10 +334,10 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getKVStore()">
-<h3>getKVStore</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a></span>&nbsp;<span class="element-name">getKVStore</span>()</div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="DeltaKVStore.html#getKVStore()">DeltaKVStore</a></code></span></div>
+<section class="detail" id="getBaseKVStore()">
+<h3>getBaseKVStore</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a></span>&nbsp;<span class="element-name">getBaseKVStore</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="DeltaKVStore.html#getBaseKVStore()">DeltaKVStore</a></code></span></div>
 <div class="block">Get the <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> that underlies this instance.
 
  <p>
@@ -340,7 +345,7 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
  if this instance gets "rebased" on a newer underlying <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="DeltaKVStore.html#getKVStore()">getKVStore</a></code>&nbsp;in interface&nbsp;<code><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></code></dd>
+<dd><code><a href="DeltaKVStore.html#getBaseKVStore()">getBaseKVStore</a></code>&nbsp;in interface&nbsp;<code><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></code></dd>
 <dt>Returns:</dt>
 <dd>underlying <a href="../KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a></dd>
 </dl>
@@ -375,7 +380,7 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
  <a href="../KVStore.html#get(byte%5B%5D)"><code>get()</code></a>, <a href="../KVStore.html#getAtLeast(byte%5B%5D,byte%5B%5D)"><code>getAtLeast()</code></a>, <a href="../KVStore.html#getAtMost(byte%5B%5D,byte%5B%5D)"><code>getAtMost()</code></a>, and <a href="../KVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)"><code>getRange()</code></a>.
 
  <p>
- The returned object is "live" and should only be accessed while synchronized on this instance.
+ The returned object is "live" and should only be accessed while synchronized on <i>this</i> instance.
 
  <p>
  The read tracking may be imprecise, as long as all actual reads are included. For example, if keys <code>10001</code>,
@@ -399,7 +404,7 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
 <div class="block">Get the <a href="Writes.html" title="class in io.permazen.kv.mvcc"><code>Writes</code></a> associated with this instance.
 
  <p>
- The returned object is "live" and should only be accessed while synchronized on this instance.</div>
+ The returned object is "live" and should only be accessed while synchronized on <i>this</i> instance.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="DeltaKVStore.html#getWrites()">getWrites</a></code>&nbsp;in interface&nbsp;<code><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></code></dd>
@@ -436,13 +441,30 @@ implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">
 
  <p>
  If <code>allowWrites</code> is false, then any write attempts by <code>action</code> will provoke an
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.</div>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.
+
+ <p>
+ Read tracking is disabled only for the current thread, and it ends when this method returns.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="DeltaKVStore.html#withoutReadTracking(boolean,java.lang.Runnable)">withoutReadTracking</a></code>&nbsp;in interface&nbsp;<code><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></code></dd>
 <dt>Parameters:</dt>
-<dd><code>allowWrites</code> - whether to allow writes</dd>
+<dd><code>allowWrites</code> - whether to allow writes (usually this is a bad idea)</dd>
 <dd><code>action</code> - the action to perform</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isReadOnly()">
+<h3>isReadOnly</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isReadOnly</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="DeltaKVStore.html#isReadOnly()">DeltaKVStore</a></code></span></div>
+<div class="block">Determine if this instance is read-only.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="DeltaKVStore.html#isReadOnly()">isReadOnly</a></code>&nbsp;in interface&nbsp;<code><a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></code></dd>
+<dt>Returns:</dt>
+<dd>true if this instance is read-only, otherwise false</dd>
 </dl>
 </section>
 </li>

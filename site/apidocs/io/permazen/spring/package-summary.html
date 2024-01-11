@@ -82,10 +82,10 @@ loadScripts(document, 'script');</script>
       <ul>
       <li><a href="KVStoreHttpMessageConverter.html" title="class in io.permazen.spring"><code>KVStoreHttpMessageConverter</code></a> for encoding/decoding a raw
           <a href="../kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a></li>
-      <li><a href="DetachedJTransactionHttpMessageConverter.html" title="class in io.permazen.spring"><code>DetachedJTransactionHttpMessageConverter</code></a> for encoding/decoding an entire
-          <a href="../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a></li>
-      <li><a href="JObjectHttpMessageConverter.html" title="class in io.permazen.spring"><code>JObjectHttpMessageConverter</code></a> for encoding/decoding a specific
-          <a href="../JObject.html" title="interface in io.permazen"><code>JObject</code></a> within a <a href="../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a></li>
+      <li><a href="DetachedPermazenTransactionHttpMessageConverter.html" title="class in io.permazen.spring"><code>DetachedPermazenTransactionHttpMessageConverter</code></a> for encoding/decoding an entire
+          <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a></li>
+      <li><a href="PermazenObjectHttpMessageConverter.html" title="class in io.permazen.spring"><code>PermazenObjectHttpMessageConverter</code></a> for encoding/decoding a specific
+          <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> within a <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a></li>
       </ul>
   </li>
  </ul>
@@ -211,34 +211,34 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Scans the classpath for classes having one or more configured type annotations.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="DetachedJTransactionHttpMessageConverter.html" title="class in io.permazen.spring">DetachedJTransactionHttpMessageConverter</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="DetachedPermazenTransactionHttpMessageConverter.html" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
- encoding and decoding a graph of <a href="../JObject.html" title="interface in io.permazen"><code>JObject</code></a>s contained in a <a href="../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> that is
+ encoding and decoding a graph of <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> that is
  backed by a <a href="../kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JObjectHttpMessageConverter.html" title="class in io.permazen.spring">JObjectHttpMessageConverter</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="KVStoreHttpMessageConverter.html" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
- encoding and decoding one or more <a href="../JObject.html" title="interface in io.permazen"><code>JObject</code></a>s contained in a <a href="../DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a>.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="KVStoreHttpMessageConverter.html" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>
  capable of encoding and decoding a <a href="../kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenClassScanner.html" title="class in io.permazen.spring">PermazenClassScanner</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenClassScanner.html" title="class in io.permazen.spring">PermazenClassScanner</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Scans the classpath for types annotated as <a href="../annotation/PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenExceptionTranslator.html" title="class in io.permazen.spring">PermazenExceptionTranslator</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenExceptionTranslator.html" title="class in io.permazen.spring">PermazenExceptionTranslator</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Permazen implementation of Spring's <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a> interface.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenNamespaceHandler.html" title="class in io.permazen.spring">PermazenNamespaceHandler</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenNamespaceHandler.html" title="class in io.permazen.spring">PermazenNamespaceHandler</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link"><code>NamespaceHandler</code></a>
  for the <code>permazen</code> XML namespace.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenObjectHttpMessageConverter.html" title="class in io.permazen.spring">PermazenObjectHttpMessageConverter</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
+ encoding and decoding one or more <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenTransactionManager.html" title="class in io.permazen.spring">PermazenTransactionManager</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">

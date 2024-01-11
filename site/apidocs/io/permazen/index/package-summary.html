@@ -73,20 +73,20 @@ loadScripts(document, 'script');</script>
  or a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link"><code>NavigableMap</code></a><code>&lt;Integer, </code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link"><code>NavigableSet</code></a><code>&lt;User&gt;&gt;</code>.
 
  <p>
- Indexes are accessible through the <a href="../JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> API:
+ Indexes are accessible through the <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> API:
  <ul>
-  <li><a href="../JTransaction.html#querySimpleIndex(java.lang.Class,java.lang.String,java.lang.Class)"><code>JTransaction.querySimpleIndex()</code></a>
+  <li><a href="../PermazenTransaction.html#querySimpleIndex(java.lang.Class,java.lang.String,java.lang.Class)"><code>PermazenTransaction.querySimpleIndex()</code></a>
       - Access the index associated with a simple field</li>
-  <li><a href="../JTransaction.html#queryListElementIndex(java.lang.Class,java.lang.String,java.lang.Class)"><code>JTransaction.queryListElementIndex()</code></a>
+  <li><a href="../PermazenTransaction.html#queryListElementIndex(java.lang.Class,java.lang.String,java.lang.Class)"><code>PermazenTransaction.queryListElementIndex()</code></a>
       - Access the composite index associated with a list field that includes corresponding list indices</li>
-  <li><a href="../JTransaction.html#queryMapValueIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>JTransaction.queryMapValueIndex()</code></a>
+  <li><a href="../PermazenTransaction.html#queryMapValueIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryMapValueIndex()</code></a>
       - Access the composite index associated with a map value field that includes corresponding map keys</li>
-  <li><a href="../JTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>JTransaction.queryCompositeIndex()</code></a>
+  <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a>
       - Access a composite index defined on two fields</li>
-  <li><a href="../JTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class,java.lang.Class)"><code>JTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on three fields</li>
-  <li><a href="../JTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class,java.lang.Class,java.lang.Class)"><code>JTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on four fields</li>
+  <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on three fields</li>
+  <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on four fields</li>
   <!-- COMPOSITE-INDEX -->
-  <li><a href="../JTransaction.html#querySchemaIndex(java.lang.Class)"><code>JTransaction.querySchemaIndex()</code></a>
+  <li><a href="../PermazenTransaction.html#querySchemaIndex(java.lang.Class)"><code>PermazenTransaction.querySchemaIndex()</code></a>
       - Get database objects grouped according to their schema versions</li>
  </ul>
 
@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  A simple index on a single field value is created by setting <code>indexed="true"</code> on the
- <a href="../annotation/JField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JField</code></a> annotation.
+ <a href="../annotation/PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a> annotation.
 
  <p>
  Composite indexes on multiple fields are also supported. These are useful when the target type needs to be sorted

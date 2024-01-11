@@ -79,7 +79,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="array/ArrayKVTransaction.html" title="class in io.permazen.kv.array">ArrayKVTransaction</a></code>, <code><a href="bdb/BerkeleyKVTransaction.html" title="class in io.permazen.kv.bdb">BerkeleyKVTransaction</a></code>, <code><a href="lmdb/ByteArrayLMDBKVTransaction.html" title="class in io.permazen.kv.lmdb">ByteArrayLMDBKVTransaction</a></code>, <code><a href="caching/CachingKVTransaction.html" title="class in io.permazen.kv.caching">CachingKVTransaction</a></code>, <code><a href="raft/fallback/FallbackKVTransaction.html" title="class in io.permazen.kv.raft.fallback">FallbackKVTransaction</a></code>, <code><a href="fdb/FoundationKVTransaction.html" title="class in io.permazen.kv.fdb">FoundationKVTransaction</a></code>, <code><a href="leveldb/LevelDBKVTransaction.html" title="class in io.permazen.kv.leveldb">LevelDBKVTransaction</a></code>, <code><a href="lmdb/LMDBKVTransaction.html" title="class in io.permazen.kv.lmdb">LMDBKVTransaction</a></code>, <code><a href="mvstore/MVStoreKVTransaction.html" title="class in io.permazen.kv.mvstore">MVStoreKVTransaction</a></code>, <code><a href="util/PrefixKVTransaction.html" title="class in io.permazen.kv.util">PrefixKVTransaction</a></code>, <code><a href="raft/RaftKVTransaction.html" title="class in io.permazen.kv.raft">RaftKVTransaction</a></code>, <code><a href="simple/SimpleKVTransaction.html" title="class in io.permazen.kv.simple">SimpleKVTransaction</a></code>, <code><a href="mvcc/SnapshotKVTransaction.html" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></code>, <code><a href="spanner/SpannerKVTransaction.html" title="class in io.permazen.kv.spanner">SpannerKVTransaction</a></code>, <code><a href="sql/SQLKVTransaction.html" title="class in io.permazen.kv.sql">SQLKVTransaction</a></code>, <code><a href="simple/XMLKVTransaction.html" title="class in io.permazen.kv.simple">XMLKVTransaction</a></code>, <code><a href="xodus/XodusKVTransaction.html" title="class in io.permazen.kv.xodus">XodusKVTransaction</a></code></dd>
+<dd><code><a href="array/ArrayKVTransaction.html" title="class in io.permazen.kv.array">ArrayKVTransaction</a></code>, <code><a href="bdb/BerkeleyKVTransaction.html" title="class in io.permazen.kv.bdb">BerkeleyKVTransaction</a></code>, <code><a href="mvcc/BranchedKVTransaction.html" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></code>, <code><a href="lmdb/ByteArrayLMDBKVTransaction.html" title="class in io.permazen.kv.lmdb">ByteArrayLMDBKVTransaction</a></code>, <code><a href="caching/CachingKVTransaction.html" title="class in io.permazen.kv.caching">CachingKVTransaction</a></code>, <code><a href="raft/fallback/FallbackKVTransaction.html" title="class in io.permazen.kv.raft.fallback">FallbackKVTransaction</a></code>, <code><a href="fdb/FoundationKVTransaction.html" title="class in io.permazen.kv.fdb">FoundationKVTransaction</a></code>, <code><a href="leveldb/LevelDBKVTransaction.html" title="class in io.permazen.kv.leveldb">LevelDBKVTransaction</a></code>, <code><a href="lmdb/LMDBKVTransaction.html" title="class in io.permazen.kv.lmdb">LMDBKVTransaction</a></code>, <code><a href="mvstore/MVStoreKVTransaction.html" title="class in io.permazen.kv.mvstore">MVStoreKVTransaction</a></code>, <code><a href="util/PrefixKVTransaction.html" title="class in io.permazen.kv.util">PrefixKVTransaction</a></code>, <code><a href="raft/RaftKVTransaction.html" title="class in io.permazen.kv.raft">RaftKVTransaction</a></code>, <code><a href="simple/SimpleKVTransaction.html" title="class in io.permazen.kv.simple">SimpleKVTransaction</a></code>, <code><a href="mvcc/SnapshotKVTransaction.html" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></code>, <code><a href="spanner/SpannerKVTransaction.html" title="class in io.permazen.kv.spanner">SpannerKVTransaction</a></code>, <code><a href="sql/SQLKVTransaction.html" title="class in io.permazen.kv.sql">SQLKVTransaction</a></code>, <code><a href="simple/XMLKVTransaction.html" title="class in io.permazen.kv.simple">XMLKVTransaction</a></code>, <code><a href="xodus/XodusKVTransaction.html" title="class in io.permazen.kv.xodus">XodusKVTransaction</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">KVTransaction</span><span class="extends-implements">
@@ -257,6 +257,7 @@ extends <a href="KVStore.html" title="interface in io.permazen.kv">KVStore</a></
   <li><a href="#setReadOnly(boolean)"><code>setReadOnly()</code></a> may only be invoked prior to mutating data; and/or</li>
   <li>Once set to read-only, a transaction may not be set back to read-write</li>
  </ul>
+ If one of the above constraints is violated, an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a> is thrown.
 
  <p>
  Note: for some implementations, the data read from a transaction that is never <a href="#commit()"><code>commit()</code></a>'ed is
@@ -297,7 +298,7 @@ extends <a href="KVStore.html" title="interface in io.permazen.kv">KVStore</a></
  to multiple objects and/or fields can detected and consolidated using an
  <a href="../annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> method that increments a single <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a>
  field, whose key is then watched (to determine the key corresponding to a Java model object field, use
- <a href="../JField.html#getKey(io.permazen.JObject)"><code>JField.getKey()</code></a>).
+ <a href="../PermazenField.html#getKey(io.permazen.PermazenObject)"><code>PermazenField.getKey()</code></a>).
 
  <p>
  Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
@@ -342,8 +343,8 @@ extends <a href="KVStore.html" title="interface in io.permazen.kv">KVStore</a></
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="../JTransaction.html#getKey(io.permazen.JObject)"><code>JTransaction.getKey()</code></a></li>
-<li><a href="../JField.html#getKey(io.permazen.JObject)"><code>JField.getKey()</code></a></li>
+<li><a href="../PermazenTransaction.html#getKey(io.permazen.PermazenObject)"><code>PermazenTransaction.getKey()</code></a></li>
+<li><a href="../PermazenField.html#getKey(io.permazen.PermazenObject)"><code>PermazenField.getKey()</code></a></li>
 </ul>
 </dd>
 </dl>
@@ -386,7 +387,7 @@ extends <a href="KVStore.html" title="interface in io.permazen.kv">KVStore</a></
  <p>
  This method may be invoked at any time, even after a previous invocation of
  <a href="#commit()"><code>commit()</code></a> or <a href="#rollback()"><code>rollback()</code></a>, in which case the invocation will be ignored.
- In particular, this method should <b>not</b> throw <a href="StaleTransactionException.html" title="class in io.permazen.kv"><code>StaleTransactionException</code></a>.</div>
+ In particular, this method must <b>not</b> throw <a href="StaleTransactionException.html" title="class in io.permazen.kv"><code>StaleTransactionException</code></a>.</div>
 </section>
 </li>
 <li>

@@ -99,30 +99,30 @@ loadScripts(document, 'script');</script>
       It sits on top of the core API layer and provides a fully "Java" view of the underlying data where all data access
       is through user-supplied Java model classes. All schema definition and listener registrations are inferred from
       <a href="annotation/package-summary.html">Java annotations</a>. Incremental JSR 303 validation is supported.
-      The <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> class represents an instance of this top layer database, and <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>
+      The <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> class represents an instance of this top layer database, and <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>
       represents the corresonding transactions.</li>
   </ul>
 
  <p>
  User-provided Java model classes define database fields by declaring abstract Java bean methods;
  <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> generates concrete subclasses of the user-provided abstract model classes at runtime.
- These runtime classes will implement the Java bean methods as well as the <a href="JObject.html" title="interface in io.permazen"><code>JObject</code></a> interface.
- Instances of Java model classes are always associated with a specific <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>, and all of
+ These runtime classes will implement the Java bean methods as well as the <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> interface.
+ Instances of Java model classes are always associated with a specific <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>, and all of
  their state derives from the underlying key/value <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.
 
  <p>
  Java model class instances have a unique <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a> which represents database identity.
- <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> guarantees that at most one Java instance will exist for any given <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> and <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>.
+ <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> guarantees that at most one Java instance will exist for any given <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> and <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>.
 
  <p>
- New instance creation, index queries, and certain other database-related tasks are initiated through a <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a>.
+ New instance creation, index queries, and certain other database-related tasks are initiated through a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.
  Normal database transactions are created via <a href="#createTransaction()"><code>createTransaction()</code></a>. Detached transactions are
  purely in-memory transactions that are detached from the database and may persist indefinitely; their purpose is to hold a
  snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,
  they function like normal transactions, with support for index queries, listener callbacks, etc. See
- <a href="JTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)"><code>JTransaction.createDetachedTransaction()</code></a>,
- <a href="JTransaction.html#getDetachedTransaction()"><code>JTransaction.getDetachedTransaction()</code></a>, <a href="JObject.html#copyOut(java.lang.String...)"><code>JObject.copyOut()</code></a>, and
- <a href="JObject.html#copyIn(java.lang.String...)"><code>JObject.copyIn()</code></a>.
+ <a href="PermazenTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)"><code>PermazenTransaction.createDetachedTransaction()</code></a>,
+ <a href="PermazenTransaction.html#getDetachedTransaction()"><code>PermazenTransaction.getDetachedTransaction()</code></a>, <a href="PermazenObject.html#copyOut(java.lang.String...)"><code>PermazenObject.copyOut()</code></a>, and
+ <a href="PermazenObject.html#copyIn(java.lang.String...)"><code>PermazenObject.copyIn()</code></a>.
 
  <p><b>Initialization</b>
 
@@ -135,8 +135,8 @@ loadScripts(document, 'script');</script>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="JObject.html" title="interface in io.permazen"><code>JObject</code></a></li>
-<li><a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a></li>
+<li><a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a></li>
+<li><a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a></li>
 <li><a href="PermazenConfig.html" title="class in io.permazen"><code>PermazenConfig</code></a></li>
 <li><a href="annotation/package-summary.html"><code>io.permazen.annotation</code></a></li>
 <li><a href="https://github.com/permazen/permazen/">Permazen GitHub Page</a></li>
@@ -194,88 +194,88 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Build the <a href="core/TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a> for a new core API transaction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
  <a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> based on the provided key/value store.</div>
+<div class="block">Create a new <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> based on the provided key/value store.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createDetachedTransaction(io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new, empty <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> backed by a <a href="kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
+<div class="block">Create a new, empty <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> backed by a <a href="kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction()" class="member-name-link">createTransaction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create a new transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(io.permazen.kv.KVTransaction,io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
  <a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create a new transaction using an already-opened <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create a new transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(io.permazen.ValidationMode,java.util.Map)" class="member-name-link">createTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create a new transaction with key/value transaction options.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="JClass.html" title="class in io.permazen">JClass</a>&lt;? super T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findJClass(java.lang.Class)" class="member-name-link">findJClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;? super T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findPermazenClass(java.lang.Class)" class="member-name-link">findPermazenClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Find the most specific <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> for which the give type is a sub-type of the corresponding Java model type.</div>
+<div class="block">Find the most specific <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> for which the give type is a sub-type of the corresponding Java model type.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="core/Database.html" title="class in io.permazen.core">Database</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDatabase()" class="member-name-link">getDatabase</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the core API <a href="core/Database.html" title="class in io.permazen.core"><code>Database</code></a> underlying this instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClass(int)" class="member-name-link">getJClass</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClass(int)" class="member-name-link">getPermazenClass</a><wbr>(int&nbsp;storageId)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> associated with the given storage ID.</div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the given storage ID.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClass(io.permazen.core.ObjId)" class="member-name-link">getJClass</a><wbr>(<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClass(io.permazen.core.ObjId)" class="member-name-link">getPermazenClass</a><wbr>(<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> associated with the object ID.</div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the object ID.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="JClass.html" title="class in io.permazen">JClass</a>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClass(java.lang.Class)" class="member-name-link">getJClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClass(java.lang.Class)" class="member-name-link">getPermazenClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> modeled by the given type.</div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> modeled by the given type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClass(java.lang.String)" class="member-name-link">getJClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClass(java.lang.String)" class="member-name-link">getPermazenClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> associated with the given object type name.</div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the given object type name.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="JClass.html" title="class in io.permazen">JClass</a>&lt;? extends T&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClasses(java.lang.Class)" class="member-name-link">getJClasses</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;? extends T&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClasses(java.lang.Class)" class="member-name-link">getPermazenClasses</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>es which sub-type the given type.</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>es which sub-type the given type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClassesByName()" class="member-name-link">getJClassesByName</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClassesByName()" class="member-name-link">getPermazenClassesByName</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>'s associated with this instance, indexed by object type name.</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>'s associated with this instance, indexed by object type name.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClassesByStorageId()" class="member-name-link">getJClassesByStorageId</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClassesByStorageId()" class="member-name-link">getPermazenClassesByStorageId</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>'s associated with this instance, indexed by storage ID.</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>'s associated with this instance, indexed by storage ID.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;,<wbr><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJClassesByType()" class="member-name-link">getJClassesByType</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;,<wbr><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenClassesByType()" class="member-name-link">getPermazenClassesByType</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>'s associated with this instance, indexed by Java model type.</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>'s associated with this instance, indexed by Java model type.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaModel()" class="member-name-link">getSchemaModel</a>()</code></div>
@@ -305,7 +305,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Parse a <a href="ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a> starting from a Java type.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ReferencePath.html" title="class in io.permazen">ReferencePath</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#parseReferencePath(java.util.Set,java.lang.String)" class="member-name-link">parseReferencePath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;&nbsp;startTypes,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#parseReferencePath(java.util.Set,java.lang.String)" class="member-name-link">parseReferencePath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;&nbsp;startTypes,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Parse a <a href="ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a> starting from a set of model object types.</div>
@@ -411,7 +411,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createTransaction()">
 <h3>createTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span>()</div>
 <div class="block">Create a new transaction.
 
  <p>
@@ -430,7 +430,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createTransaction(io.permazen.ValidationMode)">
 <h3>createTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
 <div class="block">Create a new transaction.
 
  <p>
@@ -452,16 +452,16 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createTransaction(io.permazen.ValidationMode,java.util.Map)">
 <h3>createTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</span></div>
 <div class="block">Create a new transaction with key/value transaction options.
 
  <p>
- This does not invoke <a href="JTransaction.html#setCurrent(io.permazen.JTransaction)"><code>JTransaction.setCurrent()</code></a>: the caller is responsible
+ This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>: the caller is responsible
  for doing that if necessary. However, this method does arrange for
- <a href="JTransaction.html#setCurrent(io.permazen.JTransaction)"><code>JTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
- returned transaction is committed (or rolled back), assuming <a href="JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a> returns the
- <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> returned here at that time.</div>
+ <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
+ returned transaction is committed (or rolled back), assuming <a href="PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> returns the
+ <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> returned here at that time.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>validationMode</code> - the <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> to use for the new transaction</dd>
@@ -477,16 +477,16 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createTransaction(io.permazen.kv.KVTransaction,io.permazen.ValidationMode)">
 <h3>createTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JTransaction.html" title="class in io.permazen">JTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
  <a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
 <div class="block">Create a new transaction using an already-opened <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.
 
  <p>
- This does not invoke <a href="JTransaction.html#setCurrent(io.permazen.JTransaction)"><code>JTransaction.setCurrent()</code></a>: the caller is responsible
+ This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>: the caller is responsible
  for doing that if necessary. However, this method does arrange for
- <a href="JTransaction.html#setCurrent(io.permazen.JTransaction)"><code>JTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
- returned transaction is committed (or rolled back), assuming <a href="JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a> returns the
- <a href="JTransaction.html" title="class in io.permazen"><code>JTransaction</code></a> returned here at that time.</div>
+ <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
+ returned transaction is committed (or rolled back), assuming <a href="PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> returns the
+ <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> returned here at that time.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kvt</code> - already opened key/value store transaction</dd>
@@ -502,12 +502,12 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createDetachedTransaction(io.permazen.ValidationMode)">
 <h3>createDetachedTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></span>&nbsp;<span class="element-name">createDetachedTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
-<div class="block">Create a new, empty <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> backed by a <a href="kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></span>&nbsp;<span class="element-name">createDetachedTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
+<div class="block">Create a new, empty <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> backed by a <a href="kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.
 
  <p>
- The returned <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> does not support <a href="DetachedJTransaction.html#commit()"><code>commit()</code></a> or
- <a href="DetachedJTransaction.html#rollback()"><code>rollback()</code></a>, and can be used indefinitely.</div>
+ The returned <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> does not support <a href="DetachedPermazenTransaction.html#commit()"><code>commit()</code></a> or
+ <a href="DetachedPermazenTransaction.html#rollback()"><code>rollback()</code></a>, and can be used indefinitely.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>validationMode</code> - the <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> to use for the detached transaction</dd>
@@ -519,21 +519,21 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.ValidationMode)">
 <h3>createDetachedTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DetachedJTransaction.html" title="class in io.permazen">DetachedJTransaction</a></span>&nbsp;<span class="element-name">createDetachedTransaction</span><wbr><span class="parameters">(<a href="kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></span>&nbsp;<span class="element-name">createDetachedTransaction</span><wbr><span class="parameters">(<a href="kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
  <a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
-<div class="block">Create a new <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> based on the provided key/value store.
+<div class="block">Create a new <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> based on the provided key/value store.
 
  <p>
  The key/value store will be initialized if necessary (i.e., <code>kvstore</code> may be empty), otherwise it will be
  validated against the schema information associated with this instance.
 
  <p>
- The returned <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> does not support <a href="DetachedJTransaction.html#commit()"><code>commit()</code></a> or
- <a href="DetachedJTransaction.html#rollback()"><code>rollback()</code></a>, and can be used indefinitely.
+ The returned <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> does not support <a href="DetachedPermazenTransaction.html#commit()"><code>commit()</code></a> or
+ <a href="DetachedPermazenTransaction.html#rollback()"><code>rollback()</code></a>, and can be used indefinitely.
 
  <p>
  If <code>kvstore</code> is a <a href="kv/CloseableKVStore.html" title="interface in io.permazen.kv"><code>CloseableKVStore</code></a>, then it will be <a href="kv/CloseableKVStore.html#close()"><code>close()</code></a>'d
- if/when the returned <a href="DetachedJTransaction.html" title="class in io.permazen"><code>DetachedJTransaction</code></a> is.</div>
+ if/when the returned <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> is.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kvstore</code> - key/value store, empty or having content compatible with this transaction's <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a></dd>
@@ -593,28 +593,28 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClassesByName()">
-<h3>getJClassesByName</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">getJClassesByName</span>()</div>
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>'s associated with this instance, indexed by object type name.</div>
+<section class="detail" id="getPermazenClassesByName()">
+<h3>getPermazenClassesByName</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">getPermazenClassesByName</span>()</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>'s associated with this instance, indexed by object type name.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>read-only mapping from object type name to <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a></dd>
+<dd>read-only mapping from object type name to <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a></dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClass(java.lang.String)">
-<h3>getJClass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getJClass</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</span></div>
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> associated with the given object type name.</div>
+<section class="detail" id="getPermazenClass(java.lang.String)">
+<h3>getPermazenClass</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getPermazenClass</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</span></div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the given object type name.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>typeName</code> - object type name</dd>
 <dt>Returns:</dt>
-<dd><a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> instance</dd>
+<dd><a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> instance</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/UnknownTypeException.html" title="class in io.permazen.core">UnknownTypeException</a></code> - if <code>typeName</code> is unknown</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>typeName</code> is null</dd>
@@ -623,43 +623,43 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClassesByStorageId()">
-<h3>getJClassesByStorageId</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">getJClassesByStorageId</span>()</div>
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>'s associated with this instance, indexed by storage ID.</div>
+<section class="detail" id="getPermazenClassesByStorageId()">
+<h3>getPermazenClassesByStorageId</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">getPermazenClassesByStorageId</span>()</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>'s associated with this instance, indexed by storage ID.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>read-only mapping from storage ID to <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a></dd>
+<dd>read-only mapping from storage ID to <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a></dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClassesByType()">
-<h3>getJClassesByType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;,<wbr><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">getJClassesByType</span>()</div>
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>'s associated with this instance, indexed by Java model type.</div>
+<section class="detail" id="getPermazenClassesByType()">
+<h3>getPermazenClassesByType</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;,<wbr><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">getPermazenClassesByType</span>()</div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>'s associated with this instance, indexed by Java model type.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>read-only mapping from Java model type to <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a></dd>
+<dd>read-only mapping from Java model type to <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a></dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClass(java.lang.Class)">
-<h3>getJClass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;T&gt;</span>&nbsp;<span class="element-name">getJClass</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> modeled by the given type.</div>
+<section class="detail" id="getPermazenClass(java.lang.Class)">
+<h3>getPermazenClass</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;T&gt;</span>&nbsp;<span class="element-name">getPermazenClass</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> modeled by the given type.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>T</code> - Java model type</dd>
 <dt>Parameters:</dt>
 <dd><code>type</code> - an annotated Java object model type</dd>
 <dt>Returns:</dt>
-<dd>associated <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a></dd>
+<dd>associated <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a></dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>type</code> is not equal to a known Java object model type</dd>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
@@ -667,32 +667,32 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="findJClass(java.lang.Class)">
-<h3>findJClass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;? super T&gt;</span>&nbsp;<span class="element-name">findJClass</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
-<div class="block">Find the most specific <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> for which the give type is a sub-type of the corresponding Java model type.</div>
+<section class="detail" id="findPermazenClass(java.lang.Class)">
+<h3>findPermazenClass</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;? super T&gt;</span>&nbsp;<span class="element-name">findPermazenClass</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
+<div class="block">Find the most specific <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> for which the give type is a sub-type of the corresponding Java model type.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>T</code> - Java model type or subtype thereof</dd>
 <dt>Parameters:</dt>
 <dd><code>type</code> - (sub)type of some Java object model type</dd>
 <dt>Returns:</dt>
-<dd>narrowest <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> whose Java object model type is a supertype of <code>type</code>, or null if none found</dd>
+<dd>narrowest <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> whose Java object model type is a supertype of <code>type</code>, or null if none found</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClass(io.permazen.core.ObjId)">
-<h3>getJClass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getJClass</span><wbr><span class="parameters">(<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</span></div>
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> associated with the object ID.</div>
+<section class="detail" id="getPermazenClass(io.permazen.core.ObjId)">
+<h3>getPermazenClass</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getPermazenClass</span><wbr><span class="parameters">(<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</span></div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the object ID.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>id</code> - object ID</dd>
 <dt>Returns:</dt>
-<dd><a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> instance</dd>
+<dd><a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> instance</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/UnknownTypeException.html" title="class in io.permazen.core">UnknownTypeException</a></code> - if <code>id</code> has a type that is not defined in this instance's schema</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>id</code> is null</dd>
@@ -701,15 +701,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClass(int)">
-<h3>getJClass</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getJClass</span><wbr><span class="parameters">(int&nbsp;storageId)</span></div>
-<div class="block">Get the <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> associated with the given storage ID.</div>
+<section class="detail" id="getPermazenClass(int)">
+<h3>getPermazenClass</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getPermazenClass</span><wbr><span class="parameters">(int&nbsp;storageId)</span></div>
+<div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the given storage ID.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>storageId</code> - object type storage ID</dd>
 <dt>Returns:</dt>
-<dd><a href="JClass.html" title="class in io.permazen"><code>JClass</code></a> instance</dd>
+<dd><a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> instance</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/UnknownTypeException.html" title="class in io.permazen.core">UnknownTypeException</a></code> - if <code>storageId</code> does not represent an object type</dd>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
@@ -717,17 +717,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getJClasses(java.lang.Class)">
-<h3>getJClasses</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="JClass.html" title="class in io.permazen">JClass</a>&lt;? extends T&gt;&gt;</span>&nbsp;<span class="element-name">getJClasses</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
-<div class="block">Get all <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>es which sub-type the given type.</div>
+<section class="detail" id="getPermazenClasses(java.lang.Class)">
+<h3>getPermazenClasses</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;? extends T&gt;&gt;</span>&nbsp;<span class="element-name">getPermazenClasses</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
+<div class="block">Get all <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>es which sub-type the given type.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>T</code> - Java model type</dd>
 <dt>Parameters:</dt>
 <dd><code>type</code> - type restriction, or null for no restrction</dd>
 <dt>Returns:</dt>
-<dd>list of <a href="JClass.html" title="class in io.permazen"><code>JClass</code></a>es whose type is <code>type</code> or a sub-type, ordered by storage ID</dd>
+<dd>list of <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>es whose type is <code>type</code> or a sub-type, ordered by storage ID</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if this instance is not yet <a href="#initialize()"><code>initialized</code></a> and schema registration fails</dd>
 </dl>
@@ -741,7 +741,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Parse a <a href="ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a> starting from a Java type.
 
  <p>
- Roughly equivalent to: <code>this.parseReferencePath(this.getJClasses(startType), path)</code>.</div>
+ Roughly equivalent to: <code>this.parseReferencePath(this.getPermazenClasses(startType), path)</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>startType</code> - starting Java type for the path</dd>
@@ -765,12 +765,12 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="parseReferencePath(java.util.Set,java.lang.String)">
 <h3>parseReferencePath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ReferencePath.html" title="class in io.permazen">ReferencePath</a></span>&nbsp;<span class="element-name">parseReferencePath</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="JClass.html" title="class in io.permazen">JClass</a>&lt;?&gt;&gt;&nbsp;startTypes,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ReferencePath.html" title="class in io.permazen">ReferencePath</a></span>&nbsp;<span class="element-name">parseReferencePath</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;?&gt;&gt;&nbsp;startTypes,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</span></div>
 <div class="block">Parse a <a href="ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a> starting from a set of model object types.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>startTypes</code> - starting model types for the path, with null meaning <a href="UntypedJObject.html" title="class in io.permazen"><code>UntypedJObject</code></a></dd>
+<dd><code>startTypes</code> - starting model types for the path, with null meaning <a href="UntypedPermazenObject.html" title="class in io.permazen"><code>UntypedPermazenObject</code></a></dd>
 <dd><code>path</code> - reference path in string form</dd>
 <dt>Returns:</dt>
 <dd>parsed reference path</dd>

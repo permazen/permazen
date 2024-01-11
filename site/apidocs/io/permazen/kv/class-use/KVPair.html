@@ -420,11 +420,19 @@ loadScripts(document, 'script');</script>
  byte[]&nbsp;maxKey)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">MemoryAtomicKVStore.</span><code><a href="../mvcc/MemoryAtomicKVStore.html#getAtLeast(byte%5B%5D,byte%5B%5D)" class="member-name-link">getAtLeast</a><wbr>(byte[]&nbsp;minKey,
+<div class="col-second odd-row-color"><span class="type-name-label">BranchedKVTransaction.</span><code><a href="../mvcc/BranchedKVTransaction.html#getAtLeast(byte%5B%5D,byte%5B%5D)" class="member-name-link">getAtLeast</a><wbr>(byte[]&nbsp;minKey,
  byte[]&nbsp;maxKey)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code><a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AtomicKVDatabase.</span><code><a href="../mvcc/AtomicKVDatabase.html#getAtMost(byte%5B%5D,byte%5B%5D)" class="member-name-link">getAtMost</a><wbr>(byte[]&nbsp;maxKey,
+<div class="col-second even-row-color"><span class="type-name-label">MemoryAtomicKVStore.</span><code><a href="../mvcc/MemoryAtomicKVStore.html#getAtLeast(byte%5B%5D,byte%5B%5D)" class="member-name-link">getAtLeast</a><wbr>(byte[]&nbsp;minKey,
+ byte[]&nbsp;maxKey)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code><a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">AtomicKVDatabase.</span><code><a href="../mvcc/AtomicKVDatabase.html#getAtMost(byte%5B%5D,byte%5B%5D)" class="member-name-link">getAtMost</a><wbr>(byte[]&nbsp;maxKey,
+ byte[]&nbsp;minKey)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code><a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">BranchedKVTransaction.</span><code><a href="../mvcc/BranchedKVTransaction.html#getAtMost(byte%5B%5D,byte%5B%5D)" class="member-name-link">getAtMost</a><wbr>(byte[]&nbsp;maxKey,
  byte[]&nbsp;minKey)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a></code></div>
@@ -438,15 +446,20 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="../../util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a>&lt;<a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">MemoryAtomicKVStore.</span><code><a href="../mvcc/MemoryAtomicKVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)" class="member-name-link">getRange</a><wbr>(byte[]&nbsp;minKey,
+<div class="col-second even-row-color"><span class="type-name-label">BranchedKVTransaction.</span><code><a href="../mvcc/BranchedKVTransaction.html#getRange(byte%5B%5D,byte%5B%5D,boolean)" class="member-name-link">getRange</a><wbr>(byte[]&nbsp;minKey,
  byte[]&nbsp;maxKey,
  boolean&nbsp;reverse)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../../util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a>&lt;<a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">MutableView.</span><code><a href="../mvcc/MutableView.html#getRange(byte%5B%5D,byte%5B%5D,boolean)" class="member-name-link">getRange</a><wbr>(byte[]&nbsp;minKey,
+<div class="col-second odd-row-color"><span class="type-name-label">MemoryAtomicKVStore.</span><code><a href="../mvcc/MemoryAtomicKVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)" class="member-name-link">getRange</a><wbr>(byte[]&nbsp;minKey,
  byte[]&nbsp;maxKey,
  boolean&nbsp;reverse)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code><a href="../../util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a>&lt;<a href="../KVPair.html" title="class in io.permazen.kv">KVPair</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">MutableView.</span><code><a href="../mvcc/MutableView.html#getRange(byte%5B%5D,byte%5B%5D,boolean)" class="member-name-link">getRange</a><wbr>(byte[]&nbsp;minKey,
+ byte[]&nbsp;maxKey,
+ boolean&nbsp;reverse)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

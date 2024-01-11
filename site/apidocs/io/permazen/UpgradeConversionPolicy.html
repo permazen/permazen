@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
  <b>Type Changes</b>
 
  <p>
- Permazen fields are identified by <a href="JSchemaItem.html#getName()">name</a>. Therefore, it's possible
+ Permazen fields are identified by <a href="PermazenSchemItem.html#getName()">name</a>. Therefore, it's possible
  for the "same" field to have two different types in two different schemas. When migrating an object's schema,
  Permazen can automatically perform certain conversions of simple field values from the old type to the new type.
  For example, an <code>int</code> field value <code>1234</code> can be automatically converted into <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> field value
@@ -102,7 +102,7 @@ loadScripts(document, 'script');</script>
  <a href="Counter.html" title="class in io.permazen"><code>Counter</code></a> fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
 
  <p>
- This class is used to <a href="annotation/JField.html#upgradeConversion()">specify</a> whether such automatic conversion
+ This class is used to <a href="annotation/PermazenField.html#upgradeConversion()">specify</a> whether such automatic conversion
  should occur when a simple field's type changes, and if so, whether the conversion must always succeed.
 
  <p>
@@ -135,7 +135,7 @@ loadScripts(document, 'script');</script>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list-long">
-<li><a href="annotation/JField.html#upgradeConversion()"><code>JField.upgradeConversion()</code></a></li>
+<li><a href="annotation/PermazenField.html#upgradeConversion()"><code>PermazenField.upgradeConversion()</code></a></li>
 <li><a href="encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)"><code>Encoding.convert()</code></a></li>
 </ul>
 </dd>

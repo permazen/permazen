@@ -329,9 +329,9 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">org.springframework.http.converter.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/AbstractHttpMessageConverter.html" class="type-name-link external-link" title="class or interface in org.springframework.http.converter">AbstractHttpMessageConverter</a>&lt;T&gt; (implements org.springframework.http.converter.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link">HttpMessageConverter</a>&lt;T&gt;)
 <ul>
-<li class="circle">io.permazen.spring.<a href="io/permazen/spring/DetachedJTransactionHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">DetachedJTransactionHttpMessageConverter</a></li>
-<li class="circle">io.permazen.spring.<a href="io/permazen/spring/JObjectHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">JObjectHttpMessageConverter</a></li>
+<li class="circle">io.permazen.spring.<a href="io/permazen/spring/DetachedPermazenTransactionHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a></li>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/KVStoreHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></li>
+<li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenObjectHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">PermazenObjectHttpMessageConverter</a></li>
 </ul>
 </li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.BytesParser.html" class="type-name-link" title="class in io.permazen.cli.cmd">AbstractKVCommand.BytesParser</a> (implements io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;T&gt;)</li>
@@ -488,6 +488,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVImplementation.Config.html" class="type-name-link" title="class in io.permazen.kv.bdb">BerkeleyKVImplementation.Config</a></li>
 <li class="circle">io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVTransaction.CursorIterator.html" class="type-name-link" title="class in io.permazen.kv.bdb">BerkeleyKVTransaction.CursorIterator</a> (implements io.permazen.util.<a href="io/permazen/util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a>&lt;E&gt;)</li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/Bounds.html" class="type-name-link" title="class in io.permazen.util">Bounds</a>&lt;T&gt;</li>
+<li class="circle">io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/BranchedKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a> (implements io.permazen.kv.<a href="io/permazen/kv/CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a>, io.permazen.kv.<a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>)</li>
 <li class="circle">io.permazen.kv.mvstore.<a href="io/permazen/kv/mvstore/ByteArrayDataType.html" class="type-name-link" title="class in io.permazen.kv.mvstore">ByteArrayDataType</a> (implements org.h2.mvstore.type.DataType&lt;T&gt;)</li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/ByteReader.html" class="type-name-link" title="class in io.permazen.util">ByteReader</a></li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/ByteUtil.html" class="type-name-link" title="class in io.permazen.util">ByteUtil</a></li>
@@ -651,45 +652,11 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">io.permazen.cli.config.<a href="io/permazen/cli/config/JavaNameConverter.html" class="type-name-link" title="class in io.permazen.cli.config">JavaNameConverter</a> (implements joptsimple.ValueConverter&lt;V&gt;)</li>
-<li class="circle">io.permazen.<a href="io/permazen/JSchemaItem.html" class="type-name-link" title="class in io.permazen">JSchemaItem</a>
-<ul>
-<li class="circle">io.permazen.<a href="io/permazen/JClass.html" class="type-name-link" title="class in io.permazen">JClass</a>&lt;T&gt;</li>
-<li class="circle">io.permazen.<a href="io/permazen/JCompositeIndex.html" class="type-name-link" title="class in io.permazen">JCompositeIndex</a></li>
-<li class="circle">io.permazen.<a href="io/permazen/JField.html" class="type-name-link" title="class in io.permazen">JField</a>
-<ul>
-<li class="circle">io.permazen.<a href="io/permazen/JComplexField.html" class="type-name-link" title="class in io.permazen">JComplexField</a>
-<ul>
-<li class="circle">io.permazen.<a href="io/permazen/JCollectionField.html" class="type-name-link" title="class in io.permazen">JCollectionField</a>
-<ul>
-<li class="circle">io.permazen.<a href="io/permazen/JListField.html" class="type-name-link" title="class in io.permazen">JListField</a></li>
-<li class="circle">io.permazen.<a href="io/permazen/JSetField.html" class="type-name-link" title="class in io.permazen">JSetField</a></li>
-</ul>
-</li>
-<li class="circle">io.permazen.<a href="io/permazen/JMapField.html" class="type-name-link" title="class in io.permazen">JMapField</a></li>
-</ul>
-</li>
-<li class="circle">io.permazen.<a href="io/permazen/JCounterField.html" class="type-name-link" title="class in io.permazen">JCounterField</a></li>
-<li class="circle">io.permazen.<a href="io/permazen/JSimpleField.html" class="type-name-link" title="class in io.permazen">JSimpleField</a>
-<ul>
-<li class="circle">io.permazen.<a href="io/permazen/JEnumArrayField.html" class="type-name-link" title="class in io.permazen">JEnumArrayField</a></li>
-<li class="circle">io.permazen.<a href="io/permazen/JEnumField.html" class="type-name-link" title="class in io.permazen">JEnumField</a></li>
-<li class="circle">io.permazen.<a href="io/permazen/JReferenceField.html" class="type-name-link" title="class in io.permazen">JReferenceField</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="circle">io.permazen.jsck.<a href="io/permazen/jsck/Jsck.html" class="type-name-link" title="class in io.permazen.jsck">Jsck</a></li>
 <li class="circle">io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" class="type-name-link" title="class in io.permazen.jsck">JsckConfig</a></li>
 <li class="circle">org.dellroad.jct.jshell.JShellShell (implements org.dellroad.jct.core.Shell)
 <ul>
 <li class="circle">io.permazen.cli.jshell.<a href="io/permazen/cli/jshell/PermazenJShellShell.html" class="type-name-link" title="class in io.permazen.cli.jshell">PermazenJShellShell</a></li>
-</ul>
-</li>
-<li class="circle">io.permazen.<a href="io/permazen/JTransaction.html" class="type-name-link" title="class in io.permazen">JTransaction</a>
-<ul>
-<li class="circle">io.permazen.<a href="io/permazen/DetachedJTransaction.html" class="type-name-link" title="class in io.permazen">DetachedJTransaction</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
 </ul>
 </li>
 <li class="circle">io.permazen.kv.<a href="io/permazen/kv/KeyFilterUtil.html" class="type-name-link" title="class in io.permazen.kv">KeyFilterUtil</a></li>
@@ -766,6 +733,40 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.<a href="io/permazen/PermazenConfig.html" class="type-name-link" title="class in io.permazen">PermazenConfig</a></li>
 <li class="circle">io.permazen.<a href="io/permazen/PermazenConfig.Builder.html" class="type-name-link" title="class in io.permazen">PermazenConfig.Builder</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Cloneable.html" title="class or interface in java.lang" class="external-link">Cloneable</a>)</li>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenExceptionTranslator.html" class="type-name-link" title="class in io.permazen.spring">PermazenExceptionTranslator</a> (implements org.springframework.dao.support.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link">PersistenceExceptionTranslator</a>)</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenSchemItem.html" class="type-name-link" title="class in io.permazen">PermazenSchemItem</a>
+<ul>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenClass.html" class="type-name-link" title="class in io.permazen">PermazenClass</a>&lt;T&gt;</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenCompositeIndex.html" class="type-name-link" title="class in io.permazen">PermazenCompositeIndex</a></li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenField.html" class="type-name-link" title="class in io.permazen">PermazenField</a>
+<ul>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenComplexField.html" class="type-name-link" title="class in io.permazen">PermazenComplexField</a>
+<ul>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenCollectionField.html" class="type-name-link" title="class in io.permazen">PermazenCollectionField</a>
+<ul>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenListField.html" class="type-name-link" title="class in io.permazen">PermazenListField</a></li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenSetField.html" class="type-name-link" title="class in io.permazen">PermazenSetField</a></li>
+</ul>
+</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenMapField.html" class="type-name-link" title="class in io.permazen">PermazenMapField</a></li>
+</ul>
+</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenCounterField.html" class="type-name-link" title="class in io.permazen">PermazenCounterField</a></li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenSimpleField.html" class="type-name-link" title="class in io.permazen">PermazenSimpleField</a>
+<ul>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenEnumArrayField.html" class="type-name-link" title="class in io.permazen">PermazenEnumArrayField</a></li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenEnumField.html" class="type-name-link" title="class in io.permazen">PermazenEnumField</a></li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenReferenceField.html" class="type-name-link" title="class in io.permazen">PermazenReferenceField</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenTransaction.html" class="type-name-link" title="class in io.permazen">PermazenTransaction</a>
+<ul>
+<li class="circle">io.permazen.<a href="io/permazen/DetachedPermazenTransaction.html" class="type-name-link" title="class in io.permazen">DetachedPermazenTransaction</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
+</ul>
+</li>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenTransactionManager.TransactionSynchronizationCallback.html" class="type-name-link" title="class in io.permazen.spring">PermazenTransactionManager.TransactionSynchronizationCallback</a> (implements io.permazen.core.<a href="io/permazen/core/Transaction.Callback.html" title="interface in io.permazen.core">Transaction.Callback</a>)</li>
 <li class="circle">io.permazen.kv.util.<a href="io/permazen/kv/util/PrefixKVDatabase.html" class="type-name-link" title="class in io.permazen.kv.util">PrefixKVDatabase</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>)</li>
 <li class="circle">org.apache.tools.ant.ProjectComponent (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Cloneable.html" title="class or interface in java.lang" class="external-link">Cloneable</a>)
@@ -1041,7 +1042,7 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/UnsignedIntEncoder.html" class="type-name-link" title="class in io.permazen.util">UnsignedIntEncoder</a></li>
-<li class="circle">io.permazen.<a href="io/permazen/UntypedJObject.html" class="type-name-link" title="class in io.permazen">UntypedJObject</a> (implements io.permazen.<a href="io/permazen/JObject.html" title="interface in io.permazen">JObject</a>)</li>
+<li class="circle">io.permazen.<a href="io/permazen/UntypedPermazenObject.html" class="type-name-link" title="class in io.permazen">UntypedPermazenObject</a> (implements io.permazen.<a href="io/permazen/PermazenObject.html" title="interface in io.permazen">PermazenObject</a>)</li>
 <li class="circle">io.permazen.<a href="io/permazen/Util.html" class="type-name-link" title="class in io.permazen">Util</a></li>
 <li class="circle">io.permazen.core.<a href="io/permazen/core/Version.html" class="type-name-link" title="class in io.permazen.core">Version</a></li>
 <li class="circle">io.permazen.<a href="io/permazen/Version.html" class="type-name-link" title="class in io.permazen">Version</a></li>
@@ -1115,8 +1116,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/CloseableIterator.html" class="type-name-link" title="interface in io.permazen.util">CloseableIterator</a>&lt;E&gt; (also extends java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
 </ul>
 </li>
-<li class="circle">io.permazen.<a href="io/permazen/JFieldSwitch.html" class="type-name-link" title="interface in io.permazen">JFieldSwitch</a>&lt;R&gt;</li>
-<li class="circle">io.permazen.<a href="io/permazen/JObject.html" class="type-name-link" title="interface in io.permazen">JObject</a></li>
 <li class="circle">io.permazen.jsck.<a href="io/permazen/jsck/JsckLogger.html" class="type-name-link" title="interface in io.permazen.jsck">JsckLogger</a></li>
 <li class="circle">io.permazen.kv.<a href="io/permazen/kv/KeyFilter.html" class="type-name-link" title="interface in io.permazen.kv">KeyFilter</a></li>
 <li class="circle">io.permazen.kv.<a href="io/permazen/kv/KVDatabase.html" class="type-name-link" title="interface in io.permazen.kv">KVDatabase</a></li>
@@ -1141,6 +1140,8 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">io.permazen.core.util.<a href="io/permazen/core/util/ObjIdQueue.html" class="type-name-link" title="interface in io.permazen.core.util">ObjIdQueue</a></li>
 <li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" class="type-name-link" title="interface in io.permazen.cli.parse">Parser</a>&lt;T&gt;</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenFieldSwitch.html" class="type-name-link" title="interface in io.permazen">PermazenFieldSwitch</a>&lt;R&gt;</li>
+<li class="circle">io.permazen.<a href="io/permazen/PermazenObject.html" class="type-name-link" title="interface in io.permazen">PermazenObject</a></li>
 <li class="circle">io.permazen.core.<a href="io/permazen/core/SchemaChangeListener.html" class="type-name-link" title="interface in io.permazen.core">SchemaChangeListener</a></li>
 <li class="circle">io.permazen.schema.<a href="io/permazen/schema/SchemaFieldSwitch.html" class="type-name-link" title="interface in io.permazen.schema">SchemaFieldSwitch</a>&lt;R&gt;</li>
 <li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" class="type-name-link external-link" title="class or interface in java.io">Serializable</a>
@@ -1168,20 +1169,20 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Annotation Interface Hierarchy">Annotation Interface Hierarchy</h2>
 <ul>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/FollowPath.html" class="type-name-link" title="annotation interface in io.permazen.annotation">FollowPath</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JCompositeIndex.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JCompositeIndex</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JCompositeIndexes.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JCompositeIndexes</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JListField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JListField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JMapField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JMapField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JSetField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JSetField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
-<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/JTransient.html" class="type-name-link" title="annotation interface in io.permazen.annotation">JTransient</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/OnChange.html" class="type-name-link" title="annotation interface in io.permazen.annotation">OnChange</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/OnCreate.html" class="type-name-link" title="annotation interface in io.permazen.annotation">OnCreate</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/OnDelete.html" class="type-name-link" title="annotation interface in io.permazen.annotation">OnDelete</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/OnSchemaChange.html" class="type-name-link" title="annotation interface in io.permazen.annotation">OnSchemaChange</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/OnValidate.html" class="type-name-link" title="annotation interface in io.permazen.annotation">OnValidate</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenCompositeIndex.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenCompositeIndex</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenCompositeIndexes.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenCompositeIndexes</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenListField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenListField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenMapField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenMapField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenSetField.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenSetField</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenTransient.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenTransient</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenType.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenType</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/ReferencePath.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ReferencePath</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 </ul>
 </section>
 <section class="hierarchy">

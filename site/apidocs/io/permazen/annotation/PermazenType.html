@@ -83,17 +83,17 @@ loadScripts(document, 'script');</script>
  The following annotations on the getter methods of a <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated class
  configure database fields:
  <ul>
-  <li><a href="JField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JField</code></a> - defines a simple value, reference, or <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> field
-  <li><a href="JSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JSetField</code></a> - defines a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link"><code>NavigableSet</code></a> field
-  <li><a href="JListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JListField</code></a> - defines a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> field
-  <li><a href="JMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JMapField</code></a> - defines a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link"><code>NavigableMap</code></a> field
+  <li><a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a> - defines a simple value, reference, or <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> field
+  <li><a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a> - defines a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link"><code>NavigableSet</code></a> field
+  <li><a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a> - defines a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> field
+  <li><a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> - defines a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link"><code>NavigableMap</code></a> field
  </ul>
 
  <p>
  <a href="#autogenFields()">By default</a>, database fields are created automatically for all abstract getter methods,
  so no annotations are required. To override the defaults, or define database fields for non-abstract getter methods,
- add the appropriate <a href="JField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JField</code></a>, <a href="JSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JSetField</code></a>, <a href="JListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JListField</code></a>,
- or <a href="JMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JMapField</code></a> annotation.
+ add the appropriate <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a>, <a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a>, <a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a>,
+ or <a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> annotation.
 
  <p>
  These annotations are also supported on the methods in a <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated class:
@@ -105,27 +105,28 @@ loadScripts(document, 'script');</script>
   <li><a href="OnDelete.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnDelete</code></a> - annotates a method to be invoked just prior to object deletion
   <li><a href="OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> - annotates a method to be invoked whenever the object is (re)validated
   <li><a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a> - annotates a method to be invoked when the object's schema changes
-  <li><a href="FollowPath.html" title="annotation interface in io.permazen.annotation"><code>&#64;FollowPath</code></a> - annotates a method returning objects found by traversing a <a href="../ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a>
+  <li><a href="../ReferencePath.html" title="class in io.permazen"><code>&#64;ReferencePath</code></a> - annotates a method returning objects found by traversing a
+      path of reference fields
  </ul>
 
  <p>
  Annotations are "inherited", meaning they may be present on any overridden supertype method, including methods in superclasses
  and superinterfaces (whether or not annotated with <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>).
 
- <p><b><a href="../JObject.html" title="interface in io.permazen"><code>JObject</code></a> interface</b></p>
+ <p><b><a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> interface</b></p>
 
  <p>
  The subclass of any <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated model class that is generated by <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>
- will implement <a href="../JObject.html" title="interface in io.permazen"><code>JObject</code></a>, so the (abstract) model classes may be declared that way.
+ will implement <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>, so the (abstract) model classes may be declared that way.
 
  <p><b>Indexing</b></p>
 
  <p>
- Indexes on simple fields and collection fields are declared via <a href="JField.html#indexed()"><code>JField.indexed()</code></a>.
+ Indexes on simple fields and collection fields are declared via <a href="PermazenField.html#indexed()"><code>PermazenField.indexed()</code></a>.
 
  <p>
  Composite indexes are declared by annotating any supertype of a <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated class
- with one or more <a href="JCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>&#64;JCompositeIndex</code></a> annotations.
+ with one or more <a href="PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenCompositeIndex</code></a> annotations.
 
  <p><b>Meta-Annotations</b></p>
 
@@ -148,7 +149,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>boolean</code></div>
 <div class="col-second even-row-color"><code><a href="#autogenAllowDeleted()" class="member-name-link">autogenAllowDeleted</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Configure the default for the <a href="JField.html#allowDeleted()"><code>&#64;JField.allowDeleted()</code></a> property
+<div class="block">Configure the default for the <a href="PermazenField.html#allowDeleted()"><code>&#64;PermazenField.allowDeleted()</code></a> property
  for auto-generated reference fields.</div>
 </div>
 <div class="col-first odd-row-color"><code>boolean</code></div>
@@ -164,7 +165,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code><a href="../UpgradeConversionPolicy.html" title="enum class in io.permazen">UpgradeConversionPolicy</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#autogenUpgradeConversion()" class="member-name-link">autogenUpgradeConversion</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Configure the default for the <a href="JField.html#upgradeConversion()"><code>&#64;JField.upgradeConversion()</code></a> property
+<div class="block">Configure the default for the <a href="PermazenField.html#upgradeConversion()"><code>&#64;PermazenField.upgradeConversion()</code></a> property
  for auto-generated reference fields.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
@@ -237,8 +238,8 @@ loadScripts(document, 'script');</script>
 
  <p>
  If true, database fields will be auto-generated corresponding to all <b>abstract</b> bean property getter methods,
- even if there is no <a href="JField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JField</code></a>, <a href="JSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JSetField</code></a>,
- <a href="JListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JListField</code></a>, or <a href="JMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JMapField</code></a> annotation.
+ even if there is no <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a>, <a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a>,
+ <a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a>, or <a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> annotation.
  Note <i>this includes superclass and interface methods</i>. Methods must be either <code>public</code> or
  <code>protected</code>. In the case of simple fields, there must also be a corresponding setter method.
 
@@ -248,7 +249,7 @@ loadScripts(document, 'script');</script>
  the corresponding simple fields to be generated.
 
  <p>
- A <a href="JTransient.html" title="annotation interface in io.permazen.annotation"><code>&#64;JTransient</code></a> annotation on the getter method, or any overridden superclass method,
+ A <a href="PermazenTransient.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenTransient</code></a> annotation on the getter method, or any overridden superclass method,
  disables this auto-generation for that particular method (this is only useful when applied to non-abstract
  methods, and therefore when <a href="#autogenNonAbstract()"><code>autogenNonAbstract()</code></a> is true: if applied to any abstract methods,
  the auto-generated database subclass wouldn't be instantiable at runtime).</div>
@@ -277,7 +278,7 @@ loadScripts(document, 'script');</script>
  <p>
  If <a href="#autogenFields()"><code>autogenFields()</code></a> is false, this property is ignored. Otherwise, database fields will be auto-generated
  corresponding to all bean property getter methods, whether or not marked <b>abstract</b>, unless there is
- a <a href="JTransient.html" title="annotation interface in io.permazen.annotation"><code>&#64;JTransient</code></a> annotation.</div>
+ a <a href="PermazenTransient.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenTransient</code></a> annotation.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>whether to auto-generate fields from non-abstract methods when <a href="#autogenFields()"><code>autogenFields()</code></a> is true</dd>
@@ -285,7 +286,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="see-list">
 <li><a href="#autogenFields()"><code>autogenFields()</code></a></li>
-<li><a href="JTransient.html" title="annotation interface in io.permazen.annotation"><code>JTransient</code></a></li>
+<li><a href="PermazenTransient.html" title="annotation interface in io.permazen.annotation"><code>PermazenTransient</code></a></li>
 </ul>
 </dd>
 </dl>
@@ -299,13 +300,13 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="autogenAllowDeleted()">
 <h3>autogenAllowDeleted</h3>
 <div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">autogenAllowDeleted</span></div>
-<div class="block">Configure the default for the <a href="JField.html#allowDeleted()"><code>&#64;JField.allowDeleted()</code></a> property
+<div class="block">Configure the default for the <a href="PermazenField.html#allowDeleted()"><code>&#64;PermazenField.allowDeleted()</code></a> property
  for auto-generated reference fields.
 
  <p>
  If <a href="#autogenFields()"><code>autogenFields()</code></a> is false, this property is ignored. Otherwise, if this property is true,
  any auto-generated reference fields will allow assignment to deleted objects in normal transactions.
- In other words, they will behave as if they had a <a href="JField.html" title="annotation interface in io.permazen.annotation"><code>&#64;JField</code></a> annotation with <a href="JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a>
+ In other words, they will behave as if they had a <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a> annotation with <a href="PermazenField.html#allowDeleted()"><code>PermazenField.allowDeleted()</code></a>
  set to true.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -313,7 +314,7 @@ loadScripts(document, 'script');</script>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="JField.html#allowDeleted()"><code>JField.allowDeleted()</code></a></li>
+<li><a href="PermazenField.html#allowDeleted()"><code>PermazenField.allowDeleted()</code></a></li>
 </ul>
 </dd>
 </dl>
@@ -327,7 +328,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="autogenUpgradeConversion()">
 <h3>autogenUpgradeConversion</h3>
 <div class="member-signature"><span class="return-type"><a href="../UpgradeConversionPolicy.html" title="enum class in io.permazen">UpgradeConversionPolicy</a></span>&nbsp;<span class="element-name">autogenUpgradeConversion</span></div>
-<div class="block">Configure the default for the <a href="JField.html#upgradeConversion()"><code>&#64;JField.upgradeConversion()</code></a> property
+<div class="block">Configure the default for the <a href="PermazenField.html#upgradeConversion()"><code>&#64;PermazenField.upgradeConversion()</code></a> property
  for auto-generated reference fields.
 
  <p>
@@ -339,8 +340,8 @@ loadScripts(document, 'script');</script>
 <dd>type conversion policy for auto-generated fields</dd>
 <dt>See Also:</dt>
 <dd>
-<ul class="see-list">
-<li><a href="JField.html#upgradeConversion()"><code>JField.upgradeConversion()</code></a></li>
+<ul class="see-list-long">
+<li><a href="PermazenField.html#upgradeConversion()"><code>PermazenField.upgradeConversion()</code></a></li>
 </ul>
 </dd>
 </dl>

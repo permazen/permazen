@@ -104,7 +104,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
  <ul>
   <li>They have an associated Java type which can represent any of the field's values in Java (possibly including null).
   <li>They may have an <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, which is a globally unique URN-style identifier that allows the encoding
-      to be looked up by name in an <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>. Encodings with no <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> are <i>anonymous</i>.
+      to be looked up by name in an <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>. Encodings with no <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> are called <i>anonymous</i>.
   <li>Instances <a href="#compare(T,T)">totally order</a> their Java values. If the associated Java type implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link"><code>Comparable</code></a>,
       then the two orderings do not necessarily have to agree, but they should if possible; see also <a href="#sortsNaturally()"><code>sortsNaturally()</code></a>.</li>
   <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., <code>byte[]</code> array)
