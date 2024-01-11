@@ -7,7 +7,7 @@ package io.permazen.vaadin;
 
 import com.google.common.collect.Iterators;
 
-import io.permazen.JObject;
+import io.permazen.PermazenObject;
 import io.permazen.Session;
 import io.permazen.util.ParseException;
 import io.permazen.parse.ParseSession;
@@ -70,11 +70,11 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
     }
 
     @Override
-    protected Iterator<? extends JObject> queryForObjects() {
+    protected Iterator<? extends PermazenObject> queryForObjects() {
 
         // Any content?
         if (this.contentExpression == null)
-            return Collections.<JObject>emptyIterator();
+            return Collections.<PermazenObject>emptyIterator();
 
         // Parse expression
         final ParseContext ctx = new ParseContext(this.contentExpression);
@@ -96,6 +96,6 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
         }
 
         // Reload container with results of expression
-        return Iterators.transform(iterator, new CastFunction<JObject>(JObject.class).toGuava());
+        return Iterators.transform(iterator, new CastFunction<PermazenObject>(PermazenObject.class).toGuava());
     }
 }

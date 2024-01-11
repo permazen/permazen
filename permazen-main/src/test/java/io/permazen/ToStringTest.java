@@ -15,12 +15,12 @@ public class ToStringTest extends MainTestSupport {
 
     @Test(dataProvider = "cases")
     private <T extends Person> void testToString(Class<T> cl, String pattern) throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(cl);
-        final JTransaction jtx = jdb.createTransaction();
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(cl);
+        final PermazenTransaction ptx = pdb.createTransaction();
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final T person = jtx.create(cl);
+            final T person = ptx.create(cl);
 
             person.setName("fred");
             person.setAge(23);
@@ -32,10 +32,10 @@ public class ToStringTest extends MainTestSupport {
 
             Assert.assertEquals(person.toString(), expected);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -50,7 +50,7 @@ public class ToStringTest extends MainTestSupport {
 
 // Model Classes
 
-    public interface Person extends JObject {
+    public interface Person extends PermazenObject {
 
         String getName();
         void setName(String x);

@@ -11,7 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 
-import io.permazen.JObject;
+import io.permazen.PermazenObject;
 
 import org.dellroad.stuff.vaadin7.PropertyDef;
 import org.dellroad.stuff.vaadin7.PropertyExtractor;
@@ -65,7 +65,7 @@ final class ReferenceMethodInfoCache {
         final PropertyDef<?> propertyDef = Iterables.find(scanner.getPropertyDefs(),
           pdef -> pdef.getName().equals(JObjectContainer.REFERENCE_LABEL_PROPERTY), null);
         return propertyDef != null ?
-          new PropertyInfo(propertyDef, (PropertyExtractor<JObject>)scanner.getPropertyExtractor()) : NOT_FOUND;
+          new PropertyInfo(propertyDef, (PropertyExtractor<PermazenObject>)scanner.getPropertyExtractor()) : NOT_FOUND;
     }
 
 // PropertyInfo
@@ -73,9 +73,9 @@ final class ReferenceMethodInfoCache {
     public static class PropertyInfo {
 
         private final PropertyDef<?> propertyDef;
-        private final PropertyExtractor<JObject> propertyExtractor;
+        private final PropertyExtractor<PermazenObject> propertyExtractor;
 
-        PropertyInfo(PropertyDef<?> propertyDef, PropertyExtractor<JObject> propertyExtractor) {
+        PropertyInfo(PropertyDef<?> propertyDef, PropertyExtractor<PermazenObject> propertyExtractor) {
             this.propertyDef = propertyDef;
             this.propertyExtractor = propertyExtractor;
         }
@@ -84,7 +84,7 @@ final class ReferenceMethodInfoCache {
             return this.propertyDef;
         }
 
-        public PropertyExtractor<JObject> getPropertyExtractor() {
+        public PropertyExtractor<PermazenObject> getPropertyExtractor() {
             return this.propertyExtractor;
         }
     }

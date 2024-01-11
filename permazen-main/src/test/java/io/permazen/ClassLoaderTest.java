@@ -26,23 +26,23 @@ public class ClassLoaderTest extends MainTestSupport {
 */
     @Test
     public void testClassLoaderTest() {
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final DetachedJTransaction stx = jtx.getDetachedTransaction();
+            final DetachedPermazenTransaction stx = ptx.getDetachedTransaction();
             final ObjId id = new ObjId("0100000000000000");
             stx.get(id).getObjId();                                     // causes detached class to load
-            jtx.get(id).getObjId();                                     // causes normal class to load redundantly
-            jtx.commit();
+            ptx.get(id).getObjId();                                     // causes normal class to load redundantly
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType(storageId = 1)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
     }
 }

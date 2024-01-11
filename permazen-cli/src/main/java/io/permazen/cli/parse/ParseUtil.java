@@ -7,8 +7,8 @@ package io.permazen.cli.parse;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JClass;
-import io.permazen.JField;
+import io.permazen.PermazenClass;
+import io.permazen.PermazenField;
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.core.Field;
@@ -59,7 +59,7 @@ public final class ParseUtil {
     }
 
     /**
-     * Locate the {@link JField} with the given name in the specified object.
+     * Locate the {@link PermazenField} with the given name in the specified object.
      *
      * @param session current session
      * @param id object ID
@@ -71,7 +71,7 @@ public final class ParseUtil {
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code state} is not in {@link SessionMode#PERMAZEN}
      */
-    public static JField resolveJField(Session session, ObjId id, String name) {
+    public static PermazenField resolveJField(Session session, ObjId id, String name) {
 
         // Sanity check
         Preconditions.checkArgument(session != null, "null session");
@@ -85,16 +85,16 @@ public final class ParseUtil {
             throw new IllegalArgumentException("error accessing field \"" + name + "\": object " + id + " does not exist");
         final ObjType objType = info.getObjType();
 
-        // Find JClass
-        final JClass<?> jclass;
+        // Find PermazenClass
+        final PermazenClass<?> jclass;
         try {
-            jclass = session.getPermazen().getJClass(objType.getStorageId());
+            jclass = session.getPermazen().getPermazenClass(objType.getStorageId());
         } catch (UnknownTypeException e) {
             throw new IllegalArgumentException("error accessing field \"" + name + "\": " + e.getMessage(), e);
         }
 
-        // Find JField
-        final JField jfield = jclass.getJFieldsByName().get(name);
+        // Find PermazenField
+        final PermazenField jfield = jclass.getFieldsByName().get(name);
         if (jfield == null)
             throw new IllegalArgumentException("error accessing field \"" + name + "\": there is no such field in " + objType);
         return jfield;

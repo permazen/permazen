@@ -27,15 +27,15 @@ class ReferencePathCache {
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} against which to resolve object and field names
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @param pdb {@link Permazen} against which to resolve object and field names
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    ReferencePathCache(final Permazen jdb) {
-        Preconditions.checkArgument(jdb != null, "null jdb");
+    ReferencePathCache(final Permazen pdb) {
+        Preconditions.checkArgument(pdb != null, "null pdb");
         this.cache = CacheBuilder.newBuilder().softValues().build(new CacheLoader<Key, ReferencePath>() {
             @Override
             public ReferencePath load(Key key) {
-                return new ReferencePath(jdb, key.getStartTypes(), key.getPath());
+                return new ReferencePath(pdb, key.getStartTypes(), key.getPath());
             }
         });
     }
@@ -45,7 +45,7 @@ class ReferencePathCache {
      *
      * @see ReferencePath#ReferencePath
      */
-    public ReferencePath get(Set<JClass<?>> startTypes, String path) {
+    public ReferencePath get(Set<PermazenClass<?>> startTypes, String path) {
         Throwable cause;
         try {
             return this.cache.get(new Key(startTypes, path));
@@ -60,13 +60,13 @@ class ReferencePathCache {
 
 // Key
 
-    private static final class Key extends Tuple2<Set<JClass<?>>, String> {
+    private static final class Key extends Tuple2<Set<PermazenClass<?>>, String> {
 
-        Key(Set<JClass<?>> startTypes, String path) {
+        Key(Set<PermazenClass<?>> startTypes, String path) {
             super(startTypes, path);
         }
 
-        public Set<JClass<?>> getStartTypes() {
+        public Set<PermazenClass<?>> getStartTypes() {
             return this.getValue1();
         }
 

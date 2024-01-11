@@ -15,11 +15,11 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import io.permazen.CopyState;
-import io.permazen.JClass;
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenClass;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.Permazen;
-import io.permazen.UntypedJObject;
+import io.permazen.UntypedPermazenObject;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.ObjId;
 import io.permazen.core.ReferencedObjectException;
@@ -133,7 +133,7 @@ public class MainPanel extends VerticalLayout {
     protected void selectObject(ObjId id) {
 
         // New button
-        this.newButton.setEnabled(this.objectChooser.getJClass() != null);
+        this.newButton.setEnabled(this.objectChooser.getPermazenClass() != null);
 
         // Update buttons
         if (id == null) {
@@ -162,14 +162,14 @@ public class MainPanel extends VerticalLayout {
         this.log.info("editing object {}", id);
 
         // Copy object
-        final JObject jobj = this.doCopyForEdit(id);
+        final PermazenObject jobj = this.doCopyForEdit(id);
         if (jobj == null) {
             Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
             return;
         }
 
         // Ensure object type is known
-        if (jobj instanceof UntypedJObject) {
+        if (jobj instanceof UntypedPermazenObject) {
             Notification.show("Can't edit object " + id + " having unknown object type",
               "Storage ID " + id.getStorageId() + " not defined in the current schema version",
               Notification.Type.WARNING_MESSAGE);
@@ -183,18 +183,18 @@ public class MainPanel extends VerticalLayout {
 
         // Open window
         final JObjectEditorWindow editor = new JObjectEditorWindow(this.getUI(),
-          this.session, this.jdb.getJClass(id), jobj, titleComponent);
+          this.session, this.jdb.getPermazenClass(id), jobj, titleComponent);
         editor.setReloadContainerAfterCommit(this.objectChooser.getJObjectContainer());
         editor.show();
     }
 
     @RetryTransaction
     @Transactional("permazenGuiTransactionManager")
-    private JObject doCopyForEdit(ObjId id) {
+    private PermazenObject doCopyForEdit(ObjId id) {
 
         // Find object
-        final JTransaction jtx = JTransaction.getCurrent();
-        final JObject jobj = jtx.get(id);
+        final PermazenTransaction jtx = PermazenTransaction.getCurrent();
+        final PermazenObject jobj = jtx.get(id);
         if (!jobj.exists())
             return null;
 
@@ -205,7 +205,7 @@ public class MainPanel extends VerticalLayout {
 // New
 
     private void newButtonClicked() {
-        final JClass<?> jclass = this.objectChooser.getJClass();
+        final PermazenClass<?> jclass = this.objectChooser.getPermazenClass();
         if (jclass == null) {
             Notification.show("Can't create object having unknown type",
               "Please select an object type first", Notification.Type.WARNING_MESSAGE);
@@ -243,7 +243,7 @@ public class MainPanel extends VerticalLayout {
     @RetryTransaction
     @Transactional("permazenGuiTransactionManager")
     private boolean doDelete(ObjId id) {
-        final boolean deleted = JTransaction.getCurrent().get(id).delete();
+        final boolean deleted = PermazenTransaction.getCurrent().get(id).delete();
         if (deleted)
             this.objectChooser.getJObjectContainer().reloadAfterCommit();
         return deleted;
@@ -274,7 +274,7 @@ public class MainPanel extends VerticalLayout {
     @RetryTransaction
     @Transactional("permazenGuiTransactionManager")
     private int doUpgrade(ObjId id) {
-        final JObject jobj = JTransaction.getCurrent().get(id);
+        final PermazenObject jobj = PermazenTransaction.getCurrent().get(id);
         final int oldVersion;
         try {
             oldVersion = jobj.getSchemaVersion();
@@ -290,7 +290,7 @@ public class MainPanel extends VerticalLayout {
     @RetryTransaction
     @Transactional("permazenGuiTransactionManager")
     private boolean canUpgrade(ObjId id) {
-        final JObject jobj = JTransaction.getCurrent().get(id);
+        final PermazenObject jobj = PermazenTransaction.getCurrent().get(id);
         return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getActualVersion();
     }
 

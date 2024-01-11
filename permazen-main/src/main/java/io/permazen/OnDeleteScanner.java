@@ -14,8 +14,8 @@ import java.lang.reflect.Method;
  */
 class OnDeleteScanner<T> extends AnnotationScanner<T, OnDelete> {
 
-    OnDeleteScanner(JClass<T> jclass) {
-        super(jclass, OnDelete.class);
+    OnDeleteScanner(PermazenClass<T> pclass) {
+        super(pclass, OnDelete.class);
     }
 
     @Override

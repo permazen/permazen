@@ -5,11 +5,11 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSetField;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.SetFieldChange;
 import io.permazen.core.DeleteAction;
@@ -35,7 +35,7 @@ public class DetachedTest extends MainTestSupport {
     @Test(dataProvider = "shapshotCases")
     public void testDetached1(Class<? extends Person> personClass) throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(personClass);
+        final Permazen pdb = BasicTest.newPermazen(personClass);
 
         Person p1;
         Person p2;
@@ -43,9 +43,9 @@ public class DetachedTest extends MainTestSupport {
 
         Person detached;
 
-        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
-        final JTransaction stx = tx.getDetachedTransaction();
-        JTransaction.setCurrent(tx);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.MANUAL);
+        final PermazenTransaction stx = tx.getDetachedTransaction();
+        PermazenTransaction.setCurrent(tx);
         try {
 
             p1 = tx.create(personClass);
@@ -109,7 +109,7 @@ public class DetachedTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         Assert.assertTrue(detached.isDetached());
@@ -117,8 +117,8 @@ public class DetachedTest extends MainTestSupport {
         detached.setAge(19);
         detached.getSet().clear();
 
-        final JTransaction tx2 = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(tx2);
+        final PermazenTransaction tx2 = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(tx2);
         try {
 
             // Reload objects
@@ -188,7 +188,7 @@ public class DetachedTest extends MainTestSupport {
             tx2.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -203,11 +203,11 @@ public class DetachedTest extends MainTestSupport {
     @Test
     public void testCopyRelated() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(Foo.class);
+        final Permazen pdb = BasicTest.newPermazen(Foo.class);
 
-        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
-        final JTransaction stx = tx.getDetachedTransaction();
-        JTransaction.setCurrent(tx);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.MANUAL);
+        final PermazenTransaction stx = tx.getDetachedTransaction();
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Foo f1 = tx.get(new ObjId("c811111111111111"), Foo.class);
@@ -241,18 +241,18 @@ public class DetachedTest extends MainTestSupport {
             TestSupport.checkSet(f3s.getReferrers(), buildSet());
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testDanglingReference() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(Foo.class, Foo2.class);
+        final Permazen pdb = BasicTest.newPermazen(Foo.class, Foo2.class);
 
-        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
-        final JTransaction stx = tx.getDetachedTransaction();
-        JTransaction.setCurrent(tx);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.MANUAL);
+        final PermazenTransaction stx = tx.getDetachedTransaction();
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Foo f1 = tx.create(Foo2.class);
@@ -275,37 +275,37 @@ public class DetachedTest extends MainTestSupport {
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @JSetField(storageId = 103, element = @JField(storageId = 104, forwardCascades = "set"))
+        @PermazenSetField(storageId = 103, element = @PermazenField(storageId = 104, forwardCascades = "set"))
         public abstract Set<Person> getSet();
 
-        @JListField(storageId = 105, element = @JField(storageId = 106, forwardCascades = "list"))
+        @PermazenListField(storageId = 105, element = @PermazenField(storageId = 106, forwardCascades = "list"))
         public abstract List<Person> getList();
 
-        @JMapField(storageId = 107,
-          key = @JField(storageId = 108, forwardCascades = "map1.key"),
-          value = @JField(storageId = 109))
+        @PermazenMapField(storageId = 107,
+          key = @PermazenField(storageId = 108, forwardCascades = "map1.key"),
+          value = @PermazenField(storageId = 109))
         public abstract Map<Person, Float> getMap1();
 
-        @JMapField(storageId = 110,
-          key = @JField(storageId = 111),
-          value = @JField(storageId = 112, forwardCascades = "map2.value"))
+        @PermazenMapField(storageId = 110,
+          key = @PermazenField(storageId = 111),
+          value = @PermazenField(storageId = 112, forwardCascades = "map2.value"))
         public abstract Map<Float, Person> getMap2();
     }
 
@@ -326,9 +326,9 @@ public class DetachedTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 200)
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements PermazenObject {
 
-        @JField(storageId = 201, inverseDelete = DeleteAction.IGNORE, allowDeleted = true)
+        @PermazenField(storageId = 201, inverseDelete = DeleteAction.IGNORE, allowDeleted = true)
         public abstract Foo getRef();
         public abstract void setRef(Foo ref);
 

@@ -24,21 +24,21 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
     /**
      * The associated Java model class, if any.
      */
-    protected final JClass<T> jclass;
+    protected final PermazenClass<T> pclass;
 
     /**
-     * Constructor for when there is an associated {@link JClass}.
+     * Constructor for when there is an associated {@link PermazenClass}.
      *
-     * @param jclass Java model class
+     * @param pclass Java model class
      * @param annotationType annotation to scan for
      */
-    protected AnnotationScanner(JClass<T> jclass, Class<A> annotationType) {
-        super(jclass.getType(), annotationType);
-        this.jclass = jclass;
+    protected AnnotationScanner(PermazenClass<T> pclass, Class<A> annotationType) {
+        super(pclass.getType(), annotationType);
+        this.pclass = pclass;
     }
 
     /**
-     * Constructor for when there is no associated {@link JClass}.
+     * Constructor for when there is no associated {@link PermazenClass}.
      *
      * @param type Java type to scan
      * @param annotationType annotation to scan for
@@ -46,7 +46,7 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
     @SuppressWarnings("unchecked")
     protected AnnotationScanner(Class<T> type, Class<A> annotationType) {
         super(type, annotationType);
-        this.jclass = null;
+        this.pclass = null;
     }
 
     /**
@@ -206,6 +206,6 @@ abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotati
      */
     protected String getErrorPrefix(Method method) {
         return String.format("invalid %s annotation on method %s for type \"%s\"",
-          this.getAnnotationDescription(), method, this.jclass.getName());
+          this.getAnnotationDescription(), method, this.pclass.getName());
     }
 }

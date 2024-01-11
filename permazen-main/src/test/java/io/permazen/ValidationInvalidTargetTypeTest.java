@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 
 import org.testng.annotations.Test;
@@ -15,10 +15,10 @@ public class ValidationInvalidTargetTypeTest extends MainTestSupport {
     @Test
     public void testValidationInvalidTargetType() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person1.class, Person2.class);
+        final Permazen pdb = BasicTest.newPermazen(Person1.class, Person2.class);
 
-        JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             Person1 p1 = tx.create(Person1.class);
@@ -34,7 +34,7 @@ public class ValidationInvalidTargetTypeTest extends MainTestSupport {
 
             tx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -42,12 +42,12 @@ public class ValidationInvalidTargetTypeTest extends MainTestSupport {
 
     public interface HasFriend {
 
-        @JField(storageId = 200, unique = true)
+        @PermazenField(storageId = 200, unique = true)
         HasFriend getFriend();
         void setFriend(HasFriend person);
     }
 
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
     }
 
     @PermazenType(storageId = 100)

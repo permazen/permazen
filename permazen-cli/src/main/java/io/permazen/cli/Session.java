@@ -7,8 +7,8 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JTransaction;
 import io.permazen.Permazen;
+import io.permazen.PermazenTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.Database;
 import io.permazen.core.Schema;
@@ -241,18 +241,18 @@ public class Session {
     }
 
     /**
-     * Get the open {@link JTransaction} currently associated with this instance.
+     * Get the open {@link PermazenTransaction} currently associated with this instance.
      *
      * <p>
-     * This method just invokes {@link JTransaction#getCurrent} and returns the result.
+     * This method just invokes {@link PermazenTransaction#getCurrent} and returns the result.
      *
-     * @return the open {@link JTransaction} in which to do work
+     * @return the open {@link PermazenTransaction} in which to do work
      * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#PERMAZEN}
      */
-    public JTransaction getJTransaction() {
+    public PermazenTransaction getPermazenTransaction() {
         Preconditions.checkState(this.mode.hasPermazen(), "Permazen not available in " + this.mode + " mode");
-        return JTransaction.getCurrent();
+        return PermazenTransaction.getCurrent();
     }
 
     /**
@@ -476,17 +476,17 @@ public class Session {
 // Transactions
 
     /**
-     * Associate the current {@link JTransaction} with this instance, if not already associated, while performing the given action.
+     * Associate the current {@link PermazenTransaction} with this instance, if not already associated, while performing the given action.
      *
      * <p>
      * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
      * and then false returned.
      *
      * <p>
-     * This instance must be in {@link SessionMode#PERMAZEN}, there must be a {@link JTransaction} open and
-     * {@linkplain JTransaction#getCurrent associated with the current thread}, and this instance must not already
-     * have a different {@link JTransaction} associated with it (it may already have the same {@link JTransaction}
-     * associated with it). The {@link JTransaction} will be left open when this method returns.
+     * This instance must be in {@link SessionMode#PERMAZEN}, there must be a {@link PermazenTransaction} open and
+     * {@linkplain PermazenTransaction#getCurrent associated with the current thread}, and this instance must not already
+     * have a different {@link PermazenTransaction} associated with it (it may already have the same {@link PermazenTransaction}
+     * associated with it). The {@link PermazenTransaction} will be left open when this method returns.
      *
      * <p>
      * This method safely handles re-entrant invocation.
@@ -505,7 +505,7 @@ public class Session {
         Preconditions.checkArgument(SessionMode.PERMAZEN.equals(this.mode), "session is not in Permazen mode");
 
         // Check for re-entrant invocation, otherwise verify no other transaction is associated
-        final Transaction currentTx = JTransaction.getCurrent().getTransaction();
+        final Transaction currentTx = PermazenTransaction.getCurrent().getTransaction();
         final KVTransaction currentKVT = currentTx.getKVTransaction();
 
         // Determine whether to join existing or create new
@@ -680,9 +680,9 @@ public class Session {
             case PERMAZEN:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a Permazen transaction is already open in the current thread");
-                final JTransaction jtx = this.jdb.createTransaction(
+                final PermazenTransaction jtx = this.jdb.createTransaction(
                   this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options);
-                JTransaction.setCurrent(jtx);
+                PermazenTransaction.setCurrent(jtx);
                 this.tx = jtx.getTransaction();
                 this.kvt = this.tx.getKVTransaction();
                 break;
@@ -727,9 +727,9 @@ public class Session {
             switch (currentMode) {
             case PERMAZEN:
                 if (commit && !this.tx.isRollbackOnly())
-                    JTransaction.getCurrent().commit();
+                    PermazenTransaction.getCurrent().commit();
                 else
-                    JTransaction.getCurrent().rollback();
+                    PermazenTransaction.getCurrent().rollback();
                 break;
             case CORE_API:
                 if (commit && !this.tx.isRollbackOnly())
@@ -755,11 +755,11 @@ public class Session {
     private void cleanupTx(SessionMode mode) {
         if (mode.compareTo(SessionMode.PERMAZEN) >= 0) {
             try {
-                JTransaction.getCurrent().rollback();
+                PermazenTransaction.getCurrent().rollback();
             } catch (IllegalStateException e) {
                 // ignore
             }
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
         if (mode.compareTo(SessionMode.CORE_API) >= 0) {
             if (this.tx != null)
@@ -775,7 +775,7 @@ public class Session {
 
     private static boolean isCurrentJTransaction() {
         try {
-            JTransaction.getCurrent();
+            PermazenTransaction.getCurrent();
             return true;
         } catch (IllegalStateException e) {
             return false;

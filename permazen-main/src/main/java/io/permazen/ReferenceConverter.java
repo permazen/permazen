@@ -10,33 +10,33 @@ import com.google.common.base.Converter;
 import io.permazen.core.ObjId;
 
 /**
- * Converts {@link ObjId}s into {@link JObject}s and vice-versa.
+ * Converts {@link ObjId}s into {@link PermazenObject}s and vice-versa.
  */
 class ReferenceConverter<T> extends Converter<T, ObjId> {
 
-    private final JTransaction jtx;
+    private final PermazenTransaction ptx;
     private final Class<T> type;
 
-    ReferenceConverter(JTransaction jtx, Class<T> type) {
-        assert jtx != null;
+    ReferenceConverter(PermazenTransaction ptx, Class<T> type) {
+        assert ptx != null;
         assert type != null;
-        this.jtx = jtx;
+        this.ptx = ptx;
         this.type = type;
     }
 
     @Override
-    protected ObjId doForward(T jobj) {
-        if (jobj == null)
+    protected ObjId doForward(T pobj) {
+        if (pobj == null)
             return null;
-        return ((JObject)jobj).getObjId();
+        return ((PermazenObject)pobj).getObjId();
     }
 
     @Override
     protected T doBackward(ObjId id) {
         if (id == null)
             return null;
-        final JObject jobj = this.jtx.get(id);
-        return this.type.cast(jobj);
+        final PermazenObject pobj = this.ptx.get(id);
+        return this.type.cast(pobj);
     }
 
 // Object
@@ -48,16 +48,16 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final ReferenceConverter<?> that = (ReferenceConverter<?>)obj;
-        return this.jtx == that.jtx;                                    // we don't include type in the comparison
+        return this.ptx == that.ptx;                                    // we don't include type in the comparison
     }
 
     @Override
     public int hashCode() {
-        return this.getClass().hashCode() ^ this.jtx.hashCode();
+        return this.getClass().hashCode() ^ this.ptx.hashCode();
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[type=" + this.type + ",jtx=" + this.jtx + "]";
+        return this.getClass().getSimpleName() + "[type=" + this.type + ",ptx=" + this.ptx + "]";
     }
 }

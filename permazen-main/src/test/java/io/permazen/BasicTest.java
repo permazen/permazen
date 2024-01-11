@@ -5,10 +5,10 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSetField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DeletedObjectException;
@@ -37,10 +37,10 @@ public class BasicTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testBasicStuff() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen();
+        final Permazen pdb = BasicTest.newPermazen();
 
-        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(tx);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final MeanPerson t1 = tx.create(MeanPerson.class);
@@ -233,7 +233,7 @@ public class BasicTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -290,53 +290,53 @@ public class BasicTest extends MainTestSupport {
 // Person queries
 
     public static Index1<String, Person> queryNicknames() {
-        return JTransaction.getCurrent().querySimpleIndex(Person.class, "nicknames.element", String.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(Person.class, "nicknames.element", String.class);
     }
 
     public static Index1<Mood, Person> queryMoods() {
-        return JTransaction.getCurrent().querySimpleIndex(Person.class, "mood", Mood.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(Person.class, "mood", Mood.class);
     }
 
     public static Index1<Integer, Person> queryScores() {
-        return JTransaction.getCurrent().querySimpleIndex(Person.class, "scores.element", Integer.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(Person.class, "scores.element", Integer.class);
     }
 
     public static Index2<Integer, Person, Integer> queryScoreEntries() {
-        return JTransaction.getCurrent().queryListElementIndex(Person.class, "scores.element", Integer.class);
+        return PermazenTransaction.getCurrent().queryListElementIndex(Person.class, "scores.element", Integer.class);
     }
 
     public static Index1<Person, Person> queryRatingKeys() {
-        return JTransaction.getCurrent().querySimpleIndex(Person.class, "ratings.key", Person.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(Person.class, "ratings.key", Person.class);
     }
 
     public static Index2<Float, Person, Person> queryRatingValueEntries() {
-        return JTransaction.getCurrent().queryMapValueIndex(Person.class, "ratings.value", Float.class, Person.class);
+        return PermazenTransaction.getCurrent().queryMapValueIndex(Person.class, "ratings.value", Float.class, Person.class);
     }
 
 // MeanPerson queries
 
     public static Index1<Person, MeanPerson> queryHaters() {
-        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "enemies.element", Person.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "enemies.element", Person.class);
     }
 
     public static Index1<Mood, MeanPerson> queryMoodsMean() {
-        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "mood", Mood.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "mood", Mood.class);
     }
 
     public static Index1<Integer, MeanPerson> queryScoresMean() {
-        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "scores.element", Integer.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "scores.element", Integer.class);
     }
 
     public static Index2<Integer, MeanPerson, Integer> queryScoreEntriesMean() {
-        return JTransaction.getCurrent().queryListElementIndex(MeanPerson.class, "scores.element", Integer.class);
+        return PermazenTransaction.getCurrent().queryListElementIndex(MeanPerson.class, "scores.element", Integer.class);
     }
 
     public static Index1<Person, MeanPerson> queryRatingKeysMean() {
-        return JTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "ratings.key", Person.class);
+        return PermazenTransaction.getCurrent().querySimpleIndex(MeanPerson.class, "ratings.key", Person.class);
     }
 
     public static Index2<Float, MeanPerson, Person> queryRatingValueEntriesMean() {
-        return JTransaction.getCurrent().queryMapValueIndex(MeanPerson.class, "ratings.value", Float.class, Person.class);
+        return PermazenTransaction.getCurrent().queryMapValueIndex(MeanPerson.class, "ratings.value", Float.class, Person.class);
     }
 
 // Model Classes
@@ -349,67 +349,67 @@ public class BasicTest extends MainTestSupport {
 
     public interface HasFriend {
 
-        @JField(storageId = 110)
+        @PermazenField(storageId = 110)
         Person getFriend();
         void setFriend(Person x);
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements HasFriend, JObject {
+    public abstract static class Person implements HasFriend, PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract boolean getZ();
         public abstract void setZ(boolean value);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract byte getB();
         public abstract void setB(byte value);
 
-        @JField(storageId = 103)
+        @PermazenField(storageId = 103)
         public abstract short getS();
         public abstract void setS(short value);
 
-        @JField(storageId = 104)
+        @PermazenField(storageId = 104)
         public abstract char getC();
         public abstract void setC(char value);
 
-        @JField(storageId = 105)
+        @PermazenField(storageId = 105)
         public abstract int getI();
         public abstract void setI(int value);
 
-        @JField(storageId = 106)
+        @PermazenField(storageId = 106)
         public abstract float getF();
         public abstract void setF(float value);
 
-        @JField(storageId = 107)
+        @PermazenField(storageId = 107)
         public abstract long getJ();
         public abstract void setJ(long value);
 
-        @JField(storageId = 108)
+        @PermazenField(storageId = 108)
         public abstract double getD();
         public abstract void setD(double value);
 
-        @JField(storageId = 109)
+        @PermazenField(storageId = 109)
         public abstract String getString();
         public abstract void setString(String value);
 
-        @JField(storageId = 111)
+        @PermazenField(storageId = 111)
         public abstract boolean[] getBooleanArray();
         public abstract void setBooleanArray(boolean[] value);
 
-        @JField(storageId = 112, indexed = true)
+        @PermazenField(storageId = 112, indexed = true)
         public abstract Mood getMood();
         public abstract void setMood(Mood mood);
 
-        @JSetField(storageId = 120, element = @JField(storageId = 121, indexed = true))
+        @PermazenSetField(storageId = 120, element = @PermazenField(storageId = 121, indexed = true))
         public abstract SortedSet<String> getNicknames();
 
-        @JListField(storageId = 130, element = @JField(storageId = 131, encoding = "int", indexed = true))
+        @PermazenListField(storageId = 130, element = @PermazenField(storageId = 131, encoding = "int", indexed = true))
         public abstract List<Integer> getScores();
 
-        @JMapField(storageId = 140,
-          key = @JField(storageId = 141, indexed = true),
-          value = @JField(storageId = 142, indexed = true))
+        @PermazenMapField(storageId = 140,
+          key = @PermazenField(storageId = 141, indexed = true),
+          value = @PermazenField(storageId = 142, indexed = true))
         public abstract NavigableMap<Person, Float> getRatings();
 
         @Override
@@ -421,7 +421,7 @@ public class BasicTest extends MainTestSupport {
     @PermazenType(storageId = 200)
     public abstract static class MeanPerson extends Person {
 
-        @JListField(storageId = 150, element = @JField(storageId = 151))
+        @PermazenListField(storageId = 150, element = @PermazenField(storageId = 151))
         public abstract List<Person> getEnemies();
     }
 }

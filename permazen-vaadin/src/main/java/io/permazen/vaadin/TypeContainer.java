@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.vaadin.data.Container;
 import com.vaadin.shared.ui.label.ContentMode;
 
-import io.permazen.JClass;
+import io.permazen.PermazenClass;
 import io.permazen.Permazen;
 import io.permazen.Util;
 
@@ -63,9 +63,9 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         this.jdb = jdb;
 
         // Get the types of all JClasses assignable to the given type, and use lowest common ancestor as the "top type"
-        final HashSet<Class<?>> types = this.jdb.getJClasses().values().stream()
+        final HashSet<Class<?>> types = this.jdb.getPermazenClasses().values().stream()
           .filter(jclass -> type == null || type.isAssignableFrom(jclass.getType()))
-          .map(JClass::getType)
+          .map(PermazenClass::getType)
           .collect(Collectors.toCollection(HashSet::new));
         this.rootType = !types.isEmpty() ? Util.findLowestCommonAncestorOfClasses(types).getRawType() : Object.class;
     }
@@ -90,9 +90,9 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         // Node set
         final ArrayList<Node> nodes = new ArrayList<>();
 
-        // Create Node's for each JClass
+        // Create Node's for each PermazenClass
         boolean addedRoot = false;
-        for (JClass<?> jclass : this.jdb.getJClasses().values()) {
+        for (PermazenClass<?> jclass : this.jdb.getPermazenClasses().values()) {
             if (this.rootType.isAssignableFrom(jclass.getType())) {
                 nodes.add(new Node(jclass));
                 if (jclass.getType() == this.rootType)
@@ -140,12 +140,12 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
     public static class Node {
 
         private final Class<?> type;
-        private final JClass<?> jclass;
+        private final PermazenClass<?> jclass;
         private final ArrayList<Node> childs = new ArrayList<>();
 
         private Node parent;
 
-        public Node(JClass<?> jclass) {
+        public Node(PermazenClass<?> jclass) {
             this(jclass.getType(), jclass);
         }
 
@@ -153,7 +153,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
             this(type, null);
         }
 
-        private Node(Class<?> type, JClass<?> jclass) {
+        private Node(Class<?> type, PermazenClass<?> jclass) {
             Preconditions.checkArgument(type != null, "null type");
             this.type = type;
             this.jclass = jclass;

@@ -7,8 +7,8 @@ package io.permazen.spring;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JTransaction;
 import io.permazen.Permazen;
+import io.permazen.PermazenTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.DatabaseException;
 import io.permazen.core.Transaction;
@@ -42,7 +42,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * annotation to perform transactions on a {@link Permazen} database.
  *
  * <p>
- * Properly integrates with {@link JTransaction#getCurrent JTransaction.getCurrent()} to participate in
+ * Properly integrates with {@link PermazenTransaction#getCurrent PermazenTransaction.getCurrent()} to participate in
  * existing transactions when appropriate.
  *
  * <p>
@@ -113,7 +113,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     }
 
     /**
-     * Configure whether to invoke {@link JTransaction#validate} just prior to commit (and prior to any
+     * Configure whether to invoke {@link PermazenTransaction#validate} just prior to commit (and prior to any
      * synchronization callbacks). This also causes validation to be performed at the end of each inner
      * transaction that is participating in an outer transaction.
      * If set to false, validation still occurs, but only when the outermost transaction commits.
@@ -139,7 +139,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     @Override
     protected boolean isExistingTransaction(Object txObj) {
-        return ((TxWrapper)txObj).getJTransaction() != null;
+        return ((TxWrapper)txObj).getPermazenTransaction() != null;
     }
 
     @Override
@@ -147,7 +147,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
         // Sanity check
         final TxWrapper tx = (TxWrapper)txObj;
-        if (tx.getJTransaction() != null)
+        if (tx.getPermazenTransaction() != null)
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
 
         // Set transaction options
@@ -174,7 +174,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
         }
 
         // Create Permazen transaction
-        final JTransaction jtx;
+        final PermazenTransaction jtx;
         try {
             jtx = this.createTransaction(options);
         } catch (DatabaseException e) {
@@ -185,13 +185,13 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
         boolean succeeded = false;
         try {
             this.configureTransaction(jtx, txDef);
-            JTransaction.setCurrent(jtx);
+            PermazenTransaction.setCurrent(jtx);
             succeeded = true;
         } catch (DatabaseException e) {
             throw new CannotCreateTransactionException("error configuring Permazen transaction", e);
         } finally {
             if (!succeeded) {
-                JTransaction.setCurrent(null);
+                PermazenTransaction.setCurrent(null);
                 try {
                     jtx.rollback();
                 } catch (DatabaseException e) {
@@ -201,11 +201,11 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
         }
 
         // Done
-        tx.setJTransaction(jtx);
+        tx.setPermazenTransaction(jtx);
     }
 
     /**
-     * Create the underlying {@link JTransaction} for a new transaction.
+     * Create the underlying {@link PermazenTransaction} for a new transaction.
      *
      * <p>
      * The implementation in {@link PermazenTransactionManager} just delegates to
@@ -213,10 +213,10 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      * settings for validation mode and allowing new schema versions.
      *
      * @param options transaction options
-     * @return newly created {@link JTransaction}
+     * @return newly created {@link PermazenTransaction}
      * @throws DatabaseException if an error occurs
      */
-    protected JTransaction createTransaction(Map<String, Object> options) {
+    protected PermazenTransaction createTransaction(Map<String, Object> options) {
         return this.jdb.createTransaction(this.validationMode, options);
     }
 
@@ -227,16 +227,16 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     protected Object doSuspend(Object txObj) {
 
         // Sanity check
-        final JTransaction jtx = ((TxWrapper)txObj).getJTransaction();
+        final PermazenTransaction jtx = ((TxWrapper)txObj).getPermazenTransaction();
         if (jtx == null)
-            throw new TransactionUsageException("no JTransaction exists in the provided transaction object");
+            throw new TransactionUsageException("no PermazenTransaction exists in the provided transaction object");
         if (jtx != this.getCurrent())
-            throw new TransactionUsageException("the provided transaction object contains the wrong JTransaction");
+            throw new TransactionUsageException("the provided transaction object contains the wrong PermazenTransaction");
 
         // Suspend it
         if (this.logger.isTraceEnabled())
             this.logger.trace("suspending current Permazen transaction " + jtx);
-        JTransaction.setCurrent(null);
+        PermazenTransaction.setCurrent(null);
 
         // Done
         return jtx;
@@ -253,10 +253,10 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
 
         // Resume transaction
-        final JTransaction jtx = (JTransaction)suspendedResources;
+        final PermazenTransaction jtx = (PermazenTransaction)suspendedResources;
         if (this.logger.isTraceEnabled())
             this.logger.trace("resuming Permazen transaction " + jtx);
-        JTransaction.setCurrent(jtx);
+        PermazenTransaction.setCurrent(jtx);
     }
 
     /**
@@ -269,7 +269,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      * @param txDef transaction definition
      * @throws DatabaseException if an error occurs
      */
-    protected void configureTransaction(JTransaction jtx, TransactionDefinition txDef) {
+    protected void configureTransaction(PermazenTransaction jtx, TransactionDefinition txDef) {
 
         // Set name
         //jtx.setName(txDef.getName());
@@ -298,9 +298,9 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
             return;
 
         // Get transaction
-        final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
+        final PermazenTransaction jtx = ((TxWrapper)status.getTransaction()).getPermazenTransaction();
         if (jtx == null)
-            throw new NoTransactionException("no current JTransaction exists");
+            throw new NoTransactionException("no current PermazenTransaction exists");
 
         // Validate
         if (this.validateBeforeCommit) {
@@ -318,9 +318,9 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
             return;
 
         // Get transaction
-        final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
+        final PermazenTransaction jtx = ((TxWrapper)status.getTransaction()).getPermazenTransaction();
         if (jtx == null)
-            throw new NoTransactionException("no current JTransaction exists");
+            throw new NoTransactionException("no current PermazenTransaction exists");
 
         // Commit
         try {
@@ -334,7 +334,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
         } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
         } finally {
-            JTransaction.setCurrent(null);          // transaction is no longer usable
+            PermazenTransaction.setCurrent(null);          // transaction is no longer usable
         }
     }
 
@@ -346,9 +346,9 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
             return;
 
         // Get transaction
-        final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
+        final PermazenTransaction jtx = ((TxWrapper)status.getTransaction()).getPermazenTransaction();
         if (jtx == null)
-            throw new NoTransactionException("no current JTransaction exists");
+            throw new NoTransactionException("no current PermazenTransaction exists");
 
         // Rollback
         try {
@@ -360,7 +360,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
         } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
         } finally {
-            JTransaction.setCurrent(null);          // transaction is no longer usable
+            PermazenTransaction.setCurrent(null);          // transaction is no longer usable
         }
     }
 
@@ -372,9 +372,9 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
             return;
 
         // Get transaction
-        final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
+        final PermazenTransaction jtx = ((TxWrapper)status.getTransaction()).getPermazenTransaction();
         if (jtx == null)
-            throw new NoTransactionException("no current JTransaction exists");
+            throw new NoTransactionException("no current PermazenTransaction exists");
 
         // Set rollback only
         if (this.logger.isTraceEnabled())
@@ -384,7 +384,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     @Override
     protected void doCleanupAfterCompletion(Object txObj) {
-        JTransaction.setCurrent(null);
+        PermazenTransaction.setCurrent(null);
         super.doCleanupAfterCompletion(txObj);
     }
 
@@ -392,9 +392,9 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     protected void registerAfterCompletionWithExistingTransaction(Object txObj, List<TransactionSynchronization> synchronizations) {
 
         // Get transaction
-        final JTransaction jtx = ((TxWrapper)txObj).getJTransaction();
+        final PermazenTransaction jtx = ((TxWrapper)txObj).getPermazenTransaction();
         if (jtx == null)
-            throw new NoTransactionException("no current JTransaction exists");
+            throw new NoTransactionException("no current PermazenTransaction exists");
 
         // Add synchronizations
         final Transaction tx = jtx.getTransaction();
@@ -403,13 +403,13 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     }
 
     /**
-     * Like {@link JTransaction#getCurrent}, but returns null instead of throwing {@link IllegalStateException}.
+     * Like {@link PermazenTransaction#getCurrent}, but returns null instead of throwing {@link IllegalStateException}.
      *
      * @return the transaction associated with the current thread, or null if there is none
      */
-    protected JTransaction getCurrent() {
+    protected PermazenTransaction getCurrent() {
         try {
-            return JTransaction.getCurrent();
+            return PermazenTransaction.getCurrent();
         } catch (IllegalStateException e) {
             return null;
         }
@@ -419,16 +419,16 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     private static class TxWrapper implements SmartTransactionObject {
 
-        private JTransaction jtx;
+        private PermazenTransaction jtx;
 
-        TxWrapper(JTransaction jtx) {
+        TxWrapper(PermazenTransaction jtx) {
             this.jtx = jtx;
         }
 
-        public JTransaction getJTransaction() {
+        public PermazenTransaction getPermazenTransaction() {
             return this.jtx;
         }
-        public void setJTransaction(JTransaction jtx) {
+        public void setPermazenTransaction(PermazenTransaction jtx) {
             this.jtx = jtx;
         }
 

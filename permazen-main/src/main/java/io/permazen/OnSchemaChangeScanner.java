@@ -22,8 +22,8 @@ class OnSchemaChangeScanner<T> extends AnnotationScanner<T, OnSchemaChange> {
     private final TypeToken<Map<String, Object>> oldValuesParamType;
 
     @SuppressWarnings("serial")
-    OnSchemaChangeScanner(JClass<T> jclass) {
-        super(jclass, OnSchemaChange.class);
+    OnSchemaChangeScanner(PermazenClass<T> pclass) {
+        super(pclass, OnSchemaChange.class);
         this.oldValuesParamType = new TypeToken<Map<String, Object>>() { };
     }
 
@@ -60,7 +60,7 @@ class OnSchemaChangeScanner<T> extends AnnotationScanner<T, OnSchemaChange> {
         }
 
         // Invoke method
-        void invoke(JObject jobj, Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
+        void invoke(PermazenObject pobj, Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
 
             // Get method info
             final Method method = this.getMethod();
@@ -68,13 +68,13 @@ class OnSchemaChangeScanner<T> extends AnnotationScanner<T, OnSchemaChange> {
             // Figure out method parameters and invoke method
             switch (method.getParameterTypes().length) {
             case 1:
-                Util.invoke(method, jobj, oldValues);
+                Util.invoke(method, pobj, oldValues);
                 break;
             case 2:
-                Util.invoke(method, jobj, oldValues, oldSchemaId);
+                Util.invoke(method, pobj, oldValues, oldSchemaId);
                 break;
             case 3:
-                Util.invoke(method, jobj, oldValues, oldSchemaId, newSchemaId);
+                Util.invoke(method, pobj, oldValues, oldSchemaId, newSchemaId);
                 break;
             default:
                 throw new RuntimeException("internal error");

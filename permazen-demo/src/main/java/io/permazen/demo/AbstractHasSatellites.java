@@ -5,7 +5,7 @@
 
 package io.permazen.demo;
 
-import io.permazen.JObject;
+import io.permazen.PermazenObject;
 import io.permazen.util.NavigableSets;
 
 import java.util.NavigableSet;
@@ -24,7 +24,7 @@ public abstract class AbstractHasSatellites<S extends Satellite<?>> extends Abst
     @Override
     public NavigableSet<S> getSatellites() {
         final NavigableSet<S> satellites = this.getTransaction().queryIndex(
-          this.satelliteType, "parent", JObject.class).asMap().get(this);
+          this.satelliteType, "parent", PermazenObject.class).asMap().get(this);
         return satellites != null ? satellites : NavigableSets.<S>empty();
     }
 }

@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JSetField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.index.Index1;
@@ -25,9 +25,9 @@ public class InterfaceTest extends MainTestSupport {
     @Test
     public void testInterface() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class, Dog.class, Cat.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class, Dog.class, Cat.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person owner = tx.create(Person.class);
@@ -50,22 +50,22 @@ public class InterfaceTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testInterfaceModelClasses() {
 
-        final Permazen jdb = BasicTest.newPermazen(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Human.class, NutriaRat.class, ContainerClass.OwnedPet.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Human fred = jtx.create(Human.class);
+            final Human fred = ptx.create(Human.class);
 
-            final NutriaRat poncho = jtx.create(NutriaRat.class);
-            final NutriaRat lefty = jtx.create(NutriaRat.class);
+            final NutriaRat poncho = ptx.create(NutriaRat.class);
+            final NutriaRat lefty = ptx.create(NutriaRat.class);
 
             poncho.setFriend(lefty);
             poncho.setOwner(fred);
@@ -73,21 +73,21 @@ public class InterfaceTest extends MainTestSupport {
             lefty.setFriend(poncho);
             lefty.setOwner(fred);
 
-            jtx.create(ContainerClass.OwnedPet.class);
+            ptx.create(ContainerClass.OwnedPet.class);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testDoubleInherit() {
 
-        final Permazen jdb = BasicTest.newPermazen(Foo.class, Bar.class);
+        final Permazen pdb = BasicTest.newPermazen(Foo.class, Bar.class);
 
-        final SchemaModel schema = jdb.getSchemaModel();
+        final SchemaModel schema = pdb.getSchemaModel();
         final ReferenceSchemaField fooField = (ReferenceSchemaField)schema.getSchemaObjectTypes()
           .get("Bar").getSchemaFields().get("foo");
 
@@ -97,7 +97,7 @@ public class InterfaceTest extends MainTestSupport {
 // Model Classes #1
 
     @PermazenType
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
         public abstract String getName();
         public abstract void setName(String name);
@@ -105,15 +105,15 @@ public class InterfaceTest extends MainTestSupport {
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @JSetField(element = @JField(indexed = true))
+        @PermazenSetField(element = @PermazenField(indexed = true))
         public abstract Set<Pet> getPets();
 
         public static Index1<Dog, Pet> queryEnemies() {
-            return JTransaction.getCurrent().querySimpleIndex(Pet.class, "enemy", Dog.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(Pet.class, "enemy", Dog.class);
         }
 
         public static Index1<Pet, Person> queryPets() {
-            return JTransaction.getCurrent().querySimpleIndex(Person.class, "pets.element", Pet.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(Person.class, "pets.element", Pet.class);
         }
     }
 
@@ -128,11 +128,11 @@ public class InterfaceTest extends MainTestSupport {
         public abstract void setEnemy(Dog enemy);
 
         public static Index1<Pet, Cat> queryFriend() {
-            return JTransaction.getCurrent().querySimpleIndex(Cat.class, "friend", Pet.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(Cat.class, "friend", Pet.class);
         }
     }
 
-    public interface Pet extends JObject {
+    public interface Pet extends PermazenObject {
 
         Pet getFriend();
         void setFriend(Pet pet);
@@ -176,7 +176,7 @@ public class InterfaceTest extends MainTestSupport {
     }
 
     public interface HasOptionalFoo {
-        @JField(inverseDelete = DeleteAction.DELETE)
+        @PermazenField(inverseDelete = DeleteAction.DELETE)
         Foo getFoo();
         void setFoo(Foo x);
     }

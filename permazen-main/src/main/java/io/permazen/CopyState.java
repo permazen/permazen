@@ -27,8 +27,8 @@ import javax.annotation.concurrent.NotThreadSafe;
  * <p>
  * Instances are not thread safe.
  *
- * @see JObject#copyTo JObject.copyTo()
- * @see JObject#cascade JObject.cascade()
+ * @see PermazenObject#copyTo PermazenObject.copyTo()
+ * @see PermazenObject#cascade PermazenObject.cascade()
  */
 @NotThreadSafe
 public class CopyState {

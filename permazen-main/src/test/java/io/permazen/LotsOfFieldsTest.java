@@ -32,42 +32,42 @@ public class LotsOfFieldsTest extends MainTestSupport {
             Fields64.class,
             Fields65.class
         };
-        final Permazen jdb = BasicTest.newPermazen(classes);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(classes);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             for (Class<?> cl0 : classes) {
-                final Class<? extends JObject> cl = cl0.asSubclass(JObject.class);
-                final JObject jobj = jtx.create(cl);
+                final Class<? extends PermazenObject> cl = cl0.asSubclass(PermazenObject.class);
+                final PermazenObject pobj = ptx.create(cl);
                 final int numFields = Integer.parseInt(cl.getSimpleName().substring(6));
-                this.verifyFields(jobj, numFields, 0);
-                this.setFields(jobj, numFields, 3);
-                this.verifyFields(jobj, numFields, 3);
-                jobj.resetCachedFieldValues();
-                this.verifyFields(jobj, numFields, 3);
-                jobj.delete();
-                jobj.recreate();
-                this.verifyFields(jobj, numFields, 0);
-                this.setFields(jobj, numFields, 5);
-                this.verifyFields(jobj, numFields, 5);
+                this.verifyFields(pobj, numFields, 0);
+                this.setFields(pobj, numFields, 3);
+                this.verifyFields(pobj, numFields, 3);
+                pobj.resetCachedFieldValues();
+                this.verifyFields(pobj, numFields, 3);
+                pobj.delete();
+                pobj.recreate();
+                this.verifyFields(pobj, numFields, 0);
+                this.setFields(pobj, numFields, 5);
+                this.verifyFields(pobj, numFields, 5);
             }
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
-    private void setFields(JObject jobj, int numFields, int value) throws Exception {
+    private void setFields(PermazenObject pobj, int numFields, int value) throws Exception {
         for (int i = 0; i < numFields; i++)
-            jobj.getClass().getMethod("setField" + i, int.class).invoke(jobj, value * i);
+            pobj.getClass().getMethod("setField" + i, int.class).invoke(pobj, value * i);
     }
 
-    private void verifyFields(JObject jobj, int numFields, int expected) throws Exception {
+    private void verifyFields(PermazenObject pobj, int numFields, int expected) throws Exception {
         for (int i = 0; i < numFields; i++) {
-            final int actual = (Integer)jobj.getClass().getMethod("getField" + i).invoke(jobj);
+            final int actual = (Integer)pobj.getClass().getMethod("getField" + i).invoke(pobj);
             Assert.assertEquals(actual, expected * i);
         }
     }
@@ -75,12 +75,12 @@ public class LotsOfFieldsTest extends MainTestSupport {
     @Test
     public void testCopyCacheReset() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(Fields65.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Fields65.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final Fields65 f1 = jtx.create(Fields65.class);
-            final Fields65 f2 = jtx.create(Fields65.class);
+            final Fields65 f1 = ptx.create(Fields65.class);
+            final Fields65 f2 = ptx.create(Fields65.class);
 
             f1.setField55(123);
             f2.setField55(456);
@@ -88,22 +88,22 @@ public class LotsOfFieldsTest extends MainTestSupport {
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 456);
 
-            f1.copyTo(jtx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(f1.getObjId(), f2.getObjId()))));
+            f1.copyTo(ptx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(f1.getObjId(), f2.getObjId()))));
 
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 123);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Fields0 implements JObject {
+    public abstract static class Fields0 implements PermazenObject {
     }
 
     @PermazenType

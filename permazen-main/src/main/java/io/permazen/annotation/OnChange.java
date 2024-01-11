@@ -6,7 +6,7 @@
 package io.permazen.annotation;
 
 import io.permazen.Counter;
-import io.permazen.DetachedJTransaction;
+import io.permazen.DetachedPermazenTransaction;
 import io.permazen.ReferencePath;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
@@ -49,7 +49,7 @@ import java.lang.annotation.Target;
  *
  * <pre>
  *   &#64;PermazenType
- *   public abstract class Account implements JObject {
+ *   public abstract class Account implements PermazenObject {
  *
  *   // Database fields
  *
@@ -86,12 +86,12 @@ import java.lang.annotation.Target;
  *   }
  *
  *   &#64;PermazenType
- *   public abstract class User implements JObject {
+ *   public abstract class User implements PermazenObject {
  *
  *   // Database fields
  *
  *       &#64;NotNull
- *       &#64;JField(indexed = true, unique = true)
+ *       &#64;PermazenField(indexed = true, unique = true)
  *       public abstract String getUsername();
  *       public abstract void setUsername(String username);
  *
@@ -240,7 +240,7 @@ import java.lang.annotation.Target;
  * containing {@code myfield} appears multiple times in {@code mylist}).
  *
  * <p>
- * Some notifications may need to be ignored by objects in {@linkplain DetachedJTransaction detached} transactions;
+ * Some notifications may need to be ignored by objects in {@linkplain DetachedPermazenTransaction detached} transactions;
  * you can use {@code this.isDetached()} to detect that situation.
  *
  * <p>

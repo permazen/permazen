@@ -15,14 +15,14 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
 import io.permazen.CopyState;
-import io.permazen.JCollectionField;
-import io.permazen.JCounterField;
-import io.permazen.JField;
-import io.permazen.JFieldSwitch;
-import io.permazen.JMapField;
-import io.permazen.JObject;
-import io.permazen.JSimpleField;
-import io.permazen.JTransaction;
+import io.permazen.PermazenCollectionField;
+import io.permazen.PermazenCounterField;
+import io.permazen.PermazenField;
+import io.permazen.PermazenFieldSwitch;
+import io.permazen.PermazenMapField;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenSimpleField;
+import io.permazen.PermazenTransaction;
 import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * Automatically creates container properties for object ID, database type, schema version, and all fields, as well as any custom
  * properties defined by {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated methods in
  * Java model classes. The properties of each {@link com.vaadin.data.Item} in the container are derived from a corresponding
- * {@link JObject} which is usually stored in an in-memory {@link SnapshotJTransaction} (which may contain other
+ * {@link PermazenObject} which is usually stored in an in-memory {@link SnapshotJTransaction} (which may contain other
  * related objects, allowing an {@link com.vaadin.data.Item}'s properties to be derived from those related objects as well).
  *
  * <p>
@@ -65,8 +65,8 @@ import org.slf4j.LoggerFactory;
  * database objects that are instances of the configured type. The type may be null, in which case there is no restriction.
  *
  * <p>
- * Instances are loaded by invoking {@link #load load()} with an iteration of backing {@link JObject}s.
- * Normally these {@link JObject}s are contained in a {@link SnapshotJTransaction}.
+ * Instances are loaded by invoking {@link #load load()} with an iteration of backing {@link PermazenObject}s.
+ * Normally these {@link PermazenObject}s are contained in a {@link SnapshotJTransaction}.
  *
  * <p>
  * Instances implement {@link org.dellroad.stuff.vaadin7.Connectable} and therefore must be {@link #connect connect()}'ed
@@ -107,7 +107,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 @SuppressWarnings("serial")
-public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> implements SortingPropertyExtractor<JObject> {
+public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject> implements SortingPropertyExtractor<PermazenObject> {
 
     /**
      * Container property name for the reference label property, which has type {@link Component}.
@@ -142,7 +142,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
     private final RefLabelPropertyDef refLabelPropertyDef = new RefLabelPropertyDef();
 
     private Class<?> type;
-    private ProvidesPropertyScanner<JObject> propertyScanner;
+    private ProvidesPropertyScanner<PermazenObject> propertyScanner;
     private List<String> orderedPropertyNames;
 
     /**
@@ -178,7 +178,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
     @SuppressWarnings("unchecked")
     public <T> void setType(Class<T> type) {
         this.type = type;
-        this.propertyScanner = this.type != null ? (ProvidesPropertyScanner<JObject>)new ProvidesPropertyScanner<T>(type) : null;
+        this.propertyScanner = this.type != null ? (ProvidesPropertyScanner<PermazenObject>)new ProvidesPropertyScanner<T>(type) : null;
         final ArrayList<PropertyDef<?>> propertyDefs = new ArrayList<>(this.buildPropertyDefs());
         this.orderedPropertyNames = Collections.unmodifiableList(Lists.transform(propertyDefs, PropertyDef::getName));
         this.setProperties(propertyDefs);
@@ -195,35 +195,35 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
     }
 
     @Override
-    public ObjId getKeyFor(JObject jobj) {
+    public ObjId getKeyFor(PermazenObject jobj) {
         return jobj.getObjId();
     }
 
     /**
-     * Load this container using the supplied backing {@link JObject}s.
+     * Load this container using the supplied backing {@link PermazenObject}s.
      *
      * <p>
-     * A container {@link com.vaadin.data.Item} will be created wrapping each iterated {@link JObject};
+     * A container {@link com.vaadin.data.Item} will be created wrapping each iterated {@link PermazenObject};
      * {@link com.vaadin.data.Item} properties are accessible only while the containing transaction remains open.
      *
-     * @param jobjs backing {@link JObject}s
+     * @param jobjs backing {@link PermazenObject}s
      */
     @Override
-    public void load(Iterable<? extends JObject> jobjs) {
+    public void load(Iterable<? extends PermazenObject> jobjs) {
         this.load(jobjs.iterator());
     }
 
     /**
-     * Load this container using the supplied backing {@link JObject}s.
+     * Load this container using the supplied backing {@link PermazenObject}s.
      *
      * <p>
-     * A container {@link com.vaadin.data.Item} will be created wrapping each iterated {@link JObject};
+     * A container {@link com.vaadin.data.Item} will be created wrapping each iterated {@link PermazenObject};
      * {@link com.vaadin.data.Item} properties are accessible only while the containing transaction remains open.
      *
-     * @param jobjs backing {@link JObject}s
+     * @param jobjs backing {@link PermazenObject}s
      */
     @Override
-    public void load(Iterator<? extends JObject> jobjs) {
+    public void load(Iterator<? extends PermazenObject> jobjs) {
 
         // Filter out any instances of the wrong type
         if (this.type != null)
@@ -247,9 +247,9 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
      *
      * @param jobj updated database object
      */
-    public void updateItem(JObject jobj) {
+    public void updateItem(PermazenObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        final SimpleItem<JObject> item = (SimpleItem<JObject>)this.getItem(jobj.getObjId());
+        final SimpleItem<PermazenObject> item = (SimpleItem<PermazenObject>)this.getItem(jobj.getObjId());
         if (item != null) {
             jobj.copyTo(item.getObject().getTransaction(), new CopyState());
             item.fireValueChange();
@@ -257,7 +257,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
     }
 
     /**
-     * Perform the given action within a new {@link JTransaction}.
+     * Perform the given action within a new {@link PermazenTransaction}.
      *
      * <p>
      * The implementation in {@link JObjectContainer} performs {@code action} within a new read-only transaction.
@@ -266,7 +266,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
      * @param action the action to perform
      */
     protected void doInTransaction(Runnable action) {
-        final JTransaction jtx = this.jdb.createTransaction(false, ValidationMode.DISABLED);
+        final PermazenTransaction jtx = this.jdb.createTransaction(false, ValidationMode.DISABLED);
         jtx.getTransaction().setReadOnly(true);
         try {
             jtx.performAction(action);
@@ -287,9 +287,9 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         pdefs.setPropertyDef(this.objVersionPropertyDef);
 
         // Add properties for all fields common to all sub-types of our configured type
-        final SortedMap<Integer, JField> jfields = Util.getCommonJFields(this.jdb.getJClasses(this.type));
+        final SortedMap<Integer, PermazenField> jfields = Util.getCommonJFields(this.jdb.getPermazenClasses(this.type));
         if (jfields != null) {
-            for (JField jfield : jfields.values())
+            for (PermazenField jfield : jfields.values())
                 pdefs.setPropertyDef(new ObjFieldPropertyDef(jfield.getStorageId(), jfield.getName()));
         }
 
@@ -307,7 +307,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
 
     @Override
     @SuppressWarnings("unchecked")
-    public <V> V getPropertyValue(JObject jobj, PropertyDef<V> propertyDef) {
+    public <V> V getPropertyValue(PermazenObject jobj, PropertyDef<V> propertyDef) {
         if (propertyDef instanceof ObjPropertyDef)
             return (V)((ObjPropertyDef<?>)propertyDef).extract(jobj);
         if (this.propertyScanner == null)
@@ -325,7 +325,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
     }
 
     @Override
-    public int sort(PropertyDef<?> propertyDef, JObject jobj1, JObject jobj2) {
+    public int sort(PropertyDef<?> propertyDef, PermazenObject jobj1, PermazenObject jobj2) {
         if (propertyDef instanceof ObjPropertyDef)
             return ((ObjPropertyDef<?>)propertyDef).sort(jobj1, jobj2);
         if (this.propertyScanner == null)
@@ -334,7 +334,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
     }
 
     @SuppressWarnings("unchecked")
-    private static <V> V extractProperty(PropertyExtractor<JObject> propertyExtractor, PropertyDef<V> propertyDef, JObject jobj) {
+    private static <V> V extractProperty(PropertyExtractor<PermazenObject> propertyExtractor, PropertyDef<V> propertyDef, PermazenObject jobj) {
         try {
             return propertyExtractor.getPropertyValue(jobj, propertyDef);
         } catch (DeletedObjectException e) {
@@ -353,7 +353,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
 // ObjPropertyDef
 
     /**
-     * Support superclass for {@link PropertyDef} implementations that derive the property value from a {@link JObject}.
+     * Support superclass for {@link PropertyDef} implementations that derive the property value from a {@link PermazenObject}.
      */
     public abstract static class ObjPropertyDef<T> extends PropertyDef<T> {
 
@@ -361,13 +361,13 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
             super(name, type);
         }
 
-        public abstract T extract(JObject jobj);
+        public abstract T extract(PermazenObject jobj);
 
         public boolean canSort() {
             return true;
         }
 
-        public int sort(JObject jobj1, JObject jobj2) {
+        public int sort(PermazenObject jobj1, PermazenObject jobj2) {
             throw new UnsupportedOperationException();
         }
     }
@@ -384,12 +384,12 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         }
 
         @Override
-        public SizedLabel extract(JObject jobj) {
+        public SizedLabel extract(PermazenObject jobj) {
             return new SizedLabel("<code>" + jobj.getObjId() + "</code>", ContentMode.HTML);
         }
 
         @Override
-        public int sort(JObject jobj1, JObject jobj2) {
+        public int sort(PermazenObject jobj1, PermazenObject jobj2) {
             return jobj1.getObjId().compareTo(jobj2.getObjId());
         }
     }
@@ -406,16 +406,16 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         }
 
         @Override
-        public SizedLabel extract(JObject jobj) {
+        public SizedLabel extract(PermazenObject jobj) {
             return new SizedLabel(this.getTypeName(jobj));
         }
 
         @Override
-        public int sort(JObject jobj1, JObject jobj2) {
+        public int sort(PermazenObject jobj1, PermazenObject jobj2) {
             return this.getTypeName(jobj1).compareTo(this.getTypeName(jobj2));
         }
 
-        private String getTypeName(JObject jobj) {
+        private String getTypeName(PermazenObject jobj) {
             return jobj.getTransaction().getTransaction().getSchemas()
               .getVersion(jobj.getSchemaVersion()).getObjType(jobj.getObjId().getStorageId()).getName();
         }
@@ -433,12 +433,12 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         }
 
         @Override
-        public SizedLabel extract(JObject jobj) {
+        public SizedLabel extract(PermazenObject jobj) {
             return new SizedLabel("" + jobj.getSchemaVersion());
         }
 
         @Override
-        public int sort(JObject jobj1, JObject jobj2) {
+        public int sort(PermazenObject jobj1, PermazenObject jobj2) {
             return Integer.compare(jobj1.getSchemaVersion(), jobj2.getSchemaVersion());
         }
     }
@@ -455,20 +455,20 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         }
 
         @Override
-        public Component extract(JObject jobj) {
+        public Component extract(PermazenObject jobj) {
             final Object value = this.getValue(jobj);
             return value instanceof Component ? (Component)value : new SizedLabel(String.valueOf(value));
         }
 
         @Override
-        public int sort(JObject jobj1, JObject jobj2) {
+        public int sort(PermazenObject jobj1, PermazenObject jobj2) {
             final Object value1 = this.getValue(jobj1);
             final Object value2 = this.getValue(jobj2);
             return value1 instanceof Component || value2 instanceof Component ?
               0 : String.valueOf(value1).compareTo(String.valueOf(value2));
         }
 
-        private Object getValue(JObject jobj) {
+        private Object getValue(PermazenObject jobj) {
             final ReferenceMethodInfoCache.PropertyInfo propertyInfo
               = ReferenceMethodInfoCache.getInstance().getReferenceMethodInfo(jobj.getClass());
             if (propertyInfo == ReferenceMethodInfoCache.NOT_FOUND)
@@ -494,27 +494,27 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         }
 
         @Override
-        public Component extract(final JObject jobj) {
+        public Component extract(final PermazenObject jobj) {
             try {
-                return this.getJField(jobj).visit(new JFieldSwitch<Component>() {
+                return this.getField(jobj).visit(new PermazenFieldSwitch<Component>() {
 
                     @Override
-                    public Component caseJSimpleField(JSimpleField field) {
+                    public Component casePermazenSimpleField(PermazenSimpleField field) {
                         return ObjFieldPropertyDef.this.handleValue(field.getValue(jobj));
                     }
 
                     @Override
-                    public Component caseJCounterField(JCounterField field) {
+                    public Component casePermazenCounterField(PermazenCounterField field) {
                         return ObjFieldPropertyDef.this.handleValue(field.getValue(jobj).get());
                     }
 
                     @Override
-                    protected Component caseJCollectionField(JCollectionField field) {
+                    protected Component casePermazenCollectionField(PermazenCollectionField field) {
                         return ObjFieldPropertyDef.this.handleCollectionField(field.getValue(jobj));
                     }
 
                     @Override
-                    public Component caseJMapField(JMapField field) {
+                    public Component casePermazenMapField(PermazenMapField field) {
                         return ObjFieldPropertyDef.this.handleMultiple(Iterables.transform(
                           field.getValue(jobj).entrySet(),
                           entry -> {
@@ -539,21 +539,21 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         }
 
         @Override
-        public int sort(JObject jobj1, JObject jobj2) {
+        public int sort(PermazenObject jobj1, PermazenObject jobj2) {
             try {
 
                 // Get fields
-                final JField jfield1 = this.getJField(jobj1);
-                final JField jfield2 = this.getJField(jobj2);
+                final PermazenField jfield1 = this.getField(jobj1);
+                final PermazenField jfield2 = this.getField(jobj2);
 
                 // Compare using core API encoding
-                return jfield1.visit(new JFieldSwitch<Integer>() {
+                return jfield1.visit(new PermazenFieldSwitch<Integer>() {
 
                     @Override
-                    public Integer caseJSimpleField(JSimpleField field1) {
-                        if (!(jfield2 instanceof JSimpleField))
+                    public Integer casePermazenSimpleField(PermazenSimpleField field1) {
+                        if (!(jfield2 instanceof PermazenSimpleField))
                             return 0;
-                        final JSimpleField field2 = (JSimpleField)jfield2;
+                        final PermazenSimpleField field2 = (PermazenSimpleField)jfield2;
                         final Encoding<?> encoding1 = field1.getEncoding();
                         final Encoding<?> encoding2 = field2.getEncoding();
                         if (!encoding1.equals(encoding2))
@@ -579,15 +579,15 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
                     }
 
                     @Override
-                    public Integer caseJCounterField(JCounterField field1) {
-                        if (!(jfield2 instanceof JCounterField))
+                    public Integer casePermazenCounterField(PermazenCounterField field1) {
+                        if (!(jfield2 instanceof PermazenCounterField))
                             return 0;
-                        final JCounterField field2 = (JCounterField)jfield2;
+                        final PermazenCounterField field2 = (PermazenCounterField)jfield2;
                         return Long.compare(field1.getValue(jobj1).get(), field2.getValue(jobj2).get());
                     }
 
                     @Override
-                    protected Integer caseJField(JField field) {
+                    protected Integer casePermazenField(PermazenField field) {
                         return 0;
                     }
                 });
@@ -611,8 +611,8 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
             return super.hashCode() ^ this.storageId;
         }
 
-        private JField getJField(final JObject jobj) {
-            return JObjectContainer.this.jdb.getJClass(jobj.getObjId()).getJField(this.storageId, JField.class);
+        private PermazenField getField(final PermazenObject jobj) {
+            return JObjectContainer.this.jdb.getPermazenClass(jobj.getObjId()).getField(this.storageId, PermazenField.class);
         }
 
         private Component handleCollectionField(Collection<?> col) {
@@ -641,8 +641,8 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> imple
         private <T> Component handleValue(Object value) {
             if (value == null)
                 return new SizedLabel("<i>Null</i>", ContentMode.HTML);
-            if (value instanceof JObject)
-                return new RefLabelPropertyDef().extract((JObject)value);
+            if (value instanceof PermazenObject)
+                return new RefLabelPropertyDef().extract((PermazenObject)value);
             return new SizedLabel(String.valueOf(value));
         }
     }

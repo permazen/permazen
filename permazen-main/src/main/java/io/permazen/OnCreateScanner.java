@@ -14,8 +14,8 @@ import java.lang.reflect.Method;
  */
 class OnCreateScanner<T> extends AnnotationScanner<T, OnCreate> {
 
-    OnCreateScanner(JClass<T> jclass) {
-        super(jclass, OnCreate.class);
+    OnCreateScanner(PermazenClass<T> pclass) {
+        super(pclass, OnCreate.class);
     }
 
     @Override

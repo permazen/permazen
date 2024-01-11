@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.kv.RetryTransactionException;
 
@@ -18,19 +18,19 @@ public class ValidationExceptionTest extends MainTestSupport {
     @Test
     public void testValidationException() {
 
-        final Permazen jdb = BasicTest.newPermazen(Retryer.class);
+        final Permazen pdb = BasicTest.newPermazen(Retryer.class);
 
         // Transaction with validation disabled
-        JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
-        Retryer jobj;
+        PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
+        Retryer pobj;
         try {
 
-            jobj = tx.create(Retryer.class);
-            jobj.setReal(123);
+            pobj = tx.create(Retryer.class);
+            pobj.setReal(123);
 
             // Attempt validation - we should get the unwrapped exception
-            jobj.revalidate();
+            pobj.revalidate();
             try {
                 tx.validate();
                 assert false;
@@ -42,16 +42,16 @@ public class ValidationExceptionTest extends MainTestSupport {
 
             tx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Retryer implements JObject {
+    public abstract static class Retryer implements PermazenObject {
 
-        @JField
+        @PermazenField
         @Min(0)
         public abstract int getReal();
         public abstract void setReal(int real);

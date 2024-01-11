@@ -313,7 +313,7 @@ public final class Util {
     }
 
     /**
-     * Identify the named field in the given {@link JClass}.
+     * Identify the named field in the given {@link PermazenClass}.
      *
      * <p>
      * The field may be specified by name like {@code "myfield"} or by name and storage ID like {@code "myfield#1234"}.
@@ -322,20 +322,20 @@ public final class Util {
      * To specify a sub-field of a complex field, qualify it with the parent field like {@code "mymap.key"}.
      *
      * <p>
-     * This method is equivalent to {@code findField(jclass, fieldName, null)}.
+     * This method is equivalent to {@code findField(pclass, fieldName, null)}.
      *
-     * @param jclass containing object type
+     * @param pclass containing object type
      * @param fieldName field name
-     * @return resulting {@link JField}, or null if no such field is found in {@code jclass}
+     * @return resulting {@link PermazenField}, or null if no such field is found in {@code pclass}
      * @throws IllegalArgumentException if {@code fieldName} is ambiguous or invalid
-     * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
+     * @throws IllegalArgumentException if {@code pclass} or {@code fieldName} is null
      */
-    public static JField findField(JClass<?> jclass, String fieldName) {
-        return Util.findField(jclass, fieldName, null);
+    public static PermazenField findField(PermazenClass<?> pclass, String fieldName) {
+        return Util.findField(pclass, fieldName, null);
     }
 
     /**
-     * Identify the named simple field in the given {@link JClass}.
+     * Identify the named simple field in the given {@link PermazenClass}.
      *
      * <p>
      * The field may be specified by name like {@code "myfield"} or by name and storage ID like {@code "myfield#1234"}.
@@ -344,25 +344,25 @@ public final class Util {
      * To specify a sub-field of a complex field, qualify it with the parent field like {@code "mymap.key"}.
      *
      * <p>
-     * This method is equivalent to {@code findField(jclass, fieldName, true)} plus filtering out non-{@link JSimpleField}s.
+     * This method is equivalent to {@code findField(pclass, fieldName, true)} plus filtering out non-{@link PermazenSimpleField}s.
      *
-     * @param jclass containing object type
+     * @param pclass containing object type
      * @param fieldName field name
-     * @return resulting {@link JField}, or null if no such field is found in {@code jclass}
+     * @return resulting {@link PermazenField}, or null if no such field is found in {@code pclass}
      * @throws IllegalArgumentException if {@code fieldName} is ambiguous or invalid
-     * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
+     * @throws IllegalArgumentException if {@code pclass} or {@code fieldName} is null
      */
-    public static JSimpleField findSimpleField(JClass<?> jclass, String fieldName) {
-        final JField jfield = Util.findField(jclass, fieldName, true);
+    public static PermazenSimpleField findSimpleField(PermazenClass<?> pclass, String fieldName) {
+        final PermazenField pfield = Util.findField(pclass, fieldName, true);
         try {
-            return (JSimpleField)jfield;
+            return (PermazenSimpleField)pfield;
         } catch (ClassCastException e) {
             return null;
         }
     }
 
     /**
-     * Identify the named field in the given {@link JClass}.
+     * Identify the named field in the given {@link PermazenClass}.
      *
      * <p>
      * The field may be specified by name like {@code "myfield"} or by name and storage ID like {@code "myfield#1234"}.
@@ -375,24 +375,24 @@ public final class Util {
      * either a sub-field must be specified, or else the complex field must have only one sub-field and then that
      * sub-field is assumed. If false, it is an error to specify a sub-field of a complex field. If null, either is OK.
      *
-     * @param jclass containing object type
+     * @param pclass containing object type
      * @param fieldName field name
      * @param expectSubField true if the field should be a complex sub-field instead of a complex field,
      *  false if field should not be complex field instead of a complex sub-field, or null for don't care
-     * @return resulting {@link JField}, or null if no such field is found in {@code jclass}
+     * @return resulting {@link PermazenField}, or null if no such field is found in {@code pclass}
      * @throws IllegalArgumentException if {@code fieldName} is ambiguous or invalid
-     * @throws IllegalArgumentException if {@code jclass} or {@code fieldName} is null
+     * @throws IllegalArgumentException if {@code pclass} or {@code fieldName} is null
      */
-    public static JField findField(JClass<?> jclass, final String fieldName, Boolean expectSubField) {
+    public static PermazenField findField(PermazenClass<?> pclass, final String fieldName, Boolean expectSubField) {
 
         // Sanity check
-        Preconditions.checkArgument(jclass != null, "null jclass");
+        Preconditions.checkArgument(pclass != null, "null pclass");
         Preconditions.checkArgument(fieldName != null, "null fieldName");
 
         // Logging
         final Logger log = LoggerFactory.getLogger(Util.class);
         if (log.isTraceEnabled())
-            log.trace("Util.findField(): jclass={} fieldName={} expectSubField={}", jclass, fieldName, expectSubField);
+            log.trace("Util.findField(): pclass={} fieldName={} expectSubField={}", pclass, fieldName, expectSubField);
 
         // Split field name into components
         final ArrayDeque<String> components = new ArrayDeque<>(Arrays.asList(fieldName.split("\\.", -1)));
@@ -421,8 +421,8 @@ public final class Util {
                 }
             }
 
-            boolean matches(JField jfield) {
-                return jfield.name.equals(this.name) && (this.storageId == 0 || jfield.storageId == this.storageId);
+            boolean matches(PermazenField pfield) {
+                return pfield.name.equals(this.name) && (this.storageId == 0 || pfield.storageId == this.storageId);
             }
 
             @Override
@@ -434,25 +434,25 @@ public final class Util {
         // Get first field name component
         final NameParse firstName = new NameParse(components.removeFirst());
 
-        // Find the JField matching 'component' in jclass
-        JField matchingField = jclass.jfieldsByName.get(firstName.name);
+        // Find the PermazenField matching 'component' in pclass
+        PermazenField matchingField = pclass.fieldsByName.get(firstName.name);
         if (matchingField == null || !firstName.matches(matchingField))
             return null;
 
         // Logging
         if (log.isTraceEnabled())
-            log.trace("Util.findField(): found field {} in {}", matchingField, jclass.getType());
+            log.trace("Util.findField(): found field {} in {}", matchingField, pclass.getType());
 
         // Get sub-field requirements
         final boolean requireSimpleField = Boolean.TRUE.equals(expectSubField);
         final boolean disallowSubField = Boolean.FALSE.equals(expectSubField);
 
         // Handle complex fields
-        if (matchingField instanceof JComplexField) {
+        if (matchingField instanceof PermazenComplexField) {
 
             // Get complex field
-            final JComplexField complexField = (JComplexField)matchingField;
-            String description = "field \"" + firstName + "\" in " + jclass;
+            final PermazenComplexField complexField = (PermazenComplexField)matchingField;
+            String description = "field \"" + firstName + "\" in " + pclass;
 
             // Logging
             if (log.isTraceEnabled())
@@ -460,7 +460,7 @@ public final class Util {
 
             // If no sub-field is given, field has only one sub-field, and a simple field is required, then default to that
             if (requireSimpleField && components.isEmpty()) {
-                final List<JSimpleField> subFields = complexField.getSubFields();
+                final List<PermazenSimpleField> subFields = complexField.getSubFields();
                 if (subFields.size() == 1)
                     components.add(subFields.get(0).name);
             }
@@ -508,8 +508,8 @@ public final class Util {
                     log.trace("Util.findField(): ended on complex field; result={}", matchingField);
             }
         } else if (log.isTraceEnabled()) {
-            if (matchingField instanceof JSimpleField) {
-                final JSimpleField simpleField = (JSimpleField)matchingField;
+            if (matchingField instanceof PermazenSimpleField) {
+                final PermazenSimpleField simpleField = (PermazenSimpleField)matchingField;
                 log.trace("Util.findField(): field is a simple field of type {}", simpleField.getTypeToken());
             } else
                 log.trace("Util.findField(): field is {}", matchingField);
@@ -535,7 +535,7 @@ public final class Util {
      * @param getter supertype Java bean property getter method
      * @return corresponding Java bean property getter method in {@code type}, possibly {@code getter}
      */
-    static <T> Method findJFieldGetterMethod(Class<T> type, Method getter) {
+    static <T> Method findPermazenFieldGetterMethod(Class<T> type, Method getter) {
         Preconditions.checkArgument(type != null);
         Preconditions.checkArgument(getter != null);
         Preconditions.checkArgument(getter.getParameterTypes().length == 0);
@@ -569,7 +569,7 @@ public final class Util {
      * @return Java bean property setter method
      * @throws IllegalArgumentException if no corresponding setter method exists
      */
-    static <T> Method findJFieldSetterMethod(Class<T> type, Method getter) {
+    static <T> Method findPermazenFieldSetterMethod(Class<T> type, Method getter) {
         final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
         if (!matcher.matches()) {
             throw new IllegalArgumentException(String.format(
@@ -670,7 +670,7 @@ public final class Util {
      *
      * <p>
      * When there is more than one choice, heuristics are used. For example, we prefer
-     * non-interface types, and {@link JObject} over other interface types.
+     * non-interface types, and {@link PermazenObject} over other interface types.
      *
      * @param types sub-types
      * @return narrowest common super-type

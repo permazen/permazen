@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JCompositeIndex;
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenCompositeIndex;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.DeleteAction;
@@ -32,28 +32,28 @@ public class CompositeIndexTest extends MainTestSupport {
 
         final Database db = new Database(new MemoryKVDatabase());
 
-        final Permazen jdb = BasicTest.newPermazen(db, this.getClasses());
+        final Permazen pdb = BasicTest.newPermazen(db, this.getClasses());
 
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             // Randomly create, delete, and modify objects, verifying expected index at each step
             final ArrayList<Top> tops = new ArrayList<>();
             for (int i = 0; i < 50; i++) {
-                final Top top1 = this.getRandomTop(jtx);
-                final Top top2 = this.getRandomTop(jtx);
+                final Top top1 = this.getRandomTop(ptx);
+                final Top top2 = this.getRandomTop(ptx);
                 switch (top1 != null ? this.random.nextInt(4) : 0) {
                 case 0:
                     if (this.random.nextBoolean())
-                        jtx.create(Foo1.class);
+                        ptx.create(Foo1.class);
                     else if (this.random.nextBoolean())
-                        jtx.create(Foo2.class);
+                        ptx.create(Foo2.class);
                     else
-                        jtx.create(Foo3.class);
+                        ptx.create(Foo3.class);
                     break;
                 case 1:
-                    jtx.delete(top1);
+                    ptx.delete(top1);
                     break;
                 default:
                     switch (this.random.nextInt(4)) {
@@ -74,35 +74,35 @@ public class CompositeIndexTest extends MainTestSupport {
                     }
                     break;
                 }
-                this.verifyIndexes(jtx);
+                this.verifyIndexes(ptx);
             }
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
-    private Top getRandomTop(JTransaction jtx) {
-        final NavigableSet<Top> tops = jtx.getAll(Top.class);
+    private Top getRandomTop(PermazenTransaction ptx) {
+        final NavigableSet<Top> tops = ptx.getAll(Top.class);
         final int num = tops.size();
         if (num == 0 || this.random.nextInt(10) > 7)
             return null;
         return (Top)tops.toArray()[this.random.nextInt(num)];
     }
 
-    private void verifyIndexes(JTransaction jtx) {
+    private void verifyIndexes(PermazenTransaction ptx) {
         for (Class<?> startType : this.getClasses()) {
             for (Class<?> refType : this.getClasses()) {
-                Assert.assertEquals(jtx.queryCompositeIndex(startType, "index1", refType, String.class).asSet(),
-                  this.buildIndex1(jtx, refType, startType));
-                Assert.assertEquals(jtx.queryCompositeIndex(startType, "index2", Integer.class, refType).asSet(),
-                  this.buildIndex2(jtx, refType, startType));
+                Assert.assertEquals(ptx.queryCompositeIndex(startType, "index1", refType, String.class).asSet(),
+                  this.buildIndex1(ptx, refType, startType));
+                Assert.assertEquals(ptx.queryCompositeIndex(startType, "index2", Integer.class, refType).asSet(),
+                  this.buildIndex2(ptx, refType, startType));
             }
         }
     }
 
-    private <R, T> Set<Tuple3<R, String, T>> buildIndex1(JTransaction jtx, Class<R> ref, Class<T> target) {
+    private <R, T> Set<Tuple3<R, String, T>> buildIndex1(PermazenTransaction ptx, Class<R> ref, Class<T> target) {
         final HashSet<Tuple3<R, String, T>> set = new HashSet<>();
-        for (Top top : jtx.getAll(Top.class)) {
+        for (Top top : ptx.getAll(Top.class)) {
             try {
                 set.add(new Tuple3<>(ref.cast(top.getRef1()), top.getString(), target.cast(top)));
             } catch (ClassCastException e) {
@@ -112,9 +112,9 @@ public class CompositeIndexTest extends MainTestSupport {
         return set;
     }
 
-    private <R, T> Set<Tuple3<Integer, R, T>> buildIndex2(JTransaction jtx, Class<R> ref, Class<T> target) {
+    private <R, T> Set<Tuple3<Integer, R, T>> buildIndex2(PermazenTransaction ptx, Class<R> ref, Class<T> target) {
         final HashSet<Tuple3<Integer, R, T>> set = new HashSet<>();
-        for (Top top : jtx.getAll(Top.class)) {
+        for (Top top : ptx.getAll(Top.class)) {
             try {
                 set.add(new Tuple3<>(top.getInt(), ref.cast(top.getRef2()), target.cast(top)));
             } catch (ClassCastException e) {
@@ -137,27 +137,27 @@ public class CompositeIndexTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex2() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(IndexedOn2.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(IndexedOn2.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final NavigableMap<Tuple2<JObject, Thread.State>, NavigableSet<IndexedOn2>> view
-              = jtx.queryCompositeIndex(IndexedOn2.class, "index2", JObject.class, Thread.State.class).asMap();
+            final NavigableMap<Tuple2<PermazenObject, Thread.State>, NavigableSet<IndexedOn2>> view
+              = ptx.queryCompositeIndex(IndexedOn2.class, "index2", PermazenObject.class, Thread.State.class).asMap();
 
-            final IndexedOn2 a = jtx.create(IndexedOn2.class);
-            final IndexedOn2 b = jtx.create(IndexedOn2.class);
-            final IndexedOn2 c = jtx.create(IndexedOn2.class);
+            final IndexedOn2 a = ptx.create(IndexedOn2.class);
+            final IndexedOn2 b = ptx.create(IndexedOn2.class);
+            final IndexedOn2 c = ptx.create(IndexedOn2.class);
 
             a.setField2(Thread.State.RUNNABLE);
             b.setField2(Thread.State.RUNNABLE);
             c.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple2<JObject, Thread.State>(null, Thread.State.RUNNABLE)),
+            Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               buildSet(a, b, c));
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -167,51 +167,52 @@ public class CompositeIndexTest extends MainTestSupport {
             b.setField2(Thread.State.TERMINATED);
             c.setField2(Thread.State.TERMINATED);
 
-            Assert.assertEquals(view.get(new Tuple2<JObject, Thread.State>(null, Thread.State.RUNNABLE)),
+            Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               null);
 
-            jtx.validate();
+            ptx.validate();
 
             a.setField2(Thread.State.RUNNABLE);
             b.setField2(Thread.State.RUNNABLE);
             c.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple2<JObject, Thread.State>(null, Thread.State.RUNNABLE)),
+            Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               buildSet(a, b, c));
 
             b.setField1(a);
 
-            Assert.assertEquals(view.get(new Tuple2<JObject, Thread.State>(null, Thread.State.RUNNABLE)),
+            Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               buildSet(a, c));
 
             c.setField2(Thread.State.WAITING);
 
-            Assert.assertEquals(view.get(new Tuple2<JObject, Thread.State>(null, Thread.State.RUNNABLE)),
+            Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               buildSet(a));
 
-            jtx.validate();
+            ptx.validate();
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex3() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(IndexedOn3.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(IndexedOn3.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final NavigableMap<Tuple3<JObject, Thread.State, Integer>, NavigableSet<IndexedOn3>> view
-              = jtx.queryCompositeIndex(IndexedOn3.class, "index3", JObject.class, Thread.State.class, Integer.class).asMap();
+            final NavigableMap<Tuple3<PermazenObject, Thread.State, Integer>, NavigableSet<IndexedOn3>> view
+              = ptx.queryCompositeIndex(IndexedOn3.class, "index3",
+               PermazenObject.class, Thread.State.class, Integer.class).asMap();
 
-            final IndexedOn3 a = jtx.create(IndexedOn3.class);
-            final IndexedOn3 b = jtx.create(IndexedOn3.class);
-            final IndexedOn3 c = jtx.create(IndexedOn3.class);
+            final IndexedOn3 a = ptx.create(IndexedOn3.class);
+            final IndexedOn3 b = ptx.create(IndexedOn3.class);
+            final IndexedOn3 c = ptx.create(IndexedOn3.class);
 
             a.setField2(Thread.State.TERMINATED);
             b.setField2(Thread.State.TERMINATED);
@@ -221,25 +222,25 @@ public class CompositeIndexTest extends MainTestSupport {
             b.setField3(-1234);
             c.setField3(-1234);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(a, b, c));
 
-            jtx.validate();
+            ptx.validate();
 
             a.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(b, c));
 
-            jtx.validate();
+            ptx.validate();
 
             b.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(c));
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -247,11 +248,11 @@ public class CompositeIndexTest extends MainTestSupport {
 
             c.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               null);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -261,23 +262,23 @@ public class CompositeIndexTest extends MainTestSupport {
             b.setField2(Thread.State.TERMINATED);
             c.setField2(Thread.State.TERMINATED);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(a, b, c));
 
             a.setField3(4567);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(b, c));
 
-            jtx.validate();
+            ptx.validate();
 
             b.setField3(4567);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(c));
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -285,11 +286,11 @@ public class CompositeIndexTest extends MainTestSupport {
 
             c.setField3(4567);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               null);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -298,36 +299,36 @@ public class CompositeIndexTest extends MainTestSupport {
             b.setField1(a);
             c.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.RUNNABLE, -1234)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.RUNNABLE, -1234)),
               null);
 
-            Assert.assertEquals(view.get(new Tuple3<JObject, Thread.State, Integer>(null, Thread.State.RUNNABLE, 4567)),
+            Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.RUNNABLE, 4567)),
               buildSet(c));
 
-            jtx.validate();
+            ptx.validate();
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndex4() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(IndexedOn4.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(IndexedOn4.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final NavigableMap<Tuple4<JObject, Thread.State, Integer, String>, NavigableSet<IndexedOn4>> view
-              = jtx.queryCompositeIndex(IndexedOn4.class,
-               "index4", JObject.class, Thread.State.class, Integer.class, String.class).asMap();
+            final NavigableMap<Tuple4<PermazenObject, Thread.State, Integer, String>, NavigableSet<IndexedOn4>> view
+              = ptx.queryCompositeIndex(IndexedOn4.class,
+               "index4", PermazenObject.class, Thread.State.class, Integer.class, String.class).asMap();
 
-            final IndexedOn4 a = jtx.create(IndexedOn4.class);
-            final IndexedOn4 b = jtx.create(IndexedOn4.class);
-            final IndexedOn4 c = jtx.create(IndexedOn4.class);
+            final IndexedOn4 a = ptx.create(IndexedOn4.class);
+            final IndexedOn4 b = ptx.create(IndexedOn4.class);
+            final IndexedOn4 c = ptx.create(IndexedOn4.class);
 
             a.setField2(Thread.State.RUNNABLE);
             b.setField2(Thread.State.RUNNABLE);
@@ -342,11 +343,11 @@ public class CompositeIndexTest extends MainTestSupport {
             c.setField4("foobar");
 
             Assert.assertEquals(
-              view.get(new Tuple4<JObject, Thread.State, Integer, String>(null, Thread.State.RUNNABLE, -1234, "foobar")),
+              view.get(new Tuple4<PermazenObject, Thread.State, Integer, String>(null, Thread.State.RUNNABLE, -1234, "foobar")),
               buildSet(a, b, c));
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -356,10 +357,10 @@ public class CompositeIndexTest extends MainTestSupport {
             b.setField4("janfu");
 
             Assert.assertEquals(
-              view.get(new Tuple4<JObject, Thread.State, Integer, String>(null, Thread.State.RUNNABLE, -1234, "foobar")),
+              view.get(new Tuple4<PermazenObject, Thread.State, Integer, String>(null, Thread.State.RUNNABLE, -1234, "foobar")),
               buildSet(c));
 
-            jtx.validate();
+            ptx.validate();
 
             // Validate all of the unique exclusions
 
@@ -380,7 +381,7 @@ public class CompositeIndexTest extends MainTestSupport {
             c.setField4("foobar");
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -391,35 +392,35 @@ public class CompositeIndexTest extends MainTestSupport {
                 a.setField2(s);
                 b.setField2(s);
                 c.setField2(s);
-                jtx.validate();
+                ptx.validate();
             }
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeIndexSubTypes() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(A.class, B.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(A.class, B.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final NavigableMap<Tuple2<JObject, Thread.State>, NavigableSet<IndexedOn2>> view
-              = jtx.queryCompositeIndex(IndexedOn2.class, "index2", JObject.class, Thread.State.class).asMap();
+            final NavigableMap<Tuple2<PermazenObject, Thread.State>, NavigableSet<IndexedOn2>> view
+              = ptx.queryCompositeIndex(IndexedOn2.class, "index2", PermazenObject.class, Thread.State.class).asMap();
 
-            final NavigableMap<Tuple2<JObject, Thread.State>, NavigableSet<A>> viewA
-              = jtx.queryCompositeIndex(A.class, "index2", JObject.class, Thread.State.class).asMap();
+            final NavigableMap<Tuple2<PermazenObject, Thread.State>, NavigableSet<A>> viewA
+              = ptx.queryCompositeIndex(A.class, "index2", PermazenObject.class, Thread.State.class).asMap();
 
-            final NavigableMap<Tuple2<JObject, Thread.State>, NavigableSet<B>> viewB
-              = jtx.queryCompositeIndex(B.class, "index2", JObject.class, Thread.State.class).asMap();
+            final NavigableMap<Tuple2<PermazenObject, Thread.State>, NavigableSet<B>> viewB
+              = ptx.queryCompositeIndex(B.class, "index2", PermazenObject.class, Thread.State.class).asMap();
 
-            A a = jtx.create(A.class);
-            B b = jtx.create(B.class);
+            A a = ptx.create(A.class);
+            B b = ptx.create(B.class);
 
             a.setField1(a);
             b.setField1(a);
@@ -427,12 +428,12 @@ public class CompositeIndexTest extends MainTestSupport {
             a.setField2(Thread.State.RUNNABLE);
             b.setField2(Thread.State.RUNNABLE);
 
-            Assert.assertEquals(view.get(new Tuple2<JObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(a, b));
-            Assert.assertEquals(viewA.get(new Tuple2<JObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(a));
-            Assert.assertEquals(viewB.get(new Tuple2<JObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(b));
+            Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(a, b));
+            Assert.assertEquals(viewA.get(new Tuple2<PermazenObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(a));
+            Assert.assertEquals(viewB.get(new Tuple2<PermazenObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(b));
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false : "view = " + view;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -444,26 +445,26 @@ public class CompositeIndexTest extends MainTestSupport {
             a.setField2(Thread.State.TERMINATED);
             b.setField2(Thread.State.TERMINATED);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeInitialUnique() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(C.class, D.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(C.class, D.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            C c = jtx.create(C.class);
-            D d = jtx.create(D.class);
+            C c = ptx.create(C.class);
+            D d = ptx.create(D.class);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false;
             } catch (ValidationException e) {
                 this.log.info("got expected {}", e.toString());
@@ -471,33 +472,33 @@ public class CompositeIndexTest extends MainTestSupport {
 
             c.setField1(d);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
-    @JCompositeIndex(storageId = 11, name = "index1", fields = { "ref1", "string" })
-    @JCompositeIndex(storageId = 12, name = "index2", fields = { "int", "ref2" })
+    @PermazenCompositeIndex(storageId = 11, name = "index1", fields = { "ref1", "string" })
+    @PermazenCompositeIndex(storageId = 12, name = "index2", fields = { "int", "ref2" })
     @PermazenType(storageId = 99)
-    public abstract static class Top implements JObject {
+    public abstract static class Top implements PermazenObject {
 
-        @JField(storageId = 1, inverseDelete = DeleteAction.UNREFERENCE)
+        @PermazenField(storageId = 1, inverseDelete = DeleteAction.UNREFERENCE)
         public abstract Top getRef1();
         public abstract void setRef1(Top ref1);
 
-        @JField(storageId = 2, inverseDelete = DeleteAction.UNREFERENCE)
+        @PermazenField(storageId = 2, inverseDelete = DeleteAction.UNREFERENCE)
         public abstract Top getRef2();
         public abstract void setRef2(Top ref2);
 
-        @JField(storageId = 3)
+        @PermazenField(storageId = 3)
         public abstract int getInt();
         public abstract void setInt(int i);
 
-        @JField(storageId = 4)
+        @PermazenField(storageId = 4)
         public abstract String getString();
         public abstract void setString(String string);
 
@@ -521,10 +522,10 @@ public class CompositeIndexTest extends MainTestSupport {
 
 // Model Classes #2
 
-    public interface Fields extends JObject {
+    public interface Fields extends PermazenObject {
 
-        JObject getField1();
-        void setField1(JObject x);
+        PermazenObject getField1();
+        void setField1(PermazenObject x);
 
         Thread.State getField2();
         void setField2(Thread.State x);
@@ -536,7 +537,7 @@ public class CompositeIndexTest extends MainTestSupport {
         void setField4(String x);
     }
 
-    @JCompositeIndex(
+    @PermazenCompositeIndex(
       name = "index2",
       fields = { "field1", "field2" },
       unique = true,
@@ -545,7 +546,7 @@ public class CompositeIndexTest extends MainTestSupport {
     public interface IndexedOn2 extends Fields {
     }
 
-    @JCompositeIndex(
+    @PermazenCompositeIndex(
       name = "index3",
       fields = { "field1", "field2", "field3" },
       unique = true,
@@ -554,7 +555,7 @@ public class CompositeIndexTest extends MainTestSupport {
     public interface IndexedOn3 extends Fields {
     }
 
-    @JCompositeIndex(
+    @PermazenCompositeIndex(
       name = "index4",
       fields = { "field1", "field2", "field3", "field4" },
       unique = true,
@@ -581,7 +582,7 @@ public class CompositeIndexTest extends MainTestSupport {
 
 // Model Classes #4
 
-    @JCompositeIndex(name = "foo", fields = { "field1", "field2", "field3", "field4" }, unique = true)
+    @PermazenCompositeIndex(name = "foo", fields = { "field1", "field2", "field3", "field4" }, unique = true)
     public interface Unique {
     }
 

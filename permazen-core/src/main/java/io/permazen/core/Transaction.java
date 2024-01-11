@@ -53,8 +53,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Note: this is the lower level, core API for {@link io.permazen.Permazen}. In most cases this API
- * will only be used indirectly through the higher level {@link io.permazen.Permazen}, {@link io.permazen.JTransaction},
- * and {@link io.permazen.JObject} APIs.
+ * will only be used indirectly through the higher level {@link io.permazen.Permazen}, {@link io.permazen.PermazenTransaction},
+ * and {@link io.permazen.PermazenObject} APIs.
  *
  * <p>
  * Methods in this class can be divided into the following categories:
@@ -2349,7 +2349,7 @@ public class Transaction {
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws IllegalArgumentException if {@code id} is null
      * @see Field#getKey(ObjId) Field.getKey()
-     * @see io.permazen.JTransaction#getKey(io.permazen.JObject) JTransaction.getKey()
+     * @see io.permazen.PermazenTransaction#getKey(io.permazen.PermazenObject) PermazenTransaction.getKey()
      */
     public synchronized byte[] getKey(ObjId id) {
 

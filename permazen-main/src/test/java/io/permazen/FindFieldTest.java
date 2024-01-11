@@ -5,10 +5,10 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSetField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 
 import java.util.List;
@@ -21,17 +21,17 @@ import org.testng.annotations.Test;
 
 public class FindFieldTest extends MainTestSupport {
 
-    private Permazen jdb;
+    private Permazen pdb;
 
     @BeforeClass
     public void setup() {
-        this.jdb = BasicTest.newPermazen(Model1.class);
+        this.pdb = BasicTest.newPermazen(Model1.class);
     }
 
     @Test(dataProvider = "tests")
     public void testFindField(String fieldName, Boolean expectSubField, Object result) throws Exception {
-        final JClass<?> jclass = this.jdb.getJClass(Model1.class);
-        final io.permazen.JField jfield;
+        final PermazenClass<?> jclass = this.pdb.getPermazenClass(Model1.class);
+        final io.permazen.PermazenField jfield;
         try {
             jfield = Util.findField(jclass, fieldName, expectSubField);
         } catch (IllegalArgumentException e) {
@@ -121,19 +121,19 @@ public class FindFieldTest extends MainTestSupport {
     }
 
     @PermazenType
-    public interface Model1 extends JObject {
+    public interface Model1 extends PermazenObject {
 
-        @JField(storageId = 1)
+        @PermazenField(storageId = 1)
         String getString();
         void setString(String x);
 
-        @JListField(storageId = 2, element = @JField(storageId = 3))
+        @PermazenListField(storageId = 2, element = @PermazenField(storageId = 3))
         List<String> getList();
 
-        @JSetField(storageId = 4, element = @JField(storageId = 5))
+        @PermazenSetField(storageId = 4, element = @PermazenField(storageId = 5))
         Set<String> getSet();
 
-        @JMapField(storageId = 6, key = @JField(storageId = 7), value = @JField(storageId = 8))
+        @PermazenMapField(storageId = 6, key = @PermazenField(storageId = 7), value = @PermazenField(storageId = 8))
         Map<String, String> getMap();
     }
 }

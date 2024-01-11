@@ -7,8 +7,8 @@ package io.permazen.change;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 
 /**
  * Object change notification.
@@ -35,7 +35,7 @@ public abstract class Change<T> {
      *
      * <p>
      * Although not declared as such to allow flexibility in Java model types, the returned object
-     * will always be a {@link JObject} instance.
+     * will always be a {@link PermazenObject} instance.
      *
      * @return the changed object
      */
@@ -49,13 +49,13 @@ public abstract class Change<T> {
      * <p>
      * This is a convenience method, equivalent to:
      * <blockquote><pre>
-     * (JObject)getObject()
+     * (PermazenObject)getObject()
      * </pre></blockquote>
      *
-     * @return the changed object as a {@link JObject}
+     * @return the changed object as a {@link PermazenObject}
      */
-    public JObject getJObject() {
-        return (JObject)this.jobj;
+    public PermazenObject getJObject() {
+        return (PermazenObject)this.jobj;
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class Change<T> {
      * @throws io.permazen.kv.StaleTransactionException if {@code jtx} is no longer usable
      * @throws IllegalArgumentException if {@code jtx} or {@code jobj} is null
      */
-    public abstract void apply(JTransaction jtx, JObject jobj);
+    public abstract void apply(PermazenTransaction jtx, PermazenObject jobj);
 
     /**
      * Apply this change to the object associated with this instance in the given transaction.
@@ -94,7 +94,7 @@ public abstract class Change<T> {
      * @param jtx transaction in which to apply this change
      * @throws IllegalArgumentException if {@code jtx} is null
      */
-    public void apply(JTransaction jtx) {
+    public void apply(PermazenTransaction jtx) {
         this.apply(jtx, this.getJObject());
     }
 
@@ -104,13 +104,13 @@ public abstract class Change<T> {
      * <p>
      * This is a convenience method, equivalent to:
      * <blockquote><pre>
-     * apply(JTransaction.getCurrent())
+     * apply(PermazenTransaction.getCurrent())
      * </pre></blockquote>
      *
-     * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
+     * @throws IllegalStateException if there is no {@link PermazenTransaction} associated with the current thread
      */
     public void apply() {
-        this.apply(JTransaction.getCurrent());
+        this.apply(PermazenTransaction.getCurrent());
     }
 
     /**
@@ -123,10 +123,10 @@ public abstract class Change<T> {
      * </pre></blockquote>
      *
      * @param jobj object to which to apply this change
-     * @throws IllegalStateException if there is no {@link JTransaction} associated with {@code jobj}
+     * @throws IllegalStateException if there is no {@link PermazenTransaction} associated with {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
      */
-    public void apply(JObject jobj) {
+    public void apply(PermazenObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
         this.apply(jobj.getTransaction(), jobj);
     }

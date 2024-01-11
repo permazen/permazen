@@ -21,37 +21,37 @@ public class VersionIntersectTest extends MainTestSupport {
     @Test
     public void testVersionIntersect() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(Foo.class, Bar.class);
-        final SchemaId schemaId = jdb.getSchemaModel().getSchemaId();
+        final Permazen pdb = BasicTest.newPermazen(Foo.class, Bar.class);
+        final SchemaId schemaId = pdb.getSchemaModel().getSchemaId();
 
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
             final Foo[] foos = new Foo[4];
             final Bar[] bars = new Bar[4];
             for (int i = 0; i < 4; i++) {
-                foos[i] = jtx.create(Foo.class);
-                bars[i] = jtx.create(Bar.class);
+                foos[i] = ptx.create(Foo.class);
+                bars[i] = ptx.create(Bar.class);
             }
-            final NavigableSet<JObject> set = NavigableSets.<JObject>intersection(
-              jtx.querySchemaIndex(JObject.class).get(schemaId),
-              (NavigableSet<JObject>)(Object)jtx.getAll(Foo.class));
+            final NavigableSet<PermazenObject> set = NavigableSets.<PermazenObject>intersection(
+              ptx.querySchemaIndex(PermazenObject.class).get(schemaId),
+              (NavigableSet<PermazenObject>)(Object)ptx.getAll(Foo.class));
             TestSupport.checkSet(set, buildSet(foos[0], foos[1], foos[2], foos[3]));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType(storageId = 10)
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements PermazenObject {
     }
 
     @PermazenType(storageId = 11)
-    public abstract static class Bar implements JObject {
+    public abstract static class Bar implements PermazenObject {
     }
 }

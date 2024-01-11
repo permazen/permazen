@@ -83,18 +83,18 @@ Permazen redefines the "line of demarcation" between a Java application and its 
 *Java Layer*
 
   * [`Permazen`](http://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html) - A Permazen database instance
-  * [`JTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/JTransaction.html) - A Permazen database transaction
+  * [`PermazenTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenTransaction.html) - A Permazen database transaction
   * [`FieldType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/FieldType.html) - How all simple database types are defined
-  * [`JObject`](http://permazen.github.io/permazen/site/apidocs/io/permazen/JObject.html) - Interface implemented by runtime-generated concrete model classes
+  * [`PermazenObject`](http://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenObject.html) - Interface implemented by runtime-generated concrete model classes
   * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
-  * [`@JField`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/JField.html) - Annotation configuring your database fields
+  * [`@PermazenField`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenField.html) - Annotation configuring your database fields
 
 *Other*
 
   * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnChange.html) - How change notifications are delivered
   * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
   * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
-  * [`JObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/io/permazen/spring/JObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
+  * [`PermazenObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/io/permazen/spring/PermazenObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
 
 ### How are Java object, data structures, and indexes mapped into key/value pairs?
 

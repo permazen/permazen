@@ -7,8 +7,8 @@ package io.permazen.vaadin;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JClass;
-import io.permazen.JField;
+import io.permazen.PermazenClass;
+import io.permazen.PermazenField;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -22,19 +22,19 @@ final class Util {
     }
 
     /**
-     * Get the {@link JField}s that are common to all of the given types.
+     * Get the {@link PermazenField}s that are common to all of the given types.
      *
      * @param jclasses types to inspect
-     * @return map containing common {@link JField}s, or null if {@code jclasses} is empty
+     * @return map containing common {@link PermazenField}s, or null if {@code jclasses} is empty
      */
-    static SortedMap<Integer, JField> getCommonJFields(Iterable<? extends JClass<?>> jclasses) {
+    static SortedMap<Integer, PermazenField> getCommonJFields(Iterable<? extends PermazenClass<?>> jclasses) {
         Preconditions.checkArgument(jclasses != null, "null jclasses");
-        TreeMap<Integer, JField> jfields = null;
-        for (JClass<?> jclass : jclasses) {     // TODO: keep only fields with the same name; prefer indexed (sub-)fields
+        TreeMap<Integer, PermazenField> jfields = null;
+        for (PermazenClass<?> jclass : jclasses) {     // TODO: keep only fields with the same name; prefer indexed (sub-)fields
             if (jfields == null)
-                jfields = new TreeMap<>(jclass.getJFieldsByStorageId());
+                jfields = new TreeMap<>(jclass.getFieldsByStorageId());
             else
-                jfields.keySet().retainAll(jclass.getJFieldsByStorageId().keySet());
+                jfields.keySet().retainAll(jclass.getFieldsByStorageId().keySet());
         }
         return jfields;
     }

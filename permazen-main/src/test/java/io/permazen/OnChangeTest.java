@@ -5,11 +5,11 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSetField;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.Change;
 import io.permazen.change.FieldChange;
@@ -50,9 +50,9 @@ public class OnChangeTest extends MainTestSupport {
     @Test
     public void testSimpleFieldChange() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class, MeanPerson.class, NicePerson.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class, MeanPerson.class, NicePerson.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person p1 = tx.create(Person.class);
@@ -126,19 +126,19 @@ public class OnChangeTest extends MainTestSupport {
             this.verify(new MapFieldClear<>(m1, "enemies"));
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testColorChange() {
 
-        final Permazen jdb = BasicTest.newPermazen(ColorHolder.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(ColorHolder.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final ColorHolder obj = jtx.create(ColorHolder.class);
+            final ColorHolder obj = ptx.create(ColorHolder.class);
 
             obj.setColor(Color.BLUE);
             Assert.assertSame(obj.getOldColor(), null);
@@ -153,21 +153,21 @@ public class OnChangeTest extends MainTestSupport {
             Assert.assertSame(obj.getNewColor(), null);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testNoParamChange() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person2.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person2.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Person2 p1 = jtx.create(Person2.class);
-            final Person2 p2 = jtx.create(Person2.class);
-            final Person2 p3 = jtx.create(Person2.class);
+            final Person2 p1 = ptx.create(Person2.class);
+            final Person2 p2 = ptx.create(Person2.class);
+            final Person2 p3 = ptx.create(Person2.class);
 
             p1.getFriends().add(p2);
             p1.getFriends().add(p3);
@@ -196,19 +196,19 @@ public class OnChangeTest extends MainTestSupport {
             Assert.assertEquals(p3.getChangeNotifications(), 0);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testNonGenericParameter() {
 
-        final Permazen jdb = BasicTest.newPermazen(NonGenericChange.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(NonGenericChange.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final NonGenericChange c = jtx.create(NonGenericChange.class);
+            final NonGenericChange c = ptx.create(NonGenericChange.class);
 
             Assert.assertNull(c.getChange());
 
@@ -216,25 +216,25 @@ public class OnChangeTest extends MainTestSupport {
 
             Assert.assertEquals(c.getChange(), new SimpleFieldChange<NonGenericChange, String>(c, "name", null, "fred"));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testInversePaths() {
 
-        final Permazen jdb = BasicTest.newPermazen(InversePaths.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(InversePaths.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final InversePaths parent = jtx.create(InversePaths.class);
-            final InversePaths child1 = jtx.create(InversePaths.class);
-            final InversePaths child2 = jtx.create(InversePaths.class);
-            final InversePaths child3 = jtx.create(InversePaths.class);
+            final InversePaths parent = ptx.create(InversePaths.class);
+            final InversePaths child1 = ptx.create(InversePaths.class);
+            final InversePaths child2 = ptx.create(InversePaths.class);
+            final InversePaths child3 = ptx.create(InversePaths.class);
 
             child1.setParent(parent);
             child2.setParent(parent);
@@ -254,25 +254,25 @@ public class OnChangeTest extends MainTestSupport {
             Assert.assertEquals(child2.getChange(), change);
             Assert.assertEquals(child3.getChange(), change);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testInverseRestrictedTypes() {
 
-        final Permazen jdb = BasicTest.newPermazen(A.class, B.class, C.class, D.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(A.class, B.class, C.class, D.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final A a = jtx.create(A.class);
-            final B b = jtx.create(B.class);
-            final C c = jtx.create(C.class);
-            final D d = jtx.create(D.class);
+            final A a = ptx.create(A.class);
+            final B b = ptx.create(B.class);
+            final C c = ptx.create(C.class);
+            final D d = ptx.create(D.class);
 
             b.setA(a);
             c.setA(a);
@@ -289,10 +289,10 @@ public class OnChangeTest extends MainTestSupport {
 
             Assert.assertEquals(a.getChange(), new SimpleFieldChange<D, Integer>(d, "foo", 123, 456));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -315,13 +315,13 @@ public class OnChangeTest extends MainTestSupport {
     @Test
     public void testChangeWithDelete() {
 
-        final Permazen jdb = BasicTest.newPermazen(Node.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Node.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Node parent = jtx.create(Node.class);
-            final Node child = jtx.create(Node.class);
+            final Node parent = ptx.create(Node.class);
+            final Node child = ptx.create(Node.class);
 
             child.setParent(parent);
             child.setColor(Color.RED);
@@ -334,15 +334,15 @@ public class OnChangeTest extends MainTestSupport {
                 "\n  ACTUAL: " + actual
               + "\nEXPECTED: " + expected);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     private static void recordChange(FieldChange<?> change) {
-        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore detached changes
+        if (change.getJObject().getTransaction() != PermazenTransaction.getCurrent())      // ignore detached changes
             return;
         EVENTS.get().add(change);
     }
@@ -350,17 +350,17 @@ public class OnChangeTest extends MainTestSupport {
 // Model Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @JListField(storageId = 103, element = @JField(storageId = 104))
+        @PermazenListField(storageId = 103, element = @PermazenField(storageId = 104))
         public abstract List<Person> getKnownPeople();
 
         @OnChange(path = "->knownPeople->enemies.key", value = "age")
@@ -430,9 +430,9 @@ public class OnChangeTest extends MainTestSupport {
     @PermazenType(storageId = 200)
     public abstract static class MeanPerson extends Person {
 
-        @JMapField(storageId = 201,
-          key = @JField(storageId = 202),
-          value = @JField(storageId = 203, encoding = "float"))
+        @PermazenMapField(storageId = 201,
+          key = @PermazenField(storageId = 202),
+          value = @PermazenField(storageId = 203, encoding = "float"))
         public abstract Map<NicePerson, Float> getEnemies();
 
     // enemies
@@ -475,12 +475,12 @@ public class OnChangeTest extends MainTestSupport {
     @PermazenType(storageId = 300)
     public abstract static class NicePerson extends Person {
 
-        @JMapField(storageId = 301,
-          key = @JField(storageId = 302),
-          value = @JField(storageId = 303))
+        @PermazenMapField(storageId = 301,
+          key = @PermazenField(storageId = 302),
+          value = @PermazenField(storageId = 303))
         public abstract Map<Person, Float> getRatings();
 
-        @JSetField(storageId = 304, element = @JField(storageId = 305))
+        @PermazenSetField(storageId = 304, element = @PermazenField(storageId = 305))
         public abstract Set<Person> getFriends();
 
     // ratings
@@ -551,7 +551,7 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 400)
-    public abstract static class ColorHolder implements JObject {
+    public abstract static class ColorHolder implements PermazenObject {
 
         private Color oldColor;
         private Color newColor;
@@ -563,7 +563,7 @@ public class OnChangeTest extends MainTestSupport {
             return this.newColor;
         }
 
-        @JField(storageId = 401)
+        @PermazenField(storageId = 401)
         public abstract Color getColor();
         public abstract void setColor(Color color);
 
@@ -582,7 +582,7 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Person2 implements JObject {
+    public abstract static class Person2 implements PermazenObject {
 
         private int changeNotifications;
 
@@ -590,11 +590,11 @@ public class OnChangeTest extends MainTestSupport {
             return this.changeNotifications;
         }
 
-        @JField
+        @PermazenField
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JSetField
+        @PermazenSetField
         public abstract Set<Person2> getFriends();
 
         @OnChange(path = "->friends.element", value = "name")
@@ -604,7 +604,7 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class NonGenericChange implements JObject {
+    public abstract static class NonGenericChange implements PermazenObject {
 
         private Object change;
 
@@ -612,7 +612,7 @@ public class OnChangeTest extends MainTestSupport {
             return this.change;
         }
 
-        @JField(storageId = 123)
+        @PermazenField(storageId = 123)
         public abstract String getName();
         public abstract void setName(String name);
 
@@ -623,7 +623,7 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class InversePaths implements JObject {
+    public abstract static class InversePaths implements PermazenObject {
 
         private SimpleFieldChange<?, ?> change;
 
@@ -634,7 +634,7 @@ public class OnChangeTest extends MainTestSupport {
         public abstract InversePaths getParent();
         public abstract void setParent(InversePaths parent);
 
-        @JField(storageId = 123)
+        @PermazenField(storageId = 123)
         public abstract String getName();
         public abstract void setName(String name);
 
@@ -652,7 +652,7 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class A implements JObject {
+    public abstract static class A implements PermazenObject {
 
         private SimpleFieldChange<D, Integer> change;
 
@@ -667,20 +667,20 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class B implements JObject, HasA {
+    public abstract static class B implements PermazenObject, HasA {
     }
 
     @PermazenType
-    public abstract static class C implements JObject, HasA {
+    public abstract static class C implements PermazenObject, HasA {
     }
 
     @PermazenType
-    public abstract static class D implements JObject {
+    public abstract static class D implements PermazenObject {
 
-        public abstract JObject getMiddleMan();
-        public abstract void setMiddleMan(JObject x);
+        public abstract PermazenObject getMiddleMan();
+        public abstract void setMiddleMan(PermazenObject x);
 
-        @JField(storageId = 10)
+        @PermazenField(storageId = 10)
         public abstract int getFoo();
         public abstract void setFoo(int x);
     }
@@ -688,7 +688,7 @@ public class OnChangeTest extends MainTestSupport {
 // Counter Test
 
     @PermazenType
-    public abstract static class HasCounter implements JObject {
+    public abstract static class HasCounter implements PermazenObject {
 
         public abstract Counter getCounter();
 
@@ -701,7 +701,7 @@ public class OnChangeTest extends MainTestSupport {
 // Delete Test
 
     @PermazenType
-    public abstract static class Node implements JObject {
+    public abstract static class Node implements PermazenObject {
 
         private final ArrayList<SimpleFieldChange<Node, Color>> changes = new ArrayList<>();
 
@@ -709,11 +709,11 @@ public class OnChangeTest extends MainTestSupport {
             return this.changes;
         }
 
-        @JField(storageId = 10)
+        @PermazenField(storageId = 10)
         public abstract Node getParent();
         public abstract void setParent(Node x);
 
-        @JField(storageId = 20)
+        @PermazenField(storageId = 20)
         public abstract Color getColor();
         public abstract void setColor(Color color);
 

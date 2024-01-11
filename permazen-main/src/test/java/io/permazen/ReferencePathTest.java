@@ -7,9 +7,9 @@ package io.permazen;
 
 import com.google.common.primitives.Ints;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
 import io.permazen.annotation.PermazenType;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class ReferencePathTest extends MainTestSupport {
         this.testReferencePath(this.jdb2, startType, targetType, singular, refs, pathString);
     }
 
-    public void testReferencePath(Permazen jdb, Class<?> startType,
+    public void testReferencePath(Permazen pdb, Class<?> startType,
       Class<?> targetType, boolean singular, int[] refs, String pathString) throws Exception {
 
         // Prepare args
@@ -54,7 +54,7 @@ public class ReferencePathTest extends MainTestSupport {
         // Parse path
         final ReferencePath path;
         try {
-            path = jdb.parseReferencePath(startType, pathString);
+            path = pdb.parseReferencePath(startType, pathString);
             assert valid : "path was supposed to be invalid:"
               + "\n  startType=" + startType
               + "\n  targetType=" + targetType
@@ -113,27 +113,27 @@ public class ReferencePathTest extends MainTestSupport {
     public Object[][] genPaths2() {
         return new Object[][] {
 
-        //  startType           targetType          singular    refs                path
-          { WackyPaths1.class,  WackyPaths1.class,  true,       ii(),               "" },
-          { WackyPaths2.class,  WackyPaths2.class,  true,       ii(),               "" },
-          { WackyPaths3.class,  WackyPaths3.class,  true,       ii(),               "" },
+        //  startType               targetType              singulr refs                path
+          { WackyPaths1.class,      WackyPaths1.class,      true,   ii(),               "" },
+          { WackyPaths2.class,      WackyPaths2.class,      true,   ii(),               "" },
+          { WackyPaths3.class,      WackyPaths3.class,      true,   ii(),               "" },
 
-          { WackyPaths1.class,  JObject.class,      true,       ii(123),            "->foo" },
-          { WackyPaths1.class,  WackyPaths1.class,  true,       ii(123, 321),       "->foo->bar" },
-          { WackyPaths1.class,  JObject.class,      true,       ii(123, 321, 123),  "->foo->bar->foo" },
+          { WackyPaths1.class,      PermazenObject.class,   true,   ii(123),            "->foo" },
+          { WackyPaths1.class,      WackyPaths1.class,      true,   ii(123, 321),       "->foo->bar" },
+          { WackyPaths1.class,      PermazenObject.class,   true,   ii(123, 321, 123),  "->foo->bar->foo" },
 
-          { JObject.class,      null,               true,       null,               "->foo" },          // ambiguous
-          { JObject.class,      null,               true,       null,               "->foo->element" }, // ambiguous
-          { JObject.class,      JObject.class,      true,       ii(123),            "->foo#123" },      // disambiguated
+          { PermazenObject.class,   null,                   true,   null,               "->foo" },          // ambiguous
+          { PermazenObject.class,   null,                   true,   null,               "->foo->element" }, // ambiguous
+          { PermazenObject.class,   PermazenObject.class,   true,   ii(123),            "->foo#123" },      // disambiguated
 
-          { WackyPaths1.class,  null,               true,       null,               "->foo.element" },  // wrong start type
-          { WackyPaths2.class,  null,               true,       null,               "->foo.element" },  // wrong start type
-          { WackyPaths3.class,  WackyPaths2.class,  false,      ii(789),            "->foo.element" },
-          { WackyPaths3.class,  WackyPaths2.class,  false,      ii(789),            "->foo"         },  // abbreviated form
-          { JObject.class,      WackyPaths2.class,  false,      ii(789),            "->foo.element" },
+          { WackyPaths1.class,      null,                   true,   null,               "->foo.element" },  // wrong start type
+          { WackyPaths2.class,      null,                   true,   null,               "->foo.element" },  // wrong start type
+          { WackyPaths3.class,      WackyPaths2.class,      false,  ii(789),            "->foo.element" },
+          { WackyPaths3.class,      WackyPaths2.class,      false,  ii(789),            "->foo"         },  // abbreviated form
+          { PermazenObject.class,   WackyPaths2.class,      false,  ii(789),            "->foo.element" },
 
-          { JObject.class,      WackyPaths1.class,  false,      ii(-321, 321),      "<-WackyPaths2.bar->bar" },
-          { JObject.class,      WackyPaths1.class,  false,      ii(-321, 321),      "<-io.permazen.JObject.bar->bar" },
+          { PermazenObject.class,   WackyPaths1.class,      false,  ii(-321, 321),      "<-WackyPaths2.bar->bar" },
+          { PermazenObject.class,   WackyPaths1.class,      false,  ii(-321, 321),      "<-io.permazen.PermazenObject.bar->bar" },
         };
     }
 
@@ -145,35 +145,35 @@ public class ReferencePathTest extends MainTestSupport {
 
     public interface HasFriend {
 
-        @JField(storageId = 110)
+        @PermazenField(storageId = 110)
         Person getFriend();
         void setFriend(Person x);
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements HasFriend, JObject {
+    public abstract static class Person implements HasFriend, PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract boolean getZ();
         public abstract void setZ(boolean value);
 
-        @JMapField(storageId = 140,
-          key = @JField(storageId = 141, indexed = true),
-          value = @JField(storageId = 142, indexed = true))
+        @PermazenMapField(storageId = 140,
+          key = @PermazenField(storageId = 141, indexed = true),
+          value = @PermazenField(storageId = 142, indexed = true))
         public abstract NavigableMap<Person, Float> getRatings();
     }
 
     @PermazenType(storageId = 200)
     public abstract static class MeanPerson extends Person {
 
-        @JListField(storageId = 150, element = @JField(storageId = 151))
+        @PermazenListField(storageId = 150, element = @PermazenField(storageId = 151))
         public abstract List<Person> getEnemies();
     }
 
     @PermazenType(storageId = 300)
-    public abstract static class Dog implements JObject {
+    public abstract static class Dog implements PermazenObject {
 
-        @JField(storageId = 310)
+        @PermazenField(storageId = 310)
         public abstract Person getOwner();
         public abstract void setOwner(Person x);
     }
@@ -181,32 +181,32 @@ public class ReferencePathTest extends MainTestSupport {
 // Wacky paths
 
     @PermazenType
-    public abstract static class WackyPaths1 implements JObject {
+    public abstract static class WackyPaths1 implements PermazenObject {
 
-        @JField(storageId = 123)
-        public abstract JObject getFoo();
-        public abstract void setFoo(JObject x);
+        @PermazenField(storageId = 123)
+        public abstract PermazenObject getFoo();
+        public abstract void setFoo(PermazenObject x);
 
         public abstract String getName();
         public abstract void setName(String x);
     }
 
     @PermazenType
-    public abstract static class WackyPaths2 implements JObject {
+    public abstract static class WackyPaths2 implements PermazenObject {
 
-        public abstract JObject getElement();
-        public abstract void setElement(JObject x);
+        public abstract PermazenObject getElement();
+        public abstract void setElement(PermazenObject x);
 
-        @JField(storageId = 321)
+        @PermazenField(storageId = 321)
         public abstract WackyPaths1 getBar();
         public abstract void setBar(WackyPaths1 x);
     }
 
     @PermazenType
-    public abstract static class WackyPaths3 implements JObject {
+    public abstract static class WackyPaths3 implements PermazenObject {
 
-        @JListField(storageId = 456,
-          element = @JField(storageId = 789))
+        @PermazenListField(storageId = 456,
+          element = @PermazenField(storageId = 789))
         public abstract List<WackyPaths2> getFoo();
     }
 }

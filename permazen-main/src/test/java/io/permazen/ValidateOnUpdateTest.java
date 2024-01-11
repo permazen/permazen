@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.Transaction;
@@ -49,29 +49,29 @@ public class ValidateOnUpdateTest extends MainTestSupport {
 
     // Version 2
 
-        Permazen jdb = BasicTest.newPermazen(db, Foo.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        Permazen pdb = BasicTest.newPermazen(db, Foo.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final Foo foo = jtx.getAll(Foo.class).iterator().next();
+            final Foo foo = ptx.getAll(Foo.class).iterator().next();
             foo.migrateSchema();
             try {
-                jtx.commit();                    // should fail because UUID is null
+                ptx.commit();                    // should fail because UUID is null
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements PermazenObject {
 
-        @JField(name = "uuid")
+        @PermazenField(name = "uuid")
         @NotNull
         public abstract UUID getUUID();
         public abstract void setUUID(UUID uuid);

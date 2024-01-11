@@ -51,8 +51,8 @@ import java.util.stream.Collectors;
  */
 class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
-    OnChangeScanner(JClass<T> jclass) {
-        super(jclass, OnChange.class);
+    OnChangeScanner(PermazenClass<T> pclass) {
+        super(pclass, OnChange.class);
     }
 
     @Override
@@ -82,18 +82,18 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             super(method, annotation);
 
             // Get database
-            final Permazen jdb = OnChangeScanner.this.jclass.jdb;
+            final Permazen pdb = OnChangeScanner.this.pclass.pdb;
             final String errorPrefix = OnChangeScanner.this.getErrorPrefix(method);
 
             // Parse reference path
             try {
-                this.path = jdb.parseReferencePath(method.getDeclaringClass(), annotation.path());
+                this.path = pdb.parseReferencePath(method.getDeclaringClass(), annotation.path());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
             }
 
             // Get target object types
-            final Set<JClass<?>> targetTypes = path.getTargetTypes();
+            final Set<PermazenClass<?>> targetTypes = path.getTargetTypes();
 
             // Get method parameter type (generic and raw)
             final Class<?> rawParameterType = method.getParameterTypes()[0];
@@ -117,13 +117,13 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final Set<String> fieldsNotMatched = new LinkedHashSet<>(Arrays.asList(annotation.value()));
 
             // Iterate over all target object types
-            for (JClass<?> jclass : targetTypes) {
+            for (PermazenClass<?> pclass : targetTypes) {
 
                 // Get field list, but replace an empty list with every notifying field in the target object type
                 final List<String> fieldNames = wildcard ?
-                  jclass.jfieldsByName.values().stream()
-                    .filter(JField::supportsChangeNotifications)
-                    .map(JField::getName)
+                  pclass.fieldsByName.values().stream()
+                    .filter(PermazenField::supportsChangeNotifications)
+                    .map(PermazenField::getName)
                     .collect(Collectors.toList()) :
                   Arrays.asList(annotation.value());
 
@@ -131,25 +131,25 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 for (String fieldName : fieldNames) {
 
                     // Find the field in this cursor's target object type
-                    final JField jfield;
+                    final PermazenField pfield;
                     try {
-                        jfield = Util.findField(jclass, fieldName);
+                        pfield = Util.findField(pclass, fieldName);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
                     }
 
                     // Not found?
-                    if (jfield == null)
+                    if (pfield == null)
                         continue;
                     fieldsNotFound.remove(fieldName);
 
                     // Gather its possible change event types
                     final ArrayList<TypeToken<?>> possibleChangeTypes = new ArrayList<TypeToken<?>>();
                     try {
-                        jfield.addChangeParameterTypes(possibleChangeTypes, jclass.getType());
+                        pfield.addChangeParameterTypes(possibleChangeTypes, pclass.getType());
                     } catch (UnsupportedOperationException e) {
                         throw new IllegalArgumentException(String.format(
-                          "%s: %s in %s does not support change notifications", errorPrefix, jfield, jclass));
+                          "%s: %s in %s does not support change notifications", errorPrefix, pfield, pclass));
                     }
 
                     // Check whether method parameter type matches as least one of them; it must do so consistently raw vs. generic
@@ -176,7 +176,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     fieldsNotMatched.remove(fieldName);
 
                     // Configure monitoring for this field
-                    this.targetFieldStorageIds.add(jfield.storageId);
+                    this.targetFieldStorageIds.add(pfield.storageId);
                 }
             }
 
@@ -238,17 +238,17 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JSimpleField jfield = this.getJField(jtx, id, field, JSimpleField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenSimpleField pfield = this.getField(ptx, id, field, PermazenSimpleField.class);
+            if (pfield == null)
                 return;
-            final Object joldValue = this.convertCoreValue(jtx, jfield, oldValue);
-            final Object jnewValue = this.convertCoreValue(jtx, jfield, newValue);
-            final JObject jobj = this.checkTypes(jtx, SimpleFieldChange.class, id, joldValue, jnewValue);
-            if (jobj == null)
+            final Object poldValue = this.convertCoreValue(ptx, pfield, oldValue);
+            final Object pnewValue = this.convertCoreValue(ptx, pfield, newValue);
+            final PermazenObject pobj = this.checkTypes(ptx, SimpleFieldChange.class, id, poldValue, pnewValue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new SimpleFieldChange(jobj, jfield.name, joldValue, jnewValue));
+            this.invoke(ptx, referrers, new SimpleFieldChange(pobj, pfield.name, poldValue, pnewValue));
         }
 
     // SetFieldChangeListener
@@ -257,45 +257,45 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldAdd(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenSetField pfield = this.getField(ptx, id, field, PermazenSetField.class);
+            if (pfield == null)
                 return;
-            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
-            final JObject jobj = this.checkTypes(jtx, SetFieldAdd.class, id, jvalue);
-            if (jobj == null)
+            final Object pvalue = this.convertCoreValue(ptx, pfield.elementField, value);
+            final PermazenObject pobj = this.checkTypes(ptx, SetFieldAdd.class, id, pvalue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldAdd(jobj, jfield.name, jvalue));
+            this.invoke(ptx, referrers, new SetFieldAdd(pobj, pfield.name, pvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldRemove(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenSetField pfield = this.getField(ptx, id, field, PermazenSetField.class);
+            if (pfield == null)
                 return;
-            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
-            final JObject jobj = this.checkTypes(jtx, SetFieldRemove.class, id, jvalue);
-            if (jobj == null)
+            final Object pvalue = this.convertCoreValue(ptx, pfield.elementField, value);
+            final PermazenObject pobj = this.checkTypes(ptx, SetFieldRemove.class, id, pvalue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldRemove(jobj, jfield.name, jvalue));
+            this.invoke(ptx, referrers, new SetFieldRemove(pobj, pfield.name, pvalue));
         }
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JSetField jfield = this.getJField(jtx, id, field, JSetField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenSetField pfield = this.getField(ptx, id, field, PermazenSetField.class);
+            if (pfield == null)
                 return;
-            final JObject jobj = this.checkTypes(jtx, SetFieldClear.class, id);
-            if (jobj == null)
+            final PermazenObject pobj = this.checkTypes(ptx, SetFieldClear.class, id);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new SetFieldClear<>(jobj, jfield.name));
+            this.invoke(ptx, referrers, new SetFieldClear<>(pobj, pfield.name));
         }
 
     // ListFieldChangeListener
@@ -304,62 +304,62 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldAdd(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenListField pfield = this.getField(ptx, id, field, PermazenListField.class);
+            if (pfield == null)
                 return;
-            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
-            final JObject jobj = this.checkTypes(jtx, ListFieldAdd.class, id, jvalue);
-            if (jobj == null)
+            final Object pvalue = this.convertCoreValue(ptx, pfield.elementField, value);
+            final PermazenObject pobj = this.checkTypes(ptx, ListFieldAdd.class, id, pvalue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldAdd(jobj, jfield.name, index, jvalue));
+            this.invoke(ptx, referrers, new ListFieldAdd(pobj, pfield.name, index, pvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldRemove(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenListField pfield = this.getField(ptx, id, field, PermazenListField.class);
+            if (pfield == null)
                 return;
-            final Object jvalue = this.convertCoreValue(jtx, jfield.elementField, value);
-            final JObject jobj = this.checkTypes(jtx, ListFieldRemove.class, id, jvalue);
-            if (jobj == null)
+            final Object pvalue = this.convertCoreValue(ptx, pfield.elementField, value);
+            final PermazenObject pobj = this.checkTypes(ptx, ListFieldRemove.class, id, pvalue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldRemove(jobj, jfield.name, index, jvalue));
+            this.invoke(ptx, referrers, new ListFieldRemove(pobj, pfield.name, index, pvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldReplace(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenListField pfield = this.getField(ptx, id, field, PermazenListField.class);
+            if (pfield == null)
                 return;
-            final Object joldValue = this.convertCoreValue(jtx, jfield.elementField, oldValue);
-            final Object jnewValue = this.convertCoreValue(jtx, jfield.elementField, newValue);
-            final JObject jobj = this.checkTypes(jtx, ListFieldReplace.class, id, joldValue, jnewValue);
-            if (jobj == null)
+            final Object poldValue = this.convertCoreValue(ptx, pfield.elementField, oldValue);
+            final Object pnewValue = this.convertCoreValue(ptx, pfield.elementField, newValue);
+            final PermazenObject pobj = this.checkTypes(ptx, ListFieldReplace.class, id, poldValue, pnewValue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldReplace(jobj, jfield.name, index, joldValue, jnewValue));
+            this.invoke(ptx, referrers, new ListFieldReplace(pobj, pfield.name, index, poldValue, pnewValue));
         }
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JListField jfield = this.getJField(jtx, id, field, JListField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenListField pfield = this.getField(ptx, id, field, PermazenListField.class);
+            if (pfield == null)
                 return;
-            final JObject jobj = this.checkTypes(jtx, ListFieldClear.class, id);
-            if (jobj == null)
+            final PermazenObject pobj = this.checkTypes(ptx, ListFieldClear.class, id);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new ListFieldClear<>(jobj, jfield.name));
+            this.invoke(ptx, referrers, new ListFieldClear<>(pobj, pfield.name));
         }
 
     // MapFieldChangeListener
@@ -368,94 +368,95 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenMapField pfield = this.getField(ptx, id, field, PermazenMapField.class);
+            if (pfield == null)
                 return;
-            final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
-            final Object jvalue = this.convertCoreValue(jtx, jfield.valueField, value);
-            final JObject jobj = this.checkTypes(jtx, MapFieldAdd.class, id, jkey, jvalue);
-            if (jobj == null)
+            final Object pkey = this.convertCoreValue(ptx, pfield.keyField, key);
+            final Object pvalue = this.convertCoreValue(ptx, pfield.valueField, value);
+            final PermazenObject pobj = this.checkTypes(ptx, MapFieldAdd.class, id, pkey, pvalue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldAdd(jobj, jfield.name, jkey, jvalue));
+            this.invoke(ptx, referrers, new MapFieldAdd(pobj, pfield.name, pkey, pvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenMapField pfield = this.getField(ptx, id, field, PermazenMapField.class);
+            if (pfield == null)
                 return;
-            final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
-            final Object jvalue = this.convertCoreValue(jtx, jfield.valueField, value);
-            final JObject jobj = this.checkTypes(jtx, MapFieldRemove.class, id, jkey, jvalue);
-            if (jobj == null)
+            final Object pkey = this.convertCoreValue(ptx, pfield.keyField, key);
+            final Object pvalue = this.convertCoreValue(ptx, pfield.valueField, value);
+            final PermazenObject pobj = this.checkTypes(ptx, MapFieldRemove.class, id, pkey, pvalue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldRemove(jobj, jfield.name, jkey, jvalue));
+            this.invoke(ptx, referrers, new MapFieldRemove(pobj, pfield.name, pkey, pvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenMapField pfield = this.getField(ptx, id, field, PermazenMapField.class);
+            if (pfield == null)
                 return;
-            final Object jkey = this.convertCoreValue(jtx, jfield.keyField, key);
-            final Object joldValue = this.convertCoreValue(jtx, jfield.valueField, oldValue);
-            final Object jnewValue = this.convertCoreValue(jtx, jfield.valueField, newValue);
-            final JObject jobj = this.checkTypes(jtx, MapFieldReplace.class, id, jkey, joldValue, jnewValue);
-            if (jobj == null)
+            final Object pkey = this.convertCoreValue(ptx, pfield.keyField, key);
+            final Object poldValue = this.convertCoreValue(ptx, pfield.valueField, oldValue);
+            final Object pnewValue = this.convertCoreValue(ptx, pfield.valueField, newValue);
+            final PermazenObject pobj = this.checkTypes(ptx, MapFieldReplace.class, id, pkey, poldValue, pnewValue);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers,
-              new MapFieldReplace(jobj, jfield.name, jkey, joldValue, jnewValue));
+            this.invoke(ptx, referrers,
+              new MapFieldReplace(pobj, pfield.name, pkey, poldValue, pnewValue));
         }
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
-            final JTransaction jtx = (JTransaction)tx.getUserObject();
-            assert jtx != null && jtx.tx == tx;
-            final JMapField jfield = this.getJField(jtx, id, field, JMapField.class);
-            if (jfield == null)
+            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
+            assert ptx != null && ptx.tx == tx;
+            final PermazenMapField pfield = this.getField(ptx, id, field, PermazenMapField.class);
+            if (pfield == null)
                 return;
-            final JObject jobj = this.checkTypes(jtx, MapFieldClear.class, id);
-            if (jobj == null)
+            final PermazenObject pobj = this.checkTypes(ptx, MapFieldClear.class, id);
+            if (pobj == null)
                 return;
-            this.invoke(jtx, referrers, new MapFieldClear<>(jobj, jfield.name));
+            this.invoke(ptx, referrers, new MapFieldClear<>(pobj, pfield.name));
         }
 
     // Internal methods
 
-        private <T extends JField> T getJField(JTransaction jtx, ObjId id, Field<?> field, Class<T> type) {
+        private <T extends PermazenField> T getField(PermazenTransaction ptx, ObjId id, Field<?> field, Class<T> type) {
             try {
-                return jtx.jdb.getJField(id, field.getName(), type);
+                return ptx.pdb.getField(id, field.getName(), type);
             } catch (TypeNotInSchemaException | UnknownFieldException e) {
                 return null;        // somebody changed the field directly via the core API without first upgrading the object
             }
         }
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
-        private Object convertCoreValue(JTransaction jtx, JSimpleField jfield, Object value) {
-            final Converter converter = jfield.getConverter(jtx);
+        private Object convertCoreValue(PermazenTransaction ptx, PermazenSimpleField pfield, Object value) {
+            final Converter converter = pfield.getConverter(ptx);
             return converter != null ? converter.convert(value) : value;
         }
 
-        private JObject checkTypes(JTransaction jtx, Class<? /*extends FieldChange<?>*/> changeType, ObjId id, Object... values) {
+        private PermazenObject checkTypes(PermazenTransaction ptx,
+          Class<? /*extends FieldChange<?>*/> changeType, ObjId id, Object... values) {
 
             // Check method parameter type
             final Method method = this.getMethod();
             if (!method.getParameterTypes()[0].isAssignableFrom(changeType))
                 return null;
 
-            // Check first generic type parameter which is the JObject corresponding to id
-            final JObject jobj = jtx.get(id);
-            if (!this.genericTypes[0].isInstance(jobj))
+            // Check first generic type parameter which is the PermazenObject corresponding to id
+            final PermazenObject pobj = ptx.get(id);
+            if (!this.genericTypes[0].isInstance(pobj))
                 return null;
 
             // Check other generic type parameter(s)
@@ -466,18 +467,18 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             }
 
             // OK types agree
-            return jobj;
+            return pobj;
         }
 
         // Invoke the @OnChange method
-        private void invoke(JTransaction jtx, NavigableSet<ObjId> referrers, FieldChange<JObject> change) {
+        private void invoke(PermazenTransaction ptx, NavigableSet<ObjId> referrers, FieldChange<PermazenObject> change) {
             assert change != null;
             final Method method = this.getMethod();
             if ((method.getModifiers() & Modifier.STATIC) != 0)
                 Util.invoke(method, null, change);
             else {
                 for (ObjId id : referrers) {
-                    final JObject target = jtx.get(id);             // type of 'id' should always be found
+                    final PermazenObject target = ptx.get(id);             // type of 'id' should always be found
 
                     // Avoid invoking subclass's @OnChange method on superclass instance;
                     // this can happen when the field is in superclass but wildcard @OnChange is in the subclass

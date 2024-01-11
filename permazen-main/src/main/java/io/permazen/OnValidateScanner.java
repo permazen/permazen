@@ -14,8 +14,8 @@ import java.lang.reflect.Method;
  */
 class OnValidateScanner<T> extends AnnotationScanner<T, OnValidate> {
 
-    OnValidateScanner(JClass<T> jclass) {
-        super(jclass, OnValidate.class);
+    OnValidateScanner(PermazenClass<T> pclass) {
+        super(pclass, OnValidate.class);
     }
 
     @Override

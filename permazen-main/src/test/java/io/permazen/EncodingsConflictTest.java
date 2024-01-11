@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JMapField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenMapField;
 import io.permazen.annotation.PermazenType;
 
 import java.util.Arrays;
@@ -26,14 +26,14 @@ public class EncodingsConflictTest extends MainTestSupport {
     @Test
     public void testEncodingsNoConflict() {
 
-        final Permazen jdb = BasicTest.newPermazen(Encodings1.class, Encodings2.class, Encodings3.class);
+        final Permazen pdb = BasicTest.newPermazen(Encodings1.class, Encodings2.class, Encodings3.class);
 
         Encodings1 ft1;
         Encodings2 ft2;
         Encodings3 ft3;
 
-        final JTransaction jtx1 = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx1);
+        final PermazenTransaction jtx1 = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(jtx1);
         try {
 
             ft1 = jtx1.create(Encodings1.class);
@@ -55,11 +55,11 @@ public class EncodingsConflictTest extends MainTestSupport {
             jtx1.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
-        final JTransaction jtx2 = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx2);
+        final PermazenTransaction jtx2 = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(jtx2);
         try {
 
             ft1 = jtx2.get(ft1);
@@ -81,7 +81,7 @@ public class EncodingsConflictTest extends MainTestSupport {
             jtx2.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -99,13 +99,13 @@ public class EncodingsConflictTest extends MainTestSupport {
 // Model Classes
 
     @PermazenType
-    public abstract static class Encodings1 implements JObject {
+    public abstract static class Encodings1 implements PermazenObject {
 
         public abstract int getField1();
         public abstract void setField1(int x);
 
-        public abstract JObject getField2();
-        public abstract void setField2(JObject x);
+        public abstract PermazenObject getField2();
+        public abstract void setField2(PermazenObject x);
 
         public abstract List<String> getField3();
 
@@ -113,24 +113,24 @@ public class EncodingsConflictTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Encodings2 implements JObject {
+    public abstract static class Encodings2 implements PermazenObject {
 
         public abstract List<String> getField1();
 
         public abstract int getField2();
         public abstract void setField2(int x);
 
-        public abstract JObject getField3();
-        public abstract void setField3(JObject x);
+        public abstract PermazenObject getField3();
+        public abstract void setField3(PermazenObject x);
 
         public abstract Map<Short, Double> getField4();
     }
 
     @PermazenType
-    public abstract static class Encodings3 implements JObject {
+    public abstract static class Encodings3 implements PermazenObject {
 
-        public abstract JObject getField1();
-        public abstract void setField1(JObject x);
+        public abstract PermazenObject getField1();
+        public abstract void setField1(PermazenObject x);
 
         public abstract List<String> getField2();
 
@@ -143,15 +143,15 @@ public class EncodingsConflictTest extends MainTestSupport {
 // Conflicting Model Classes
 
     @PermazenType
-    public abstract static class Conflictor1 implements JObject {
-        @JField(indexed = true)
+    public abstract static class Conflictor1 implements PermazenObject {
+        @PermazenField(indexed = true)
         public abstract int getField1();
         public abstract void setField1(int x);
     }
 
     @PermazenType
-    public abstract static class Conflictor2 implements JObject {
-        @JField(indexed = true)
+    public abstract static class Conflictor2 implements PermazenObject {
+        @PermazenField(indexed = true)
         public abstract String getField1();
         public abstract void setField1(String x);
     }
@@ -159,28 +159,28 @@ public class EncodingsConflictTest extends MainTestSupport {
 // Note map key fields must be congruent, even if only value field is indexed (because the key is part of the index)
 
     @PermazenType
-    public abstract static class Conflictor3 implements JObject {
-        @JMapField(value = @JField(indexed = true))
+    public abstract static class Conflictor3 implements PermazenObject {
+        @PermazenMapField(value = @PermazenField(indexed = true))
         public abstract Map<Float, String> getField1();
     }
 
     @PermazenType
-    public abstract static class Conflictor4 implements JObject {
-        @JMapField(value = @JField(indexed = true))
+    public abstract static class Conflictor4 implements PermazenObject {
+        @PermazenMapField(value = @PermazenField(indexed = true))
         public abstract Map<Double, String> getField1();
     }
 
 // But map value fields can be different, if only key field is indexed
 
     @PermazenType
-    public abstract static class NonConflictor1 implements JObject {
-        @JMapField(key = @JField(indexed = true))
+    public abstract static class NonConflictor1 implements PermazenObject {
+        @PermazenMapField(key = @PermazenField(indexed = true))
         public abstract Map<String, Float> getField1();
     }
 
     @PermazenType
-    public abstract static class NonConflictor2 implements JObject {
-        @JMapField(key = @JField(indexed = true))
+    public abstract static class NonConflictor2 implements PermazenObject {
+        @PermazenMapField(key = @PermazenField(indexed = true))
         public abstract Map<String, Double> getField1();
     }
 }

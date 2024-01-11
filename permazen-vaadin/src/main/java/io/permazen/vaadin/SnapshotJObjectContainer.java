@@ -5,8 +5,8 @@
 
 package io.permazen.vaadin;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.Permazen;
 import io.permazen.SnapshotJTransaction;
 import io.permazen.ValidationMode;
@@ -27,11 +27,11 @@ import java.util.Iterator;
  * directly via {@link #iterateObjects}; no copying of objects is required.
  *
  * <p>
- * Instances are (re)loaded at any time by invoking {@link #reload}. During reload, the container opens a {@link JTransaction}
+ * Instances are (re)loaded at any time by invoking {@link #reload}. During reload, the container opens a {@link PermazenTransaction}
  * and then creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore} returned by
  * {@link KVTransaction#readOnlySnapshot KVTransaction.readOnlySnapshot()}.
  * This {@link SnapshotJTransaction} is set as the current transaction while {@link #iterateObjects}
- * returns the {@link JObject}s to be actually included in the container. The {@link CloseableKVStore} will
+ * returns the {@link PermazenObject}s to be actually included in the container. The {@link CloseableKVStore} will
  * remain open until the container is {@link #reload}'ed or {@link #disconnect}'ed.
  */
 @SuppressWarnings("serial")
@@ -65,7 +65,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      * (Re)load this container.
      *
      * <p>
-     * This method opens a {@link JTransaction}, creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore}
+     * This method opens a {@link PermazenTransaction}, creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore}
      * returned by {@link KVTransaction#readOnlySnapshot KVTransaction.readOnlySnapshot()}, and loads
      * the container using the objects returned by {@link #iterateObjects}.
      */
@@ -75,7 +75,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
         // Grab KVStore snapshot
         final CloseableKVStore[] snapshotHolder = new CloseableKVStore[1];
         this.doInTransaction(() -> {
-            final JTransaction jtx = JTransaction.getCurrent();
+            final PermazenTransaction jtx = PermazenTransaction.getCurrent();
             final CloseableKVStore snapshot = jtx.getTransaction().getKVTransaction().readOnlySnapshot();
             jtx.getTransaction().addCallback(new Transaction.CallbackAdapter() {
                 @Override
@@ -105,9 +105,9 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      * Objects should be returned in the desired order; duplicates and null values will be ignored.
      *
      * <p>
-     * A {@link JTransaction} will be open in the current thread when this method is invoked.
+     * A {@link PermazenTransaction} will be open in the current thread when this method is invoked.
      *
      * @return database objects
      */
-    protected abstract Iterator<? extends JObject> iterateObjects();
+    protected abstract Iterator<? extends PermazenObject> iterateObjects();
 }

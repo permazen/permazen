@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 
 /**
  * JSR 303 validation group for Permazen uniqueness constraints.
@@ -19,9 +19,9 @@ import io.permazen.annotation.JField;
  *  user.getTransaction().validate();           // throws exception if 'u' is not unique
  *  </pre>
  *
- * @see JField#unique
- * @see JObject#revalidate JObject.revalidate()
- * @see JTransaction#validate JTransaction.validate()
+ * @see PermazenField#unique
+ * @see PermazenObject#revalidate PermazenObject.revalidate()
+ * @see PermazenTransaction#validate PermazenTransaction.validate()
  */
 public interface UniquenessConstraints {
 }

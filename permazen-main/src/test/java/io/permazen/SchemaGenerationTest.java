@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JTransient;
+import io.permazen.annotation.PermazenTransient;
 import io.permazen.annotation.PermazenType;
 
 import java.io.ByteArrayOutputStream;
@@ -46,7 +46,7 @@ public class SchemaGenerationTest extends MainTestSupport {
     public Class<?>[][][] genInvalid() {
         return new Class<?>[][][] {
             { { Foo.class, BogusAbstract.class } },         // unimplemented abstract method (from interface)
-            { { Foo.class, Foo2.class } },                  // unimplemented abstract method (from @JTransient)
+            { { Foo.class, Foo2.class } },                  // unimplemented abstract method (from @PermazenTransient)
         };
     }
 
@@ -82,7 +82,7 @@ public class SchemaGenerationTest extends MainTestSupport {
 // Model Classes
 
     @PermazenType(storageId = 1)
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements PermazenObject {
 
         protected abstract long getValue();
         protected abstract void setValue(long value);
@@ -95,7 +95,7 @@ public class SchemaGenerationTest extends MainTestSupport {
     @PermazenType(storageId = 2)
     public abstract static class Foo2 extends Foo {
 
-        @JTransient
+        @PermazenTransient
         protected abstract int getNotAField();
         protected abstract void setNotAField(int x);
     }

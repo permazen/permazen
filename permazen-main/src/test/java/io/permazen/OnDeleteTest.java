@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnDelete;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 
@@ -19,16 +19,17 @@ import org.testng.annotations.Test;
 
 public class OnDeleteTest extends MainTestSupport {
 
-    private static final ThreadLocal<HashSet<JObject>> CALLBACKS = new ThreadLocal<HashSet<JObject>>() {
+    private static final ThreadLocal<HashSet<PermazenObject>> CALLBACKS = new ThreadLocal<HashSet<PermazenObject>>() {
         @Override
-        protected HashSet<JObject> initialValue() {
+        protected HashSet<PermazenObject> initialValue() {
             return new HashSet<>();
         }
     };
 
-    private static final ThreadLocal<HashMap<JObject, JObject>> DELETE_TARGET = new ThreadLocal<HashMap<JObject, JObject>>() {
+    private static final ThreadLocal<HashMap<PermazenObject, PermazenObject>> DELETE_TARGET
+      = new ThreadLocal<HashMap<PermazenObject, PermazenObject>>() {
         @Override
-        protected HashMap<JObject, JObject> initialValue() {
+        protected HashMap<PermazenObject, PermazenObject> initialValue() {
             return new HashMap<>();
         }
     };
@@ -36,9 +37,9 @@ public class OnDeleteTest extends MainTestSupport {
     @Test
     public void testOnDelete() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             Person p1 = tx.create(Person.class);
@@ -83,29 +84,29 @@ public class OnDeleteTest extends MainTestSupport {
             this.verify(p1, p2, p3);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
-    private void verify(JObject... jobjs) {
-        Assert.assertEquals(CALLBACKS.get(), new HashSet<JObject>(Arrays.asList(jobjs)));
+    private void verify(PermazenObject... jobjs) {
+        Assert.assertEquals(CALLBACKS.get(), new HashSet<PermazenObject>(Arrays.asList(jobjs)));
         CALLBACKS.get().clear();
     }
 
 // Model Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
         @OnDelete
         private void beingDeleted() {
             OnDeleteTest.CALLBACKS.get().add(this);
-            final JObject target = DELETE_TARGET.get().remove(this);
+            final PermazenObject target = DELETE_TARGET.get().remove(this);
             if (target != null)
                 target.delete();
         }
 
-        @JField(storageId = 101, inverseDelete = DeleteAction.DELETE)
+        @PermazenField(storageId = 101, inverseDelete = DeleteAction.DELETE)
         public abstract Person getFriend();
         public abstract void setFriend(Person friend);
     }

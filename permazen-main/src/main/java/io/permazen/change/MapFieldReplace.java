@@ -7,8 +7,8 @@ package io.permazen.change;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.annotation.OnChange;
 
 import java.util.Map;
@@ -52,7 +52,7 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(JTransaction jtx, JObject jobj) {
+    public void apply(PermazenTransaction jtx, PermazenObject jobj) {
         Preconditions.checkArgument(jtx != null, "null jtx");
         Preconditions.checkArgument(jobj != null, "null jobj");
         ((Map<K, V>)jtx.readMapField(jobj.getObjId(), this.getFieldName(), false)).put(this.key, this.newValue);

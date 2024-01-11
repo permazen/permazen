@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JTransient;
+import io.permazen.annotation.PermazenTransient;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 
@@ -40,32 +40,32 @@ public class ImportExportTest extends MainTestSupport {
         final ObjId momId;
         final ObjId margoId;
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             // Do import
-            final ImportContext importContext = new ImportContext(jtx);
+            final ImportContext importContext = new ImportContext(ptx);
             final Person dad2 = (Person)importContext.importPlain(dad1);
             final Person margo2 = (Person)importContext.importPlain(margo1);
-            final Person mom2 = jtx.get(importContext.getObjectMap().get(mom1), Person.class);
+            final Person mom2 = ptx.get(importContext.getObjectMap().get(mom1), Person.class);
 
-            Assert.assertTrue(((JObject)dad2).exists());
-            Assert.assertTrue(((JObject)mom2).exists());
-            Assert.assertTrue(((JObject)margo2).exists());
+            Assert.assertTrue(((PermazenObject)dad2).exists());
+            Assert.assertTrue(((PermazenObject)mom2).exists());
+            Assert.assertTrue(((PermazenObject)margo2).exists());
 
             this.checkPeople(dad2, mom2, margo2);
 
             // Save ID's for next transaction
-            dadId = ((JObject)dad2).getObjId();
-            momId = ((JObject)mom2).getObjId();
-            margoId = ((JObject)margo2).getObjId();
+            dadId = ((PermazenObject)dad2).getObjId();
+            momId = ((PermazenObject)mom2).getObjId();
+            margoId = ((PermazenObject)margo2).getObjId();
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Do export
@@ -73,24 +73,24 @@ public class ImportExportTest extends MainTestSupport {
         Person mom3;
         Person margo3;
 
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Person dad2 = jtx.get(dadId, Person.class);
-            final Person mom2 = jtx.get(momId, Person.class);
-            final Person margo2 = jtx.get(margoId, Person.class);
+            final Person dad2 = ptx.get(dadId, Person.class);
+            final Person mom2 = ptx.get(momId, Person.class);
+            final Person margo2 = ptx.get(margoId, Person.class);
 
             // Do export
-            final ExportContext exportContext = new ExportContext(jtx);
-            dad3 = (Person)exportContext.exportPlain((JObject)dad2);
-            mom3 = (Person)exportContext.exportPlain((JObject)mom2);
+            final ExportContext exportContext = new ExportContext(ptx);
+            dad3 = (Person)exportContext.exportPlain((PermazenObject)dad2);
+            mom3 = (Person)exportContext.exportPlain((PermazenObject)mom2);
             margo3 = (Person)exportContext.getJObjectMap().get(margoId);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Verify export
@@ -219,7 +219,7 @@ public class ImportExportTest extends MainTestSupport {
             this.friends = friends;
         }
 
-        @JTransient
+        @PermazenTransient
         public int getDummy() {
             return this.dummy;
         }

@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnSchemaChange;
+import io.permazen.annotation.PermazenField;
 import io.permazen.core.DeleteAction;
 import io.permazen.encoding.Encoding;
 
@@ -17,7 +17,7 @@ import io.permazen.encoding.Encoding;
  * <b>Type Changes</b>
  *
  * <p>
- * Permazen fields are identified by {@linkplain JSimpleField#getName name}. Therefore, it's possible
+ * Permazen fields are identified by {@linkplain PermazenSimpleField#getName name}. Therefore, it's possible
  * for the "same" field to have two different types in two different schemas. When migrating an object's schema,
  * Permazen can automatically perform certain conversions of simple field values from the old type to the new type.
  * For example, an {@code int} field value {@code 1234} can be automatically converted into {@link String} field value
@@ -28,7 +28,7 @@ import io.permazen.encoding.Encoding;
  * {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
  *
  * <p>
- * This class is used to {@linkplain JField#upgradeConversion specify} whether such automatic conversion
+ * This class is used to {@linkplain PermazenField#upgradeConversion specify} whether such automatic conversion
  * should occur when a simple field's type changes, and if so, whether the conversion must always succeed.
  *
  * <p>
@@ -58,7 +58,7 @@ import io.permazen.encoding.Encoding;
  * <p>
  * Note that arbitrary conversion logic is always possible using {@link OnSchemaChange &#64;OnSchemaChange}.
  *
- * @see JField#upgradeConversion
+ * @see PermazenField#upgradeConversion
  * @see Encoding#convert Encoding.convert()
  */
 public enum UpgradeConversionPolicy {

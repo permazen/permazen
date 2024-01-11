@@ -8,7 +8,6 @@ package io.permazen;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
-import io.permazen.annotation.FollowPath;
 import io.permazen.annotation.OnChange;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
@@ -205,17 +204,17 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Reference paths may be explicitly created via {@link Permazen#parseReferencePath Permazen.parseReferencePath()}
- * and traversed in the forward direction via {@link JTransaction#followReferencePath JTransaction.followReferencePath()}
- * or in the inverse direction via {@link JTransaction#invertReferencePath JTransaction.invertReferencePath()}.
+ * and traversed in the forward direction via {@link PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()}
+ * or in the inverse direction via {@link PermazenTransaction#invertReferencePath PermazenTransaction.invertReferencePath()}.
  *
  * <p>
  * Reference paths are also used by {@link OnChange &#64;OnChange} annotations to specify non-local objects
- * for change monitoring, and by {@link FollowPath &#64;FollowPath} annotations.
+ * for change monitoring, and by {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotations.
  *
  * @see Permazen#parseReferencePath Permazen.parseReferencePath()
- * @see JTransaction#followReferencePath JTransaction.followReferencePath()
- * @see JTransaction#invertReferencePath JTransaction.invertReferencePath()
- * @see FollowPath &#64;FollowPath
+ * @see PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()
+ * @see PermazenTransaction#invertReferencePath PermazenTransaction.invertReferencePath()
+ * @see io.permazen.annotation.ReferencePath &#64;ReferencePath
  * @see OnChange &#64;OnChange
  */
 public class ReferencePath {
@@ -223,11 +222,11 @@ public class ReferencePath {
     private static final String FWD_PREFIX = "->";
     private static final String REV_PREFIX = "<-";
 
-    final Permazen jdb;
+    final Permazen pdb;
     final String path;
     final boolean singular;
     final int[] storageIds;
-    final ArrayList<Set<JClass<?>>> currentTypesList;
+    final ArrayList<Set<PermazenClass<?>>> currentTypesList;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -236,21 +235,21 @@ public class ReferencePath {
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} against which to resolve object and field names
-     * @param startTypes starting model types for the path, with null meaning {@link UntypedJObject}
+     * @param pdb {@link Permazen} against which to resolve object and field names
+     * @param startTypes starting model types for the path, with null meaning {@link UntypedPermazenObject}
      * @param path reference path in string form
      * @throws IllegalArgumentException if {@code startTypes} is empty
      * @throws IllegalArgumentException if {@code path} is invalid
      * @throws IllegalArgumentException if any parameter is null
      */
-    ReferencePath(Permazen jdb, Collection<JClass<?>> startTypes, String path) {
+    ReferencePath(Permazen pdb, Collection<PermazenClass<?>> startTypes, String path) {
 
         // Sanity check
-        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(pdb != null, "null pdb");
         Preconditions.checkArgument(startTypes != null, "null startTypes");
         Preconditions.checkArgument(!startTypes.isEmpty(), "empty startTypes");
         Preconditions.checkArgument(path != null, "null path");
-        this.jdb = jdb;
+        this.pdb = pdb;
         this.path = path;
 
         // Debug
@@ -286,7 +285,7 @@ public class ReferencePath {
 
         // Initialize cursors
         HashSet<Cursor> cursors = new HashSet<>();
-        for (JClass<?> startType : startTypes)
+        for (PermazenClass<?> startType : startTypes)
             cursors.add(new Cursor(startType));
 
         // Advance cursors until all steps are completed or they all peter out
@@ -314,7 +313,7 @@ public class ReferencePath {
                 } catch (IllegalArgumentException e) {
                     if (this.log.isTraceEnabled())
                         this.log.trace("RefPath: advance({}, \"{}\") on {} failed: {}", inverse, step, cursor, e.getMessage());
-                    if (error == null || cursor.jclass != null)
+                    if (error == null || cursor.pclass != null)
                         error = e;
                     continue;
                 }
@@ -350,13 +349,13 @@ public class ReferencePath {
 
             // Combine current types at this step from all cursors
             final int i2 = i;
-            final Set<JClass<?>> currentTypes = cursors.stream()
+            final Set<PermazenClass<?>> currentTypes = cursors.stream()
               .map(Cursor::getCurrentTypesList)
               .map(list -> list.get(i2))
               .collect(Collectors.toSet());
 
             // If UntypedObject is possible, then all model types should be possible
-            assert !currentTypes.contains(null) || currentTypes.containsAll(this.jdb.jclasses);
+            assert !currentTypes.contains(null) || currentTypes.containsAll(this.pdb.pclasses);
 
             // Add to current types to list
             if (this.log.isTraceEnabled())
@@ -390,11 +389,11 @@ public class ReferencePath {
      * If this path has zero length, then this method returns the same set as {@link #getTargetTypes}.
      *
      * <p>
-     * The returned set will contain a null element when the target object can possibly be an {@link UntypedJObject}.
+     * The returned set will contain a null element when the target object can possibly be an {@link UntypedPermazenObject}.
      *
      * @return non-empty set of model object types at which this reference path starts, possibly including null
      */
-    public Set<JClass<?>> getStartingTypes() {
+    public Set<PermazenClass<?>> getStartingTypes() {
         return this.currentTypesList.get(0);
     }
 
@@ -421,11 +420,11 @@ public class ReferencePath {
      * If this path has zero length, then this method returns the same set as {@link #getStartingTypes}.
      *
      * <p>
-     * The returned set will contain a null element when the target object can possibly be an {@link UntypedJObject}.
+     * The returned set will contain a null element when the target object can possibly be an {@link UntypedPermazenObject}.
      *
      * @return non-empty set of model object types at which this reference path ends, possibly including null
      */
-    public Set<JClass<?>> getTargetTypes() {
+    public Set<PermazenClass<?>> getTargetTypes() {
         return this.currentTypesList.get(this.currentTypesList.size() - 1);
     }
 
@@ -454,12 +453,12 @@ public class ReferencePath {
      * and the last element contains the {@linkplain #getTargetTypes target types}.
      *
      * <p>
-     * A set in the list will contain a null element if an object at that step can possibly be an {@link UntypedJObject}.
+     * A set in the list will contain a null element if an object at that step can possibly be an {@link UntypedPermazenObject}.
      *
-     * @return list of the possible {@link JClass}'s appearing at each step in this path, each of which is
+     * @return list of the possible {@link PermazenClass}'s appearing at each step in this path, each of which is
      *  non-empty and may include null
      */
-    public List<Set<JClass<?>>> getCurrentTypesList() {
+    public List<Set<PermazenClass<?>>> getCurrentTypesList() {
         return Collections.unmodifiableList(this.currentTypesList);
     }
 
@@ -525,7 +524,7 @@ public class ReferencePath {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final ReferencePath that = (ReferencePath)obj;
-        return this.jdb.equals(that.jdb)
+        return this.pdb.equals(that.pdb)
           && this.path.equals(that.path);
           // the other fields are derived from the above
     }
@@ -533,7 +532,7 @@ public class ReferencePath {
     @Override
     public int hashCode() {
         return this.getClass().hashCode()
-          ^ this.jdb.hashCode()
+          ^ this.pdb.hashCode()
           ^ this.path.hashCode();
     }
 
@@ -541,21 +540,21 @@ public class ReferencePath {
 
     KeyRanges[] getPathKeyRanges() {
         if (this.pathKeyRanges == null) {
-            final int numJClasses = this.jdb.jclasses.size();
+            final int numPClasses = this.pdb.pclasses.size();
             final KeyRanges[] array = new KeyRanges[this.currentTypesList.size()];
             for (int i = 0; i < this.currentTypesList.size(); i++) {
 
                 // Get the current types at this step
-                final Set<JClass<?>> jclasses = this.currentTypesList.get(i);
+                final Set<PermazenClass<?>> pclasses = this.currentTypesList.get(i);
 
-                // If every model type plus UntypedJObject is possible, then no filter is needed
-                if (jclasses.size() > numJClasses)
+                // If every model type plus UntypedPermazenObject is possible, then no filter is needed
+                if (pclasses.size() > numPClasses)
                     continue;
 
-                // Restrict to the specific JClass's ranges
-                final ArrayList<KeyRange> ranges = new ArrayList<>(jclasses.size());
-                for (JClass<?> jclass : jclasses)
-                    ranges.add(ObjId.getKeyRange(jclass.storageId));
+                // Restrict to the specific PermazenClass's ranges
+                final ArrayList<KeyRange> ranges = new ArrayList<>(pclasses.size());
+                for (PermazenClass<?> pclass : pclasses)
+                    ranges.add(ObjId.getKeyRange(pclass.storageId));
 
                 // Build filter
                 array[i] = new KeyRanges(ranges);
@@ -567,9 +566,9 @@ public class ReferencePath {
 
 // Utility methods
 
-    private static Stream<Class<?>> toClasses(Set<JClass<?>> jclasses) {
-        return jclasses.stream()
-          .map(jclass -> jclass != null ? jclass.type : UntypedJObject.class);
+    private static Stream<Class<?>> toClasses(Set<PermazenClass<?>> pclasses) {
+        return pclasses.stream()
+          .map(pclass -> pclass != null ? pclass.type : UntypedPermazenObject.class);
     }
 
 // Cursor
@@ -583,23 +582,23 @@ public class ReferencePath {
     final class Cursor {
 
         private final Logger log = LoggerFactory.getLogger(this.getClass());
-        private final int stepsSoFar;                                   // number of previous steps/cursors
-        private final Cursor previousCursor;                            // previous step's cursor (null if none)
-        private final int previousStorageId;                            // previous step's storage ID (zero if none)
-        private final JClass<?> jclass;                                 // current step's JClass, or null for UntypedJObject
+        private final int stepsSoFar;                           // number of previous steps/cursors
+        private final Cursor previousCursor;                    // previous step's cursor (null if none)
+        private final int previousStorageId;                    // previous step's storage ID (zero if none)
+        private final PermazenClass<?> pclass;                  // current step's PermazenClass, or null for UntypedPermazenObject
         private final boolean singular;
 
         // Constructor for initial cursors
-        private Cursor(JClass<?> jclass) {
-            this(null, 0, jclass, true);
+        private Cursor(PermazenClass<?> pclass) {
+            this(null, 0, pclass, true);
         }
 
         // Constructor for additional cursors
-        private Cursor(Cursor previousCursor, int previousStorageId, JClass<?> jclass, boolean singular) {
+        private Cursor(Cursor previousCursor, int previousStorageId, PermazenClass<?> pclass, boolean singular) {
             this.stepsSoFar = previousCursor != null ? previousCursor.stepsSoFar + 1 : 0;
             this.previousCursor = previousCursor;
             this.previousStorageId = previousStorageId;
-            this.jclass = jclass;
+            this.pclass = pclass;
             this.singular = singular;
         }
 
@@ -617,8 +616,8 @@ public class ReferencePath {
         }
 
         // Get the current object type for all previous steps plus this next one
-        public List<JClass<?>> getCurrentTypesList() {
-            return Stream.concat(this.streamPrevious().map(cursor -> cursor.jclass), Stream.of(this.jclass))
+        public List<PermazenClass<?>> getCurrentTypesList() {
+            return Stream.concat(this.streamPrevious().map(cursor -> cursor.pclass), Stream.of(this.pclass))
               .collect(Collectors.toList());
         }
 
@@ -655,8 +654,8 @@ public class ReferencePath {
                 this.log.trace("RefPath.advance(): next step: {} \"{}\"", inverse ? "inverse" : "forward", step);
 
             // Handle forward vs. inverse
-            final Collection<? extends JClass<?>> nextJClasses;     // possible types of next object
-            final JReferenceField nextJField;                       // the next field to step through
+            final Collection<? extends PermazenClass<?>> nextPClasses;     // possible types of next object
+            final PermazenReferenceField nextPField;                       // the next field to step through
             if (inverse) {
 
                 // Find the last component and the second-to-last component, if any
@@ -668,8 +667,8 @@ public class ReferencePath {
                 // Parse into TypeName and fieldName, but note the ambiguity: "foo.bar.key" could
                 // mean either { type="foo", field="bar.key" } or { type="foo.bar", field="key" }.
                 // If field name has three or more components, try interpreting it both ways.
-                final Tuple2<Set<JClass<?>>, JReferenceField> try1 = this.tryInverseStep(errorPrefix, step, lastDot1);
-                final Tuple2<Set<JClass<?>>, JReferenceField> try2 = lastDot2 != -1 ?
+                final Tuple2<Set<PermazenClass<?>>, PermazenReferenceField> try1 = this.tryInverseStep(errorPrefix, step, lastDot1);
+                final Tuple2<Set<PermazenClass<?>>, PermazenReferenceField> try2 = lastDot2 != -1 ?
                   this.tryInverseStep(errorPrefix, step, lastDot2) : null;
                 if (this.log.isTraceEnabled())
                     this.log.trace("RefPath.advance(): inverse candidates: try1={} try2={}", try1, try2);
@@ -684,62 +683,62 @@ public class ReferencePath {
                       "%s: ambiguous reference; matched %s in %s and %s in %s",
                       errorPrefix, try1.getValue2(), try1.getValue1(), try2.getValue2(), try2.getValue1()));
                 }
-                nextJClasses = (try1 != null ? try1 : try2).getValue1();
-                nextJField = (try1 != null ? try1 : try2).getValue2();
+                nextPClasses = (try1 != null ? try1 : try2).getValue1();
+                nextPField = (try1 != null ? try1 : try2).getValue2();
 
                 // Check whether the reference field can actually refer to the current type
-                final Class<?> currentType = Optional.ofNullable(this.jclass)
-                  .<Class<?>>map(JClass::getType)
-                  .orElse(UntypedJObject.class);
-                if (!nextJField.typeToken.getRawType().isAssignableFrom(currentType)) {
+                final Class<?> currentType = Optional.ofNullable(this.pclass)
+                  .<Class<?>>map(PermazenClass::getType)
+                  .orElse(UntypedPermazenObject.class);
+                if (!nextPField.typeToken.getRawType().isAssignableFrom(currentType)) {
                     throw new IllegalArgumentException(String.format(
-                      "%s: %s can't refer to %s", errorPrefix, nextJField, currentType));
+                      "%s: %s can't refer to %s", errorPrefix, nextPField, currentType));
                 }
             } else {
 
                 // Get the field name
                 final String fieldName = step;
 
-                // Handle the UntypedJObject case
-                if (this.jclass == null) {
+                // Handle the UntypedPermazenObject case
+                if (this.pclass == null) {
                     throw new IllegalArgumentException(String.format(
-                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, UntypedJObject.class));
+                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, UntypedPermazenObject.class));
                 }
 
                 // Find the named field
-                final JSimpleField jfield;
+                final PermazenSimpleField pfield;
                 try {
-                    jfield = Util.findSimpleField(this.jclass, fieldName);
+                    pfield = Util.findSimpleField(this.pclass, fieldName);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
                 }
-                if (jfield == null) {
+                if (pfield == null) {
                     throw new IllegalArgumentException(String.format(
-                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, this.jclass));
-                } else if (!(jfield instanceof JReferenceField)) {
+                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, this.pclass));
+                } else if (!(pfield instanceof PermazenReferenceField)) {
                     throw new IllegalArgumentException(String.format(
-                      "%s: field \"%s\" in %s is not a reference field", errorPrefix, fieldName, this.jclass));
+                      "%s: field \"%s\" in %s is not a reference field", errorPrefix, fieldName, this.pclass));
                 }
-                nextJClasses = ReferencePath.this.jdb.getJClasses(jfield.typeToken.getRawType());
-                nextJField = (JReferenceField)jfield;
+                nextPClasses = ReferencePath.this.pdb.getPermazenClasses(pfield.typeToken.getRawType());
+                nextPField = (PermazenReferenceField)pfield;
             }
 
             // Get the storage ID representing this step, negated for inverse steps
-            final int storageId = inverse ? -nextJField.storageId : nextJField.storageId;
+            final int storageId = inverse ? -nextPField.storageId : nextPField.storageId;
 
             // Can the new cursor produce multiple objects? Yes unless we've only seen forward simple references so far.
-            final boolean nextSingular = this.singular && !inverse && nextJField.getParentField() == null;
+            final boolean nextSingular = this.singular && !inverse && nextPField.getParentField() == null;
 
             // Debug
             if (this.log.isTraceEnabled()) {
-                this.log.trace("RefPath.advance(): nextJField={} storageId={} nextSingular={} nextJClasses={}",
-                  nextJField, storageId, nextSingular, debugFormat(nextJClasses));
+                this.log.trace("RefPath.advance(): nextPField={} storageId={} nextSingular={} nextPClasses={}",
+                  nextPField, storageId, nextSingular, debugFormat(nextPClasses));
             }
 
             // Create new cursor(s)
             final HashSet<Cursor> newCursors = new HashSet<>(3);
-            for (JClass<?> nextJClass : nextJClasses)
-                newCursors.add(new Cursor(this, storageId, nextJClass, nextSingular));
+            for (PermazenClass<?> nextPClass : nextPClasses)
+                newCursors.add(new Cursor(this, storageId, nextPClass, nextSingular));
             assert !newCursors.isEmpty();
 
             // Done
@@ -750,22 +749,23 @@ public class ReferencePath {
 
         // Decode an inverse step "<-[typeName].[fieldName]", where "typeName" could be either a schema object
         // name or fully qualified Java class name, and "fieldName" is a simple field, possibly a complex sub-field.
-        private Tuple2<Set<JClass<?>>, JReferenceField> tryInverseStep(String errorPrefix, String typeAndField, int dotIndex) {
+        private Tuple2<Set<PermazenClass<?>>, PermazenReferenceField> tryInverseStep(String errorPrefix,
+          String typeAndField, int dotIndex) {
 
             // Split into typeName and fieldName
             final String typeName = typeAndField.substring(0, dotIndex);
             final String fieldName = typeAndField.substring(dotIndex + 1);
 
             // Try resolving type name as a schema model object type
-            final Class<?> modelType = Optional.of(ReferencePath.this.jdb.jclassesByName)
+            final Class<?> modelType = Optional.of(ReferencePath.this.pdb.pclassesByName)
               .map(map -> map.get(typeName))
-              .map(JClass::getType)
+              .map(PermazenClass::getType)
               .orElse(null);
 
             // Try resolving type name as a regular Java class
             Class<?> javaType = null;
             try {
-                javaType = Class.forName(typeName, false, ReferencePath.this.jdb.loader.getParent());
+                javaType = Class.forName(typeName, false, ReferencePath.this.pdb.loader.getParent());
             } catch (ClassNotFoundException e) {
                 // ignore
             }
@@ -784,41 +784,41 @@ public class ReferencePath {
             if (javaType == null)
                 javaType = modelType;
 
-            // Find the field, gather matching JClass's, and verify field apepars consistently
-            JReferenceField jfield = null;
-            final HashSet<JClass<?>> jclasses = new HashSet<>();
-            for (JClass<?> nextJClass : ReferencePath.this.jdb.getJClasses(javaType)) {
+            // Find the field, gather matching PermazenClass's, and verify field apepars consistently
+            PermazenReferenceField pfield = null;
+            final HashSet<PermazenClass<?>> pclasses = new HashSet<>();
+            for (PermazenClass<?> nextPClass : ReferencePath.this.pdb.getPermazenClasses(javaType)) {
 
                 // Find the reference field
-                final JSimpleField candidateJField;
+                final PermazenSimpleField candidateField;
                 try {
-                    candidateJField = Util.findSimpleField(nextJClass, fieldName);
+                    candidateField = Util.findSimpleField(nextPClass, fieldName);
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
-                if (!(candidateJField instanceof JReferenceField))
+                if (!(candidateField instanceof PermazenReferenceField))
                     continue;
-                final JReferenceField jfield2 = (JReferenceField)candidateJField;
+                final PermazenReferenceField pfield2 = (PermazenReferenceField)candidateField;
 
                 // Check for ambiguity
-                if (jfield == null)
-                    jfield = jfield2;
-                else if (!jfield2.getSchemaId().equals(jfield.getSchemaId())) {
+                if (pfield == null)
+                    pfield = pfield2;
+                else if (!pfield2.getSchemaId().equals(pfield.getSchemaId())) {
                     throw new IllegalArgumentException(String.format(
                       "%s: ambiguous field \"%s\" in %s matches both %s and %s",
-                      errorPrefix, fieldName, nextJClass, jfield, jfield2));
+                      errorPrefix, fieldName, nextPClass, pfield, pfield2));
                 }
 
-                // Add jclass
-                jclasses.add(nextJClass);
+                // Add pclass
+                pclasses.add(nextPClass);
             }
 
             // Anything found?
-            if (jfield == null)
+            if (pfield == null)
                 return null;
 
             // Done
-            return new Tuple2<>(jclasses, jfield);
+            return new Tuple2<>(pclasses, pfield);
         }
 
     // Object
@@ -832,7 +832,7 @@ public class ReferencePath {
             final Cursor that = (Cursor)obj;
             return Objects.equals(this.previousCursor, that.previousCursor)
               && this.previousStorageId == that.previousStorageId
-              && Objects.equals(this.jclass, that.jclass)
+              && Objects.equals(this.pclass, that.pclass)
               && this.singular == that.singular;
         }
 
@@ -841,7 +841,7 @@ public class ReferencePath {
             return this.getClass().hashCode()
               ^ Objects.hashCode(this.previousCursor)
               ^ Integer.hashCode(this.previousStorageId)
-              ^ Objects.hashCode(this.jclass)
+              ^ Objects.hashCode(this.pclass)
               ^ Boolean.hashCode(this.singular);
         }
 
@@ -850,7 +850,7 @@ public class ReferencePath {
             return "Cursor"
               + "[stepsSoFar=" + this.stepsSoFar
               + (this.previousCursor != null ? ",previousStorageId=" + this.previousStorageId : "")
-              + ",jclass=" + this.jclass
+              + ",pclass=" + this.pclass
               + ",singular=" + this.singular
               + "]";
         }

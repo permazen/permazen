@@ -16,9 +16,9 @@ public class RecursiveLoadTest extends MainTestSupport {
     @Test
     public void testRecursiveLoad() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             tx.create(Person.class);
@@ -26,14 +26,14 @@ public class RecursiveLoadTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
         protected Person() {
             this.setName("Some name");

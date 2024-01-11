@@ -12,9 +12,9 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 
-import io.permazen.JReferenceField;
-import io.permazen.JSimpleField;
-import io.permazen.JTransaction;
+import io.permazen.PermazenReferenceField;
+import io.permazen.PermazenSimpleField;
+import io.permazen.PermazenTransaction;
 import io.permazen.encoding.Encoding;
 import io.permazen.parse.ParseSession;
 import io.permazen.vaadin.NullableField;
@@ -25,13 +25,13 @@ import java.util.Date;
 import org.dellroad.stuff.vaadin7.EnumComboBox;
 
 /**
- * Builds {@link Field}s for editing {@link JSimpleField} values.
+ * Builds {@link Field}s for editing {@link PermazenSimpleField} values.
  */
 @SuppressWarnings("serial")
 public class SimpleFieldFieldBuilder {
 
-    private final JTransaction jtx;
-    private final JSimpleField jfield;
+    private final PermazenTransaction jtx;
+    private final PermazenSimpleField jfield;
     private final ParseSession session;
     private final boolean allowNull;
 
@@ -39,11 +39,11 @@ public class SimpleFieldFieldBuilder {
      * Constructor.
      *
      * @param jtx target transaction used by {@link io.permazen.vaadin.JObjectChooser}
-     * @param jfield the database {@link JSimpleField} for which to build a Vaadin {@link Field}
+     * @param jfield the database {@link PermazenSimpleField} for which to build a Vaadin {@link Field}
      * @param session session used by {@link io.permazen.vaadin.JObjectChooser}
      * @param allowNull whether null values are allowed
      */
-    public SimpleFieldFieldBuilder(JTransaction jtx, JSimpleField jfield, ParseSession session, boolean allowNull) {
+    public SimpleFieldFieldBuilder(PermazenTransaction jtx, PermazenSimpleField jfield, ParseSession session, boolean allowNull) {
         Preconditions.checkArgument(jtx != null, "null jtx");
         Preconditions.checkArgument(jfield != null, "null jfield");
         Preconditions.checkArgument(session != null, "null session");
@@ -54,7 +54,7 @@ public class SimpleFieldFieldBuilder {
     }
 
     /**
-     * Build a {@link Field} appropriate for the configured {@link JSimpleField}.
+     * Build a {@link Field} appropriate for the configured {@link PermazenSimpleField}.
      *
      * @return Vaadin {@link Field} for editing the field value
      */
@@ -65,7 +65,7 @@ public class SimpleFieldFieldBuilder {
 
         // Build an appropriate field
         Field<?> field;
-        if (jfield instanceof JReferenceField)                                          // use object choosers for references
+        if (jfield instanceof PermazenReferenceField)                                          // use object choosers for references
             field = new ReferenceFieldField(this.jtx, this.session, jfield.getName(), jfield.getTypeToken().getRawType());
         else if (Enum.class.isAssignableFrom(propertyType)) {                           // use ComboBox for Enum's
             final EnumComboBox comboBox = this.createEnumComboBox(propertyType.asSubclass(Enum.class));

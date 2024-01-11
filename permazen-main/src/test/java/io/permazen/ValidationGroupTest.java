@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnValidate;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 
 import jakarta.validation.constraints.NotNull;
@@ -18,13 +18,13 @@ public class ValidationGroupTest extends MainTestSupport {
 
     @Test
     public void testValidationGroups() {
-        final Permazen jdb = BasicTest.newPermazen(Foobar.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Foobar.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             // Create instances
-            final Foobar f1 = jtx.create(Foobar.class);
+            final Foobar f1 = ptx.create(Foobar.class);
 
         // Field A
 
@@ -100,7 +100,7 @@ public class ValidationGroupTest extends MainTestSupport {
 
         // Field E
 
-            final Foobar f2 = jtx.create(Foobar.class);
+            final Foobar f2 = ptx.create(Foobar.class);
 
             f1.reset();
             f2.reset();
@@ -126,9 +126,9 @@ public class ValidationGroupTest extends MainTestSupport {
             f2.setFieldE(null);
             this.check(f1, true, UniquenessConstraints.class);
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -149,7 +149,7 @@ public class ValidationGroupTest extends MainTestSupport {
     public interface Group2 { }
 
     @PermazenType
-    public abstract static class Foobar implements JObject {
+    public abstract static class Foobar implements PermazenObject {
 
         private String enableChecks;
 
@@ -181,7 +181,7 @@ public class ValidationGroupTest extends MainTestSupport {
         public abstract String getFieldD();
         public abstract void setFieldD(String fieldD);
 
-        @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
+        @PermazenField(indexed = true, unique = true, uniqueExclude = PermazenField.NULL)
         public abstract String getFieldE();
         public abstract void setFieldE(String fieldE);
 

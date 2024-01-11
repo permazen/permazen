@@ -5,8 +5,8 @@
 
 package io.permazen.demo;
 
-import io.permazen.JObject;
-import io.permazen.annotation.JField;
+import io.permazen.PermazenObject;
+import io.permazen.annotation.PermazenField;
 import io.permazen.vaadin.JObjectContainer;
 
 import jakarta.validation.constraints.Min;
@@ -17,14 +17,14 @@ import org.dellroad.stuff.vaadin7.ProvidesProperty;
 /**
  * Implemented by all heavenly bodies.
  */
-public interface Body extends JObject {
+public interface Body extends PermazenObject {
 
     /**
      * Get the name of this instance.
      *
      * @return name of this object
      */
-    @JField(indexed = true)
+    @PermazenField(indexed = true)
     @ProvidesProperty(JObjectContainer.REFERENCE_LABEL_PROPERTY)
     @NotNull
     String getName();
@@ -35,7 +35,7 @@ public interface Body extends JObject {
      *
      * @return mass of this object
      */
-    @JField(indexed = true)
+    @PermazenField(indexed = true)
     @Min(0)
     float getMass();
     void setMass(float name);

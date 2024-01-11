@@ -7,7 +7,7 @@ package io.permazen;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
 
@@ -17,7 +17,7 @@ import io.permazen.core.Transaction;
  *
  * <p>
  * To define a field of type {@link Counter}, annotate the field's getter method as a normal field using
- * {@link JField &#64;JField}. No setter method should be defined.
+ * {@link PermazenField &#64;PermazenField}. No setter method should be defined.
  * Counter fields do not support indexing or change listeners.
  *
  * <p>

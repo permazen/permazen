@@ -33,7 +33,7 @@ class IndexQuery {
 
     private static final KeyRange NULL_RANGE = new KeyRange(new byte[] { (byte)0xff }, null);
 
-    final JSchemaItem schemaItem;           // a REPRESENTATIVE schema item
+    final PermazenSchemItem schemaItem;           // a REPRESENTATIVE schema item
 
     private final Class<?> targetType;
     private final ArrayList<KeyRanges> filters = new ArrayList<>();
@@ -41,15 +41,15 @@ class IndexQuery {
 // Constructors
 
     // Constructor for all simple index queries other than map value
-    IndexQuery(Permazen jdb, Class<?> targetType, String fieldName, Class<?> valueType) {
-        this(jdb, targetType, fieldName, valueType, null);
+    IndexQuery(Permazen pdb, Class<?> targetType, String fieldName, Class<?> valueType) {
+        this(pdb, targetType, fieldName, valueType, null);
     }
 
     // Constructor for map value index queries
-    IndexQuery(Permazen jdb, Class<?> targetType, String fieldName, Class<?> valueType, Class<?> keyType) {
+    IndexQuery(Permazen pdb, Class<?> targetType, String fieldName, Class<?> valueType, Class<?> keyType) {
 
         // Sanity check
-        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(pdb != null, "null pdb");
         Preconditions.checkArgument(targetType != null, "null targetType");
         Preconditions.checkArgument(fieldName != null, "null fieldName");
         Preconditions.checkArgument(valueType != null, "null valueType");
@@ -59,75 +59,75 @@ class IndexQuery {
         this.targetType = targetType;
 
         // Identify the value field(s)
-        final ArrayList<JSimpleField> jfields = new ArrayList<>();
+        final ArrayList<PermazenSimpleField> pfields = new ArrayList<>();
         boolean foundAny = false;
         SchemaId schemaId = null;
-        for (JClass<?> jclass : jdb.getJClasses(targetType)) {
+        for (PermazenClass<?> pclass : pdb.getPermazenClasses(targetType)) {
 
             // Find the field
-            JSimpleField jfield = Util.findSimpleField(jclass, fieldName);
-            if (jfield == null)
+            PermazenSimpleField pfield = Util.findSimpleField(pclass, fieldName);
+            if (pfield == null)
                 continue;
             foundAny = true;
 
             // Is the field actually indexed?
-            if (!jfield.indexed)
+            if (!pfield.indexed)
                 continue;
 
             // Does the field conflict with another field of the same name encoding-wise?
-            final SchemaId fieldSchemaId = jfield.getSchemaId();
-            if (jfields.isEmpty())
+            final SchemaId fieldSchemaId = pfield.getSchemaId();
+            if (pfields.isEmpty())
                 schemaId = fieldSchemaId;
             else if (!fieldSchemaId.equals(schemaId)) {
                 throw new IllegalArgumentException(String.format(
                   "field name \"%s\" is ambiguous in %s, matching incompatible fields in %s and %s",
-                  fieldName, targetType, jfield, jfields.get(0)));
+                  fieldName, targetType, pfield, pfields.get(0)));
             }
 
             // Add field
-            jfields.add(jfield);
+            pfields.add(pfield);
         }
 
         // Any fields found?
-        if (jfields.isEmpty()) {
+        if (pfields.isEmpty()) {
             throw new IllegalArgumentException(foundAny ?
               String.format("field \"%s\" in %s is not indexed", fieldName, targetType) :
               String.format("field \"%s\" not found in %s", fieldName, targetType));
         }
 
         // Use the first field found as representative
-        final JSimpleField jfield = jfields.get(0);
-        this.schemaItem = jfield;
+        final PermazenSimpleField pfield = pfields.get(0);
+        this.schemaItem = pfield;
 
         // Identify the value type(s)
-        final Set<TypeToken<?>> valueTypes = jfields.stream()
-          .map(JSimpleField::getTypeToken)
+        final Set<TypeToken<?>> valueTypes = pfields.stream()
+          .map(PermazenSimpleField::getTypeToken)
           .collect(Collectors.toSet());
 
         // Verify value type
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
-        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(valueTypes), jfield.encoding));
+        valueChecks.add(new ValueCheck("value type", valueType, this.wrapRaw(valueTypes), pfield.encoding));
 
         // Verify target type
         valueChecks.add(new ValueCheck("target type", this.targetType));
 
         // Add additional check for the map key type when doing a map value index query
         if (keyType != null) {
-            final JMapField parent = (JMapField)jfield.getParentField();
+            final PermazenMapField parent = (PermazenMapField)pfield.getParentField();
             final String keyFieldName = parent.getKeyField().getFullName();
             valueChecks.add(new ValueCheck("map key type", keyType,
-              this.wrapRaw(this.getTypeTokens(jdb, this.targetType, keyFieldName)), parent.keyField.encoding));
+              this.wrapRaw(this.getTypeTokens(pdb, this.targetType, keyFieldName)), parent.keyField.encoding));
         }
 
         // Check values
-        this.checkValues(jdb, valueChecks, "index query on field \"%s\"", fieldName);
+        this.checkValues(pdb, valueChecks, "index query on field \"%s\"", fieldName);
     }
 
     // Constructor for composite index queries
-    IndexQuery(Permazen jdb, Class<?> targetType, String indexName, Class<?>... valueTypes) {
+    IndexQuery(Permazen pdb, Class<?> targetType, String indexName, Class<?>... valueTypes) {
 
         // Sanity check
-        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(pdb != null, "null pdb");
         Preconditions.checkArgument(targetType != null, "null targetType");
         Preconditions.checkArgument(indexName != null, "null indexName");
         Preconditions.checkArgument(valueTypes != null, "null valueTypes");
@@ -138,15 +138,15 @@ class IndexQuery {
         this.targetType = targetType;
 
         // Find composite index(es)
-        JCompositeIndex index = null;
+        PermazenCompositeIndex index = null;
         boolean foundAny = false;
         final int numValues = valueTypes.length;
-        for (JClass<?> jclass : jdb.getJClasses(targetType)) {
-            final JCompositeIndex nextIndex = jclass.jcompositeIndexesByName.get(indexName);
+        for (PermazenClass<?> pclass : pdb.getPermazenClasses(targetType)) {
+            final PermazenCompositeIndex nextIndex = pclass.jcompositeIndexesByName.get(indexName);
             if (nextIndex == null)
                 continue;
             foundAny = true;
-            if (nextIndex.jfields.size() != numValues)
+            if (nextIndex.pfields.size() != numValues)
                 continue;
             if (index == null)
                 index = nextIndex;
@@ -168,40 +168,40 @@ class IndexQuery {
         // Verify value encodings
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(valueTypes.length + 1);
         for (int i = 0; i < valueTypes.length; i++) {
-            final JSimpleField jfield = index.jfields.get(i);
+            final PermazenSimpleField pfield = index.pfields.get(i);
             valueChecks.add(new ValueCheck("value type #" + (i + 1), valueTypes[i],
-              this.wrapRaw(this.getTypeTokens(jdb, this.targetType, jfield.name)), jfield.encoding));
+              this.wrapRaw(this.getTypeTokens(pdb, this.targetType, pfield.name)), pfield.encoding));
         }
 
         // Verify target type
         valueChecks.add(new ValueCheck("target type", this.targetType));
 
         // Check values
-        this.checkValues(jdb, valueChecks, "query on composite index \"%s\"", indexName);
+        this.checkValues(pdb, valueChecks, "query on composite index \"%s\"", indexName);
     }
 
-    private void checkValues(Permazen jdb, List<ValueCheck> valueChecks, String format, Object... args) {
+    private void checkValues(Permazen pdb, List<ValueCheck> valueChecks, String format, Object... args) {
         final String description = String.format(format, args);
         for (ValueCheck check : valueChecks) {
-            final KeyRanges ranges = check.checkAndGetKeyRanges(jdb, this.targetType, description);
+            final KeyRanges ranges = check.checkAndGetKeyRanges(pdb, this.targetType, description);
             this.filters.add(ranges);
         }
     }
 
-    private Set<TypeToken<?>> getTypeTokens(Permazen jdb, Class<?> context, String fieldName) {
+    private Set<TypeToken<?>> getTypeTokens(Permazen pdb, Class<?> context, String fieldName) {
         final HashSet<TypeToken<?>> contextEncodings = new HashSet<>();
-        for (JClass<?> jclass : jdb.jclasses) {
+        for (PermazenClass<?> pclass : pdb.pclasses) {
 
-            // Check if jclass is under consideration
-            if (!context.isAssignableFrom(jclass.type))
+            // Check if pclass is under consideration
+            if (!context.isAssignableFrom(pclass.type))
                 continue;
 
-            // Find the simple field field in jclass, if it exists
-            final JSimpleField field = jclass.jsimpleFieldsByName.get(fieldName);
+            // Find the simple field field in pclass, if it exists
+            final PermazenSimpleField field = pclass.simpleFieldsByName.get(fieldName);
             if (field == null)
                 continue;
 
-            // Add field's type in jclass
+            // Add field's type in pclass
             contextEncodings.add(field.typeToken);
         }
         if (contextEncodings.isEmpty()) {
@@ -300,7 +300,7 @@ class IndexQuery {
 
     // Methods
 
-        public KeyRanges checkAndGetKeyRanges(Permazen jdb, Class<?> targetType, String indexDescription) {
+        public KeyRanges checkAndGetKeyRanges(Permazen pdb, Class<?> targetType, String indexDescription) {
 
             // Check whether actual type matches expected type. For non-reference types, we allow any super-type; for reference
             // types, we allow any super-type or any sub-type (and in the latter case, we apply corresponding key filters).
@@ -334,12 +334,12 @@ class IndexQuery {
             if (!this.reference)
                 return null;
 
-            // If actual type includes all JObject's no filter is necessary
-            if (actualType.isAssignableFrom(JObject.class))
+            // If actual type includes all PermazenObject's no filter is necessary
+            if (actualType.isAssignableFrom(PermazenObject.class))
                 return null;
 
             // Create a filter for the actual type
-            final KeyRanges filter = jdb.keyRangesFor(this.actualType);
+            final KeyRanges filter = pdb.keyRangesFor(this.actualType);
 
             // For values other than the target value, we need to also accept null values in the index
             if (this.matchNull)
@@ -374,13 +374,13 @@ class IndexQuery {
         private final Class<?>[] valueTypes;
 
         // Constructor for a simple index when you already know the field
-        Key(JSimpleField jfield) {
-            this(jfield.name, false, jfield.getter.getDeclaringClass(), jfield.typeToken.wrap().getRawType());
+        Key(PermazenSimpleField pfield) {
+            this(pfield.name, false, pfield.getter.getDeclaringClass(), pfield.typeToken.wrap().getRawType());
         }
 
         // Constructor for a composite index when you already know the index
-        Key(JCompositeIndex jindex) {
-            this(jindex.name, true, jindex.declaringType, jindex.getQueryInfoValueTypes());
+        Key(PermazenCompositeIndex pindex) {
+            this(pindex.name, true, pindex.declaringType, pindex.getQueryInfoValueTypes());
         }
 
         // Primary constructor
@@ -395,18 +395,18 @@ class IndexQuery {
             this.valueTypes = valueTypes;
         }
 
-        public IndexQuery getIndexQuery(Permazen jdb) {
+        public IndexQuery getIndexQuery(Permazen pdb) {
 
             // Handle composite index
             if (this.composite)
-                return new IndexQuery(jdb, this.targetType, this.name, this.valueTypes);
+                return new IndexQuery(pdb, this.targetType, this.name, this.valueTypes);
 
             // Handle simple index
             switch (this.valueTypes.length) {
             case 2:
-                return new IndexQuery(jdb, this.targetType, this.name, this.valueTypes[0], this.valueTypes[1]); // map value index
+                return new IndexQuery(pdb, this.targetType, this.name, this.valueTypes[0], this.valueTypes[1]); // map value index
             case 1:
-                return new IndexQuery(jdb, this.targetType, this.name, this.valueTypes[0]);                     // all others
+                return new IndexQuery(pdb, this.targetType, this.name, this.valueTypes[0]);                     // all others
             default:
                 throw new RuntimeException("internal error");
             }

@@ -5,9 +5,9 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JSetField;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
@@ -35,9 +35,9 @@ public class OnChangeMultipleTest extends MainTestSupport {
     @Test
     public void testMultiFieldChange() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class, Person2.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class, Person2.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person p1 = tx.create(Person.class);
@@ -64,7 +64,7 @@ public class OnChangeMultipleTest extends MainTestSupport {
               new SimpleFieldChange<Person, String>(p3, "name", null, "Person #3"));    // one for p3 (name)
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -113,13 +113,13 @@ public class OnChangeMultipleTest extends MainTestSupport {
 // Model Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JSetField(storageId = 103, element = @JField(storageId = 104))
+        @PermazenSetField(storageId = 103, element = @PermazenField(storageId = 104))
         public abstract Set<Person> getFriends();
 
         @OnChange
@@ -140,13 +140,13 @@ public class OnChangeMultipleTest extends MainTestSupport {
 // Valid/Invalid Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class InvalidClass1 implements JObject {
+    public abstract static class InvalidClass1 implements PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 
@@ -156,9 +156,9 @@ public class OnChangeMultipleTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class InvalidClass2 implements JObject {
+    public abstract static class InvalidClass2 implements PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract Counter getCounter();
 
         @OnChange
@@ -167,7 +167,7 @@ public class OnChangeMultipleTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class InvalidClass3 implements JObject {
+    public abstract static class InvalidClass3 implements PermazenObject {
 
         @OnChange
         private void anyFieldChange(FieldChange<InvalidClass3> change) {
@@ -175,9 +175,9 @@ public class OnChangeMultipleTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class InvalidClass4 implements JObject {
+    public abstract static class InvalidClass4 implements PermazenObject {
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 
@@ -187,13 +187,13 @@ public class OnChangeMultipleTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class ValidClass1 implements JObject {
+    public abstract static class ValidClass1 implements PermazenObject {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 
@@ -203,9 +203,9 @@ public class OnChangeMultipleTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 100)
-    public abstract static class ValidClass2 implements JObject {
+    public abstract static class ValidClass2 implements PermazenObject {
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         public abstract int getAge();
         public abstract void setAge(int age);
 

@@ -18,8 +18,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 
-import io.permazen.JClass;
-import io.permazen.JObject;
+import io.permazen.PermazenClass;
+import io.permazen.PermazenObject;
 import io.permazen.Permazen;
 import io.permazen.core.ObjId;
 import io.permazen.parse.ParseSession;
@@ -185,16 +185,16 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
     }
 
     /**
-     * Get the {@link JClass} corresponding to the currently selected type, if any.
+     * Get the {@link PermazenClass} corresponding to the currently selected type, if any.
      *
      * @return selected type object type
      */
-    public JClass<?> getJClass() {
+    public PermazenClass<?> getPermazenClass() {
         final Class<?> type = this.objectContainer.getType();
         if (type == null)
             return null;
         try {
-            return this.jdb.getJClass(type);
+            return this.jdb.getPermazenClass(type);
         } catch (IllegalArgumentException e) {
             return null;
         }
@@ -244,7 +244,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         final SortKeyContainer.SortKey previousSort = (SortKeyContainer.SortKey)this.sortComboBox.getValue();
 
         // Rebuild the sort combobox
-        final JClass<?> jclass = this.getJClass();
+        final PermazenClass<?> jclass = this.getPermazenClass();
         this.sortKeyContainer = jclass != null ?
           new SortKeyContainer(this.jdb, jclass) : new SortKeyContainer(this.jdb, this.objectContainer.getType());
         this.sortComboBox.setContainerDataSource(this.sortKeyContainer);
@@ -292,7 +292,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
             this.splitPanel.removeComponent(this.objectTable);
         }
         this.objectContainer.setType(type);
-        this.objectContainer.load(Collections.<JObject>emptySet());
+        this.objectContainer.load(Collections.<PermazenObject>emptySet());
         this.objectTable = new JObjectTable(this.jdb, this.objectContainer, this.session, this.showFields);
         for (Property.ValueChangeListener listener : this.listeners)
             this.objectTable.addValueChangeListener(listener);

@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
@@ -49,14 +49,14 @@ public class UpgradeConversionTest extends MainTestSupport {
         final int f19 = -12345678;
         final long f21 = 0x3373373373L;
 
-        Permazen jdb = BasicTest.newPermazen(db, Person1.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        Permazen pdb = BasicTest.newPermazen(db, Person1.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Person1 jobj1 = jtx.create(Person1.class);
+            final Person1 jobj1 = ptx.create(Person1.class);
             id1 = jobj1.getObjId();
-            final Person1 jobj2 = jtx.create(Person1.class);
+            final Person1 jobj2 = ptx.create(Person1.class);
             id2 = jobj2.getObjId();
 
             jobj1.setField1(f1);
@@ -82,22 +82,22 @@ public class UpgradeConversionTest extends MainTestSupport {
 
             jobj2.setField17(Enum1.LEFT);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
     // Version 2
 
-        jdb = BasicTest.newPermazen(db, Person2.class);
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        pdb = BasicTest.newPermazen(db, Person2.class);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
         // Successful conversions
 
-            final Person2 jobj1 = jtx.get(id1, Person2.class);
+            final Person2 jobj1 = ptx.get(id1, Person2.class);
 
             Assert.assertEquals(jobj1.getField1(), f1 ? 1 : 0);
             Assert.assertEquals(jobj1.getField2(), (float)f2);
@@ -124,7 +124,7 @@ public class UpgradeConversionTest extends MainTestSupport {
 
         // Failed conversion
 
-            final Person2 jobj2 = jtx.get(id2, Person2.class);
+            final Person2 jobj2 = ptx.get(id2, Person2.class);
 
             try {
                 jobj2.migrateSchema();
@@ -133,10 +133,10 @@ public class UpgradeConversionTest extends MainTestSupport {
                 this.log.info("got expected {}", e.toString());
             }
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -148,7 +148,7 @@ public class UpgradeConversionTest extends MainTestSupport {
     }
 
     @PermazenType(name = "Person")
-    public abstract static class Person1 implements JObject {
+    public abstract static class Person1 implements PermazenObject {
 
         public abstract boolean getField1();
         public abstract void setField1(boolean x);
@@ -219,88 +219,88 @@ public class UpgradeConversionTest extends MainTestSupport {
     }
 
     @PermazenType(name = "Person")
-    public abstract static class Person2 implements JObject {
+    public abstract static class Person2 implements PermazenObject {
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract int getField1();
         public abstract void setField1(int x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract float getField2();
         public abstract void setField2(float x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract short getField3();
         public abstract void setField3(short x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract byte getField4();
         public abstract void setField4(byte x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract boolean getField5();
         public abstract void setField5(boolean x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract int getField6();
         public abstract void setField6(int x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract char getField7();
         public abstract void setField7(char x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract String getField8();
         public abstract void setField8(String x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract int getField9();
         public abstract void setField9(int x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract Integer getField10();
         public abstract void setField10(Integer x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract Enum1 getField11();
         public abstract void setField11(Enum1 x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract Enum2 getField12();
         public abstract void setField12(Enum2 x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract Enum2 getField13();
         public abstract void setField13(Enum2 x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract String[][] getField14();
         public abstract void setField14(String[][] x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.ATTEMPT)
         public abstract byte[][] getField15();
         public abstract void setField15(byte[][] x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.RESET)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.RESET)
         public abstract Enum2 getField16();
         public abstract void setField16(Enum2 x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         public abstract Enum2 getField17();
         public abstract void setField17(Enum2 x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         public abstract byte getField18();
         public abstract void setField18(byte x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         public abstract Counter getField19();
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         public abstract int getField20();
         public abstract void setField20(int x);
 
-        @JField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
+        @PermazenField(upgradeConversion = UpgradeConversionPolicy.REQUIRE)
         public abstract Counter getField21();
     }
 }

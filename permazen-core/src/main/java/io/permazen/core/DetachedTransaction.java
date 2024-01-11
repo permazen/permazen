@@ -28,7 +28,7 @@ import java.io.Closeable;
  *
  * @see Transaction#createDetachedTransaction Transaction.createDetachedTransaction()
  * @see Database#createDetachedTransaction Database.createDetachedTransaction()
- * @see io.permazen.DetachedJTransaction
+ * @see io.permazen.DetachedPermazenTransaction
  */
 public class DetachedTransaction extends Transaction implements Closeable {
 

@@ -5,9 +5,9 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
 import io.permazen.annotation.OnValidate;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
 import io.permazen.annotation.PermazenType;
 
 import jakarta.validation.Constraint;
@@ -32,11 +32,11 @@ public class ValidationTest extends MainTestSupport {
     @Test
     public void testValidation() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
 
         // Transaction with validation disabled
-        JTransaction tx = jdb.createTransaction(ValidationMode.DISABLED);
-        JTransaction.setCurrent(tx);
+        PermazenTransaction tx = pdb.createTransaction(ValidationMode.DISABLED);
+        PermazenTransaction.setCurrent(tx);
         Person p1;
         try {
             p1 = tx.create(Person.class);
@@ -59,12 +59,12 @@ public class ValidationTest extends MainTestSupport {
 
             tx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Transaction with validation manually requested
-        tx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             // Reload object
@@ -134,12 +134,12 @@ public class ValidationTest extends MainTestSupport {
 
             tx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Transaction with automatic validation
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             // Reload object
@@ -160,12 +160,12 @@ public class ValidationTest extends MainTestSupport {
             Assert.assertEquals(p1.getChecks(), 1);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Now fix the problem
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             // Reload object
@@ -183,12 +183,12 @@ public class ValidationTest extends MainTestSupport {
             Assert.assertEquals(p1.getChecks(), 2);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Now test @OnValidate
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             // Reload object
@@ -209,12 +209,12 @@ public class ValidationTest extends MainTestSupport {
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Test clearing validation queue
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             // Reload object
@@ -235,28 +235,28 @@ public class ValidationTest extends MainTestSupport {
             tx.rollback();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testValidationOnCreate() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
 
         // Transaction with validation disabled
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            jtx.create(Person.class);           // a newly created person is invalid due to having a null name
+            ptx.create(Person.class);           // a newly created person is invalid due to having a null name
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 // expected
             }
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -292,29 +292,29 @@ public class ValidationTest extends MainTestSupport {
 
     private <T extends NameThing> void testNameThing(Class<T> type) {
 
-        final Permazen jdb = BasicTest.newPermazen(type);
+        final Permazen pdb = BasicTest.newPermazen(type);
 
         // Transaction with validation enabled
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final NameThing nameThing = jtx.create(type);
+            final NameThing nameThing = ptx.create(type);
             nameThing.setName("");
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 // expected
             }
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
         private int checks;
 
@@ -325,17 +325,17 @@ public class ValidationTest extends MainTestSupport {
             this.checks = checks;
         }
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         @NotNull
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         @Min(0)
         public abstract int getAge();
         public abstract void setAge(int age);
 
-        @JListField(storageId = 103, element = @JField(storageId = 104))
+        @PermazenListField(storageId = 103, element = @PermazenField(storageId = 104))
         @NotNull
         @Size(max = 2)
         public abstract List<Person> getFriends();
@@ -348,7 +348,7 @@ public class ValidationTest extends MainTestSupport {
         }
     }
 
-    public abstract static class NameThing implements JObject {
+    public abstract static class NameThing implements PermazenObject {
 
         public abstract String getName();
         public abstract void setName(String name);

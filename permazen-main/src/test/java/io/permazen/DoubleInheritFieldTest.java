@@ -41,7 +41,7 @@ public class DoubleInheritFieldTest extends MainTestSupport {
     }
 
     public interface Iface3 {
-        @io.permazen.annotation.JField(indexed = true)
+        @io.permazen.annotation.PermazenField(indexed = true)
         Date getCreatedOn();
         void setCreatedOn(Date createdOn);
     }

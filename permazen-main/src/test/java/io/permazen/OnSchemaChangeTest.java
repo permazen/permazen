@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnSchemaChange;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
@@ -44,11 +44,11 @@ public class OnSchemaChangeTest extends MainTestSupport {
 
     // Version 1
 
-        Permazen jdb = BasicTest.newPermazen(db, Person1.class);
-        final SchemaId schemaId1 = jdb.getSchemaModel().getSchemaId();
+        Permazen pdb = BasicTest.newPermazen(db, Person1.class);
+        final SchemaId schemaId1 = pdb.getSchemaModel().getSchemaId();
         SCHEMA_IDS.get().set(0, schemaId1);
-        JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             Person1 p1 = tx.create(Person1.class);
@@ -88,7 +88,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             Assert.assertEquals(p4.getSchemaId(), schemaId1);
             Assert.assertEquals(p5.getSchemaId(), schemaId1);
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId1, buildSet(p1, p2, p3, p4, p5)));
             TestSupport.checkMap(tx.querySimpleIndex(Person1.class, "enum1", Enum1.class).asMap(), buildMap(
               Enum1.AAA, buildSet(p1),
@@ -100,16 +100,16 @@ public class OnSchemaChangeTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
     // Version 2
 
-        jdb = BasicTest.newPermazen(db, Person2.class);
-        final SchemaId schemaId2 = jdb.getSchemaModel().getSchemaId();
+        pdb = BasicTest.newPermazen(db, Person2.class);
+        final SchemaId schemaId2 = pdb.getSchemaModel().getSchemaId();
         SCHEMA_IDS.get().set(1, schemaId2);
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person2 p1 = tx.get(id1, Person2.class);
@@ -118,7 +118,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             final Person2 p4 = tx.get(id4, Person2.class);
             final Person2 p5 = tx.get(id5, Person2.class);
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId1, buildSet(p1, p2, p3, p4, p5)));
 
             Assert.assertEquals(p1.getSchemaId(), schemaId1);
@@ -140,7 +140,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId1, buildSet(p4, p5),
               schemaId2, buildSet(p1, p2, p3)));
 
@@ -160,7 +160,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             Assert.assertSame(p4.getEnum2(), Enum2.DDD);
             Assert.assertNull(p5.getEnum2());
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId2, buildSet(p1, p2, p3, p4, p5)));
             TestSupport.checkMap(tx.querySimpleIndex(Person2.class, "enum2", Enum2.class).asMap(), buildMap(
               null, buildSet(p1, p5),
@@ -175,16 +175,16 @@ public class OnSchemaChangeTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
     // Version 3
 
-        jdb = BasicTest.newPermazen(db, Person3.class);
-        final SchemaId schemaId3 = jdb.getSchemaModel().getSchemaId();
+        pdb = BasicTest.newPermazen(db, Person3.class);
+        final SchemaId schemaId3 = pdb.getSchemaModel().getSchemaId();
         SCHEMA_IDS.get().set(2, schemaId3);
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person3 p1 = tx.get(id1, Person3.class);
@@ -193,30 +193,30 @@ public class OnSchemaChangeTest extends MainTestSupport {
             final Person3 p4 = tx.get(id4, Person3.class);
             final Person3 p5 = tx.get(id5, Person3.class);
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId2, buildSet(p1, p2, p3, p4, p5)));
 
             Assert.assertEquals(p1.getAge(), 10.0f);
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId2, buildSet(p4, p5),
               schemaId3, buildSet(p1, p2, p3)));
 
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
     // Version 4
 
-        jdb = BasicTest.newPermazen(db, Person4.class, Name.class);
-        final SchemaId schemaId4 = jdb.getSchemaModel().getSchemaId();
+        pdb = BasicTest.newPermazen(db, Person4.class, Name.class);
+        final SchemaId schemaId4 = pdb.getSchemaModel().getSchemaId();
         SCHEMA_IDS.get().set(3, schemaId4);
-        tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person4 p1 = tx.get(id1, Person4.class);
@@ -225,7 +225,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             final Person4 p4 = tx.get(id4, Person4.class);
             final Person4 p5 = tx.get(id5, Person4.class);
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId2, buildSet(p4, p5),
               schemaId3, buildSet(p1, p2, p3)));
 
@@ -240,7 +240,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
 
-            TestSupport.checkMap(tx.querySchemaIndex(JObject.class), buildMap(
+            TestSupport.checkMap(tx.querySchemaIndex(PermazenObject.class), buildMap(
               schemaId2, buildSet(p4, p5),
               schemaId4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
 
@@ -256,7 +256,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         SCHEMA_IDS.remove();
@@ -302,21 +302,21 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType(name = "Person", storageId = 100)
-    public abstract static class Person1 implements JObject {
+    public abstract static class Person1 implements PermazenObject {
 
-        @JField(storageId = 97)
+        @PermazenField(storageId = 97)
         public abstract int getIndex();
         public abstract void setIndex(int index);
 
-        @JField(storageId = 98, indexed = true)
+        @PermazenField(storageId = 98, indexed = true)
         public abstract Enum1 getEnum1();
         public abstract void setEnum1(Enum1 enum1);
 
-        @JField(storageId = 99)
+        @PermazenField(storageId = 99)
         public abstract Person1 getFriend();
         public abstract void setFriend(Person1 friend);
 
-        @JField(storageId = 106)
+        @PermazenField(storageId = 106)
         public abstract String getName();
         public abstract void setName(String lastName);
     }
@@ -330,27 +330,27 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType(name = "Person", storageId = 100, autogenFields = false)
-    public abstract static class Person2 implements JObject, HasName {
+    public abstract static class Person2 implements PermazenObject, HasName {
 
-        @JField(storageId = 97)
+        @PermazenField(storageId = 97)
         public abstract int getIndex();
         public abstract void setIndex(int index);
 
-        @JField(storageId = 198, indexed = true)
+        @PermazenField(storageId = 198, indexed = true)
         public abstract Enum2 getEnum2();
         public abstract void setEnum2(Enum2 enum2);
 
-        @JField(storageId = 101, indexed = true)
+        @PermazenField(storageId = 101, indexed = true)
         @Override
         public abstract String getLastName();
         public abstract void setLastName(String lastName);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         @Override
         public abstract String getFirstName();
         public abstract void setFirstName(String firstName);
 
-        @JField(storageId = 103)
+        @PermazenField(storageId = 103)
         public abstract int getAge();
         public abstract void setAge(int age);
 
@@ -425,19 +425,19 @@ public class OnSchemaChangeTest extends MainTestSupport {
 // Version 3
 
     @PermazenType(name = "Person", storageId = 100, autogenFields = false)
-    public abstract static class Person3 implements JObject, HasName {
+    public abstract static class Person3 implements PermazenObject, HasName {
 
-        @JField(storageId = 101, indexed = true)
+        @PermazenField(storageId = 101, indexed = true)
         @Override
         public abstract String getLastName();
         public abstract void setLastName(String lastName);
 
-        @JField(storageId = 102)
+        @PermazenField(storageId = 102)
         @Override
         public abstract String getFirstName();
         public abstract void setFirstName(String firstName);
 
-        @JField(storageId = 104)
+        @PermazenField(storageId = 104)
         public abstract float getAge();
         public abstract void setAge(float age);
 
@@ -456,14 +456,14 @@ public class OnSchemaChangeTest extends MainTestSupport {
 // Version 4
 
     @PermazenType(name = "Person", storageId = 100, autogenFields = false)
-    public abstract static class Person4 implements JObject {
+    public abstract static class Person4 implements PermazenObject {
 
-        @JField(storageId = 105)
+        @PermazenField(storageId = 105)
         @NotNull
         public abstract Name getName();
         public abstract void setName(Name name);
 
-        @JField(storageId = 104)
+        @PermazenField(storageId = 104)
         public abstract float getAge();
         public abstract void setAge(float age);
 
@@ -475,7 +475,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
                 break;
             case 2:
             case 3:
-                final Name name = JTransaction.getCurrent().create(Name.class);
+                final Name name = PermazenTransaction.getCurrent().create(Name.class);
                 name.setLastName((String)oldValues.get("lastName"));
                 name.setFirstName((String)oldValues.get("firstName"));
                 this.setName(name);
@@ -497,14 +497,14 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 200, autogenFields = false)
-    public abstract static class Name implements JObject, HasName {
+    public abstract static class Name implements PermazenObject, HasName {
 
-        @JField(name = "lastName2", storageId = 201, indexed = true)
+        @PermazenField(name = "lastName2", storageId = 201, indexed = true)
         @Override
         public abstract String getLastName();
         public abstract void setLastName(String lastName);
 
-        @JField(name = "firstName2", storageId = 202)
+        @PermazenField(name = "firstName2", storageId = 202)
         @Override
         public abstract String getFirstName();
         public abstract void setFirstName(String firstName);
@@ -513,7 +513,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
 // Method signature checks
 
     @PermazenType
-    public abstract static class SignatureOk implements JObject {
+    public abstract static class SignatureOk implements PermazenObject {
 
         // Valid method signature
         @OnSchemaChange
@@ -532,7 +532,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class SignatureBad1 implements JObject {
+    public abstract static class SignatureBad1 implements PermazenObject {
 
         // Bogus extra parameter
         @OnSchemaChange
@@ -541,7 +541,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class SignatureBad2 implements JObject {
+    public abstract static class SignatureBad2 implements PermazenObject {
 
         // Parameters in wrong order
         @OnSchemaChange
@@ -550,7 +550,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class SignatureBad3 implements JObject {
+    public abstract static class SignatureBad3 implements PermazenObject {
 
         // Bogus return value
         @OnSchemaChange
@@ -560,7 +560,7 @@ public class OnSchemaChangeTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class SignatureBad4 implements JObject {
+    public abstract static class SignatureBad4 implements PermazenObject {
 
         // Bogus param type
         @OnSchemaChange

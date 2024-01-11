@@ -5,9 +5,9 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JSetField;
 import io.permazen.annotation.OnSchemaChange;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.ObjId;
@@ -119,32 +119,32 @@ public class TypeSafetyTest extends MainTestSupport {
 
     // Version 2
 
-        Permazen jdb = BasicTest.newPermazen(db, Bar.class);                // note: no Foo.class, only Bar.class
-        final SchemaId schemaId2 = jdb.getSchemaModel().getSchemaId();
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        Permazen pdb = BasicTest.newPermazen(db, Bar.class);                // note: no Foo.class, only Bar.class
+        final SchemaId schemaId2 = pdb.getSchemaModel().getSchemaId();
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             // Get objects
-            final JObject foo1 = jtx.get(f1, JObject.class);
-            final JObject foo2 = jtx.get(f2, JObject.class);
-            final Bar bar1 = jtx.get(b1, Bar.class);
-            final Bar bar2 = jtx.get(b2, Bar.class);
-            final Bar bar3 = jtx.get(b3, Bar.class);
+            final PermazenObject foo1 = ptx.get(f1, PermazenObject.class);
+            final PermazenObject foo2 = ptx.get(f2, PermazenObject.class);
+            final Bar bar1 = ptx.get(b1, Bar.class);
+            final Bar bar2 = ptx.get(b2, Bar.class);
+            final Bar bar3 = ptx.get(b3, Bar.class);
 
             // Verify index on Bar.friend does not contain any type "Foo" keys
-            final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.querySimpleIndex(Bar.class, "friend", Bar.class).asMap();
+            final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = ptx.querySimpleIndex(Bar.class, "friend", Bar.class).asMap();
             friendIndex.keySet().stream().filter(key -> key != null).iterator().forEachRemaining(Bar::dummy);
 
             // Verify index on Bar.set.element does not contain any type "Foo" keys
-            final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.querySimpleIndex(Bar.class, "set.element", Bar.class).asMap();
+            final NavigableMap<Bar, NavigableSet<Bar>> setIndex = ptx.querySimpleIndex(Bar.class, "set.element", Bar.class).asMap();
             setIndex.keySet().stream().filter(key -> key != null).iterator().forEachRemaining(Bar::dummy);
 
             // Verify bar1 has wrongly type'd field prior to upgrade
-            Assert.assertEquals(jtx.getTransaction().readSimpleField(b1, "friend", false), f1);
+            Assert.assertEquals(ptx.getTransaction().readSimpleField(b1, "friend", false), f1);
 
             // Configure bar1 to update the field on version update
-            jtx.getTransaction().writeSimpleField(bar1.getObjId(), "fix", true, false);     // bar1.setFix(true)
+            ptx.getTransaction().writeSimpleField(bar1.getObjId(), "fix", true, false);     // bar1.setFix(true)
 
             // Attempt to read wrongly type'd field after upgrade migration
             final Bar friend = bar1.getFriend();
@@ -153,14 +153,14 @@ public class TypeSafetyTest extends MainTestSupport {
             // Try to assign invalid Foo typed value to bar1.friend
             //  via core API...
             try {
-                jtx.getTransaction().writeSimpleField(bar1.getObjId(), "friend", f1, false);
+                ptx.getTransaction().writeSimpleField(bar1.getObjId(), "friend", f1, false);
                 assert false : "expected IllegalArgumentException";
             } catch (IllegalArgumentException e) {
                 this.log.info("got expected exception: {}", e.toString());
             }
             //  via JDB API...
             try {
-                jtx.writeSimpleField(bar1, "friend", foo1, false);
+                ptx.writeSimpleField(bar1, "friend", foo1, false);
                 assert false : "expected IllegalArgumentException";
             } catch (IllegalArgumentException e) {
                 this.log.info("got expected exception: {}", e.toString());
@@ -175,11 +175,12 @@ public class TypeSafetyTest extends MainTestSupport {
             }
 
             // Verify bar3 still contains references to foo's
-            final JObject ref1 = (JObject)jtx.readSimpleField(bar3.getObjId(), "friend", false);         // ref1 = bar3.getFriend()
-            Assert.assertTrue(ref1 instanceof UntypedJObject);
+            final PermazenObject ref1 = (PermazenObject)ptx.readSimpleField(bar3.getObjId(),
+              "friend", false);                                                                         // ref1 = bar3.getFriend()
+            Assert.assertTrue(ref1 instanceof UntypedPermazenObject);
             Assert.assertEquals(ref1.getObjId(), f2);
-            final HashSet<ObjId> ids = jtx.readSetField(bar3.getObjId(), "set", false).stream()
-              .map(obj -> ((JObject)obj).getObjId())
+            final HashSet<ObjId> ids = ptx.readSetField(bar3.getObjId(), "set", false).stream()
+              .map(obj -> ((PermazenObject)obj).getObjId())
               .collect(Collectors.toCollection(HashSet::new));
             TestSupport.checkSet(ids, buildSet(f1, f2, b1, b2));
 
@@ -189,46 +190,46 @@ public class TypeSafetyTest extends MainTestSupport {
             Assert.assertEquals(bar3.getSchemaId(), schemaId2);
 
             // Now bar3 should no longer contains any references to foo's
-            Assert.assertNull(jtx.readSimpleField(bar3.getObjId(), "friend", false));                    // bar3.getFriend()
+            Assert.assertNull(ptx.readSimpleField(bar3.getObjId(), "friend", false));                    // bar3.getFriend()
             Assert.assertEquals(ref1.getObjId(), f2);
             ids.clear();
-            jtx.readSetField(bar3.getObjId(), "set", false).stream()
-              .map(obj -> ((JObject)obj).getObjId())
+            ptx.readSetField(bar3.getObjId(), "set", false).stream()
+              .map(obj -> ((PermazenObject)obj).getObjId())
               .iterator()
               .forEachRemaining(ids::add);
             TestSupport.checkSet(ids, buildSet(b1, b2));
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType(storageId = 20)
-    public abstract static class Bar implements JObject {
+    public abstract static class Bar implements PermazenObject {
 
-        @JField(storageId = 21)
+        @PermazenField(storageId = 21)
         public abstract Bar getFriend();
         public abstract void setFriend(Bar value);
 
-        @JField(storageId = 22)
+        @PermazenField(storageId = 22)
         public abstract boolean isFix();
         public abstract void setFix(boolean fix);
 
-        @JSetField(storageId = 23, element = @JField(storageId = 24))
+        @PermazenSetField(storageId = 23, element = @PermazenField(storageId = 24))
         public abstract Set<Bar> getSet();
 
         @OnSchemaChange
         private void versionChange(Map<String, Object> oldValues, SchemaId oldSchemaId, SchemaId newSchemaId) {
             if (!this.isFix())
                 return;
-            final JTransaction jtx = JTransaction.getCurrent();
+            final PermazenTransaction ptx = PermazenTransaction.getCurrent();
 
             // Fixup this.friend = oldFriend.getBar()
-            final JObject oldFriend = (JObject)oldValues.get("friend");
-            final ObjId barId = (ObjId)jtx.getTransaction().readSimpleField(oldFriend.getObjId(), "bar", false);
-            final Bar newFriend = jtx.get(barId, Bar.class);
+            final PermazenObject oldFriend = (PermazenObject)oldValues.get("friend");
+            final ObjId barId = (ObjId)ptx.getTransaction().readSimpleField(oldFriend.getObjId(), "bar", false);
+            final Bar newFriend = ptx.get(barId, Bar.class);
             this.setFriend(newFriend);
         }
 

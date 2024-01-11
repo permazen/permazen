@@ -28,10 +28,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
  * to compress common prefixes of consecutive keys.
  *
  * <p>
- * See {@link JObjectHttpMessageConverter} for a higher level API.
+ * See {@link PermazenObjectHttpMessageConverter} for a higher level API.
  *
- * @see DetachedJTransactionHttpMessageConverter
- * @see JObjectHttpMessageConverter
+ * @see DetachedPermazenTransactionHttpMessageConverter
+ * @see PermazenObjectHttpMessageConverter
  */
 public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KVStore> {
 

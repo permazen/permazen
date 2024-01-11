@@ -22,8 +22,8 @@ public abstract class MainTestSupport extends KVTestSupport {
     /**
      * Dump KV contents to the log.
      */
-    protected void showKV(JTransaction jtx, String label) {
-        this.showKV(jtx.getTransaction(), label);
+    protected void showKV(PermazenTransaction ptx, String label) {
+        this.showKV(ptx.getTransaction(), label);
     }
 
     /**

@@ -5,8 +5,8 @@
 
 package io.permazen.cli;
 
-import io.permazen.JTransaction;
 import io.permazen.Permazen;
+import io.permazen.PermazenTransaction;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
@@ -27,7 +27,7 @@ import io.permazen.kv.KVTransaction;
  *  <li>The core API database layer, providing {@link Database}
  *      and {@link Transaction} and represented by {@link #CORE_API}</li>
  *  <li>The Permazen Java layer, providing {@link Permazen}
- *      and {@link JTransaction} and represented by {@link #PERMAZEN}</li>
+ *      and {@link PermazenTransaction} and represented by {@link #PERMAZEN}</li>
  * </ul>
  */
 public enum SessionMode {
@@ -37,7 +37,7 @@ public enum SessionMode {
      *
      * <p>
      * This is the lowest level CLI mode, where only the raw {@code byte[]} key/value store is available.
-     * This mode provides a {@link KVTransaction}, but no {@link Transaction} or {@link JTransaction}.
+     * This mode provides a {@link KVTransaction}, but no {@link Transaction} or {@link PermazenTransaction}.
      *
      * @see KVDatabase
      */
@@ -48,7 +48,7 @@ public enum SessionMode {
      *
      * <p>
      * Supports access to low level schema information, core API "objects" and fields, but no Java-specific operations.
-     * This mode provides a {@link KVTransaction} and {@link Transaction}, but no {@link JTransaction}.
+     * This mode provides a {@link KVTransaction} and {@link Transaction}, but no {@link PermazenTransaction}.
      *
      * <p>
      * Schema information may be provided either by a schema XML file or by
@@ -64,7 +64,7 @@ public enum SessionMode {
      * Permazen Java mode.
      *
      * <p>
-     * Provides database access through standard Java model objects and transaction access via {@link JTransaction}.
+     * Provides database access through standard Java model objects and transaction access via {@link PermazenTransaction}.
      * Requires and provides a {@link Permazen} instance and its associated Java model classes.
      *
      * <p>
@@ -82,7 +82,7 @@ public enum SessionMode {
     }
 
     /**
-     * Determine whether the Permazen Java API (e.g., {@link JTransaction}) based on a {@link Permazen}
+     * Determine whether the Permazen Java API (e.g., {@link PermazenTransaction}) based on a {@link Permazen}
      * instance is available in this mode.
      *
      * @return true if the Permazen Java API is available

@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.FieldChange;
 import io.permazen.change.ListFieldChange;
@@ -32,9 +32,9 @@ public class OnChangeWildcardTest extends MainTestSupport {
     @Test
     public void testWildcardChanges() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
         // Setup
@@ -131,12 +131,12 @@ public class OnChangeWildcardTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test(dataProvider = "bogusPaths")
-    public void testBogusPaths(Class<? extends JObject> cl) throws Exception {
+    public void testBogusPaths(Class<? extends PermazenObject> cl) throws Exception {
         try {
             BasicTest.newPermazen(Person.class, cl).initialize();
             assert false;
@@ -164,21 +164,21 @@ public class OnChangeWildcardTest extends MainTestSupport {
         return new Pair(p, fieldName);
     }
 
-    public static class Pair extends Tuple2<JObject, String> {
+    public static class Pair extends Tuple2<PermazenObject, String> {
 
         public Pair(FieldChange<?> change) {
             this(change.getJObject(), change.getFieldName());
         }
 
-        public Pair(JObject jobj, String fieldName) {
-            super(jobj, fieldName);
+        public Pair(PermazenObject pobj, String fieldName) {
+            super(pobj, fieldName);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
         private final HashSet<Pair> changes1 = new HashSet<>();
         private final HashSet<Pair> changes2 = new HashSet<>();
@@ -223,11 +223,11 @@ public class OnChangeWildcardTest extends MainTestSupport {
             this.reset();
         }
 
-        @JField
+        @PermazenField
         public abstract String getName();
         public abstract void setName(String name);
 
-        @JField
+        @PermazenField
         public abstract int getAge();
         public abstract void setAge(int age);
 
@@ -272,7 +272,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Bogus1 implements JObject {
+    public abstract static class Bogus1 implements PermazenObject {
 
         public abstract Person getFriend();
         public abstract void setFriend(Person friend);
@@ -285,7 +285,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Bogus2 implements JObject {
+    public abstract static class Bogus2 implements PermazenObject {
 
         public abstract Map<Person, Integer> getFriends();
 
@@ -297,7 +297,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Bogus3 implements JObject {
+    public abstract static class Bogus3 implements PermazenObject {
 
         public abstract List<Person> getFriends();
 
@@ -309,7 +309,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Bogus4 implements JObject {
+    public abstract static class Bogus4 implements PermazenObject {
 
         public abstract List<Person> getFriends();
 
@@ -321,7 +321,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class Bogus5 implements JObject {
+    public abstract static class Bogus5 implements PermazenObject {
 
         public abstract List<Person> getFriends();
 

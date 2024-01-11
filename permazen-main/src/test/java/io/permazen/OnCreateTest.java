@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnCreate;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 
 import jakarta.validation.constraints.NotNull;
@@ -23,9 +23,9 @@ public class OnCreateTest extends MainTestSupport {
     @Test
     public void testOnCreate1() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             Person p0 = new Person();
@@ -43,16 +43,16 @@ public class OnCreateTest extends MainTestSupport {
             Assert.assertEquals(p3.getCreateInvokes(), 1);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testOnCreate2() {
 
-        final Permazen jdb = BasicTest.newPermazen(HasUUID.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(HasUUID.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             HasUUID h1 = tx.create(HasUUID.class);
@@ -61,7 +61,7 @@ public class OnCreateTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -78,7 +78,7 @@ public class OnCreateTest extends MainTestSupport {
             this.createInvokes++;
             if (OnCreateTest.createFriend) {
                 OnCreateTest.createFriend = false;
-                this.setFriend(JTransaction.getCurrent().create(Person.class));
+                this.setFriend(PermazenTransaction.getCurrent().create(Person.class));
             }
         }
 
@@ -86,7 +86,7 @@ public class OnCreateTest extends MainTestSupport {
             return this.createInvokes;
         }
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public Person getFriend() {
             return this.friend;
         }
@@ -98,7 +98,7 @@ public class OnCreateTest extends MainTestSupport {
     @PermazenType(storageId = 100)
     public abstract static class HasUUID {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         @NotNull
         public abstract UUID getUUID();
         public abstract void setUUID(UUID uuid);

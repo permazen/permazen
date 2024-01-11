@@ -15,22 +15,22 @@
  * or a {@link java.util.NavigableMap}{@code <Integer, }{@link java.util.NavigableSet}{@code <User>>}.
  *
  * <p>
- * Indexes are accessible through the {@link io.permazen.JTransaction} API:
+ * Indexes are accessible through the {@link io.permazen.PermazenTransaction} API:
  * <ul>
- *  <li>{@link io.permazen.JTransaction#querySimpleIndex(Class, String, Class) JTransaction.querySimpleIndex()}
+ *  <li>{@link io.permazen.PermazenTransaction#querySimpleIndex(Class, String, Class) PermazenTransaction.querySimpleIndex()}
  *      - Access the index associated with a simple field</li>
- *  <li>{@link io.permazen.JTransaction#queryListElementIndex JTransaction.queryListElementIndex()}
+ *  <li>{@link io.permazen.PermazenTransaction#queryListElementIndex PermazenTransaction.queryListElementIndex()}
  *      - Access the composite index associated with a list field that includes corresponding list indices</li>
- *  <li>{@link io.permazen.JTransaction#queryMapValueIndex JTransaction.queryMapValueIndex()}
+ *  <li>{@link io.permazen.PermazenTransaction#queryMapValueIndex PermazenTransaction.queryMapValueIndex()}
  *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
- *  <li>{@link io.permazen.JTransaction#queryCompositeIndex(Class, String, Class, Class) JTransaction.queryCompositeIndex()}
+ *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class) PermazenTransaction.queryCompositeIndex()}
  *      - Access a composite index defined on two fields</li>
- *  <li>{@link io.permazen.JTransaction#queryCompositeIndex(Class, String, Class, Class, Class)
- *      JTransaction.queryCompositeIndex()} - Access a composite index defined on three fields</li>
- *  <li>{@link io.permazen.JTransaction#queryCompositeIndex(Class, String, Class, Class, Class, Class)
- *      JTransaction.queryCompositeIndex()} - Access a composite index defined on four fields</li>
+ *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class, Class)
+ *      PermazenTransaction.queryCompositeIndex()} - Access a composite index defined on three fields</li>
+ *  <li>{@link io.permazen.PermazenTransaction#queryCompositeIndex(Class, String, Class, Class, Class, Class)
+ *      PermazenTransaction.queryCompositeIndex()} - Access a composite index defined on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
- *  <li>{@link io.permazen.JTransaction#querySchemaIndex JTransaction.querySchemaIndex()}
+ *  <li>{@link io.permazen.PermazenTransaction#querySchemaIndex PermazenTransaction.querySchemaIndex()}
  *      - Get database objects grouped according to their schema versions</li>
  * </ul>
  *
@@ -39,7 +39,7 @@
  *
  * <p>
  * A simple index on a single field value is created by setting {@code indexed="true"} on the
- * {@link io.permazen.annotation.JField &#64;JField} annotation.
+ * {@link io.permazen.annotation.PermazenField &#64;PermazenField} annotation.
  *
  * <p>
  * Composite indexes on multiple fields are also supported. These are useful when the target type needs to be sorted

@@ -22,10 +22,10 @@ public class InvertReferencePathTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testInvertReferencePath() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen();
+        final Permazen pdb = BasicTest.newPermazen();
 
-        final JTransaction tx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(tx);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             BasicTest.Person p1 = tx.create(BasicTest.Person.class);
@@ -73,7 +73,7 @@ public class InvertReferencePathTest extends MainTestSupport {
             // Illegal paths
             for (String path : new String[] { "->ratings", "->string", "->ratings.key->string" }) {
                 try {
-                    this.invertRefPath(tx, BasicTest.MeanPerson.class, path, Collections.<JObject>emptySet());
+                    this.invertRefPath(tx, BasicTest.MeanPerson.class, path, Collections.<PermazenObject>emptySet());
                     assert false : "path \"" + path + "\" should be invalid";
                 } catch (IllegalArgumentException e) {
                     // expected
@@ -83,7 +83,7 @@ public class InvertReferencePathTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -91,38 +91,38 @@ public class InvertReferencePathTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testInvertReferencePath2() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(A.class, B.class, C.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(A.class, B.class, C.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            A a = jtx.create(A.class);
+            A a = ptx.create(A.class);
 
-            B b = jtx.create(B.class);
-            C c = jtx.create(C.class);
+            B b = ptx.create(B.class);
+            C c = ptx.create(C.class);
 
             b.setA(a);
             c.setA(a);
 
-            final ReferencePath inverseAny = jdb.parseReferencePath(Object.class, "<-" + HasA.class.getName() + ".a");
-            final ReferencePath inverseB = jdb.parseReferencePath(A.class, "<-B.a");
-            final ReferencePath inverseC = jdb.parseReferencePath(A.class, "<-C.a");
+            final ReferencePath inverseAny = pdb.parseReferencePath(Object.class, "<-" + HasA.class.getName() + ".a");
+            final ReferencePath inverseB = pdb.parseReferencePath(A.class, "<-B.a");
+            final ReferencePath inverseC = pdb.parseReferencePath(A.class, "<-C.a");
 
-            TestSupport.checkSet(jtx.followReferencePath(inverseAny, Stream.of(a)), buildSet(b, c));
-            TestSupport.checkSet(jtx.followReferencePath(inverseB, Stream.of(a)), buildSet(b));
-            TestSupport.checkSet(jtx.followReferencePath(inverseC, Stream.of(a)), buildSet(c));
+            TestSupport.checkSet(ptx.followReferencePath(inverseAny, Stream.of(a)), buildSet(b, c));
+            TestSupport.checkSet(ptx.followReferencePath(inverseB, Stream.of(a)), buildSet(b));
+            TestSupport.checkSet(ptx.followReferencePath(inverseC, Stream.of(a)), buildSet(c));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
-    private NavigableSet<JObject> invertRefPath(JTransaction jtx,
-      Class<?> startType, String path, Collection<? extends JObject> objs) {
-        final ReferencePath refPath = jtx.getPermazen().parseReferencePath(startType, path);
-        return jtx.invertReferencePath(refPath, objs.stream());
+    private NavigableSet<PermazenObject> invertRefPath(PermazenTransaction ptx,
+      Class<?> startType, String path, Collection<? extends PermazenObject> objs) {
+        final ReferencePath refPath = ptx.getPermazen().parseReferencePath(startType, path);
+        return ptx.invertReferencePath(refPath, objs.stream());
     }
 
 // Model Classes
@@ -133,14 +133,14 @@ public class InvertReferencePathTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class A implements JObject {
+    public abstract static class A implements PermazenObject {
     }
 
     @PermazenType
-    public abstract static class B implements JObject, HasA {
+    public abstract static class B implements PermazenObject, HasA {
     }
 
     @PermazenType
-    public abstract static class C implements JObject, HasA {
+    public abstract static class C implements PermazenObject, HasA {
     }
 }

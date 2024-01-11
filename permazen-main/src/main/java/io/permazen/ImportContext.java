@@ -17,10 +17,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Context for importing plain (POJO) objects into a {@link JTransaction}.
+ * Context for importing plain (POJO) objects into a {@link PermazenTransaction}.
  *
  * <p>
- * Plain objects (POJO's) can be imported into a {@link JTransaction} to the extent that the POJO class and
+ * Plain objects (POJO's) can be imported into a {@link PermazenTransaction} to the extent that the POJO class and
  * the corresponding Permazen model class share the same properties. The simplest example of this is when
  * the POJO class is also the Permazen model class (implying a non-abstract class; see also
  * {@link PermazenType#autogenNonAbstract &#64;PermazenType.autogenNonAbstract()}). Also possible are POJO
@@ -30,7 +30,7 @@ import java.util.function.Function;
  * The {@link ObjId} for the corresponding imported Permazen object is determined by the configured {@code objectIdMapper}.
  * If {@code objectIdMapper} returns null, the POJO is not imported, and nulls replace any copied references to it; otherwise,
  * the returned object must exist in the transaction. If {@code objectIdMapper} is itself null, the default behavior is
- * to create a new Permazen object using {@link JTransaction#create(Class)}, providing the POJO's class as the model class.
+ * to create a new Permazen object using {@link PermazenTransaction#create(Class)}, providing the POJO's class as the model class.
  *
  * <p>
  * Instances ensure that an already-imported POJO will be recognized and not imported twice.
@@ -54,7 +54,7 @@ import java.util.function.Function;
  */
 public class ImportContext {
 
-    private final JTransaction jtx;
+    private final PermazenTransaction ptx;
     private final Function<Object, ObjId> objectIdMapper;
     private final IdentityHashMap<Object, ObjId> objectMap = new IdentityHashMap<>();
     private final IdentityHashMap<Object, ObjId> needingFieldsCopied = new IdentityHashMap<>();
@@ -64,34 +64,34 @@ public class ImportContext {
      *
      * <p>
      * Uses a default {@code objectIdMapper} that creates new instances for imported objects via
-     * {@link JTransaction#create(Class)}, using the Permazen model type found by
-     * {@link Permazen#findJClass(Class)} when given the POJO's class.
+     * {@link PermazenTransaction#create(Class)}, using the Permazen model type found by
+     * {@link Permazen#findPermazenClass(Class)} when given the POJO's class.
      *
-     * @param jtx the transaction in which to import objects
-     * @throws IllegalArgumentException if {@code jtx} is null
+     * @param ptx the transaction in which to import objects
+     * @throws IllegalArgumentException if {@code ptx} is null
      */
-    public ImportContext(JTransaction jtx) {
-        Preconditions.checkArgument(jtx != null);
-        this.jtx = jtx;
+    public ImportContext(PermazenTransaction ptx) {
+        Preconditions.checkArgument(ptx != null);
+        this.ptx = ptx;
         this.objectIdMapper = obj -> {
-            final JClass<?> modelClass = this.jtx.jdb.findJClass(obj.getClass());
+            final PermazenClass<?> modelClass = this.ptx.pdb.findPermazenClass(obj.getClass());
             if (modelClass == null)
                 throw new IllegalArgumentException("no Permazen model class corresponds to POJO " + obj.getClass());
-            return ((JObject)this.jtx.create(modelClass)).getObjId();
+            return ((PermazenObject)this.ptx.create(modelClass)).getObjId();
         };
     }
 
     /**
      * Constructor.
      *
-     * @param jtx the transaction in which to import objects
+     * @param ptx the transaction in which to import objects
      * @param objectIdMapper function assigning {@link ObjId}'s to imported objects (or null to skip the corresponding object)
      * @throws IllegalArgumentException if either parameter is null
      */
-    public ImportContext(JTransaction jtx, Function<Object, ObjId> objectIdMapper) {
-        Preconditions.checkArgument(jtx != null);
+    public ImportContext(PermazenTransaction ptx, Function<Object, ObjId> objectIdMapper) {
+        Preconditions.checkArgument(ptx != null);
         Preconditions.checkArgument(objectIdMapper != null);
-        this.jtx = jtx;
+        this.ptx = ptx;
         this.objectIdMapper = objectIdMapper;
     }
 
@@ -100,8 +100,8 @@ public class ImportContext {
      *
      * @return associated transaction
      */
-    public JTransaction getJTransaction() {
-        return this.jtx;
+    public PermazenTransaction getPermazenTransaction() {
+        return this.ptx;
     }
 
     /**
@@ -117,7 +117,7 @@ public class ImportContext {
      * Import a plain Java object (POJO), along with all other objects reachable from it via copied reference fields.
      *
      * <p>
-     * If {@code obj} has already been imported, the previously assigned {@link JObject} is returned.
+     * If {@code obj} has already been imported, the previously assigned {@link PermazenObject} is returned.
      *
      * @param obj object to import; must not be null
      * @return imported object, or null if the {@code objectIdMapper} returned null for {@code obj}
@@ -126,7 +126,7 @@ public class ImportContext {
      *  corresponding to any Permazen model class
      * @throws IllegalArgumentException if {@code obj} is null
      */
-    public JObject importPlain(Object obj) {
+    public PermazenObject importPlain(Object obj) {
 
         // Sanity check
         Preconditions.checkArgument(obj != null, "null obj");
@@ -138,7 +138,7 @@ public class ImportContext {
         this.recurseOnFields();
 
         // Done
-        return this.jtx.get(id);
+        return this.ptx.get(id);
     }
 
     private void recurseOnFields() {
@@ -152,12 +152,12 @@ public class ImportContext {
             i.remove();
 
             // Copy fields
-            for (JField jfield : this.jtx.jdb.getJClass(id).jfieldsByName.values())
-                jfield.importPlain(this, obj, id);
+            for (PermazenField pfield : this.ptx.pdb.getPermazenClass(id).fieldsByName.values())
+                pfield.importPlain(this, obj, id);
         }
     }
 
-    // Import POJO, returning corresponding JObject or null if object is not supposed to be imported, but don't recurse (yet)
+    // Import POJO, returning corresponding PermazenObject or null if object is not supposed to be imported, but don't recurse (yet)
     ObjId doImportPlain(Object obj) {
 
         // Already imported?

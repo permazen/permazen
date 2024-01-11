@@ -6,15 +6,15 @@
 package io.permazen.jsck;
 
 import io.permazen.Counter;
-import io.permazen.JObject;
-import io.permazen.JTransaction;
 import io.permazen.Permazen;
 import io.permazen.PermazenConfig;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.ValidationMode;
-import io.permazen.annotation.JCompositeIndex;
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
+import io.permazen.annotation.PermazenCompositeIndex;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Encodings;
 import io.permazen.core.Layout;
@@ -85,7 +85,7 @@ public class JsckTest extends KVTestSupport {
 
         // Setup db
         final MemoryKVStore kv = new MemoryKVStore();
-        final JTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
+        final PermazenTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
         final Person p1 = this.create(jtx, Person.class, 0x1011111111111111L);
@@ -128,7 +128,7 @@ public class JsckTest extends KVTestSupport {
           .modelClasses(Refs1.class, Refs2.class, Person.class, Pet.class)
           .build()
           .newPermazen();
-        final JTransaction jtx = refsDB.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
+        final PermazenTransaction jtx = refsDB.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         final Person person1 = this.create(jtx, Person.class, 0x1011111111111111L);
         final Person person2 = this.create(jtx, Person.class, 0x1022222222222222L);
@@ -276,7 +276,7 @@ public class JsckTest extends KVTestSupport {
 
     private void populate(MemoryKVStore kv) {
 
-        final JTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
+        final PermazenTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
         final Person mom =      this.create(jtx, Person.class, 0x1011111111111111L);
@@ -332,8 +332,8 @@ public class JsckTest extends KVTestSupport {
         spot.getRaceWins().set(0);
     }
 
-    private <T> T create(JTransaction jtx, Class<T> type, long id) {
-        final JObject jobj = jtx.get(new ObjId(id));
+    private <T> T create(PermazenTransaction jtx, Class<T> type, long id) {
+        final PermazenObject jobj = jtx.get(new ObjId(id));
         jobj.recreate();
         return type.cast(jobj);
     }
@@ -346,51 +346,51 @@ public class JsckTest extends KVTestSupport {
         GOLDFISH;
     }
 
-    public interface Mammal extends JObject {
+    public interface Mammal extends PermazenObject {
 
-        @JField(storageId = 0x99)
+        @PermazenField(storageId = 0x99)
         Date getDOB();
         void setDOB(Date date);
     }
 
     public interface HasName {
 
-        @JField(storageId = 0xaa, indexed = true)
+        @PermazenField(storageId = 0xaa, indexed = true)
         String getName();
         void setName(String name);
     }
 
-    @JCompositeIndex(storageId = 0xef, name = "compidx", fields = { "DOB", "name" })
+    @PermazenCompositeIndex(storageId = 0xef, name = "compidx", fields = { "DOB", "name" })
     @PermazenType(storageId = 0x10)
-    public interface Person extends JObject, HasName, Mammal {
+    public interface Person extends PermazenObject, HasName, Mammal {
 
-        @JField(storageId = 0xbb)
+        @PermazenField(storageId = 0xbb)
         Person getSpouse();
         void setSpouse(Person spouse);
 
-        @JListField(storageId = 0xcc, element = @JField(storageId = 0xdd, indexed = true))
+        @PermazenListField(storageId = 0xcc, element = @PermazenField(storageId = 0xdd, indexed = true))
         List<Mammal> getFriends();
 
-        @JMapField(storageId = 0x34343434, key = @JField(storageId = 0x56565656, indexed = true))
+        @PermazenMapField(storageId = 0x34343434, key = @PermazenField(storageId = 0x56565656, indexed = true))
         NavigableMap<Person, Float> getAmountOwed();
     }
 
     @PermazenType(storageId = 0x20)
-    public interface Pet extends JObject, HasName, Mammal {
+    public interface Pet extends PermazenObject, HasName, Mammal {
 
-        @JField(storageId = 0xee)
+        @PermazenField(storageId = 0xee)
         PetType getPetType();
         void setPetType(PetType type);
 
-        @JField(storageId = 0xff)
+        @PermazenField(storageId = 0xff)
         Counter getRaceWins();
 
-        @JField(storageId = 0xfe)
+        @PermazenField(storageId = 0xfe)
         Person getOwner();
         void setOwner(Person owner);
     }
 
-    public interface Refs<T1 extends JObject, T2 extends JObject> extends JObject {
+    public interface Refs<T1 extends PermazenObject, T2 extends PermazenObject> extends PermazenObject {
         T1 getRef();
         void setRef(T1 x);
         List<T1> getList();

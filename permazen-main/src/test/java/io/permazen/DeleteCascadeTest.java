@@ -5,10 +5,10 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSetField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 
@@ -24,27 +24,27 @@ public class DeleteCascadeTest extends MainTestSupport {
     @Test
     public void testDeleteCascade() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            Person root = jtx.create(Person.class);
+            Person root = ptx.create(Person.class);
 
-            Person ref = jtx.create(Person.class);
+            Person ref = ptx.create(Person.class);
             root.setRef(ref);
 
-            Person set1 = jtx.create(Person.class);
-            Person set2 = jtx.create(Person.class);
-            Person set3 = jtx.create(Person.class);
+            Person set1 = ptx.create(Person.class);
+            Person set2 = ptx.create(Person.class);
+            Person set3 = ptx.create(Person.class);
             root.getSet().add(set1);
             root.getSet().add(set2);
             root.getSet().add(set3);
             root.getSet().add(null);
 
-            Person list1 = jtx.create(Person.class);
-            Person list2 = jtx.create(Person.class);
-            Person list3 = jtx.create(Person.class);
+            Person list1 = ptx.create(Person.class);
+            Person list2 = ptx.create(Person.class);
+            Person list3 = ptx.create(Person.class);
             root.getList().add(null);
             root.getList().add(list1);
             root.getList().add(list2);
@@ -56,21 +56,21 @@ public class DeleteCascadeTest extends MainTestSupport {
             root.getList().add(list1);
             root.getList().add(null);
 
-            Person map1a1 = jtx.create(Person.class);
-            Person map1a2 = jtx.create(Person.class);
-            Person map1b1 = jtx.create(Person.class);
-            Person map1b2 = jtx.create(Person.class);
-            Person map1c1 = jtx.create(Person.class);
-            Person map1c2 = jtx.create(Person.class);
+            Person map1a1 = ptx.create(Person.class);
+            Person map1a2 = ptx.create(Person.class);
+            Person map1b1 = ptx.create(Person.class);
+            Person map1b2 = ptx.create(Person.class);
+            Person map1c1 = ptx.create(Person.class);
+            Person map1c2 = ptx.create(Person.class);
             root.getMap1().put(map1a1, map1a2);
             root.getMap1().put(map1b1, map1b2);
             root.getMap1().put(map1c1, map1c2);
 
-            Person map2a1 = jtx.create(Person.class);
-            Person map2a2 = jtx.create(Person.class);
-            Person map2b1 = jtx.create(Person.class);
-            Person map2b2 = jtx.create(Person.class);
-            Person map2c1 = jtx.create(Person.class);
+            Person map2a1 = ptx.create(Person.class);
+            Person map2a2 = ptx.create(Person.class);
+            Person map2b1 = ptx.create(Person.class);
+            Person map2b2 = ptx.create(Person.class);
+            Person map2c1 = ptx.create(Person.class);
             root.getMap2().put(map2a1, map2a2);
             root.getMap2().put(map2b1, map2b2);
             root.getMap2().put(map2c1, map2b2);
@@ -101,24 +101,24 @@ public class DeleteCascadeTest extends MainTestSupport {
             Assert.assertFalse(map2a2.exists());
             Assert.assertFalse(map2b2.exists());
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testDeleteCircular() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            Person p1 = jtx.create(Person.class);
-            Person p2 = jtx.create(Person.class);
-            Person p3 = jtx.create(Person.class);
+            Person p1 = ptx.create(Person.class);
+            Person p2 = ptx.create(Person.class);
+            Person p3 = ptx.create(Person.class);
 
             p1.setRef(p2);
             p2.setRef(p3);
@@ -126,38 +126,38 @@ public class DeleteCascadeTest extends MainTestSupport {
 
             p1.delete();
 
-            Assert.assertTrue(jtx.getAll(Person.class).isEmpty());
+            Assert.assertTrue(ptx.getAll(Person.class).isEmpty());
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true)
+        @PermazenField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true)
         public abstract Person getRef();
         public abstract void setRef(Person ref);
 
-        @JSetField(element = @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
+        @PermazenSetField(element = @PermazenField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
         public abstract Set<Person> getSet();
 
-        @JListField(element = @JField(inverseDelete = DeleteAction.UNREFERENCE, forwardDelete = true))
+        @PermazenListField(element = @PermazenField(inverseDelete = DeleteAction.UNREFERENCE, forwardDelete = true))
         public abstract List<Person> getList();
 
-        @JMapField(
-          key = @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true),
-          value = @JField(inverseDelete = DeleteAction.IGNORE, allowDeleted = true))
+        @PermazenMapField(
+          key = @PermazenField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true),
+          value = @PermazenField(inverseDelete = DeleteAction.IGNORE, allowDeleted = true))
         public abstract Map<Person, Person> getMap1();
 
-        @JMapField(
-          key = @JField(inverseDelete = DeleteAction.IGNORE, allowDeleted = true),
-          value = @JField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
+        @PermazenMapField(
+          key = @PermazenField(inverseDelete = DeleteAction.IGNORE, allowDeleted = true),
+          value = @PermazenField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
         public abstract Map<Person, Person> getMap2();
     }
 }

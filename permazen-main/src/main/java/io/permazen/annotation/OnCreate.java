@@ -5,9 +5,9 @@
 
 package io.permazen.annotation;
 
-import io.permazen.DetachedJTransaction;
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.DetachedPermazenTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.core.Transaction;
 
 import java.lang.annotation.Documented;
@@ -21,11 +21,11 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Note that there is a subtle distinction between (a) the creation of database objects in the database, and
- * (b) the instantiation of Java model objects that represent database objects (i.e., {@link JObject}s).
+ * (b) the instantiation of Java model objects that represent database objects (i.e., {@link PermazenObject}s).
  * These two events do not occur at the same time; in particular, distinct Java model objects are instantiated to
  * represent the same database object in different transactions. In addition, it's even possible for a Java model
  * object to be instantiated when no corresponding database object exists in the database, e.g., via
- * {@link JTransaction#get(io.permazen.core.ObjId)}.
+ * {@link PermazenTransaction#get(io.permazen.core.ObjId)}.
  *
  * <p>
  * Methods that are annotated with {@link OnCreate &#64;OnCreate} are invoked only for events of type (a).
@@ -75,7 +75,7 @@ import java.lang.annotation.Target;
  * It may have any level of access, including {@code private}.
  *
  * <p>
- * Some notifications may need to be ignored by objects in {@linkplain DetachedJTransaction detached} transactions;
+ * Some notifications may need to be ignored by objects in {@linkplain DetachedPermazenTransaction detached} transactions;
  * you can use {@code this.isDetached()} to detect that situation.
  *
  * <p>

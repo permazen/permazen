@@ -9,12 +9,12 @@
         <Bug pattern="LI_LAZY_INIT_UPDATE_STATIC"/>
     </Match>
     <Match>
-        <Class name="io.permazen.JCollectionField"/>
+        <Class name="io.permazen.PermazenCollectionField"/>
         <Method name="importPlain"/>
         <Bug pattern="DE_MIGHT_IGNORE,REC_CATCH_EXCEPTION"/>
     </Match>
     <Match>
-        <Class name="io.permazen.JMapField"/>
+        <Class name="io.permazen.PermazenMapField"/>
         <Method name="importPlain"/>
         <Bug pattern="DE_MIGHT_IGNORE,REC_CATCH_EXCEPTION"/>
     </Match>

@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JMapField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenMapField;
 import io.permazen.annotation.PermazenType;
 
 import java.util.NavigableMap;
@@ -21,9 +21,9 @@ public class CounterTest extends MainTestSupport {
     @Test
     public void testCounter() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             Person p1 = tx.create(Person.class);
@@ -47,7 +47,7 @@ public class CounterTest extends MainTestSupport {
             Assert.assertEquals(counter.get(), -74);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -56,10 +56,13 @@ public class CounterTest extends MainTestSupport {
     @PermazenType(storageId = 100)
     public abstract static class Person {
 
-        @JField(storageId = 104)
+        @PermazenField(storageId = 104)
         public abstract Counter getCounter();
 
-        @JMapField(storageId = 101, key = @JField(storageId = 102), value = @JField(storageId = 103, encoding = "float"))
+        @PermazenMapField(storageId = 101,
+          key = @PermazenField(storageId = 102),
+          value = @PermazenField(storageId = 103,
+          encoding = "float"))
         public abstract NavigableMap<Person, Float> getRatings();
     }
 }

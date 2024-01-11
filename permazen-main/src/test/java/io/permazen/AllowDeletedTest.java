@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 import io.permazen.core.DeletedObjectException;
@@ -20,14 +20,14 @@ public class AllowDeletedTest extends MainTestSupport {
     @Test
     public void testAllowDeleted() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            Person person = jtx.create(Person.class);
+            Person person = ptx.create(Person.class);
 
-            Person deletedPerson = jtx.create(Person.class);
+            Person deletedPerson = ptx.create(Person.class);
             deletedPerson.delete();
 
             try {
@@ -40,19 +40,19 @@ public class AllowDeletedTest extends MainTestSupport {
             person.setPossiblyDeletedFriend(deletedPerson);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testCopy() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final JTransaction stx = jtx.getDetachedTransaction();
+            final PermazenTransaction stx = ptx.getDetachedTransaction();
 
             Person p1 = stx.create(Person.class);
             Person p2 = stx.create(Person.class);
@@ -71,23 +71,23 @@ public class AllowDeletedTest extends MainTestSupport {
             }
 
             // copyIn() of one object and one other object it refers to
-            jtx.getAll(Person.class).forEach(JObject::delete);
+            ptx.getAll(Person.class).forEach(PermazenObject::delete);
             try {
-                p1.copyTo(jtx, 1, new CopyState(), "definitelyExistsFriend");
+                p1.copyTo(ptx, 1, new CopyState(), "definitelyExistsFriend");
                 assert false;
             } catch (DeletedObjectException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
             // copyIn() of all three objects through reference paths from first object
-            jtx.getAll(Person.class).forEach(JObject::delete);
+            ptx.getAll(Person.class).forEach(PermazenObject::delete);
             p1.copyIn("definitelyExistsFriend");
-            Assert.assertEquals(jtx.getAll(Person.class).size(), 3);
+            Assert.assertEquals(ptx.getAll(Person.class).size(), 3);
 
             // copyTo() of 2/3 objects
-            jtx.getAll(Person.class).forEach(JObject::delete);
+            ptx.getAll(Person.class).forEach(PermazenObject::delete);
             try {
-                stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2).stream());
+                stx.copyTo(ptx, new CopyState(), Arrays.asList(p1, p2).stream());
                 assert false;
             } catch (DeletedObjectException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -95,25 +95,25 @@ public class AllowDeletedTest extends MainTestSupport {
             }
 
             // copyTo() of all 3/3 objects
-            jtx.getAll(Person.class).forEach(JObject::delete);
-            stx.copyTo(jtx, new CopyState(), Arrays.asList(p1, p2, p3).stream());
-            Assert.assertEquals(jtx.getAll(Person.class).size(), 3);
+            ptx.getAll(Person.class).forEach(PermazenObject::delete);
+            stx.copyTo(ptx, new CopyState(), Arrays.asList(p1, p2, p3).stream());
+            Assert.assertEquals(ptx.getAll(Person.class).size(), 3);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @JField(inverseDelete = DeleteAction.UNREFERENCE, forwardCascades = "definitelyExistsFriend")
+        @PermazenField(inverseDelete = DeleteAction.UNREFERENCE, forwardCascades = "definitelyExistsFriend")
         public abstract Person getDefinitelyExistsFriend();
         public abstract void setDefinitelyExistsFriend(Person friend);
 
-        @JField(allowDeleted = true)
+        @PermazenField(allowDeleted = true)
         public abstract Person getPossiblyDeletedFriend();
         public abstract void setPossiblyDeletedFriend(Person friend);
 

@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 import io.permazen.index.Index1;
@@ -24,28 +24,28 @@ public class IndexQueryTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testSharedStorageId() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(Account.class, Foo.class, Bar.class, Jam.class);
+        final Permazen pdb = BasicTest.newPermazen(Account.class, Foo.class, Bar.class, Jam.class);
 
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Account a1 = jtx.get(new ObjId("0A1111111111A001"), Account.class);
-            final Account a2 = jtx.get(new ObjId("0A2222222222A002"), Account.class);
-            jtx.recreate(a1);
-            jtx.recreate(a2);
+            final Account a1 = ptx.get(new ObjId("0A1111111111A001"), Account.class);
+            final Account a2 = ptx.get(new ObjId("0A2222222222A002"), Account.class);
+            ptx.recreate(a1);
+            ptx.recreate(a2);
 
-            final Foo f1 = jtx.get(new ObjId("141111111111F001"), Foo.class);
-            final Foo f2 = jtx.get(new ObjId("142222222222F002"), Foo.class);
-            jtx.recreate(f1);
-            jtx.recreate(f2);
+            final Foo f1 = ptx.get(new ObjId("141111111111F001"), Foo.class);
+            final Foo f2 = ptx.get(new ObjId("142222222222F002"), Foo.class);
+            ptx.recreate(f1);
+            ptx.recreate(f2);
 
-            final Bar b1 = jtx.get(new ObjId("281111111111BA01"), Bar.class);
-            final Bar b2 = jtx.get(new ObjId("282222222222BA02"), Bar.class);
-            jtx.recreate(b1);
-            jtx.recreate(b2);
+            final Bar b1 = ptx.get(new ObjId("281111111111BA01"), Bar.class);
+            final Bar b2 = ptx.get(new ObjId("282222222222BA02"), Bar.class);
+            ptx.recreate(b1);
+            ptx.recreate(b2);
 
-            Jam j1 = jtx.create(Jam.class);
+            Jam j1 = ptx.create(Jam.class);
             j1.setAccount(a1);
             j1.setAge(123);
 
@@ -68,22 +68,22 @@ public class IndexQueryTest extends MainTestSupport {
             TestSupport.checkSet(a2.getFooBars(), buildSet(f2, b2));
 
             try {
-                jtx.querySimpleIndex(HasAccount.class, "name", Account.class);
+                ptx.querySimpleIndex(HasAccount.class, "name", Account.class);
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
             }
 
-            TestSupport.checkMap(jtx.querySimpleIndex(Jam.class, "account", Account.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(Jam.class, "account", Account.class).asMap(),
               buildMap(a1, buildSet(j1)));
 
-            TestSupport.checkMap(jtx.querySimpleIndex(Jam.class, "age", Integer.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(Jam.class, "age", Integer.class).asMap(),
               buildMap(123, buildSet(j1)));
 
-            TestSupport.checkMap(jtx.querySimpleIndex(Jam.class, "age", int.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(Jam.class, "age", int.class).asMap(),
               buildMap(123, buildSet(j1)));
 
-        // JObject.getReferring()
+        // PermazenObject.getReferring()
 
             TestSupport.checkSet(a1.findReferring(Foo.class, "account"), buildSet(f1));
             TestSupport.checkSet(a1.findReferring(Bar.class, "account"), buildSet(b1));
@@ -91,10 +91,10 @@ public class IndexQueryTest extends MainTestSupport {
             TestSupport.checkSet(a1.findReferring(FooBar.class, "account"), buildSet(f1, b1));
             TestSupport.checkSet(a1.findReferring(Object.class, "account"), buildSet(f1, b1, j1));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -102,36 +102,36 @@ public class IndexQueryTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testQueryIndexType() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(HasNameImpl.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(HasNameImpl.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final HasNameImpl h1 = jtx.create(HasNameImpl.class);
-            final HasNameImpl h2 = jtx.create(HasNameImpl.class);
+            final HasNameImpl h1 = ptx.create(HasNameImpl.class);
+            final HasNameImpl h2 = ptx.create(HasNameImpl.class);
 
             h1.setName("h1");
             h2.setName("h2");
 
-            TestSupport.checkMap(jtx.querySimpleIndex(HasNameImpl.class, "name", String.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(HasNameImpl.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.querySimpleIndex(HasName.class, "name", String.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(HasName.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.querySimpleIndex(JObject.class, "name", String.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(PermazenObject.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.querySimpleIndex(Object.class, "name", String.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(Object.class, "name", String.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            TestSupport.checkMap(jtx.querySimpleIndex(HasNameImpl.class, "name", Object.class).asMap(),
+            TestSupport.checkMap(ptx.querySimpleIndex(HasNameImpl.class, "name", Object.class).asMap(),
               buildMap("h1", buildSet(h1), "h2", buildSet(h2)));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -139,15 +139,15 @@ public class IndexQueryTest extends MainTestSupport {
     @SuppressWarnings("unchecked")
     public void testBoundedIndexes() throws Exception {
 
-        final Permazen jdb = BasicTest.newPermazen(HasNameAndAge.class);
-        final JTransaction jtx = jdb.createTransaction();
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(HasNameAndAge.class);
+        final PermazenTransaction ptx = pdb.createTransaction();
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final HasNameAndAge alice = jtx.get(new ObjId("07aaaaaaaaaaaaaa"), HasNameAndAge.class);
-            final HasNameAndAge bob = jtx.get(new ObjId("07bbbbbbbbbbbbbb"), HasNameAndAge.class);
-            final HasNameAndAge bobby = jtx.get(new ObjId("07bbbbbbbbbbbbbc"), HasNameAndAge.class);
-            final HasNameAndAge eve = jtx.get(new ObjId("07eeeeeeeeeeeeee"), HasNameAndAge.class);
+            final HasNameAndAge alice = ptx.get(new ObjId("07aaaaaaaaaaaaaa"), HasNameAndAge.class);
+            final HasNameAndAge bob = ptx.get(new ObjId("07bbbbbbbbbbbbbb"), HasNameAndAge.class);
+            final HasNameAndAge bobby = ptx.get(new ObjId("07bbbbbbbbbbbbbc"), HasNameAndAge.class);
+            final HasNameAndAge eve = ptx.get(new ObjId("07eeeeeeeeeeeeee"), HasNameAndAge.class);
 
             alice.recreate();
             alice.setName("alice");
@@ -165,8 +165,8 @@ public class IndexQueryTest extends MainTestSupport {
             eve.setName("eve");
             eve.setAge(73);
 
-            final Index1<String, HasNameAndAge> nameIndex = jtx.querySimpleIndex(HasNameAndAge.class, "name", String.class);
-            final Index1<Integer, HasNameAndAge> ageIndex = jtx.querySimpleIndex(HasNameAndAge.class, "age", Integer.class);
+            final Index1<String, HasNameAndAge> nameIndex = ptx.querySimpleIndex(HasNameAndAge.class, "name", String.class);
+            final Index1<Integer, HasNameAndAge> ageIndex = ptx.querySimpleIndex(HasNameAndAge.class, "age", Integer.class);
 
         // Restrict name
 
@@ -233,10 +233,10 @@ public class IndexQueryTest extends MainTestSupport {
               "alice", buildSet(alice),
               "bob", buildSet(bob, bobby)));
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -245,17 +245,17 @@ public class IndexQueryTest extends MainTestSupport {
     public interface FooBar {
     }
 
-    public interface HasAccount extends JObject {
+    public interface HasAccount extends PermazenObject {
 
-        @JField(storageId = 1)
+        @PermazenField(storageId = 1)
         Account getAccount();
         void setAccount(Account x);
     }
 
     @PermazenType(storageId = 10)
-    public abstract static class Account implements JObject {
+    public abstract static class Account implements PermazenObject {
 
-        @JField(storageId = 2)
+        @PermazenField(storageId = 2)
         public abstract String getName();
         public abstract void setName(String x);
 
@@ -280,19 +280,19 @@ public class IndexQueryTest extends MainTestSupport {
         }
 
         public static Index1<Account, HasAccount> queryHasAccount() {
-            return JTransaction.getCurrent().querySimpleIndex(HasAccount.class, "account", Account.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(HasAccount.class, "account", Account.class);
         }
 
         public static Index1<Account, Foo> queryFoo() {
-            return JTransaction.getCurrent().querySimpleIndex(Foo.class, "account", Account.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(Foo.class, "account", Account.class);
         }
 
         public static Index1<Account, Bar> queryBar() {
-            return JTransaction.getCurrent().querySimpleIndex(Bar.class, "account", Account.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(Bar.class, "account", Account.class);
         }
 
         public static Index1<Account, FooBar> queryFooBar() {
-            return JTransaction.getCurrent().querySimpleIndex(FooBar.class, "account", Account.class);
+            return PermazenTransaction.getCurrent().querySimpleIndex(FooBar.class, "account", Account.class);
         }
 
         public <R> NavigableSet<R> findReferring(Class<R> type, String fieldName) {
@@ -312,7 +312,7 @@ public class IndexQueryTest extends MainTestSupport {
 
     public interface HasAge {
 
-        @JField(indexed = true)
+        @PermazenField(indexed = true)
         int getAge();
         void setAge(int age);
     }
@@ -337,13 +337,13 @@ public class IndexQueryTest extends MainTestSupport {
 
     public interface HasName {
 
-        @JField(indexed = true)
+        @PermazenField(indexed = true)
         String getName();
         void setName(String name);
     }
 
     @PermazenType
-    public abstract static class HasNameImpl implements JObject, HasName {
+    public abstract static class HasNameImpl implements PermazenObject, HasName {
 
         @Override
         public abstract String getName();
@@ -352,6 +352,6 @@ public class IndexQueryTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 7)
-    public abstract static class HasNameAndAge implements JObject, HasName, HasAge {
+    public abstract static class HasNameAndAge implements PermazenObject, HasName, HasAge {
     }
 }

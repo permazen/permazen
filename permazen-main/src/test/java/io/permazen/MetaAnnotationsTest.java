@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.DeleteAction;
 
@@ -22,20 +22,20 @@ public class MetaAnnotationsTest extends MainTestSupport {
 
     @Test
     public void testGenerics1() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(Mommy.class, Baby.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Mommy.class, Baby.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Mommy mommy = jtx.create(Mommy.class);
-            final Baby baby1 = jtx.create(Baby.class);
-            final Baby baby2 = jtx.create(Baby.class);
+            final Mommy mommy = ptx.create(Mommy.class);
+            final Baby baby1 = ptx.create(Baby.class);
+            final Baby baby2 = ptx.create(Baby.class);
 
             baby1.setMommy(mommy);
             baby2.setMommy(mommy);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -46,10 +46,10 @@ public class MetaAnnotationsTest extends MainTestSupport {
             final Baby baby1copy = (Baby)baby1.copyOut("load");
             Assert.assertNotNull(baby1copy.getMommy());
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -61,23 +61,23 @@ public class MetaAnnotationsTest extends MainTestSupport {
     public @interface ModelClass {
     }
 
-    @JField(inverseDelete = DeleteAction.DELETE, forwardCascades = "load")
+    @PermazenField(inverseDelete = DeleteAction.DELETE, forwardCascades = "load")
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
     public @interface Parent {
 
-        @AliasFor(annotation = JField.class, attribute = "unique")
+        @AliasFor(annotation = PermazenField.class, attribute = "unique")
         boolean onlyChild() default false;
     }
 
 // Model Classes
 
     @ModelClass
-    public abstract static class Mommy implements JObject {
+    public abstract static class Mommy implements PermazenObject {
     }
 
     @ModelClass
-    public abstract static class Baby implements JObject {
+    public abstract static class Baby implements PermazenObject {
 
         @Parent(onlyChild = true)
         public abstract Mommy getMommy();

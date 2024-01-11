@@ -5,10 +5,10 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
-import io.permazen.annotation.JListField;
-import io.permazen.annotation.JMapField;
-import io.permazen.annotation.JSetField;
+import io.permazen.annotation.PermazenField;
+import io.permazen.annotation.PermazenListField;
+import io.permazen.annotation.PermazenMapField;
+import io.permazen.annotation.PermazenSetField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.test.TestSupport;
 
@@ -26,20 +26,20 @@ public class DuplicateReferenceFieldTest extends MainTestSupport {
 
     @Test
     public void testDuplicateReferenceFields() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(ClassA.class, ClassB.class, ClassC.class);
+        final Permazen pdb = BasicTest.newPermazen(ClassA.class, ClassB.class, ClassC.class);
 
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final ClassA a1 = jtx.create(ClassA.class);
-            final ClassA a2 = jtx.create(ClassA.class);
+            final ClassA a1 = ptx.create(ClassA.class);
+            final ClassA a2 = ptx.create(ClassA.class);
 
-            final ClassB b1 = jtx.create(ClassB.class);
-            final ClassB b2 = jtx.create(ClassB.class);
+            final ClassB b1 = ptx.create(ClassB.class);
+            final ClassB b2 = ptx.create(ClassB.class);
 
-            final ClassC c1 = jtx.create(ClassC.class);
-            final ClassC c2 = jtx.create(ClassC.class);
+            final ClassC c1 = ptx.create(ClassC.class);
+            final ClassC c2 = ptx.create(ClassC.class);
 
             // Name
             a1.setName("foo");
@@ -92,120 +92,121 @@ public class DuplicateReferenceFieldTest extends MainTestSupport {
 
             // FieldR
             final HashMap<Class<?>, Class<?>> valueTypeMap = new HashMap<>();
-            valueTypeMap.put(Object.class, JObject.class);
-            valueTypeMap.put(JObject.class, JObject.class);
-            valueTypeMap.put(TopClass.class, JObject.class);
-            valueTypeMap.put(ClassA.class, JObject.class);
+            valueTypeMap.put(Object.class, PermazenObject.class);
+            valueTypeMap.put(PermazenObject.class, PermazenObject.class);
+            valueTypeMap.put(TopClass.class, PermazenObject.class);
+            valueTypeMap.put(ClassA.class, PermazenObject.class);
             valueTypeMap.put(ClassB.class, TopClass.class);
             valueTypeMap.put(ClassC.class, ClassA.class);
             for (Class<?> startType : valueTypeMap.keySet()) {
                 for (Class<?> valueType : valueTypeMap.keySet())
-                    this.verifyValueType(jtx, startType, "fieldR", valueType, valueTypeMap.get(startType));
+                    this.verifyValueType(ptx, startType, "fieldR", valueType, valueTypeMap.get(startType));
             }
 
             // FieldZ.key
             valueTypeMap.clear();
             valueTypeMap.put(Object.class, TopClass.class);
-            valueTypeMap.put(JObject.class, TopClass.class);
+            valueTypeMap.put(PermazenObject.class, TopClass.class);
             valueTypeMap.put(TopClass.class, TopClass.class);
             valueTypeMap.put(ClassA.class, TopClass.class);
             valueTypeMap.put(ClassB.class, ClassC.class);
             for (Class<?> startType : valueTypeMap.keySet()) {
                 for (Class<?> valueType : valueTypeMap.keySet())
-                    this.verifyValueType(jtx, startType, "fieldZ.key", valueType, valueTypeMap.get(startType));
+                    this.verifyValueType(ptx, startType, "fieldZ.key", valueType, valueTypeMap.get(startType));
             }
 
         // Verify indexes
 
             // Name
-            TestSupport.checkMap(jtx.querySimpleIndex(TopClass.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(TopClass.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(a1, b1, c1),
               "bar-a", buildSet(a2),
               "bar-b", buildSet(b2),
               "bar-c", buildSet(c2)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassA.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassA.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(a1),
               "bar-a", buildSet(a2)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassB.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassB.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(b1),
               "bar-b", buildSet(b2)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassC.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassC.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(c1),
               "bar-c", buildSet(c2)));
 
             // FieldR - check indexes
-            TestSupport.checkMap(jtx.querySimpleIndex(TopClass.class, "fieldR", JObject.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(TopClass.class, "fieldR", PermazenObject.class).asMap(), buildMap(
               a1, buildSet(a2, c1),
               a2, buildSet(c2),
               b1, buildSet(a1),
               b2, buildSet(b2),
               c1, buildSet(b1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassA.class, "fieldR", JObject.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassA.class, "fieldR", PermazenObject.class).asMap(), buildMap(
               a1, buildSet(a2),
               b1, buildSet(a1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassB.class, "fieldR", TopClass.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassB.class, "fieldR", TopClass.class).asMap(), buildMap(
               c1, buildSet(b1),
               b2, buildSet(b2)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassC.class, "fieldR", ClassA.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassC.class, "fieldR", ClassA.class).asMap(), buildMap(
               a1, buildSet(c1),
               a2, buildSet(c2)));
 
             // FieldX
-            TestSupport.checkMap(jtx.querySimpleIndex(TopClass.class, "fieldX.element", Float.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(TopClass.class, "fieldX.element", Float.class).asMap(), buildMap(
               2.0f, buildSet(b1),
               3.0f, buildSet(b1, c1),
               4.0f, buildSet(b1, c1),
               5.0f, buildSet(c1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassB.class, "fieldX.element", Float.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassB.class, "fieldX.element", Float.class).asMap(), buildMap(
               2.0f, buildSet(b1),
               3.0f, buildSet(b1),
               4.0f, buildSet(b1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassC.class, "fieldX.element", Float.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassC.class, "fieldX.element", Float.class).asMap(), buildMap(
               3.0f, buildSet(c1),
               4.0f, buildSet(c1),
               5.0f, buildSet(c1)));
 
             // FieldY
-            TestSupport.checkMap(jtx.querySimpleIndex(TopClass.class, "fieldY.element", Integer.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(TopClass.class, "fieldY.element", Integer.class).asMap(), buildMap(
               100, buildSet(a1),
               200, buildSet(a1),
               300, buildSet(a1, c1),
               400, buildSet(c1),
               500, buildSet(c1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassA.class, "fieldY.element", Integer.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassA.class, "fieldY.element", Integer.class).asMap(), buildMap(
               100, buildSet(a1),
               200, buildSet(a1),
               300, buildSet(a1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassC.class, "fieldY.element", Integer.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassC.class, "fieldY.element", Integer.class).asMap(), buildMap(
               300, buildSet(c1),
               400, buildSet(c1),
               500, buildSet(c1)));
 
             // FieldZ
-            TestSupport.checkMap(jtx.querySimpleIndex(TopClass.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(TopClass.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
               a2, buildSet(a1),
               b2, buildSet(a1),
               c2, buildSet(a1, b1),
               c1, buildSet(b1)));
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassA.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassA.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
               a2, buildSet(a1),
               b2, buildSet(a1),
               c2, buildSet(a1)));           // note b2 does not appear in set
-            TestSupport.checkMap(jtx.querySimpleIndex(ClassB.class, "fieldZ.key", ClassC.class).asMap(), buildMap(
+            TestSupport.checkMap(ptx.querySimpleIndex(ClassB.class, "fieldZ.key", ClassC.class).asMap(), buildMap(
               c1, buildSet(b1),
               c2, buildSet(b1)));           // note a1 does not appear in set
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
-    private void verifyValueType(JTransaction jtx, Class<?> startType, String fieldName, Class<?> valueType, Class<?> correctType) {
+    private void verifyValueType(PermazenTransaction ptx,
+      Class<?> startType, String fieldName, Class<?> valueType, Class<?> correctType) {
         IllegalArgumentException failure = null;
         try {
-            jtx.querySimpleIndex(startType, fieldName, valueType);
+            ptx.querySimpleIndex(startType, fieldName, valueType);
         } catch (IllegalArgumentException e) {
             failure = e;
         }
@@ -217,9 +218,9 @@ public class DuplicateReferenceFieldTest extends MainTestSupport {
 
 // Model Classes
 
-    public abstract static class TopClass implements JObject {
+    public abstract static class TopClass implements PermazenObject {
 
-        @JField(indexed = true)
+        @PermazenField(indexed = true)
         public abstract String getName();
         public abstract void setName(String name);
 
@@ -233,15 +234,15 @@ public class DuplicateReferenceFieldTest extends MainTestSupport {
     public abstract static class ClassA extends TopClass {
 
         // Field R
-        public abstract JObject getFieldR();                            // note reference type is JObject
-        public abstract void setFieldR(JObject ref);
+        public abstract PermazenObject getFieldR();                            // note reference type is PermazenObject
+        public abstract void setFieldR(PermazenObject ref);
 
         // Field Y
-        @JListField(element = @JField(encoding = "int", indexed = true))
+        @PermazenListField(element = @PermazenField(encoding = "int", indexed = true))
         public abstract List<Integer> getFieldY();
 
         // Field Z
-        @JMapField(key = @JField(indexed = true), value = @JField(indexed = true))
+        @PermazenMapField(key = @PermazenField(indexed = true), value = @PermazenField(indexed = true))
         public abstract NavigableMap<TopClass, String> getFieldZ();     // note key type is TopClass
     }
 
@@ -253,11 +254,11 @@ public class DuplicateReferenceFieldTest extends MainTestSupport {
         public abstract void setFieldR(TopClass ref);
 
         // Field X
-        @JSetField(element = @JField(encoding = "float", indexed = true))
+        @PermazenSetField(element = @PermazenField(encoding = "float", indexed = true))
         public abstract NavigableSet<Float> getFieldX();
 
         // Field Z
-        @JMapField(key = @JField(indexed = true), value = @JField(indexed = true))
+        @PermazenMapField(key = @PermazenField(indexed = true), value = @PermazenField(indexed = true))
         public abstract NavigableMap<ClassC, String> getFieldZ();       // note key type is ClassC
     }
 
@@ -269,11 +270,11 @@ public class DuplicateReferenceFieldTest extends MainTestSupport {
         public abstract void setFieldR(ClassA ref);
 
         // Field X
-        @JSetField(element = @JField(encoding = "float", indexed = true))
+        @PermazenSetField(element = @PermazenField(encoding = "float", indexed = true))
         public abstract NavigableSet<Float> getFieldX();
 
         // Field C
-        @JListField(element = @JField(encoding = "int", indexed = true))
+        @PermazenListField(element = @PermazenField(encoding = "int", indexed = true))
         public abstract List<Integer> getFieldY();
     }
 }

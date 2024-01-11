@@ -5,8 +5,8 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnSchemaChange;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.Database;
 import io.permazen.core.EnumValue;
@@ -101,13 +101,13 @@ public class EnumFieldTest extends MainTestSupport {
 
     // Version 2
 
-        Permazen jdb = BasicTest.newPermazen(db, Foo.class);
-        final SchemaId schemaId2 = jdb.getSchemaModel().getSchemaId();
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        Permazen pdb = BasicTest.newPermazen(db, Foo.class);
+        final SchemaId schemaId2 = pdb.getSchemaModel().getSchemaId();
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Foo foo = jtx.get(id1, Foo.class);
+            final Foo foo = ptx.get(id1, Foo.class);
             Assert.assertEquals(foo.getSchemaId(), schemaId1);
 
             foo.migrateSchema();
@@ -117,7 +117,7 @@ public class EnumFieldTest extends MainTestSupport {
             Assert.assertEquals(foo.getMissingEnumField(), MyEnum.BAR);
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -159,32 +159,32 @@ public class EnumFieldTest extends MainTestSupport {
     @Test
     public void testEnumGetSetValue() throws Exception {
         final Permazen permazen = BasicTest.newPermazen(Foo.class);
-        final JTransaction jtx = permazen.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final PermazenTransaction ptx = permazen.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Foo jobj = jtx.create(Foo.class);
-            jobj.setEnumField(MyEnum.FOO);
+            final Foo pobj = ptx.create(Foo.class);
+            pobj.setEnumField(MyEnum.FOO);
 
-            final JEnumField field = permazen.getJClass(Foo.class).getJField("enumField", JEnumField.class);
-            Assert.assertEquals(jobj.getEnumField(), MyEnum.FOO);
-            Assert.assertEquals(field.getValue(jobj), MyEnum.FOO);
-            field.setValue(jobj, MyEnum.BAR);
-            Assert.assertEquals(jobj.getEnumField(), MyEnum.BAR);
-            Assert.assertEquals(field.getValue(jobj), MyEnum.BAR);
+            final PermazenEnumField field = permazen.getPermazenClass(Foo.class).getField("enumField", PermazenEnumField.class);
+            Assert.assertEquals(pobj.getEnumField(), MyEnum.FOO);
+            Assert.assertEquals(field.getValue(pobj), MyEnum.FOO);
+            field.setValue(pobj, MyEnum.BAR);
+            Assert.assertEquals(pobj.getEnumField(), MyEnum.BAR);
+            Assert.assertEquals(field.getValue(pobj), MyEnum.BAR);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testEnumArrays() throws Exception {
         final Permazen permazen = BasicTest.newPermazen(EnumArrays.class);
-        final JTransaction jtx = permazen.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final PermazenTransaction ptx = permazen.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             final MyEnum[] value1a = new MyEnum[] { null, MyEnum.BAR, MyEnum.FOO, null, null, MyEnum.FOO, MyEnum.FOO };
@@ -192,28 +192,28 @@ public class EnumFieldTest extends MainTestSupport {
             final MyEnum[][] value2a = new MyEnum[][] { null, value1a, null, value1b, null };
             final MyEnum[][] value2b = new MyEnum[][] { value1b, value1a };
 
-            final EnumArrays jobj = jtx.create(EnumArrays.class);
+            final EnumArrays pobj = ptx.create(EnumArrays.class);
 
-            Assert.assertEquals(jobj.getEnums(), null);
-            jobj.setEnums(value1a);
-            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums(), value1a));
-            jobj.setEnums(value1b);
-            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums(), value1b));
-            jobj.setEnums(null);
-            Assert.assertEquals(jobj.getEnums(), null);
+            Assert.assertEquals(pobj.getEnums(), null);
+            pobj.setEnums(value1a);
+            Assert.assertTrue(Arrays.deepEquals(pobj.getEnums(), value1a));
+            pobj.setEnums(value1b);
+            Assert.assertTrue(Arrays.deepEquals(pobj.getEnums(), value1b));
+            pobj.setEnums(null);
+            Assert.assertEquals(pobj.getEnums(), null);
 
-            Assert.assertEquals(jobj.getEnums2(), null);
-            jobj.setEnums2(value2a);
-            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums2(), value2a));
-            jobj.setEnums2(value2b);
-            Assert.assertTrue(Arrays.deepEquals(jobj.getEnums2(), value2b));
-            jobj.setEnums2(null);
-            Assert.assertEquals(jobj.getEnums2(), null);
+            Assert.assertEquals(pobj.getEnums2(), null);
+            pobj.setEnums2(value2a);
+            Assert.assertTrue(Arrays.deepEquals(pobj.getEnums2(), value2a));
+            pobj.setEnums2(value2b);
+            Assert.assertTrue(Arrays.deepEquals(pobj.getEnums2(), value2b));
+            pobj.setEnums2(null);
+            Assert.assertEquals(pobj.getEnums2(), null);
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -256,19 +256,19 @@ public class EnumFieldTest extends MainTestSupport {
 
     // Version 2
 
-        Permazen jdb = BasicTest.newPermazen(db, Foo2.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        Permazen pdb = BasicTest.newPermazen(db, Foo2.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Foo2 foo2 = jtx.get(id1, Foo2.class);
+            final Foo2 foo2 = ptx.get(id1, Foo2.class);
 
             foo2.migrateSchema();
 
             Assert.assertEquals(foo2.getEnumList(), Collections.emptyList());
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -281,13 +281,13 @@ public class EnumFieldTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 1)
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements PermazenObject {
 
-        @JField(storageId = 2)
+        @PermazenField(storageId = 2)
         public abstract MyEnum getEnumField();
         public abstract void setEnumField(MyEnum value);
 
-        @JField(storageId = 3)
+        @PermazenField(storageId = 3)
         public abstract MyEnum getMissingEnumField();
         public abstract void setMissingEnumField(MyEnum value);
 
@@ -299,7 +299,7 @@ public class EnumFieldTest extends MainTestSupport {
     }
 
     @PermazenType
-    public abstract static class EnumArrays implements JObject {
+    public abstract static class EnumArrays implements PermazenObject {
 
         public abstract MyEnum[] getEnums();
         public abstract void setEnums(MyEnum[] value);
@@ -309,9 +309,9 @@ public class EnumFieldTest extends MainTestSupport {
     }
 
     @PermazenType(name = "Foo")
-    public abstract static class Foo2 implements JObject {
+    public abstract static class Foo2 implements PermazenObject {
 
-        @io.permazen.annotation.JListField
+        @io.permazen.annotation.PermazenListField
         public abstract List<MyEnum> getEnumList();
 
         @OnSchemaChange
@@ -344,33 +344,33 @@ public class EnumFieldTest extends MainTestSupport {
     }
 
     @PermazenType(storageId = 10)
-    public abstract static class EnumNoConflict1 implements JObject {
+    public abstract static class EnumNoConflict1 implements PermazenObject {
 
-        @JField(storageId = 2, indexed = true)
+        @PermazenField(storageId = 2, indexed = true)
         public abstract Enum1 getEnumField();
         public abstract void setEnumField(Enum1 value);
     }
 
     @PermazenType(storageId = 20)
-    public abstract static class EnumNoConflict2 implements JObject {
+    public abstract static class EnumNoConflict2 implements PermazenObject {
 
-        @JField(storageId = 2, indexed = true)
+        @PermazenField(storageId = 2, indexed = true)
         public abstract Enum2 getEnumField();
         public abstract void setEnumField(Enum2 value);
     }
 
     @PermazenType(storageId = 10)
-    public abstract static class EnumConflict1 implements JObject {
+    public abstract static class EnumConflict1 implements PermazenObject {
 
-        @JField(storageId = 2)
+        @PermazenField(storageId = 2)
         public abstract Enum1 getEnumField();
         public abstract void setEnumField(Enum1 value);
     }
 
     @PermazenType(storageId = 20)
-    public abstract static class EnumConflict2 implements JObject {
+    public abstract static class EnumConflict2 implements PermazenObject {
 
-        @JField(storageId = 2)
+        @PermazenField(storageId = 2)
         public abstract Enum3 getEnumField();
         public abstract void setEnumField(Enum3 value);
     }

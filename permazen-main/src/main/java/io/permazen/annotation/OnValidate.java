@@ -5,8 +5,8 @@
 
 package io.permazen.annotation;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.ValidationException;
 import io.permazen.ValidationMode;
 
@@ -46,8 +46,8 @@ import java.lang.annotation.Target;
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
  *
- * @see JTransaction#validate
- * @see JObject#revalidate
+ * @see PermazenTransaction#validate
+ * @see PermazenObject#revalidate
  * @see ValidationMode
  */
 @Documented

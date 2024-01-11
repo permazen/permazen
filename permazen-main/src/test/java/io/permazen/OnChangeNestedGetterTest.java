@@ -19,9 +19,9 @@ public class OnChangeNestedGetterTest extends MainTestSupport {
     @Test
     public void testSimpleFieldChange() {
 
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction tx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(tx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction tx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(tx);
         try {
 
             final Person p = tx.create(Person.class);
@@ -30,16 +30,16 @@ public class OnChangeNestedGetterTest extends MainTestSupport {
             tx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType(storageId = 100)
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @io.permazen.annotation.JField(storageId = 101)
+        @io.permazen.annotation.PermazenField(storageId = 101)
         public abstract UUID getId();
         public abstract void setId(UUID id);
 

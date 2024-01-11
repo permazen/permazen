@@ -7,11 +7,11 @@ package io.permazen.vaadin;
 
 import com.vaadin.ui.DefaultFieldFactory;
 
-import io.permazen.JClass;
-import io.permazen.JComplexField;
-import io.permazen.JField;
-import io.permazen.JObject;
-import io.permazen.JSimpleField;
+import io.permazen.PermazenClass;
+import io.permazen.PermazenComplexField;
+import io.permazen.PermazenField;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenSimpleField;
 import io.permazen.Permazen;
 import io.permazen.parse.ParseSession;
 
@@ -25,7 +25,7 @@ import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SelfKeyedContainer;
 
 /**
- * Container that contains all possible sort keys for a given {@link JClass}.
+ * Container that contains all possible sort keys for a given {@link PermazenClass}.
  */
 @SuppressWarnings("serial")
 class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
@@ -33,10 +33,10 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
     public static final String DESCRIPTION_PROPERTY = "description";
 
     private final Permazen jdb;
-    private final JClass<?> jclass;
+    private final PermazenClass<?> jclass;
     private final Class<?> type;
 
-    SortKeyContainer(Permazen jdb, JClass<?> jclass) {
+    SortKeyContainer(Permazen jdb, PermazenClass<?> jclass) {
         this(jdb, jclass, jclass.getType());
     }
 
@@ -44,7 +44,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         this(jdb, null, type);
     }
 
-    private SortKeyContainer(Permazen jdb, JClass<?> jclass, Class<?> type) {
+    private SortKeyContainer(Permazen jdb, PermazenClass<?> jclass, Class<?> type) {
         super(SortKey.class);
         this.jdb = jdb;
         this.jclass = jclass;
@@ -56,19 +56,19 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         sortKeys.add(new VersionSortKey());
 
         // Identify fields common to all sub-types of `type'
-        SortedMap<Integer, JField> commonFields = Util.getCommonJFields(this.jdb.getJClasses(this.type));
+        SortedMap<Integer, PermazenField> commonFields = Util.getCommonJFields(this.jdb.getPermazenClasses(this.type));
 
         // Add sort keys for all indexed fields common to all sub-types
         if (commonFields != null) {
-            for (JField jfield : commonFields.values()) {
-                if (jfield instanceof JComplexField) {
-                    ((JComplexField)jfield).getSubFields().stream()
+            for (PermazenField jfield : commonFields.values()) {
+                if (jfield instanceof PermazenComplexField) {
+                    ((PermazenComplexField)jfield).getSubFields().stream()
                       .filter(subField -> subField.isIndexed())
                       .map(FieldSortKey::new)
                       .iterator()
                       .forEachRemaining(sortKeys::add);
-                } else if (jfield instanceof JSimpleField && ((JSimpleField)jfield).isIndexed())
-                    sortKeys.add(new FieldSortKey((JSimpleField)jfield));
+                } else if (jfield instanceof PermazenSimpleField && ((PermazenSimpleField)jfield).isIndexed())
+                    sortKeys.add(new FieldSortKey((PermazenSimpleField)jfield));
             }
         }
 
@@ -119,7 +119,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
             return "SortKey[" + this.description + "]";
         }
 
-        public abstract String getExpression(ParseSession session, JObject startingPoint, boolean reverse);
+        public abstract String getExpression(ParseSession session, PermazenObject startingPoint, boolean reverse);
     }
 
     // Sorts by object ID
@@ -130,7 +130,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
+        public String getExpression(ParseSession session, PermazenObject startingPoint, boolean reverse) {       // TODO: starting point
             String expr = "all(" + SortKeyContainer.this.getTypeExpression(session, false) + ")";
             if (reverse)
                 expr += ".descendingSet()";
@@ -146,7 +146,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
+        public String getExpression(ParseSession session, PermazenObject startingPoint, boolean reverse) {       // TODO: starting point
             String expr = "queryVersion(" + SortKeyContainer.this.getTypeExpression(session, false) + ")";
             if (reverse)
                 expr += ".descendingMap()";
@@ -164,7 +164,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         private final Class<?> encoding;
         private final boolean isSubField;
 
-        FieldSortKey(JSimpleField jfield) {
+        FieldSortKey(PermazenSimpleField jfield) {
             super((jfield.getParentField() != null ?
                DefaultFieldFactory.createCaptionByPropertyId(jfield.getParentField().getName()) + "." : "")
               + DefaultFieldFactory.createCaptionByPropertyId(jfield.getName()));
@@ -175,7 +175,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
+        public String getExpression(ParseSession session, PermazenObject startingPoint, boolean reverse) {       // TODO: starting point
             String expr = "queryIndex(" + SortKeyContainer.this.getTypeExpression(session, true) + ", "
               + StringEncoder.enquote(this.fieldName) + ", " + session.relativizeClassName(this.encoding) + ".class).asMap()";
             if (reverse)

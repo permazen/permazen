@@ -15,14 +15,14 @@ public class ConstructorTest extends MainTestSupport {
 
     @Test
     public void testConstrutorWithParam() {
-        final Permazen jdb = BasicTest.newPermazen(Person.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Person.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            jtx.create(Person.class);
-            jtx.commit();
+            ptx.create(Person.class);
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -49,21 +49,21 @@ public class ConstructorTest extends MainTestSupport {
 // Model Classes
 
     @PermazenType
-    public abstract static class Person implements JObject {
-        protected Person(JTransaction jtx, ObjId id) {
-            Assert.assertEquals(jtx, this.getTransaction());
+    public abstract static class Person implements PermazenObject {
+        protected Person(PermazenTransaction ptx, ObjId id) {
+            Assert.assertEquals(ptx, this.getTransaction());
             Assert.assertEquals(id, this.getObjId());
         }
     }
 
     @PermazenType
-    public abstract static class Person2 implements JObject {
-        Person2(JTransaction jtx, ObjId id) {        // package private
+    public abstract static class Person2 implements PermazenObject {
+        Person2(PermazenTransaction ptx, ObjId id) {        // package private
         }
     }
 
     @PermazenType
-    public abstract static class Person3 implements JObject {
+    public abstract static class Person3 implements PermazenObject {
         public Person3(int dummy) {
         }
     }

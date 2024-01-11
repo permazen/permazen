@@ -5,8 +5,8 @@
 
 package io.permazen.annotation;
 
-import io.permazen.JCounterField;
-import io.permazen.UntypedJObject;
+import io.permazen.PermazenCounterField;
+import io.permazen.UntypedPermazenObject;
 import io.permazen.UpgradeConversionPolicy;
 import io.permazen.core.EnumValue;
 import io.permazen.core.TypeNotInSchemaException;
@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Simple changes that only modify a simple field's type can often be handled automatically; see
- * {@link UpgradeConversionPolicy}, {@link JField#upgradeConversion &#64;JField.upgradeConversion()},
+ * {@link UpgradeConversionPolicy}, {@link PermazenField#upgradeConversion &#64;PermazenField.upgradeConversion()},
  * and {@link Encoding#convert Encoding.convert()} for details.
  *
  * <p>
@@ -64,7 +64,7 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * <p>
- * Note: {@linkplain JCounterField} values are represented in {@code oldValues} as {@code Long}s.
+ * Note: {@linkplain PermazenCounterField} values are represented in {@code oldValues} as {@code Long}s.
  *
  * <p>
  * A class may have multiple {@link OnSchemaChange &#64;OnSchemaChange}-annotated methods.
@@ -77,7 +77,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * First, if an object's type no longer exists in the new schema, migration is not possible, and any attempt to do so will
- * throw a {@link TypeNotInSchemaException}. Such objects are still accessible however (see {@link UntypedJObject}).
+ * throw a {@link TypeNotInSchemaException}. Such objects are still accessible however (see {@link UntypedPermazenObject}).
  *
  * <p>
  * Secondly, it's possible for an old field to have a value that simply doesn't exist in the new schema. When this happens,
@@ -93,7 +93,7 @@ import java.lang.annotation.Target;
  * <p>
  * Therefore, the following special rules apply to the {@code oldValues} map:
  * <ul>
- * <li>For a reference field whose type no longer exists, the referenced object will appear as an {@link UntypedJObject}.
+ * <li>For a reference field whose type no longer exists, the referenced object will appear as an {@link UntypedPermazenObject}.
  * <li>For {@link Enum} fields, old values are always represented as {@link EnumValue} objects.
  *      For consistency's sake, this is true <i>even if the associated field's type has not changed</i>.</li>
  * </ul>
@@ -106,7 +106,7 @@ import java.lang.annotation.Target;
  * when {@code spring-core} is on the classpath.
  *
  * @see Encoding#convert Encoding.convert()
- * @see JField#upgradeConversion &#64;JField.upgradeConversion()
+ * @see PermazenField#upgradeConversion &#64;PermazenField.upgradeConversion()
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })

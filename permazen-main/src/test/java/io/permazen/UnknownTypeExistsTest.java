@@ -25,16 +25,16 @@ public class UnknownTypeExistsTest extends MainTestSupport {
           .build()
           .newPermazen();
 
-        JTransaction jtx;
+        PermazenTransaction ptx;
 
-        jtx = jdb1.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = jdb1.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         final Foo foo1;
         final Foo foo2;
         try {
 
-            foo1 = jtx.create(Foo.class);
-            foo2 = jtx.create(Foo.class);
+            foo1 = ptx.create(Foo.class);
+            foo2 = ptx.create(Foo.class);
 
             Assert.assertTrue(foo1.exists());
             Assert.assertTrue(foo2.exists());
@@ -44,9 +44,9 @@ public class UnknownTypeExistsTest extends MainTestSupport {
             Assert.assertTrue(foo1.exists());
             Assert.assertFalse(foo2.exists());
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         final Permazen jdb2 = PermazenConfig.builder()
@@ -55,36 +55,36 @@ public class UnknownTypeExistsTest extends MainTestSupport {
           .build()
           .newPermazen();
 
-        jtx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = jdb2.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         final Bar bar;
         try {
 
-            bar = jtx.create(Bar.class);
+            bar = ptx.create(Bar.class);
 
-            final JObject foo1x = jtx.get(foo1.getObjId());
-            final JObject foo2x = jtx.get(foo2.getObjId());
+            final PermazenObject foo1x = ptx.get(foo1.getObjId());
+            final PermazenObject foo2x = ptx.get(foo2.getObjId());
 
-            Assert.assertTrue(foo1x instanceof UntypedJObject);
-            Assert.assertTrue(foo2x instanceof UntypedJObject);
+            Assert.assertTrue(foo1x instanceof UntypedPermazenObject);
+            Assert.assertTrue(foo2x instanceof UntypedPermazenObject);
 
             Assert.assertTrue(foo1x.exists());
             Assert.assertFalse(foo2x.exists());
             Assert.assertTrue(bar.exists());
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Foo implements JObject {
+    public abstract static class Foo implements PermazenObject {
     }
 
     @PermazenType
-    public abstract static class Bar implements JObject {
+    public abstract static class Bar implements PermazenObject {
     }
 }

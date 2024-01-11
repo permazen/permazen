@@ -18,8 +18,8 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import io.permazen.CopyState;
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.core.ObjId;
 import io.permazen.parse.ParseSession;
 import io.permazen.vaadin.ConfirmWindow;
@@ -35,9 +35,9 @@ import org.dellroad.stuff.spring.RetryTransaction;
  * but not selecting, a null value; wrap in a {@link io.permazen.vaadin.NullableField} to allow for that.
  */
 @SuppressWarnings("serial")
-public class ReferenceFieldField extends CustomField<JObject> {
+public class ReferenceFieldField extends CustomField<PermazenObject> {
 
-    private final JTransaction dest;
+    private final PermazenTransaction dest;
     private final HorizontalLayout layout = new HorizontalLayout();
     private final ParseSession session;
     private final String name;
@@ -50,12 +50,12 @@ public class ReferenceFieldField extends CustomField<JObject> {
     /**
      * Constructor.
      *
-     * @param dest target transaction for the chosen {@link JObject}
+     * @param dest target transaction for the chosen {@link PermazenObject}
      * @param session session for expression parsing
      * @param name name of the property
      * @param type type restriction, or null for none
      */
-    public ReferenceFieldField(JTransaction dest, ParseSession session, String name, Class<?> type) {
+    public ReferenceFieldField(PermazenTransaction dest, ParseSession session, String name, Class<?> type) {
 
         // Initialize
         Preconditions.checkArgument(dest != null, "null dest");
@@ -74,8 +74,8 @@ public class ReferenceFieldField extends CustomField<JObject> {
 // CustomField
 
     @Override
-    public Class<JObject> getType() {
-        return JObject.class;
+    public Class<PermazenObject> getType() {
+        return PermazenObject.class;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
     }
 
     @Override
-    protected void setInternalValue(JObject jobj) {
+    protected void setInternalValue(PermazenObject jobj) {
         super.setInternalValue(jobj);
         this.updateDisplay();
     }
@@ -100,7 +100,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
 
     // Update components to reflect new value
     private void updateDisplay() {
-        final JObject jobj = this.getValue();
+        final PermazenObject jobj = this.getValue();
         final boolean readOnly = this.isReadOnly();
         final Component newLabel = jobj != null ?
           this.refLabelPropertyDef.extract(jobj) : new SizedLabel("<i>Null</i>&#160;", ContentMode.HTML);
@@ -143,7 +143,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
             final ObjId id = this.objectChooser.getObjId();
             if (id == null)
                 return true;
-            final JObject jobj = JTransaction.getCurrent().get(id);
+            final PermazenObject jobj = PermazenTransaction.getCurrent().get(id);
             if (!jobj.exists()) {
                 Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
                 return false;

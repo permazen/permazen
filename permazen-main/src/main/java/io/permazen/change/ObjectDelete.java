@@ -7,8 +7,8 @@ package io.permazen.change;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.annotation.OnDelete;
 
 /**
@@ -40,7 +40,7 @@ public class ObjectDelete<T> extends Change<T> {
     }
 
     @Override
-    public void apply(JTransaction jtx, JObject jobj) {
+    public void apply(PermazenTransaction jtx, PermazenObject jobj) {
         Preconditions.checkArgument(jtx != null, "null jtx");
         jtx.delete(jobj);
     }
@@ -49,6 +49,6 @@ public class ObjectDelete<T> extends Change<T> {
 
     @Override
     public String toString() {
-        return "ObjectDelete[objId=" + ((JObject)this.getObject()).getObjId() + "]";
+        return "ObjectDelete[objId=" + ((PermazenObject)this.getObject()).getObjId() + "]";
     }
 }

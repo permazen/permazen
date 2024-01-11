@@ -7,8 +7,8 @@ package io.permazen;
 
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.annotation.JField;
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.change.SimpleFieldChange;
 
@@ -21,52 +21,52 @@ public class GenericsFunTest extends MainTestSupport {
 
     @Test
     public void testGenerics1() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(Widget.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Widget.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            jtx.querySimpleIndex(AbstractData.class, "name", String.class);
+            ptx.querySimpleIndex(AbstractData.class, "name", String.class);
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testGenerics2() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(AccountEvent.class, Account.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(AccountEvent.class, Account.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            jtx.querySimpleIndex(AbstractData.class, "name", String.class);
-            jtx.querySimpleIndex(Account.class, "name", String.class);
-            jtx.querySimpleIndex(AccountEvent.class, "account", Account.class);
+            ptx.querySimpleIndex(AbstractData.class, "name", String.class);
+            ptx.querySimpleIndex(Account.class, "name", String.class);
+            ptx.querySimpleIndex(AccountEvent.class, "account", Account.class);
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testGenerics3() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(Class2.class, Class3.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Class2.class, Class3.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final Class2 c2 = jtx.create(Class2.class);
-            final Class3 c3 = jtx.create(Class3.class);
+            final Class2 c2 = ptx.create(Class2.class);
+            final Class3 c3 = ptx.create(Class3.class);
             c2.setFriend(c3);
             c3.setFriend(c2);
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testGenerics4() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(Class2.class, Class3.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(Class2.class, Class3.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final Class2 c2 = jtx.create(Class2.class);
+            final Class2 c2 = ptx.create(Class2.class);
             try {
                 c2.setWrong(c2);
                 assert false;
@@ -74,27 +74,27 @@ public class GenericsFunTest extends MainTestSupport {
                 // expected
             }
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testGenerics5() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(ListSub1.class, ListSub2.class);
+        final Permazen pdb = BasicTest.newPermazen(ListSub1.class, ListSub2.class);
 
-        final JClass<ListSub1> jclass1 = jdb.getJClass(ListSub1.class);
-        final JClass<ListSub2> jclass2 = jdb.getJClass(ListSub2.class);
+        final PermazenClass<ListSub1> jclass1 = pdb.getPermazenClass(ListSub1.class);
+        final PermazenClass<ListSub2> jclass2 = pdb.getPermazenClass(ListSub2.class);
 
-        final JSimpleField field1 = Util.findSimpleField(jclass1, "list.element");
-        final JSimpleField field2 = Util.findSimpleField(jclass2, "list.element");
+        final PermazenSimpleField field1 = Util.findSimpleField(jclass1, "list.element");
+        final PermazenSimpleField field2 = Util.findSimpleField(jclass2, "list.element");
 
         Assert.assertEquals(field1.getTypeToken(), TypeToken.of(ListSub2.class));
         Assert.assertEquals(field2.getTypeToken(), TypeToken.of(ListSub1.class));
 
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
-            final ListSub1 sub1 = jtx.create(ListSub1.class);
+            final ListSub1 sub1 = ptx.create(ListSub1.class);
             try {
                 sub1.addListWrong(sub1);            // ListSub1's list only accepts object of type ListSub2
                 assert false;
@@ -102,7 +102,7 @@ public class GenericsFunTest extends MainTestSupport {
                 // expected
             }
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -123,9 +123,9 @@ public class GenericsFunTest extends MainTestSupport {
 
 // Model Classes #1
 
-    public abstract static class AbstractData<T extends AbstractData<T>> implements JObject {
+    public abstract static class AbstractData<T extends AbstractData<T>> implements PermazenObject {
 
-        @JField(storageId = 201, indexed = true)
+        @PermazenField(storageId = 201, indexed = true)
         public abstract String getName();
         public abstract void setName(String name);
 
@@ -136,7 +136,7 @@ public class GenericsFunTest extends MainTestSupport {
 
     public abstract static class AbstractAccountData<T extends AbstractAccountData<T>> extends AbstractData<T> {
 
-        @JField(storageId = 101)
+        @PermazenField(storageId = 101)
         public abstract Account getAccount();
         public abstract void setAccount(Account name);
     }
@@ -148,7 +148,7 @@ public class GenericsFunTest extends MainTestSupport {
     @PermazenType(storageId = 300)
     public abstract static class AccountEvent extends AbstractAccountData<AccountEvent> {
 
-        @JField(storageId = 301)
+        @PermazenField(storageId = 301)
         public abstract int getEventId();
         public abstract void setEventId(int eventId);
     }
@@ -159,7 +159,7 @@ public class GenericsFunTest extends MainTestSupport {
 
 // Model Classes #2
 
-    public abstract static class Class1<T> implements JObject {
+    public abstract static class Class1<T> implements PermazenObject {
 
         public abstract T getFriend();
         public abstract void setFriend(T friend);
@@ -180,7 +180,7 @@ public class GenericsFunTest extends MainTestSupport {
 
 // Model Classes #3
 
-    public abstract static class ListSuper<E extends JObject> implements JObject {
+    public abstract static class ListSuper<E extends PermazenObject> implements PermazenObject {
 
         public abstract List<E> getList();
 
@@ -210,7 +210,7 @@ public class GenericsFunTest extends MainTestSupport {
     public abstract static class GenericBeanProperty implements GenericBeanPropertySupport<String> {
 
         @Override
-        @JField(indexed = true)
+        @PermazenField(indexed = true)
         public abstract String getProperty();
     }
 
@@ -218,7 +218,7 @@ public class GenericsFunTest extends MainTestSupport {
     public abstract static class GenericBeanProperty2 implements GenericBeanPropertySupport<String> {
 
         @Override
-        @JField(indexed = true)
+        @PermazenField(indexed = true)
         public abstract String getProperty();
         @Override
         public abstract void setProperty(String x);
@@ -237,7 +237,7 @@ public class GenericsFunTest extends MainTestSupport {
 
     public abstract static class Model8A<P extends Person> {
 
-        @JField
+        @PermazenField
         public abstract P getPerson();
         public abstract void setPerson(P person);
     }

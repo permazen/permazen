@@ -7,8 +7,8 @@ package io.permazen.change;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
 import io.permazen.annotation.OnChange;
 
 import java.util.Objects;
@@ -45,7 +45,7 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction jtx, JObject jobj) {
+    public void apply(PermazenTransaction jtx, PermazenObject jobj) {
         Preconditions.checkArgument(jtx != null, "null jtx");
         jtx.writeSimpleField(jobj, this.getFieldName(), this.newValue, false);
     }

@@ -29,16 +29,16 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.permazen.CopyState;
 import io.permazen.Counter;
-import io.permazen.JClass;
-import io.permazen.JCounterField;
-import io.permazen.JField;
-import io.permazen.JFieldSwitch;
-import io.permazen.JListField;
-import io.permazen.JMapField;
-import io.permazen.JObject;
-import io.permazen.JSetField;
-import io.permazen.JSimpleField;
-import io.permazen.JTransaction;
+import io.permazen.PermazenClass;
+import io.permazen.PermazenCounterField;
+import io.permazen.PermazenField;
+import io.permazen.PermazenFieldSwitch;
+import io.permazen.PermazenListField;
+import io.permazen.PermazenMapField;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenSetField;
+import io.permazen.PermazenSimpleField;
+import io.permazen.PermazenTransaction;
 import io.permazen.ValidationException;
 import io.permazen.encoding.Encoding;
 import io.permazen.core.ObjId;
@@ -75,8 +75,8 @@ public class JObjectEditorWindow extends ConfirmWindow {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final JObject jobj;
-    private final JClass<?> jclass;
+    private final PermazenObject jobj;
+    private final PermazenClass<?> jclass;
     private final boolean create;
     private final Component titleComponent;
     private final ParseSession session;
@@ -92,7 +92,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
      * @param session parse session for {@link io.permazen.vaadin.JObjectChooser}
      * @param jclass database object type
      */
-    public JObjectEditorWindow(UI ui, ParseSession session, JClass<?> jclass) {
+    public JObjectEditorWindow(UI ui, ParseSession session, PermazenClass<?> jclass) {
         this(ui, session, jclass, null, null);
     }
 
@@ -106,7 +106,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
      * @param titleComponent title for edit panel
      */
     @SuppressWarnings("unchecked")
-    public JObjectEditorWindow(UI ui, ParseSession session, JClass<?> jclass, JObject jobj, Component titleComponent) {
+    public JObjectEditorWindow(UI ui, ParseSession session, PermazenClass<?> jclass, PermazenObject jobj, Component titleComponent) {
         super(ui, (jobj != null ? "Edit " : "New ") + jclass.getName());
         this.setWidth(600, Sizeable.Unit.PIXELS);
         this.setHeight(450, Sizeable.Unit.PIXELS);
@@ -130,10 +130,10 @@ public class JObjectEditorWindow extends ConfirmWindow {
         }
 
         // Build fields and components for all remaining database properties
-        final SortedMap<String, JField> jfieldMap = jclass.getJFieldsByName();
-        for (Map.Entry<String, JField> entry : jfieldMap.entrySet()) {
+        final SortedMap<String, PermazenField> jfieldMap = jclass.getFieldsByName();
+        for (Map.Entry<String, PermazenField> entry : jfieldMap.entrySet()) {
             final String fieldName = entry.getKey();
-            final JField jfield = entry.getValue();
+            final PermazenField jfield = entry.getValue();
 
             // If a Field already exists for this database field, just use it, otherwise build one
             Field<?> field = this.fieldMap.get(fieldName);
@@ -199,8 +199,8 @@ public class JObjectEditorWindow extends ConfirmWindow {
 
     @RetryTransaction
     @Transactional("permazenGuiTransactionManager")
-    private JObject doCreateForEdit() {
-        return (JObject)JTransaction.getCurrent().getSnapshotTransaction().create(this.jclass);
+    private PermazenObject doCreateForEdit() {
+        return (PermazenObject)PermazenTransaction.getCurrent().getSnapshotTransaction().create(this.jclass);
     }
 
     @RetryTransaction
@@ -208,9 +208,9 @@ public class JObjectEditorWindow extends ConfirmWindow {
     protected boolean writeBack() {
 
         // Find/create target object in current transaction
-        final JTransaction jtx = JTransaction.getCurrent();
+        final PermazenTransaction jtx = PermazenTransaction.getCurrent();
         final ObjId id = this.jobj.getObjId();
-        final JObject target = this.create ? (JObject)jtx.create(this.jclass) : jtx.get(id);
+        final PermazenObject target = this.create ? (PermazenObject)jtx.create(this.jclass) : jtx.get(id);
 
         // Verify object still exists when editing
         if (!this.create && !target.exists()) {
@@ -248,17 +248,17 @@ public class JObjectEditorWindow extends ConfirmWindow {
 
 // Field Builders
 
-    private Field<?> buildFieldField(String fieldName, JField jfield) {
-        return jfield.visit(new JFieldSwitch<Field<?>>() {
+    private Field<?> buildFieldField(String fieldName, PermazenField jfield) {
+        return jfield.visit(new PermazenFieldSwitch<Field<?>>() {
             @Override
-            public Field<?> caseJSimpleField(JSimpleField jfield) {
+            public Field<?> casePermazenSimpleField(PermazenSimpleField jfield) {
                 final boolean allowNull = jfield.getGetter().getAnnotation(NotNull.class) == null
                   && !jfield.getTypeToken().isPrimitive();
                 return new SimpleFieldFieldBuilder(JObjectEditorWindow.this.jobj.getTransaction(),
                   jfield, JObjectEditorWindow.this.session, allowNull).buildField();
             }
             @Override
-            public Field<?> caseJCounterField(JCounterField jfield) {
+            public Field<?> casePermazenCounterField(PermazenCounterField jfield) {
                 final TextField field = new TextField();
                 field.setWidth("100%");
                 field.setNullSettingAllowed(false);
@@ -267,46 +267,46 @@ public class JObjectEditorWindow extends ConfirmWindow {
                 return field;
             }
             @Override
-            public Field<?> caseJSetField(JSetField jfield) {
+            public Field<?> casePermazenSetField(PermazenSetField jfield) {
                 //return new SetFieldFieldBuilder(jfield, JObjectEditorWindow.this.session).buildField();
                 return new PlaceHolderField(jfield);                                       // TODO
             }
             @Override
-            public Field<?> caseJListField(JListField jfield) {
+            public Field<?> casePermazenListField(PermazenListField jfield) {
                 //return new ListFieldFieldBuilder(jfield, JObjectEditorWindow.this.session).buildField();
                 return new PlaceHolderField(jfield);                                       // TODO
             }
             @Override
-            public Field<?> caseJMapField(JMapField jfield) {
+            public Field<?> casePermazenMapField(PermazenMapField jfield) {
                 //return new MapFieldFieldBuilder(jfield, JObjectEditorWindow.this.session).buildField();
                 return new PlaceHolderField(jfield);                                       // TODO
             }
         });
     }
 
-    private Property<?> buildFieldProperty(final JObject jobj, JField jfield) {
-        return jfield.visit(new JFieldSwitch<Property<?>>() {
+    private Property<?> buildFieldProperty(final PermazenObject jobj, PermazenField jfield) {
+        return jfield.visit(new PermazenFieldSwitch<Property<?>>() {
             @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            public Property<?> caseJSimpleField(JSimpleField jfield) {
+            public Property<?> casePermazenSimpleField(PermazenSimpleField jfield) {
                 return new MethodProperty(jfield.getTypeToken().getRawType(), jobj, jfield.getGetter(), jfield.getSetter());
             }
             @Override
-            public Property<?> caseJCounterField(JCounterField jfield) {
+            public Property<?> casePermazenCounterField(PermazenCounterField jfield) {
                 return new CounterProperty(jfield.getValue(jobj));
             }
             @Override
             @SuppressWarnings("rawtypes")
-            public Property<?> caseJSetField(JSetField jfield) {
+            public Property<?> casePermazenSetField(PermazenSetField jfield) {
                 return new CollectionProperty(jfield.getValue(jobj));
             }
             @Override
             @SuppressWarnings("rawtypes")
-            public Property<?> caseJListField(JListField jfield) {
+            public Property<?> casePermazenListField(PermazenListField jfield) {
                 return new CollectionProperty(jfield.getValue(jobj));
             }
             @Override
-            public Property<?> caseJMapField(JMapField jfield) {
+            public Property<?> casePermazenMapField(PermazenMapField jfield) {
                 return new ObjectProperty<Void>(null, Void.class);                          // TODO
             }
         });
@@ -392,9 +392,9 @@ public class JObjectEditorWindow extends ConfirmWindow {
     @SuppressWarnings("serial")
     private static class PlaceHolderField extends CustomField<Object> {
 
-        private final JField jfield;
+        private final PermazenField jfield;
 
-        PlaceHolderField(JField jfield) {
+        PlaceHolderField(PermazenField jfield) {
             this.jfield = jfield;
         }
 

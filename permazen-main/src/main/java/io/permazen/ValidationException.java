@@ -12,49 +12,49 @@ import jakarta.validation.ConstraintViolation;
 import java.util.Set;
 
 /**
- * Thrown when {@link JTransaction#validate} (or {@link JTransaction#commit}) fails due to one or more validation errors.
+ * Thrown when {@link PermazenTransaction#validate} (or {@link PermazenTransaction#commit}) fails due to one or more validation errors.
  *
- * @see JTransaction#validate
+ * @see PermazenTransaction#validate
  */
 @SuppressWarnings("serial")
 public class ValidationException extends DatabaseException {
 
-    private final JObject jobj;
-    private final Set<ConstraintViolation<JObject>> violations;
+    private final PermazenObject pobj;
+    private final Set<ConstraintViolation<PermazenObject>> violations;
 
     /**
      * Constructor.
      *
-     * @param jobj the object that failed validation
+     * @param pobj the object that failed validation
      * @param violations JSR 303 validation errors, if any, otherwise null
      * @param message exception message
      */
-    public ValidationException(JObject jobj, Set<ConstraintViolation<JObject>> violations, String message) {
+    public ValidationException(PermazenObject pobj, Set<ConstraintViolation<PermazenObject>> violations, String message) {
         super(message);
-        this.jobj = jobj;
+        this.pobj = pobj;
         this.violations = violations;
     }
 
     /**
      * Convenience constructor for use when JSR 303 validation is not involved.
      *
-     * @param jobj the object that failed validation
+     * @param pobj the object that failed validation
      * @param message exception message
      */
-    public ValidationException(JObject jobj, String message) {
-        this(jobj, message, null);
+    public ValidationException(PermazenObject pobj, String message) {
+        this(pobj, message, null);
     }
 
     /**
      * Convenience constructor for use when JSR 303 validation is not involved.
      *
-     * @param jobj the object that failed validation
+     * @param pobj the object that failed validation
      * @param message exception message
      * @param cause underlying cause, or null for none
      */
     @SuppressWarnings("this-escape")
-    public ValidationException(JObject jobj, String message, Throwable cause) {
-        this(jobj, null, message);
+    public ValidationException(PermazenObject pobj, String message, Throwable cause) {
+        this(pobj, null, message);
         if (cause != null)
             this.initCause(cause);
     }
@@ -64,8 +64,8 @@ public class ValidationException extends DatabaseException {
      *
      * @return the invalid object
      */
-    public JObject getObject() {
-        return this.jobj;
+    public PermazenObject getObject() {
+        return this.pobj;
     }
 
     /**
@@ -73,7 +73,7 @@ public class ValidationException extends DatabaseException {
      *
      * @return set of JSR 303 validation errors, or null if validation did not fail due to JSR 303 validation
      */
-    public Set<ConstraintViolation<JObject>> getViolations() {
+    public Set<ConstraintViolation<PermazenObject>> getViolations() {
         return this.violations;
     }
 }

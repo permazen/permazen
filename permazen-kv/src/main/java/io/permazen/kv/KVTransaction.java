@@ -129,7 +129,7 @@ public interface KVTransaction extends KVStore {
      * to multiple objects and/or fields can detected and consolidated using an
      * {@link io.permazen.annotation.OnChange &#64;OnChange} method that increments a single {@link io.permazen.Counter}
      * field, whose key is then watched (to determine the key corresponding to a Java model object field, use
-     * {@link io.permazen.JField#getKey(io.permazen.JObject) JField.getKey()}).
+     * {@link io.permazen.PermazenField#getKey(io.permazen.PermazenObject) PermazenField.getKey()}).
      *
      * <p>
      * Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
@@ -168,8 +168,8 @@ public interface KVTransaction extends KVStore {
      * @throws UnsupportedOperationException if this instance does not support key watches
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
      * @throws IllegalArgumentException if {@code key} is null
-     * @see io.permazen.JTransaction#getKey(io.permazen.JObject) JTransaction.getKey()
-     * @see io.permazen.JField#getKey(io.permazen.JObject) JField.getKey()
+     * @see io.permazen.PermazenTransaction#getKey(io.permazen.PermazenObject) PermazenTransaction.getKey()
+     * @see io.permazen.PermazenField#getKey(io.permazen.PermazenObject) PermazenField.getKey()
      */
     Future<Void> watchKey(byte[] key);
 

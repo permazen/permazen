@@ -17,10 +17,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Context for exporting plain (POJO) objects from a {@link JTransaction}.
+ * Context for exporting plain (POJO) objects from a {@link PermazenTransaction}.
  *
  * <p>
- * Plain objects (POJO's) can be exported from a {@link JTransaction} to the extent that the Permazen model class and
+ * Plain objects (POJO's) can be exported from a {@link PermazenTransaction} to the extent that the Permazen model class and
  * the corresponding target POJO class share the same properties. The simplest example of this is when the Permazen model class
  * is also the POJO class (implying a non-abstract class; see also
  * {@link PermazenType#autogenNonAbstract &#64;PermazenType.autogenNonAbstract()}). Also possible are POJO
@@ -57,9 +57,9 @@ import java.util.function.Function;
  */
 public class ExportContext {
 
-    private final JTransaction jtx;
+    private final PermazenTransaction ptx;
     private final Function<ObjId, Object> objectMapper;
-    private final ObjIdMap<Object> jobjectMap = new ObjIdMap<>();
+    private final ObjIdMap<Object> pobjectMap = new ObjIdMap<>();
     private final ObjIdMap<Object> needingFieldsCopied = new ObjIdMap<>();
 
     /**
@@ -68,14 +68,14 @@ public class ExportContext {
      * <p>
      * Uses a default {@code objectMapper} that creates new exported objects using the default constructor of the model class.
      *
-     * @param jtx the transaction from which to export objects
-     * @throws IllegalArgumentException if {@code jtx} is null
+     * @param ptx the transaction from which to export objects
+     * @throws IllegalArgumentException if {@code ptx} is null
      */
-    public ExportContext(JTransaction jtx) {
-        Preconditions.checkArgument(jtx != null);
-        this.jtx = jtx;
+    public ExportContext(PermazenTransaction ptx) {
+        Preconditions.checkArgument(ptx != null);
+        this.ptx = ptx;
         this.objectMapper = id -> {
-            final Class<?> type = this.jtx.jdb.getJClass(id).getType();
+            final Class<?> type = this.ptx.pdb.getPermazenClass(id).getType();
             try {
                 return type.getConstructor().newInstance();
             } catch (ReflectiveOperationException e) {
@@ -87,14 +87,14 @@ public class ExportContext {
     /**
      * Constructor.
      *
-     * @param jtx the transaction from which to export objects
+     * @param ptx the transaction from which to export objects
      * @param objectMapper function returning the POJO used to export a database object (or null to skip the corresponding object)
      * @throws IllegalArgumentException if either parameter is null
      */
-    public ExportContext(JTransaction jtx, Function<ObjId, Object> objectMapper) {
-        Preconditions.checkArgument(jtx != null, "null jtx");
+    public ExportContext(PermazenTransaction ptx, Function<ObjId, Object> objectMapper) {
+        Preconditions.checkArgument(ptx != null, "null ptx");
         Preconditions.checkArgument(objectMapper != null, "null objectMapper");
-        this.jtx = jtx;
+        this.ptx = ptx;
         this.objectMapper = objectMapper;
     }
 
@@ -103,8 +103,8 @@ public class ExportContext {
      *
      * @return associated transaction
      */
-    public JTransaction getJTransaction() {
-        return this.jtx;
+    public PermazenTransaction getPermazenTransaction() {
+        return this.ptx;
     }
 
     /**
@@ -113,34 +113,34 @@ public class ExportContext {
      * @return mapping from exported database object ID to corresponding POJO
      */
     public Map<ObjId, Object> getJObjectMap() {
-        return Collections.unmodifiableMap(this.jobjectMap);
+        return Collections.unmodifiableMap(this.pobjectMap);
     }
 
     /**
-     * Export a {@link JObject} as a plain Java object, along with all other objects reachable from it via
+     * Export a {@link PermazenObject} as a plain Java object, along with all other objects reachable from it via
      * copied reference fields.
      *
      * <p>
-     * Equivalent to {@link #exportPlain(ObjId) exportPlain}{@code (jobj.getObjId())}.
+     * Equivalent to {@link #exportPlain(ObjId) exportPlain}{@code (pobj.getObjId())}.
      *
-     * @param jobj object to export; must not be null
-     * @return exported object, or null if the {@code objectMapper} returned null for {@code jobj.getObjId()}
+     * @param pobj object to export; must not be null
+     * @return exported object, or null if the {@code objectMapper} returned null for {@code pobj.getObjId()}
      * @throws io.permazen.core.DeletedObjectException if {@code id} refers to an object that does not exist
      *  in the transaction associated with this instance
-     * @throws io.permazen.core.TypeNotInSchemaException if {@code jobj} is an {@link UntypedJObject}
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws io.permazen.core.TypeNotInSchemaException if {@code pobj} is an {@link UntypedPermazenObject}
+     * @throws IllegalArgumentException if {@code pobj} is null
      */
-    public Object exportPlain(JObject jobj) {
-        Preconditions.checkArgument(jobj != null, "null jobj");
-        return this.exportPlain(jobj.getObjId());
+    public Object exportPlain(PermazenObject pobj) {
+        Preconditions.checkArgument(pobj != null, "null pobj");
+        return this.exportPlain(pobj.getObjId());
     }
 
     /**
-     * Export the {@link JObject} with the given {@link ObjId} as a plain Java object, along with all other objects
+     * Export the {@link PermazenObject} with the given {@link ObjId} as a plain Java object, along with all other objects
      * reachable from it via copied reference fields.
      *
      * <p>
-     * If the {@link JObject} has already been exported, the previously returned {@link Object} is returned.
+     * If the {@link PermazenObject} has already been exported, the previously returned {@link Object} is returned.
      *
      * @param id object ID of the object to export; must not be null
      * @return exported object, or null if the {@code objectMapper} returned null for {@code id}
@@ -176,8 +176,8 @@ public class ExportContext {
             i.remove();
 
             // Copy fields
-            for (JField jfield : this.jtx.jdb.getJClass(id).jfieldsByName.values())
-                jfield.exportPlain(this, id, obj);
+            for (PermazenField pfield : this.ptx.pdb.getPermazenClass(id).fieldsByName.values())
+                pfield.exportPlain(this, id, obj);
         }
     }
 
@@ -185,18 +185,18 @@ public class ExportContext {
     Object doExportPlain(ObjId id) {
 
         // Already exported?
-        Object obj = this.jobjectMap.get(id);
-        if (obj != null || this.jobjectMap.containsKey(id))             // null means "don't import this object"
+        Object obj = this.pobjectMap.get(id);
+        if (obj != null || this.pobjectMap.containsKey(id))             // null means "don't import this object"
             return obj;
 
         // Get POJO
         if ((obj = this.objectMapper.apply(id)) == null) {
-            this.jobjectMap.put(id, null);                              // null means "don't import this object"
+            this.pobjectMap.put(id, null);                              // null means "don't import this object"
             return null;
         }
 
         // Record ID association with POJO
-        this.jobjectMap.put(id, obj);
+        this.pobjectMap.put(id, obj);
 
         // Mark this object as needing its fields copied
         assert !this.needingFieldsCopied.containsKey(id);

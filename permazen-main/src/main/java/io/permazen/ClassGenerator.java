@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The generated classes are subclasses of the the user-provided Java object classes (typically these are abstract classes).
  * The various annotated getter and setter methods will be overridden in the generated class.
- * If the user class implements {@link JObject}, then those methods will also be overridden with concrete implementations
+ * If the user class implements {@link PermazenObject}, then those methods will also be overridden with concrete implementations
  * in the generated class.
  */
 class ClassGenerator<T> {
@@ -53,22 +53,22 @@ class ClassGenerator<T> {
     static final String CACHED_VALUE_FIELD_PREFIX = "$cached_";
     static final String CACHED_FLAG_FIELD_PREFIX = "$cacheflags";
     static final String CONVERTER_FIELD_PREFIX = "$converter";
-    static final String FOLLOW_PATH_FIELD_PREFIX = "$followPath";
+    static final String REFERENCE_PATH_FIELD_PREFIX = "$referencePath";
 
-    // JObject method handles
+    // PermazenObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
     static final Method JOBJECT_GET_TRANSACTION;
     static final Method JOBJECT_GET_MODEL_CLASS;
     static final Method JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
 
-    // JTransaction method handles
+    // PermazenTransaction method handles
     static final Method JTRANSACTION_READ_COUNTER_FIELD_METHOD;
     static final Method JTRANSACTION_READ_SET_FIELD_METHOD;
     static final Method JTRANSACTION_READ_LIST_FIELD_METHOD;
     static final Method JTRANSACTION_READ_MAP_FIELD_METHOD;
     static final Method JTRANSACTION_GET_TRANSACTION_METHOD;
     static final Method JTRANSACTION_GET_METHOD;
-    static final Method JTRANSACTION_REGISTER_JOBJECT_METHOD;
+    static final Method JTRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD;
     static final Method JTRANSACTION_GET_PERMAZEN_METHOD;
     static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
     static final Method JTRANSACTION_GET_TRANSACTION;
@@ -115,28 +115,29 @@ class ClassGenerator<T> {
     static {
         try {
 
-            // JObject methods
-            JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
-            JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
-            JOBJECT_GET_MODEL_CLASS = JObject.class.getMethod("getModelClass");
-            JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = JObject.class.getMethod("resetCachedFieldValues");
+            // PermazenObject methods
+            JOBJECT_GET_OBJ_ID_METHOD = PermazenObject.class.getMethod("getObjId");
+            JOBJECT_GET_TRANSACTION = PermazenObject.class.getMethod("getTransaction");
+            JOBJECT_GET_MODEL_CLASS = PermazenObject.class.getMethod("getModelClass");
+            JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = PermazenObject.class.getMethod("resetCachedFieldValues");
 
-            // JTransaction methods
-            JTRANSACTION_READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField",
+            // PermazenTransaction methods
+            JTRANSACTION_READ_COUNTER_FIELD_METHOD = PermazenTransaction.class.getMethod("readCounterField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField",
+            JTRANSACTION_READ_SET_FIELD_METHOD = PermazenTransaction.class.getMethod("readSetField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField",
+            JTRANSACTION_READ_LIST_FIELD_METHOD = PermazenTransaction.class.getMethod("readListField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField",
+            JTRANSACTION_READ_MAP_FIELD_METHOD = PermazenTransaction.class.getMethod("readMapField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
-            JTRANSACTION_GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
-            JTRANSACTION_REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
-            JTRANSACTION_GET_PERMAZEN_METHOD = JTransaction.class.getMethod("getPermazen");
-            JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = JTransaction.class.getMethod("followReferencePath",
+            JTRANSACTION_GET_TRANSACTION_METHOD = PermazenTransaction.class.getMethod("getTransaction");
+            JTRANSACTION_GET_METHOD = PermazenTransaction.class.getMethod("get", ObjId.class);
+            JTRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD = PermazenTransaction.class.getMethod("registerPermazenObject",
+              PermazenObject.class);
+            JTRANSACTION_GET_PERMAZEN_METHOD = PermazenTransaction.class.getMethod("getPermazen");
+            JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = PermazenTransaction.class.getMethod("followReferencePath",
               ReferencePath.class, Stream.class);
-            JTRANSACTION_GET_TRANSACTION = JTransaction.class.getMethod("getTransaction");
+            JTRANSACTION_GET_TRANSACTION = PermazenTransaction.class.getMethod("getTransaction");
 
             // Permazen methods
             PERMAZEN_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath", Class.class, String.class);
@@ -182,8 +183,8 @@ class ClassGenerator<T> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    protected final Permazen jdb;
-    protected final JClass<T> jclass;
+    protected final Permazen pdb;
+    protected final PermazenClass<T> pclass;
     protected final Class<T> modelClass;
 
     private final ArrayList<String> simpleFieldNames = new ArrayList<>();
@@ -195,38 +196,38 @@ class ClassGenerator<T> {
     /**
      * Constructor for application classes.
      */
-    ClassGenerator(Permazen jdb, JClass<T> jclass) {
-        this(jdb, jclass, jclass.type);
+    ClassGenerator(Permazen pdb, PermazenClass<T> pclass) {
+        this(pdb, pclass, pclass.type);
     }
 
     /**
-     * Constructor for a "JObject" class with no fields.
+     * Constructor for a "PermazenObject" class with no fields.
      */
-    ClassGenerator(Permazen jdb, Class<T> modelClass) {
-        this(jdb, null, modelClass);
+    ClassGenerator(Permazen pdb, Class<T> modelClass) {
+        this(pdb, null, modelClass);
     }
 
     /**
      * Internal constructor.
      */
-    private ClassGenerator(Permazen jdb, JClass<T> jclass, Class<T> modelClass) {
-        this.jdb = jdb;
-        this.jclass = jclass;
+    private ClassGenerator(Permazen pdb, PermazenClass<T> pclass, Class<T> modelClass) {
+        this.pdb = pdb;
+        this.pclass = pclass;
         this.modelClass = modelClass;
 
-        // Use superclass constructor taking either (a) (JTransaction tx, ObjId id) or (b) no parameters
+        // Use superclass constructor taking either (a) (PermazenTransaction tx, ObjId id) or (b) no parameters
         if (this.modelClass.isInterface())
             this.superclassConstructor = OBJECT_CONSTRUCTOR;
         else {
             try {
-                this.superclassConstructor = this.modelClass.getDeclaredConstructor(JTransaction.class, ObjId.class);
+                this.superclassConstructor = this.modelClass.getDeclaredConstructor(PermazenTransaction.class, ObjId.class);
             } catch (NoSuchMethodException e) {
                 try {
                     this.superclassConstructor = this.modelClass.getDeclaredConstructor();
                 } catch (NoSuchMethodException e2) {
                     String message = String.format("no suitable constructor found in model class %s; model classes must have"
                       + " a public or protected constructor taking either () or (%s, %s)",
-                      this.modelClass.getName(), JTransaction.class.getSimpleName(), ObjId.class.getSimpleName());
+                      this.modelClass.getName(), PermazenTransaction.class.getSimpleName(), ObjId.class.getSimpleName());
                     if (this.modelClass.isMemberClass() && !Modifier.isStatic(this.modelClass.getModifiers()))
                         message += "; did you mean to declare this class `static'?";
                     throw new IllegalArgumentException(message);
@@ -250,7 +251,7 @@ class ClassGenerator<T> {
             if (this.subclass == null)
                 this.subclass = this.generateClass();
             try {
-                this.constructor = this.subclass.getConstructor(JTransaction.class, ObjId.class);
+                this.constructor = this.subclass.getConstructor(PermazenTransaction.class, ObjId.class);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("internal error", e);
             }
@@ -260,7 +261,7 @@ class ClassGenerator<T> {
     }
 
     /**
-     * Generate the Java class for this instance's {@link JClass}.
+     * Generate the Java class for this instance's {@link PermazenClass}.
      *
      * <p>
      * This method also initializes the class to force early detection of any bytecode verification errors.
@@ -269,16 +270,16 @@ class ClassGenerator<T> {
     public Class<? extends T> generateClass() {
 
         // Gather simple field names (non sub-field only)
-        if (this.jclass != null) {
-            for (JSimpleField jfield : this.jclass.jsimpleFieldsByName.values()) {
-                if (!jfield.isSubField())
-                    this.simpleFieldNames.add(jfield.name);
+        if (this.pclass != null) {
+            for (PermazenSimpleField pfield : this.pclass.simpleFieldsByName.values()) {
+                if (!pfield.isSubField())
+                    this.simpleFieldNames.add(pfield.name);
             }
         }
 
         // Load class to generate it
         try {
-            return (Class<? extends T>)Class.forName(this.getClassName().replace('/', '.'), true, this.jdb.loader);
+            return (Class<? extends T>)Class.forName(this.getClassName().replace('/', '.'), true, this.pdb.loader);
         } catch (ClassNotFoundException e) {
             throw new DatabaseException("internal error", e);
         }
@@ -301,7 +302,7 @@ class ClassGenerator<T> {
 // Database class
 
     /**
-     * Generate the Java class bytecode for this instance's {@link JClass}.
+     * Generate the Java class bytecode for this instance's {@link PermazenClass}.
      */
     protected byte[] generateBytecode() {
 
@@ -310,8 +311,8 @@ class ClassGenerator<T> {
             this.log.trace("begin generating class {}", this.getClassName());
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         final String[] interfaces = this.modelClass.isInterface() ?
-          new String[] { Type.getInternalName(this.modelClass), Type.getInternalName(JObject.class) } :
-          new String[] { Type.getInternalName(JObject.class) };
+          new String[] { Type.getInternalName(this.modelClass), Type.getInternalName(PermazenObject.class) } :
+          new String[] { Type.getInternalName(PermazenObject.class) };
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
           this.getClassName(), null, this.getSuperclassName(), interfaces);
         cw.visitSource(GEN_SOURCE, null);
@@ -332,20 +333,20 @@ class ClassGenerator<T> {
 
         // Output "$tx" field
         cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL | Opcodes.ACC_TRANSIENT,
-          TX_FIELD_NAME, Type.getDescriptor(JTransaction.class), null, null).visitEnd();
+          TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class), null, null).visitEnd();
 
         // Output "$id" field
         cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
           ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null).visitEnd();
 
-        // Output fields associated with JFields
-        if (this.jclass != null) {
-            for (JField jfield : this.jclass.jfieldsByName.values())
-                jfield.outputFields(this, cw);
+        // Output fields associated with PermazenFields
+        if (this.pclass != null) {
+            for (PermazenField pfield : this.pclass.fieldsByName.values())
+                pfield.outputFields(this, cw);
         }
 
         // Output field(s) for cached simple field flags
-        if (this.jclass != null) {
+        if (this.pclass != null) {
             String lastFieldName = null;
             for (int i = 0; i < this.simpleFieldNames.size(); i++) {
                 final String fieldName = this.getCachedFlagFieldName(i);
@@ -358,12 +359,11 @@ class ClassGenerator<T> {
             }
         }
 
-        // Output (static) @FollowPath cached ReferencePath fields
-        if (this.jclass != null) {
+        // Output (static) @ReferencePath cached ReferencePath fields
+        if (this.pclass != null) {
             int fieldIndex = 0;
-            for (FollowPathScanner<?>.MethodInfo info0 : this.jclass.followPathMethods) {
-                final FollowPathScanner<?>.FollowPathMethodInfo info = (FollowPathScanner<?>.FollowPathMethodInfo)info0;
-                final String fieldName = FOLLOW_PATH_FIELD_PREFIX + fieldIndex++;
+            for (ReferencePathScanner<?>.ReferencePathMethodInfo info : this.pclass.referencePathMethods) {
+                final String fieldName = REFERENCE_PATH_FIELD_PREFIX + fieldIndex++;
                 cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC,
                   fieldName, Type.getDescriptor(ReferencePath.class), null, null).visitEnd();
             }
@@ -372,15 +372,15 @@ class ClassGenerator<T> {
 
     private void outputConstructors(ClassWriter cw) {
 
-        // Foo(JTransaction tx, ObjId id)
+        // Foo(PermazenTransaction tx, ObjId id)
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(JTransaction.class), Type.getType(ObjId.class)), null, null);
+          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(PermazenTransaction.class), Type.getType(ObjId.class)), null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitInsn(Opcodes.DUP);
         mv.visitInsn(Opcodes.DUP);
         mv.visitVarInsn(Opcodes.ALOAD, 1);                                                              // this.tx = tx
-        mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 2);                                                              // this.id = id
         mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         if (this.superclassConstructor.getParameterCount() > 0) {
@@ -396,12 +396,12 @@ class ClassGenerator<T> {
     private void outputMethods(ClassWriter cw) {
 
         // Output <clinit>, if needed
-        if (this.jclass != null) {
+        if (this.pclass != null) {
 
             // Do any fields require initialization bytecode?
             boolean needClassInitializer = false;
-            for (JField jfield : this.jclass.jfieldsByName.values()) {
-                if (jfield.hasClassInitializerBytecode()) {
+            for (PermazenField pfield : this.pclass.fieldsByName.values()) {
+                if (pfield.hasClassInitializerBytecode()) {
                     needClassInitializer = true;
                     break;
                 }
@@ -411,9 +411,9 @@ class ClassGenerator<T> {
             if (needClassInitializer) {
                 MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
                 mv.visitCode();
-                for (JField jfield : this.jclass.jfieldsByName.values()) {
-                    if (jfield.hasClassInitializerBytecode())
-                        jfield.outputClassInitializerBytecode(this, mv);
+                for (PermazenField pfield : this.pclass.fieldsByName.values()) {
+                    if (pfield.hasClassInitializerBytecode())
+                        pfield.outputClassInitializerBytecode(this, mv);
                 }
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitMaxs(0, 0);
@@ -421,16 +421,16 @@ class ClassGenerator<T> {
             }
         }
 
-        // Output JObject.getTransaction()
+        // Output PermazenObject.getTransaction()
         MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Output JObject.getModelClass()
+        // Output PermazenObject.getModelClass()
         mv = this.startMethod(cw, JOBJECT_GET_MODEL_CLASS);
         mv.visitCode();
         mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(this.modelClass)));
@@ -438,7 +438,7 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add JObject.getObjId()
+        // Add PermazenObject.getObjId()
         mv = this.startMethod(cw, JOBJECT_GET_OBJ_ID_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -447,10 +447,10 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add JObject.resetCachedFieldValues()
+        // Add PermazenObject.resetCachedFieldValues()
         mv = this.startMethod(cw, JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD);
         mv.visitCode();
-        if (this.jclass != null) {
+        if (this.pclass != null) {
             String lastFieldName = null;
             for (int i = 0; i < this.simpleFieldNames.size(); i++) {
                 final String fieldName = this.getCachedFlagFieldName(i);
@@ -467,7 +467,7 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add JObject.toString() - if not already overridden
+        // Add PermazenObject.toString() - if not already overridden
         final Method modelClassToString;
         if (this.modelClass.isInterface())
             modelClassToString = OBJECT_TO_STRING_METHOD;
@@ -493,21 +493,21 @@ class ClassGenerator<T> {
             mv.visitEnd();
         }
 
-        // If no associated JClass, we're done
-        if (this.jclass == null)
+        // If no associated PermazenClass, we're done
+        if (this.pclass == null)
             return;
 
         // Add methods that override field getters & setters
-        for (JField jfield : this.jclass.jfieldsByName.values())
-            jfield.outputMethods(this, cw);
+        for (PermazenField pfield : this.pclass.fieldsByName.values())
+            pfield.outputMethods(this, cw);
 
-        // Add @FollowPath methods
+        // Add @ReferencePath methods
         int fieldIndex = 0;
-        for (FollowPathScanner<?>.MethodInfo info : this.jclass.followPathMethods)
-            this.addFollowPathMethod(cw, (FollowPathScanner<?>.FollowPathMethodInfo)info, FOLLOW_PATH_FIELD_PREFIX + fieldIndex++);
+        for (ReferencePathScanner<?>.ReferencePathMethodInfo info : this.pclass.referencePathMethods)
+            this.addReferencePathMethod(cw, info, REFERENCE_PATH_FIELD_PREFIX + fieldIndex++);
     }
 
-    private void addFollowPathMethod(ClassWriter cw, FollowPathScanner<?>.FollowPathMethodInfo info, String fieldName) {
+    private void addReferencePathMethod(ClassWriter cw, ReferencePathScanner<?>.ReferencePathMethodInfo info, String fieldName) {
         final MethodVisitor mv = this.startMethod(cw, info.getMethod());
 
         // Check if we have cached the path already
@@ -518,7 +518,7 @@ class ClassGenerator<T> {
         // Parse the path and cache it in this instance
         final ReferencePath path = info.getReferencePath();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
         this.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_PERMAZEN_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, ClassGenerator.OBJECT_GET_CLASS_METHOD);
@@ -531,7 +531,7 @@ class ClassGenerator<T> {
         mv.visitLabel(gotPath);
         mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
         mv.visitFieldInsn(Opcodes.GETSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, ClassGenerator.UTIL_STREAM_OF_METHOD);
@@ -638,16 +638,16 @@ class ClassGenerator<T> {
 
 // Cached value flags field(s)
 
-    String getCachedFlagFieldName(JSimpleField jfield) {
-        return this.getCachedFlagFieldName(this.getCachedFlagIndex(jfield));
+    String getCachedFlagFieldName(PermazenSimpleField pfield) {
+        return this.getCachedFlagFieldName(this.getCachedFlagIndex(pfield));
     }
 
-    int getCachedFlagBit(JSimpleField jfield) {
-        return 1 << (this.getCachedFlagIndex(jfield) % 32);
+    int getCachedFlagBit(PermazenSimpleField pfield) {
+        return 1 << (this.getCachedFlagIndex(pfield) % 32);
     }
 
-    Class<?> getCachedFlagEncoding(JSimpleField jfield) {
-        return this.getCachedFlagEncoding(this.getCachedFlagIndex(jfield));
+    Class<?> getCachedFlagEncoding(PermazenSimpleField pfield) {
+        return this.getCachedFlagEncoding(this.getCachedFlagIndex(pfield));
     }
 
     private Class<?> getCachedFlagEncoding(int simpleFieldIndex) {
@@ -664,9 +664,9 @@ class ClassGenerator<T> {
         return ClassGenerator.CACHED_FLAG_FIELD_PREFIX + (simpleFieldIndex / 32);
     }
 
-    private int getCachedFlagIndex(JSimpleField jfield) {
-        Preconditions.checkArgument(jfield.parent == this.jclass);
-        final int simpleFieldIndex = this.simpleFieldNames.indexOf(jfield.name);
+    private int getCachedFlagIndex(PermazenSimpleField pfield) {
+        Preconditions.checkArgument(pfield.parent == this.pclass);
+        final int simpleFieldIndex = this.simpleFieldNames.indexOf(pfield.name);
         Preconditions.checkArgument(simpleFieldIndex != -1);
         return simpleFieldIndex;
     }

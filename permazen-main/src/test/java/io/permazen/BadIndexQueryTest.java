@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.util.NavigableSets;
 
@@ -23,86 +23,86 @@ public class BadIndexQueryTest extends MainTestSupport {
     @Test
     @SuppressWarnings("unchecked")
     public void testWrongValueType() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             // Query with wrong value type
             try {
-                jtx.querySimpleIndex(DataFile.class, "state", Analysis.State.class);
+                ptx.querySimpleIndex(DataFile.class, "state", Analysis.State.class);
                 assert false : "expected exception here";
             } catch (IllegalArgumentException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testQueryOnNonIndexedField() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
             // Query on non-indexed field
             try {
-                jtx.querySimpleIndex(DataFile.class, "state", DataFile.State.class);
+                ptx.querySimpleIndex(DataFile.class, "state", DataFile.State.class);
                 assert false : "expected exception here";
             } catch (IllegalArgumentException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testWrongKeyType() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Analysis a = jtx.create(Analysis.class);
+            final Analysis a = ptx.create(Analysis.class);
             a.setState(Analysis.State.AAA);
 
             // Wrong map key enum
-            jtx.querySimpleIndex(Analysis.class, "state", Analysis.State.class)
+            ptx.querySimpleIndex(Analysis.class, "state", Analysis.State.class)
               .asMap().get(DataFile.State.XXX);
 
             // Wrong set enum
-            jtx.querySimpleIndex(Analysis.class, "state", Analysis.State.class)
+            ptx.querySimpleIndex(Analysis.class, "state", Analysis.State.class)
               .asMap().keySet().contains(DataFile.State.XXX);
 
             // Wrong Map.Entry enum
-            jtx.querySimpleIndex(Analysis.class, "state", Analysis.State.class)
+            ptx.querySimpleIndex(Analysis.class, "state", Analysis.State.class)
               .asMap().entrySet().contains(new AbstractMap.SimpleEntry<DataFile.State, Void>(DataFile.State.XXX, null));
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testGetInState() throws Exception {
-        final Permazen jdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
-        final JTransaction jtx = jdb.createTransaction(ValidationMode.MANUAL);
-        JTransaction.setCurrent(jtx);
+        final Permazen pdb = BasicTest.newPermazen(DataFile.class, Analysis.class);
+        final PermazenTransaction ptx = pdb.createTransaction(ValidationMode.MANUAL);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final Analysis a1 = jtx.create(Analysis.class);
-            final Analysis a2 = jtx.create(Analysis.class);
+            final Analysis a1 = ptx.create(Analysis.class);
+            final Analysis a2 = ptx.create(Analysis.class);
             a1.setState(Analysis.State.AAA);
             a2.setState(Analysis.State.BBB);
 
@@ -110,9 +110,9 @@ public class BadIndexQueryTest extends MainTestSupport {
             checkSet(Analysis.getInState(Analysis.State.BBB), buildSet(a2));
             checkSet(Analysis.getInState(Analysis.State.AAA, Analysis.State.BBB), buildSet(a1, a2));
 
-            jtx.commit();
+            ptx.commit();
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
@@ -121,13 +121,13 @@ public class BadIndexQueryTest extends MainTestSupport {
     @PermazenType
     public interface Analysis {
 
-        @JField(indexed = true)
+        @PermazenField(indexed = true)
         State getState();
         void setState(State x);
 
         static NavigableSet<Analysis> getInState(State... states) {
             final NavigableMap<State, NavigableSet<Analysis>> indexMap
-              = JTransaction.getCurrent().querySimpleIndex(Analysis.class, "state", State.class).asMap();
+              = PermazenTransaction.getCurrent().querySimpleIndex(Analysis.class, "state", State.class).asMap();
             final List<NavigableSet<Analysis>> list = Stream.of(states)
               .map(indexMap::get)
               .map(set -> set != null ? set : NavigableSets.<Analysis>empty())

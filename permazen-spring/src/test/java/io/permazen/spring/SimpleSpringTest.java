@@ -5,10 +5,10 @@
 
 package io.permazen.spring;
 
-import io.permazen.JObject;
-import io.permazen.JTransaction;
 import io.permazen.Permazen;
-import io.permazen.annotation.JField;
+import io.permazen.PermazenObject;
+import io.permazen.PermazenTransaction;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.StaleTransactionException;
 
@@ -47,8 +47,8 @@ public class SimpleSpringTest extends SpringTest {
     @Test
     public void testFilter() {
         final Permazen db = this.context.getBean(Permazen.class);
-        Assert.assertTrue(db.getJClassesByName().keySet().contains("Person"));
-        Assert.assertFalse(db.getJClassesByName().keySet().contains("Banana"));
+        Assert.assertTrue(db.getPermazenClassesByName().keySet().contains("Person"));
+        Assert.assertFalse(db.getPermazenClassesByName().keySet().contains("Banana"));
     }
 
 // Bean methods
@@ -60,40 +60,40 @@ public class SimpleSpringTest extends SpringTest {
 
     @Transactional
     public void testSetName(Person p1, String name) {
-        p1 = JTransaction.getCurrent().get(p1);
+        p1 = PermazenTransaction.getCurrent().get(p1);
         p1.setName(name);
     }
 
     @Transactional(readOnly = true)
     public void testSetNameReadOnly(Person p1, String name) {
-        p1 = JTransaction.getCurrent().get(p1);
+        p1 = PermazenTransaction.getCurrent().get(p1);
         p1.setName(name);
     }
 
     @Transactional(readOnly = true)
     public String testGetName(Person p1) {
-        p1 = JTransaction.getCurrent().get(p1);
+        p1 = PermazenTransaction.getCurrent().get(p1);
         return p1.getName();
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class Person implements JObject {
+    public abstract static class Person implements PermazenObject {
 
-        @JField
+        @PermazenField
         public abstract String getName();
         public abstract void setName(String value);
 
         public static Person create() {
-            return JTransaction.getCurrent().create(Person.class);
+            return PermazenTransaction.getCurrent().create(Person.class);
         }
     }
 
     @PermazenType
-    public abstract static class Banana implements JObject {
+    public abstract static class Banana implements PermazenObject {
 
-        @JField
+        @PermazenField
         public abstract float getWeight();
         public abstract void setWeight(float weight);
     }

@@ -7,7 +7,7 @@ package io.permazen.vaadin;
 
 import com.vaadin.server.VaadinSession;
 
-import io.permazen.JTransaction;
+import io.permazen.PermazenTransaction;
 import io.permazen.Permazen;
 import io.permazen.core.Transaction;
 
@@ -66,10 +66,10 @@ public abstract class ReloadableJObjectContainer extends JObjectContainer {
      * <p>
      * Does nothing if the current transaction fails or this instance is not {@link #connect}'ed.
      *
-     * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
+     * @throws IllegalStateException if there is no {@link PermazenTransaction} associated with the current thread
      */
     public void reloadAfterCommit() {
-        JTransaction.getCurrent().getTransaction().addCallback(new Transaction.CallbackAdapter() {
+        PermazenTransaction.getCurrent().getTransaction().addCallback(new Transaction.CallbackAdapter() {
             @Override
             public void afterCommit() {
                 if (ReloadableJObjectContainer.this.vaadinSession == null)

@@ -5,7 +5,7 @@
 
 package io.permazen;
 
-import io.permazen.annotation.JField;
+import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
 import io.permazen.core.ObjId;
 
@@ -18,20 +18,20 @@ public class UniqueConstraintTest extends MainTestSupport {
     @Test
     public void testUniqueConstraint() throws Exception {
 
-        Permazen jdb = BasicTest.newPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
-        JTransaction jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
+        Permazen pdb = BasicTest.newPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
 
-        JTransaction.setCurrent(jtx);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
         // Verify default name value (null) must be unique
 
-            final UniqueName foo1 = jtx.create(UniqueName.class);
-            final UniqueName foo2 = jtx.create(UniqueName.class);
-            final UniqueName foo3 = jtx.create(UniqueName.class);
+            final UniqueName foo1 = ptx.create(UniqueName.class);
+            final UniqueName foo2 = ptx.create(UniqueName.class);
+            final UniqueName foo3 = ptx.create(UniqueName.class);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -43,14 +43,14 @@ public class UniqueConstraintTest extends MainTestSupport {
             foo2.setName("foo2");
             foo3.setName("foo3");
 
-            jtx.validate();
+            ptx.validate();
 
         // Now make them the same
 
             foo2.setName("foo3");
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -62,7 +62,7 @@ public class UniqueConstraintTest extends MainTestSupport {
             foo2.setName("frob");
             foo3.setName("frob");
 
-            jtx.validate();
+            ptx.validate();
 
         // Delete them
 
@@ -73,18 +73,18 @@ public class UniqueConstraintTest extends MainTestSupport {
             foo2.delete();
             foo3.delete();
 
-            jtx.validate();
+            ptx.validate();
 
         // Now test uniqueExclude()
 
-            final UniqueValue bar1 = jtx.create(UniqueValue.class);
-            final UniqueValue bar2 = jtx.create(UniqueValue.class);
-            final UniqueValue bar3 = jtx.create(UniqueValue.class);
-            final UniqueValue bar4 = jtx.create(UniqueValue.class);
-            final UniqueValue bar5 = jtx.create(UniqueValue.class);
-            final UniqueValue bar6 = jtx.create(UniqueValue.class);
-            final UniqueValue bar7 = jtx.create(UniqueValue.class);
-            final UniqueValue bar8 = jtx.create(UniqueValue.class);
+            final UniqueValue bar1 = ptx.create(UniqueValue.class);
+            final UniqueValue bar2 = ptx.create(UniqueValue.class);
+            final UniqueValue bar3 = ptx.create(UniqueValue.class);
+            final UniqueValue bar4 = ptx.create(UniqueValue.class);
+            final UniqueValue bar5 = ptx.create(UniqueValue.class);
+            final UniqueValue bar6 = ptx.create(UniqueValue.class);
+            final UniqueValue bar7 = ptx.create(UniqueValue.class);
+            final UniqueValue bar8 = ptx.create(UniqueValue.class);
 
             bar1.setValue(Float.NaN);
             bar2.setValue(Float.NaN);
@@ -95,7 +95,7 @@ public class UniqueConstraintTest extends MainTestSupport {
             bar7.setValue(Float.NaN);
             bar8.setValue(Float.NaN);
 
-            jtx.validate();
+            ptx.validate();
 
         // More test
 
@@ -103,7 +103,7 @@ public class UniqueConstraintTest extends MainTestSupport {
             bar2.setValue(15.3f);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -113,32 +113,32 @@ public class UniqueConstraintTest extends MainTestSupport {
 
             bar2.setValue(15.4f);
 
-            jtx.validate();
+            ptx.validate();
 
         // Check uniqueExclude of null
 
-            final UniqueNull null1 = jtx.create(UniqueNull.class);
-            final UniqueNull null2 = jtx.create(UniqueNull.class);
-            final UniqueNull null3 = jtx.create(UniqueNull.class);
+            final UniqueNull null1 = ptx.create(UniqueNull.class);
+            final UniqueNull null2 = ptx.create(UniqueNull.class);
+            final UniqueNull null3 = ptx.create(UniqueNull.class);
 
-            jtx.validate();
+            ptx.validate();
 
         // Check UniqueEnum
 
-            final UniqueEnum enum1 = jtx.create(UniqueEnum.class);
-            final UniqueEnum enum2 = jtx.create(UniqueEnum.class);
-            final UniqueEnum enum3 = jtx.create(UniqueEnum.class);
+            final UniqueEnum enum1 = ptx.create(UniqueEnum.class);
+            final UniqueEnum enum2 = ptx.create(UniqueEnum.class);
+            final UniqueEnum enum3 = ptx.create(UniqueEnum.class);
 
             enum1.setColor(Color.RED);
             enum2.setColor(Color.GREEN);
             enum3.setColor(Color.BLUE);
 
-            jtx.validate();
+            ptx.validate();
 
             enum2.setColor(Color.RED);
 
             try {
-                jtx.validate();
+                ptx.validate();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -146,33 +146,33 @@ public class UniqueConstraintTest extends MainTestSupport {
 
             enum2.setColor(Color.BLUE);
 
-            jtx.validate();
+            ptx.validate();
 
         // Done
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testDuplicateAfterCopyClone() throws Exception {
 
-        Permazen jdb = BasicTest.newPermazen(UniqueName.class);
-        JTransaction jtx;
+        Permazen pdb = BasicTest.newPermazen(UniqueName.class);
+        PermazenTransaction ptx;
 
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName u1 = jtx.create(UniqueName.class);
+            final UniqueName u1 = ptx.create(UniqueName.class);
             u1.setName("Jeffrey");
 
             final CopyState copyState = new CopyState();
             copyState.getObjectIdMap().put(u1.getObjId(), null);                // map to new object id
-            final UniqueName u2 = (UniqueName)u1.copyTo(jtx, -1, copyState);
+            final UniqueName u2 = (UniqueName)u1.copyTo(ptx, -1, copyState);
 
             assert u1.exists();
             assert u2.exists();
@@ -183,38 +183,38 @@ public class UniqueConstraintTest extends MainTestSupport {
             assert u2.getName().equals("Jeffrey");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testDuplicateAfterCopyIn() throws Exception {
 
-        Permazen jdb = BasicTest.newPermazen(UniqueName.class);
-        JTransaction jtx;
+        Permazen pdb = BasicTest.newPermazen(UniqueName.class);
+        PermazenTransaction ptx;
 
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName u1 = jtx.create(UniqueName.class);
+            final UniqueName u1 = ptx.create(UniqueName.class);
             u1.setName("Jeffrey");
 
-            final JTransaction stx = jtx.getDetachedTransaction();
+            final PermazenTransaction stx = ptx.getDetachedTransaction();
             final UniqueName u2s = stx.create(UniqueName.class);
             u2s.setName("Jeffrey");
 
             final CopyState copyState = new CopyState();
             copyState.setSuppressNotifications(this.random.nextBoolean());
 
-            final UniqueName u2 = (UniqueName)u2s.copyTo(jtx, -1, copyState);
+            final UniqueName u2 = (UniqueName)u2s.copyTo(ptx, -1, copyState);
 
             assert u1.exists();
             assert u2s.exists();
@@ -228,33 +228,33 @@ public class UniqueConstraintTest extends MainTestSupport {
             assert u2.getName().equals("Jeffrey");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testDuplicateAfterCopyOnTopOf() throws Exception {
 
-        Permazen jdb = BasicTest.newPermazen(UniqueName.class);
-        JTransaction jtx;
+        Permazen pdb = BasicTest.newPermazen(UniqueName.class);
+        PermazenTransaction ptx;
 
         final ObjId id1;
         final ObjId id2;
 
         // Create two objects with different names
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName u1 = jtx.create(UniqueName.class);
-            final UniqueName u2 = jtx.create(UniqueName.class);
+            final UniqueName u1 = ptx.create(UniqueName.class);
+            final UniqueName u2 = ptx.create(UniqueName.class);
             u1.setName("Jeffrey");
             u2.setName("Flapjack");
 
@@ -269,29 +269,29 @@ public class UniqueConstraintTest extends MainTestSupport {
             assert u1.getName().equals("Jeffrey");
             assert u2.getName().equals("Flapjack");
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // Copy on top of the second object, which already exists, but where the copy has the same name
         // Configure the CopyState to suppress notifications. The bug was that this also inadvertently
         // suppressed the notification that was supposed to trigger validation.
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName u2s = jtx.getDetachedTransaction().get(id2, UniqueName.class);
+            final UniqueName u2s = ptx.getDetachedTransaction().get(id2, UniqueName.class);
             u2s.recreate();
             u2s.setName("Jeffrey");
 
             final CopyState copyState = new CopyState();
             copyState.setSuppressNotifications(true);
-            u2s.copyTo(jtx, -1, copyState);
+            u2s.copyTo(ptx, -1, copyState);
 
-            final UniqueName u1 = jtx.get(id1, UniqueName.class);
-            final UniqueName u2 = jtx.get(id2, UniqueName.class);
+            final UniqueName u1 = ptx.get(id1, UniqueName.class);
+            final UniqueName u2 = ptx.get(id2, UniqueName.class);
 
             assert u1.exists();
             assert u2.exists();
@@ -302,182 +302,182 @@ public class UniqueConstraintTest extends MainTestSupport {
             assert u2.getName().equals("Jeffrey");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testSameStorageIdUnique() throws Exception {
 
-        Permazen jdb = BasicTest.newPermazen(UniqueName.class, UniqueName2.class);
-        JTransaction jtx;
+        Permazen pdb = BasicTest.newPermazen(UniqueName.class, UniqueName2.class);
+        PermazenTransaction ptx;
 
         // test 1
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName u1a = jtx.create(UniqueName.class);
-            final UniqueName u1b = jtx.create(UniqueName.class);
+            final UniqueName u1a = ptx.create(UniqueName.class);
+            final UniqueName u1b = ptx.create(UniqueName.class);
             u1a.setName("joe");
             u1b.setName("joe");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // test 2
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName2 u2a = jtx.create(UniqueName2.class);
-            final UniqueName2 u2b = jtx.create(UniqueName2.class);
+            final UniqueName2 u2a = ptx.create(UniqueName2.class);
+            final UniqueName2 u2b = ptx.create(UniqueName2.class);
             u2a.setName("joe");
             u2b.setName("joe");
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
         // test 3
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName u1 = jtx.create(UniqueName.class);
-            final UniqueName2 u2 = jtx.create(UniqueName2.class);
+            final UniqueName u1 = ptx.create(UniqueName.class);
+            final UniqueName2 u2 = ptx.create(UniqueName2.class);
             u1.setName("fred");
             u2.setName("fred");
 
-            jtx.commit();
+            ptx.commit();
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
     @Test
     public void testSameStorageIdInherited() throws Exception {
 
-        Permazen jdb = BasicTest.newPermazen(UniqueName3.class, UniqueName4.class);
-        JTransaction jtx;
+        Permazen pdb = BasicTest.newPermazen(UniqueName3.class, UniqueName4.class);
+        PermazenTransaction ptx;
 
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName3 u3a = jtx.create(UniqueName3.class);
-            final UniqueName3 u3b = jtx.create(UniqueName3.class);
+            final UniqueName3 u3a = ptx.create(UniqueName3.class);
+            final UniqueName3 u3b = ptx.create(UniqueName3.class);
             u3a.setName("joe");
             u3b.setName("joe");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName4 u4a = jtx.create(UniqueName4.class);
-            final UniqueName4 u4b = jtx.create(UniqueName4.class);
+            final UniqueName4 u4a = ptx.create(UniqueName4.class);
+            final UniqueName4 u4b = ptx.create(UniqueName4.class);
             u4a.setName("joe");
             u4b.setName("joe");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
 
-        jtx = jdb.createTransaction(ValidationMode.AUTOMATIC);
-        JTransaction.setCurrent(jtx);
+        ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
         try {
 
-            final UniqueName3 u3 = jtx.create(UniqueName3.class);
-            final UniqueName4 u4 = jtx.create(UniqueName4.class);
+            final UniqueName3 u3 = ptx.create(UniqueName3.class);
+            final UniqueName4 u4 = ptx.create(UniqueName4.class);
             u3.setName("fred");
             u4.setName("fred");
 
             try {
-                jtx.commit();
+                ptx.commit();
                 assert false;
             } catch (ValidationException e) {
                 this.log.debug("got expected {}", e.toString());
             }
 
         } finally {
-            JTransaction.setCurrent(null);
+            PermazenTransaction.setCurrent(null);
         }
     }
 
 // Model Classes
 
     @PermazenType
-    public abstract static class UniqueName implements JObject {
+    public abstract static class UniqueName implements PermazenObject {
 
-        @JField(indexed = true, uniqueExclude = "frob", unique = true)
+        @PermazenField(indexed = true, uniqueExclude = "frob", unique = true)
         public abstract String getName();
         public abstract void setName(String name);
     }
 
     @PermazenType
-    public abstract static class UniqueName2 implements JObject {
+    public abstract static class UniqueName2 implements PermazenObject {
 
-        @JField(indexed = true, unique = false)
+        @PermazenField(indexed = true, unique = false)
         public abstract String getName();
         public abstract void setName(String name);
     }
 
     @PermazenType
-    public abstract static class UniqueValue implements JObject {
+    public abstract static class UniqueValue implements PermazenObject {
 
-        @JField(indexed = true, unique = true, uniqueExclude = { "NaN", "123.45", "Infinity" })
+        @PermazenField(indexed = true, unique = true, uniqueExclude = { "NaN", "123.45", "Infinity" })
         public abstract float getValue();
         public abstract void setValue(float value);
     }
 
     @PermazenType
-    public abstract static class UniqueNull implements JObject {
+    public abstract static class UniqueNull implements PermazenObject {
 
-        @JField(indexed = true, unique = true, uniqueExclude = JField.NULL)
+        @PermazenField(indexed = true, unique = true, uniqueExclude = PermazenField.NULL)
         public abstract Date getDate();
         public abstract void setDate(Date date);
     }
 
     @PermazenType
-    public abstract static class UniqueEnum implements JObject {
+    public abstract static class UniqueEnum implements PermazenObject {
 
-        @JField(indexed = true, unique = true, uniqueExclude = "BLUE")
+        @PermazenField(indexed = true, unique = true, uniqueExclude = "BLUE")
         public abstract Color getColor();
         public abstract void setColor(Color color);
     }
@@ -493,17 +493,17 @@ public class UniqueConstraintTest extends MainTestSupport {
 
     public interface HasName {
 
-        @JField(indexed = true, unique = true)
+        @PermazenField(indexed = true, unique = true)
         String getName();
         void setName(String name);
     }
 
     @PermazenType
-    public abstract static class UniqueName3 implements JObject, HasName {
+    public abstract static class UniqueName3 implements PermazenObject, HasName {
     }
 
     @PermazenType
-    public abstract static class UniqueName4 implements JObject, HasName {
+    public abstract static class UniqueName4 implements PermazenObject, HasName {
 
         @Override
         public abstract String getName();
