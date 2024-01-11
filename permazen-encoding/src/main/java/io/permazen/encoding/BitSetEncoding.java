@@ -89,17 +89,12 @@ public class BitSetEncoding extends BuiltinEncoding<BitSet> {
         int diff = Integer.compare(bitSet1.length(), bitSet2.length());
         if (diff != 0)
             return diff;
-        final byte[] bytes1 = bitSet1.toByteArray();
-        final byte[] bytes2 = bitSet2.toByteArray();
-        assert bytes1.length == bytes2.length;
-        int i = bytes1.length;
-        while (--i >= 0) {
-            final int v1 = bytes1[i] & 0xff;
-            final int v2 = bytes2[i] & 0xff;
-            if (v1 < v2)
-                return -1;
-            if (v1 > v2)
-                return 1;
+        final long[] longs1 = bitSet1.toLongArray();
+        final long[] longs2 = bitSet2.toLongArray();
+        assert longs1.length == longs2.length;
+        for (int i = longs1.length - 1; i >= 0; i--) {
+            if ((diff = Long.compareUnsigned(longs1[i], longs2[i])) != 0)
+                return diff;
         }
         return 0;
     }
