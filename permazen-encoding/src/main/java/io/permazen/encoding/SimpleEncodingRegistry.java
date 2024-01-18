@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.dellroad.stuff.java.Primitive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A straightforward {@link EncodingRegistry} implementation that creates array types on demand.
@@ -23,6 +25,8 @@ import org.dellroad.stuff.java.Primitive;
  * array types are automatically created on demand via {@link #buildArrayEncoding buildArrayEncoding()}.
  */
 public class SimpleEncodingRegistry implements EncodingRegistry {
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     final HashMap<EncodingId, Encoding<?>> byId = new HashMap<>();
     final HashMap<TypeToken<?>, List<Encoding<?>>> byType = new HashMap<>();
@@ -153,6 +157,8 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
         Preconditions.checkArgument(encoding.getEncodingId() != null, "encoding is anonymous");
         Preconditions.checkArgument(encoding.getEncodingId().equals(encodingId), "encoding ID mismatch");
         Preconditions.checkArgument(!this.byId.containsKey(encodingId), "encoding ID is already registered");
+        this.log.debug("{}: registering encoding \"{}\" for type {}",
+          this.getClass().getSimpleName(), encodingId, encoding.getTypeToken());
         this.byId.put(encodingId, encoding);
         this.byType.computeIfAbsent(encoding.getTypeToken(), typeToken -> new ArrayList<>(1)).add(encoding);
     }

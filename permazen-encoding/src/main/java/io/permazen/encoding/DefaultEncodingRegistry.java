@@ -259,7 +259,10 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
      * for custom {@link EncodingRegistry} implementations
      */
     protected void findCustomEncodingRegistries() {
-        for (Iterator<EncodingRegistry> i = ServiceLoader.load(EncodingRegistry.class).iterator(); i.hasNext(); )
-            this.customEncodingRegistries.add(i.next());
+        for (Iterator<EncodingRegistry> i = ServiceLoader.load(EncodingRegistry.class).iterator(); i.hasNext(); ) {
+            final EncodingRegistry customEncodingRegistry = i.next();
+            this.log.debug("{}: including custom encoding registry {}", this.getClass().getSimpleName(), customEncodingRegistry);
+            this.customEncodingRegistries.add(customEncodingRegistry);
+        }
     }
 }
