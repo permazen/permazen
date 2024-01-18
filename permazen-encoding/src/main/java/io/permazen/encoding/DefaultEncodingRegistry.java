@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -160,8 +161,20 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
 
     /**
      * Register Permazen's built-in encodings.
+     *
+     * <p>
+     * The implementation in {@link DefaultEncodingRegistry} invokes {@link #addStandardBuiltinEncodings}
+     * and then {@link #addOptionalBuiltinEncodings}.
      */
     protected void addBuiltinEncodings() {
+        this.addStandardBuiltinEncodings();
+        this.addOptionalBuiltinEncodings();
+    }
+
+    /**
+     * Register Permazen's standard built-in encodings.
+     */
+    protected void addStandardBuiltinEncodings() {
 
         // Primitive types
         this.add(new BooleanEncoding());
@@ -233,13 +246,45 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.addNullSafe((new ZoneOffsetEncoding()));
         this.addNullSafe((new ZonedDateTimeEncoding()));
         this.addNullSafe((new ZoneIdEncoding()));
+    }
 
-        // Types that require optional classpath components
+    /**
+     * Register Permazen's optional built-in encodings.
+     *
+     * <p>
+     * The optional built-in encodings are ones that depend on optional dependencies. An example is
+     * {@link InternetAddressEncoding} which depends on the Jakarta Mail API.
+     */
+    protected void addOptionalBuiltinEncodings() {
+        this.addOptionalBuiltinEncoding("InternetAddressEncoding", () -> new NullSafeEncoding<>(new InternetAddressEncoding()));
+    }
+
+    /**
+     * Register an optional built-in encoding.
+     *
+     * <p>
+     * The implementation in {@link DefaultEncodingRegistry} invokes the given {@code builder} but will catch
+     * and ignore any {@link NoClassDefFoundError} thrown. Otherwise, the encoding is registered.
+     *
+     * <p>
+     * No attempt to <a href="https://docs.oracle.com/javase/specs/jls/se9/html/jls-12.html#jls-12.4.1">initialize</a>
+     * the encoding class should have occurred prior to invoking this method.
+     *
+     * @param description description for logging purposes
+     * @param builder builder for encoding
+     */
+    protected void addOptionalBuiltinEncoding(String description, Supplier<? extends Encoding<?>> builder) {
+        Preconditions.checkArgument(description != null, "null description");
+        Preconditions.checkArgument(builder != null, "null builder");
+        final Encoding<?> encoding;
         try {
-            this.addNullSafe((new InternetAddressEncoding()));
+            encoding = builder.get();
         } catch (NoClassDefFoundError e) {
-            // ignore
+            this.log.debug("{}: not adding optional encoding {}: {}", this.getClass().getSimpleName(), description, e.toString());
+            return;
         }
+        Preconditions.checkArgument(encoding != null, "null encoding returned from builder");
+        this.add(encoding);
     }
 
     /**

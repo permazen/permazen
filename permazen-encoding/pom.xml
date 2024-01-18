@@ -32,13 +32,15 @@
             <artifactId>dellroad-stuff-main</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.mail</groupId>
-            <artifactId>jakarta.mail-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Optional dependencies -->
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- Siblings -->
