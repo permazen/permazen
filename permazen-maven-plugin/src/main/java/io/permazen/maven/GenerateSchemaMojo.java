@@ -5,8 +5,6 @@
 
 package io.permazen.maven;
 
-import io.permazen.Permazen;
-
 import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -36,7 +34,7 @@ public class GenerateSchemaMojo extends AbstractMainSchemaMojo {
     private File schemaFile;
 
     @Override
-    protected void execute(Permazen jdb) throws MojoExecutionException, MojoFailureException {
-        this.generate(jdb.getSchemaModel(), this.schemaFile);
+    protected void execute(SchemaUtility schemaUtility) throws MojoExecutionException, MojoFailureException {
+        schemaUtility.generateSchema(this.schemaFile);
     }
 }

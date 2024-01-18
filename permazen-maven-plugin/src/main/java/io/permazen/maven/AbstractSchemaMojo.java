@@ -5,24 +5,7 @@
 
 package io.permazen.maven;
 
-import io.permazen.Permazen;
-import io.permazen.PermazenConfig;
-import io.permazen.annotation.PermazenType;
-import io.permazen.core.Database;
-import io.permazen.core.InvalidSchemaException;
-import io.permazen.core.TransactionConfig;
-import io.permazen.encoding.DefaultEncodingRegistry;
-import io.permazen.encoding.EncodingRegistry;
-import io.permazen.kv.simple.MemoryKVDatabase;
-import io.permazen.schema.SchemaId;
-import io.permazen.schema.SchemaModel;
-import io.permazen.spring.PermazenClassScanner;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,9 +17,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.TreeSet;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -73,11 +55,11 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     /**
      * <p>
-     * The {@link EncodingRegistry} to use for looking up field encodings.
-     * By default, a {@link DefaultEncodingRegistry} is used.
+     * The {@link io.permazen.encoding.EncodingRegistry} to use for looking up field encodings.
+     * By default, a {@link io.permazen.encoding.DefaultEncodingRegistry} is used.
      *
      * <p>
-     * To configure a custom {@link EncodingRegistry}, specify its class name like this:
+     * To configure a custom {@link io.permazen.encoding.EncodingRegistry}, specify its class name like this:
      * <blockquote><pre>
      * &lt;configuration&gt;
      *     &lt;encodingRegistryClass&gt;com.example.MyEncodingRegistry&lt;/encodingRegistryClass&gt;
@@ -121,7 +103,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     protected abstract void addDependencyClasspathElements(List<String> elements) throws DependencyResolutionRequiredException;
 
-    protected abstract void execute(Permazen jdb) throws MojoExecutionException, MojoFailureException;
+    protected abstract void execute(SchemaUtility schemaUtility) throws MojoExecutionException, MojoFailureException;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -190,190 +172,24 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         final ClassLoader loader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]), parentLoader);
         Thread.currentThread().setContextClassLoader(loader);
         try {
-            final HashSet<Class<?>> modelClasses = new HashSet<>();
 
-            // Do package scanning
-            if (this.packages != null && this.packages.length > 0) {
+            // Find and instantiate SchemaUtility
+            final SchemaUtility schemaUtility = ServiceLoader.load(SchemaUtility.class)
+              .findFirst()
+              .orElseThrow(() -> new MojoExecutionException(String.format(
+                "no %s implementation found on classpath - is permazen-main.jar a dependency?", SchemaUtility.class.getName())));
 
-                // Join list
-                final StringBuilder buf = new StringBuilder();
-                for (String packageName : this.packages) {
-                    if (buf.length() > 0)
-                        buf.append(' ');
-                    buf.append(packageName);
-                }
-                final String packageNames = buf.toString();
-
-                // Scan for @PermazenType classes
-                this.getLog().info("scanning for @PermazenType annotations in packages: " + packageNames);
-                for (String className : new PermazenClassScanner().scanForClasses(packageNames)) {
-                    this.getLog().info("adding Permazen model class " + className);
-                    try {
-                        modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-                    } catch (ClassNotFoundException e) {
-                        throw new MojoExecutionException("failed to load model class \"" + className + "\"", e);
-                    }
-                }
-            }
-
-            // Do specific class scanning
-            if (this.classes != null && this.classes.length > 0) {
-                for (String className : this.classes) {
-
-                    // Load class
-                    final Class<?> cl;
-                    try {
-                        cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-                    } catch (ClassNotFoundException e) {
-                        throw new MojoExecutionException("failed to load class \"" + className + "\"", e);
-                    }
-
-                    // Add model classes
-                    if (cl.isAnnotationPresent(PermazenType.class)) {
-                        this.getLog().info("adding Permazen model " + cl);
-                        modelClasses.add(cl);
-                    }
-                }
-            }
-
-            // Instantiate EncodingRegistry
-            EncodingRegistry encodingRegistry = null;
-            if (encodingRegistryClass != null) {
-                try {
-                    encodingRegistry = Class.forName(this.encodingRegistryClass, false,
-                       Thread.currentThread().getContextClassLoader())
-                      .asSubclass(EncodingRegistry.class).getConstructor().newInstance();
-                } catch (Exception e) {
-                    throw new MojoExecutionException("error instantiatiating the configured <encodingRegistryClass> \""
-                      + encodingRegistryClass + "\"", e);
-                }
-            }
-
-            // Construct database and schema model
-            this.getLog().info("generating Permazen schema from schema classes");
-            final Permazen jdb;
-            final SchemaModel schema;
-            try {
-                final Database db = new Database(new MemoryKVDatabase());
-                if (encodingRegistry != null)
-                    db.setEncodingRegistry(encodingRegistry);
-                jdb = PermazenConfig.builder()
-                  .database(db)
-                  .modelClasses(modelClasses)
-                  .build()
-                  .newPermazen();
-                schema = jdb.getSchemaModel();
-            } catch (Exception e) {
-                throw new MojoFailureException("schema generation failed: " + e, e);
-            }
-            final SchemaId schemaId = schema.getSchemaId();
-            this.getLog().info("schema ID is \"" + schemaId + "\"");
+            // Configure SchemaUtility
+            final String schemaId = schemaUtility.configure(this.getLog(), this.packages, this.classes, this.encodingRegistryClass);
 
             // Set auto-generated schema ID property
             if (this.schemaIdProperty != null && this.schemaIdProperty.length() > 0)
-                this.project.getProperties().setProperty(this.schemaIdProperty, "" + schemaId);
+                this.project.getProperties().setProperty(this.schemaIdProperty, schemaId);
 
-            // Proceed
-            this.execute(jdb);
+            // Perform task
+            this.execute(schemaUtility);
         } finally {
             Thread.currentThread().setContextClassLoader(parentLoader);
         }
-    }
-
-    /**
-     * Generate schema XML file, overwriting any previous file.
-     *
-     * @param schema database schema
-     * @param file schema XML output file
-     * @throws MojoExecutionException if an unexpected error occurs
-     */
-    protected void generate(SchemaModel schema, File file) throws MojoExecutionException {
-
-        // Create directory
-        final File dir = file.getParentFile();
-        if (!dir.exists()) {
-            this.getLog().info("creating directory \"" + dir + "\"");
-            try {
-                Files.createDirectories(dir.toPath());
-            } catch (IOException e) {
-                throw new MojoExecutionException("error creating directory \"" + dir + "\"", e);
-            }
-        }
-
-        // Write schema model to file
-        this.getLog().info("writing Permazen schema to \"" + file + "\"");
-        try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
-            schema.toXML(output, true);
-        } catch (IOException e) {
-            throw new MojoExecutionException("error writing schema to \"" + file + "\": " + e, e);
-        }
-    }
-
-    /**
-     * Verify that the provided schema is the sam as the schema defined by the specified XML file.
-     *
-     * @param schema actual schema
-     * @param file expected schema XML file
-     * @return true if verification succeeded, otherwise false
-     * @throws MojoExecutionException if an unexpected error occurs
-     */
-    protected boolean verify(SchemaModel schema, File file) throws MojoExecutionException {
-
-        // Read file
-        this.getLog().info("verifying Permazen schema matches \"" + file + "\"");
-        final SchemaModel verifyModel;
-        try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
-            verifyModel = SchemaModel.fromXML(input);
-        } catch (IOException | InvalidSchemaException e) {
-            throw new MojoExecutionException("error reading schema from \"" + file + "\": " + e, e);
-        }
-
-        // Compare
-        final boolean matched = schema.getSchemaId().equals(verifyModel.getSchemaId());
-        if (!matched) {
-            this.getLog().error("schema verification failed:");
-            this.getLog().error(schema.differencesFrom(verifyModel).toString());
-        } else
-            this.getLog().info("schema verification succeeded");
-
-        // Done
-        return matched;
-    }
-
-    /**
-     * Check schema for structural conflicts with other schemas defined by an iteration of XML files.
-     *
-     * @param jdb database instance
-     * @param otherSchemaFiles iteration of other schema XML files
-     * @return true if verification succeeded, otherwise false
-     * @throws MojoExecutionException if an unexpected error occurs
-     */
-    protected boolean verify(Permazen jdb, Iterator<? extends File> otherSchemaFiles) throws MojoExecutionException {
-        boolean success = true;
-        while (otherSchemaFiles.hasNext()) {
-
-            // Read next file
-            final File file = otherSchemaFiles.next();
-            this.getLog().info("checking schema for conflicts with " + file);
-            final SchemaModel otherSchema;
-            try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
-                otherSchema = SchemaModel.fromXML(input);
-            } catch (IOException | InvalidSchemaException e) {
-                throw new MojoExecutionException("error reading schema from \"" + file + "\": " + e, e);
-            }
-
-            // Check compatible
-            try {
-                TransactionConfig.builder()
-                  .schemaModel(otherSchema)
-                  .build()
-                  .newTransaction(jdb.getDatabase())
-                  .rollback();
-            } catch (Exception e) {
-                this.getLog().error("schema conflicts with " + file + ": " + e);
-                success = false;
-            }
-        }
-        return success;
     }
 }

@@ -26,20 +26,6 @@
     </properties>
     <dependencies>
 
-        <!-- Siblings -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-main</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-spring</artifactId>
-        </dependency>
-
         <!-- Plugin stuff -->
         <dependency>
             <groupId>org.apache.maven</groupId>

@@ -5,9 +5,6 @@
 
 package io.permazen.maven;
 
-import io.permazen.Permazen;
-import io.permazen.core.SchemaMismatchException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -32,8 +29,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * and that the generated schema matches what is expected.
  *
  * <p>
- * It can also check that the schema will not generate any {@link SchemaMismatchException}s at runtime due to conflicts
- * with older schemas that may be already present in a database. Note, these exceptions can only occur when explicit
+ * It can also check that the schema will not generate any {@link io.permazen.core.SchemaMismatchException}s at runtime due to
+ * conflicts with older schemas that may be already present in a database. Note, these exceptions can only occur when explicit
  * storage ID's are used.
  *
  * <p>
@@ -95,18 +92,18 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
     private File oldSchemasDirectory;
 
     @Override
-    protected void execute(Permazen jdb) throws MojoExecutionException, MojoFailureException {
+    protected void execute(SchemaUtility schemaUtility) throws MojoExecutionException, MojoFailureException {
 
         // Handle the case where the expected schema file doesn't exist
         if (!this.expectedSchemaFile.exists()) {
             if (!this.autoGenerate)
                 throw new MojoFailureException("expected schema file " + expectedSchemaFile + " does not exist");
-            this.generate(jdb.getSchemaModel(), this.expectedSchemaFile);
+            schemaUtility.generateSchema(this.expectedSchemaFile);
             return;
         }
 
         // Verify actual vs. expected
-        if (!this.verify(jdb.getSchemaModel(), this.expectedSchemaFile)) {
+        if (!schemaUtility.verifySchema(this.expectedSchemaFile)) {
             this.getLog().info("Recommended actions to take:\n"
               + "  (a) If no schema change was intended, undo whatever Java model class change(s) caused the schema difference.\n"
               + "  (b) Otherwise, move " + this.actualSchemaFile + " to " + this.expectedSchemaFile);
@@ -130,7 +127,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
         }
 
         // Verify compatibility with old schemas
-        if (!this.verify(jdb, oldSchemaFiles.iterator()))
+        if (!schemaUtility.verifySchemas(oldSchemaFiles.iterator()))
             throw new MojoFailureException("current schema conflicts with one or more old schemas");
     }
 }
