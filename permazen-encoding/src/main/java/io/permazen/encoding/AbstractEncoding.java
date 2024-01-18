@@ -92,6 +92,8 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
             description = "anonymous";
         else if ((description = this.encodingId.getId()).startsWith(EncodingIds.PERMAZEN_PREFIX))
             description = "\"" + description.substring(EncodingIds.PERMAZEN_PREFIX.length()) + "\"";
+        else
+            description = "\"" + description + "\"";
         return "encoding " + description + " <" + this.typeToken + ">";
     }
 
