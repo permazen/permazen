@@ -190,7 +190,7 @@ public class CliMain {
         @Override
         protected void processOptions(OptionSet options) {
 
-            // Process log leve as early as possible
+            // Process log level as early as possible
             this.logLevel = Optional.ofNullable(this.logLevelOption)
               .map(options::valueOf)
               .orElse(DEFAULT_LOG_LEVEL);
