@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -120,6 +121,7 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         // Try custom registries
         encoding = this.customEncodingRegistries.stream()
           .map(registry -> registry.getEncoding(encodingId))
+          .filter(Objects::nonNull)
           .findFirst()
           .orElse(null);
         if (encoding != null)
