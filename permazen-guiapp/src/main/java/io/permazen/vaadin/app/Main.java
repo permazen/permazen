@@ -37,7 +37,7 @@ public class Main extends AbstractMain implements GUIConfig {
 
     private static Main instance;
 
-    private Permazen jdb;
+    private Permazen pdb;
     private Server server;
     private int port = DEFAULT_HTTP_PORT;
     private URI root;
@@ -111,7 +111,7 @@ public class Main extends AbstractMain implements GUIConfig {
         try {
 
             // Create Permazen instance
-            this.jdb = this.getPermazenFactory(db).newPermazen();
+            this.pdb = this.getPermazenFactory(db).newPermazen();
 
             // Create web server with Spring application context
             this.server = new Server(this.port);
@@ -146,7 +146,7 @@ public class Main extends AbstractMain implements GUIConfig {
 
     @Override
     public Permazen getPermazen() {
-        return this.jdb;
+        return this.pdb;
     }
 
     @Override

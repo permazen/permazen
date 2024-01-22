@@ -27,12 +27,12 @@ public abstract class ReloadableJObjectContainer extends JObjectContainer {
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} database
+     * @param pdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    protected ReloadableJObjectContainer(Permazen jdb, Class<?> type) {
-        super(jdb, type);
+    protected ReloadableJObjectContainer(Permazen pdb, Class<?> type) {
+        super(pdb, type);
     }
 
 // Connectable

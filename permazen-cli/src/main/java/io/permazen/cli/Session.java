@@ -67,7 +67,7 @@ public class Session {
     private final ConsoleSession<?, ?> consoleSession;
 
     private final KVDatabase kvdb;
-    private final Permazen jdb;
+    private final Permazen pdb;
     private final Database db;
 
     private SessionMode mode;
@@ -118,29 +118,29 @@ public class Session {
      * Constructor for {@link SessionMode#PERMAZEN}.
      *
      * @param consoleSession console session
-     * @param jdb database
+     * @param pdb database
      * @throws IllegalArgumentException if either parameter is null
      */
-    public Session(ConsoleSession<?, ?> consoleSession, Permazen jdb) {
-        this(consoleSession, Session.notNull(jdb, "jdb"), null, null);
+    public Session(ConsoleSession<?, ?> consoleSession, Permazen pdb) {
+        this(consoleSession, Session.notNull(pdb, "pdb"), null, null);
     }
 
-    Session(ConsoleSession<?, ?> consoleSession, Permazen jdb, Database db, KVDatabase kvdb) {
-        Preconditions.checkArgument(Stream.of(kvdb, db, jdb).filter(Objects::nonNull).count() == 1,
+    Session(ConsoleSession<?, ?> consoleSession, Permazen pdb, Database db, KVDatabase kvdb) {
+        Preconditions.checkArgument(Stream.of(kvdb, db, pdb).filter(Objects::nonNull).count() == 1,
           "exactly one parameter must be non-null");
         this.consoleSession = Session.notNull(consoleSession, "consoleSession");
-        if (jdb != null) {
-            this.jdb = jdb;
-            this.db = this.jdb.getDatabase();
+        if (pdb != null) {
+            this.pdb = pdb;
+            this.db = this.pdb.getDatabase();
             this.kvdb = this.db.getKVDatabase();
             this.mode = SessionMode.PERMAZEN;
         } else if (db != null) {
-            this.jdb = null;
+            this.pdb = null;
             this.db = db;
             this.kvdb = this.db.getKVDatabase();
             this.mode = SessionMode.CORE_API;
         } else {
-            this.jdb = null;
+            this.pdb = null;
             this.db = null;
             this.kvdb = kvdb;
             this.mode = SessionMode.KEY_VALUE;
@@ -180,7 +180,7 @@ public class Session {
             Preconditions.checkArgument(this.db != null, "session is not configured with a Core API Database instance");
             break;
         case PERMAZEN:
-            Preconditions.checkArgument(this.jdb != null, "session is not configured with a Permazen instance");
+            Preconditions.checkArgument(this.pdb != null, "session is not configured with a Permazen instance");
             break;
         default:
             throw new IllegalArgumentException("internal error");
@@ -213,7 +213,7 @@ public class Session {
      * @return the associated {@link Permazen} or null if this instance is not in {@link SessionMode#PERMAZEN}
      */
     public Permazen getPermazen() {
-        return this.jdb;
+        return this.pdb;
     }
 
     /**
@@ -681,7 +681,7 @@ public class Session {
             case PERMAZEN:
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a Permazen transaction is already open in the current thread");
-                final PermazenTransaction jtx = this.jdb.createTransaction(
+                final PermazenTransaction jtx = this.pdb.createTransaction(
                   this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options);
                 PermazenTransaction.setCurrent(jtx);
                 this.tx = jtx.getTransaction();

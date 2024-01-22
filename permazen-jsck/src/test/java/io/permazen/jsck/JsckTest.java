@@ -44,11 +44,11 @@ public class JsckTest extends KVTestSupport {
 
     private static final int SNAPSHOT_SCHEMA_INDEX = 1;
 
-    private Permazen jdb;
+    private Permazen pdb;
 
     @BeforeClass
     private void setupTestDatabase() {
-        this.jdb = PermazenConfig.builder()
+        this.pdb = PermazenConfig.builder()
           .modelClasses(Person.class, Pet.class)
           .build()
           .newPermazen();
@@ -85,7 +85,7 @@ public class JsckTest extends KVTestSupport {
 
         // Setup db
         final MemoryKVStore kv = new MemoryKVStore();
-        final PermazenTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
+        final PermazenTransaction jtx = this.pdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
         final Person p1 = this.create(jtx, Person.class, 0x1011111111111111L);
@@ -276,7 +276,7 @@ public class JsckTest extends KVTestSupport {
 
     private void populate(MemoryKVStore kv) {
 
-        final PermazenTransaction jtx = this.jdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
+        final PermazenTransaction jtx = this.pdb.createDetachedTransaction(kv, ValidationMode.AUTOMATIC);
 
         // Create objects with known ID's we can easily recognize
         final Person mom =      this.create(jtx, Person.class, 0x1011111111111111L);

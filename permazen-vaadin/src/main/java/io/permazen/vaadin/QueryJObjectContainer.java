@@ -66,12 +66,12 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} database
+     * @param pdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    protected QueryJObjectContainer(Permazen jdb, Class<?> type) {
-        super(jdb, type);
+    protected QueryJObjectContainer(Permazen pdb, Class<?> type) {
+        super(pdb, type);
     }
 
     /**
@@ -156,7 +156,7 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     protected Iterable<? extends PermazenObject> getRelatedObjects(PermazenObject jobj) {
-        return this.jdb.getReferencedObjects(jobj);
+        return this.pdb.getReferencedObjects(jobj);
     }
 
     /**

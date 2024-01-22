@@ -18,20 +18,20 @@ import io.permazen.Session;
 @SuppressWarnings("serial")
 public class JObjectTable extends AbstractTable<JObjectContainer> {
 
-    private final Permazen jdb;
+    private final Permazen pdb;
     private final JObjectContainer container;
     private final Session session;
     private final boolean showFields;
 
-    public JObjectTable(Permazen jdb, JObjectContainer container, Session session) {
-        this(jdb, container, session, true);
+    public JObjectTable(Permazen pdb, JObjectContainer container, Session session) {
+        this(pdb, container, session, true);
     }
 
-    public JObjectTable(Permazen jdb, JObjectContainer container, Session session, boolean showFields) {
-        Preconditions.checkArgument(jdb != null, "null jdb");
+    public JObjectTable(Permazen pdb, JObjectContainer container, Session session, boolean showFields) {
+        Preconditions.checkArgument(pdb != null, "null pdb");
         Preconditions.checkArgument(container != null, "null container");
         Preconditions.checkArgument(session != null, "null session");
-        this.jdb = jdb;
+        this.pdb = pdb;
         this.container = container;
         this.session = session;
         this.showFields = showFields;

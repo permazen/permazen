@@ -27,9 +27,9 @@ abstract class AbstractSchemaCommand extends AbstractCommand {
         if (schemaId == null) {
             SchemaModel schemaModel = session.getSchemaModel();
             if (schemaModel == null) {
-                final Permazen jdb = session.getPermazen();
-                if (jdb != null)
-                    schemaModel = jdb.getSchemaModel();
+                final Permazen pdb = session.getPermazen();
+                if (pdb != null)
+                    schemaModel = pdb.getSchemaModel();
             }
             if (schemaModel == null) {
                 session.getOutput().println("No schema configured on this session");

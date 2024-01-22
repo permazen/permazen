@@ -41,7 +41,7 @@ public class MainPanel extends VerticalLayout {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final Permazen jdb;
+    private final Permazen pdb;
     private final ParseSession session;
     private final JObjectChooser objectChooser;
 
@@ -69,8 +69,8 @@ public class MainPanel extends VerticalLayout {
     public MainPanel(ParseSession session) {
         Preconditions.checkArgument(session != null, "null session");
         this.session = session;
-        this.jdb = session.getPermazen();
-        Preconditions.checkArgument(this.jdb != null, "session is not a Permazen session");
+        this.pdb = session.getPermazen();
+        Preconditions.checkArgument(this.pdb != null, "session is not a Permazen session");
 
         // Setup object chooser
         this.objectChooser = new JObjectChooser(this.session, null, true);
@@ -93,7 +93,7 @@ public class MainPanel extends VerticalLayout {
         final HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setWidth("100%");
-        final SizedLabel versionLabel = new SizedLabel("Schema Version " + this.jdb.getActualVersion());
+        final SizedLabel versionLabel = new SizedLabel("Schema Version " + this.pdb.getActualVersion());
         buttonRow.addComponent(versionLabel);
         buttonRow.setComponentAlignment(versionLabel, Alignment.MIDDLE_LEFT);
         final Label spacer1 = new Label();
@@ -183,7 +183,7 @@ public class MainPanel extends VerticalLayout {
 
         // Open window
         final JObjectEditorWindow editor = new JObjectEditorWindow(this.getUI(),
-          this.session, this.jdb.getPermazenClass(id), jobj, titleComponent);
+          this.session, this.pdb.getPermazenClass(id), jobj, titleComponent);
         editor.setReloadContainerAfterCommit(this.objectChooser.getJObjectContainer());
         editor.show();
     }
@@ -255,7 +255,7 @@ public class MainPanel extends VerticalLayout {
         final ObjId id = this.objectChooser.getObjId();
         if (id == null)
             return;
-        final int newVersion = this.jdb.getActualVersion();
+        final int newVersion = this.pdb.getActualVersion();
         this.log.info("upgrading object {} to schema version {}", id, newVersion);
         final int oldVersion = this.doUpgrade(id);
         switch (oldVersion) {
@@ -291,7 +291,7 @@ public class MainPanel extends VerticalLayout {
     @Transactional("permazenGuiTransactionManager")
     private boolean canUpgrade(ObjId id) {
         final PermazenObject jobj = PermazenTransaction.getCurrent().get(id);
-        return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getActualVersion();
+        return jobj.exists() && jobj.getSchemaVersion() != this.pdb.getActualVersion();
     }
 
 // GUISession

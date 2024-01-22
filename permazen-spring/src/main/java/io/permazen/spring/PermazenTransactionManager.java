@@ -73,7 +73,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     /**
      * The configured {@link Permazen} from which transactions are created.
      */
-    protected transient Permazen jdb;
+    protected transient Permazen pdb;
 
     /**
      * The {@link ValidationMode} to use for transactions.
@@ -84,7 +84,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (this.jdb == null)
+        if (this.pdb == null)
             throw new Exception("no Permazen configured");
     }
 
@@ -94,10 +94,10 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      * <p>
      * Required property.
      *
-     * @param jdb associated database
+     * @param pdb associated database
      */
-    public void setPermazen(Permazen jdb) {
-        this.jdb = jdb;
+    public void setPermazen(Permazen pdb) {
+        this.pdb = pdb;
     }
 
     /**
@@ -129,7 +129,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
     @Override
     public Object getResourceFactory() {
-        return this.jdb;
+        return this.pdb;
     }
 
     @Override
@@ -217,7 +217,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      * @throws DatabaseException if an error occurs
      */
     protected PermazenTransaction createTransaction(Map<String, Object> options) {
-        return this.jdb.createTransaction(this.validationMode, options);
+        return this.pdb.createTransaction(this.validationMode, options);
     }
 
     /**

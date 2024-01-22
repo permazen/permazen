@@ -51,29 +51,29 @@ public class DetachedPermazenTransactionHttpMessageConverter extends AbstractHtt
 
     static final MediaType LEGACY_MIME_TYPE = new MediaType("application", "x-jsimpledb-transaction");
 
-    private final Permazen jdb;
+    private final Permazen pdb;
 
     private Class<?>[] validationGroups;
 
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} instance defining the convertible types
+     * @param pdb {@link Permazen} instance defining the convertible types
      */
-    public DetachedPermazenTransactionHttpMessageConverter(Permazen jdb) {
-        this(jdb, MIME_TYPE, LEGACY_MIME_TYPE);
+    public DetachedPermazenTransactionHttpMessageConverter(Permazen pdb) {
+        this(pdb, MIME_TYPE, LEGACY_MIME_TYPE);
     }
 
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} instance defining the convertible types
+     * @param pdb {@link Permazen} instance defining the convertible types
      * @param supportedMediaTypes supported media types
      */
-    public DetachedPermazenTransactionHttpMessageConverter(Permazen jdb, MediaType... supportedMediaTypes) {
+    public DetachedPermazenTransactionHttpMessageConverter(Permazen pdb, MediaType... supportedMediaTypes) {
         super(supportedMediaTypes);
-        Preconditions.checkArgument(jdb != null, "null jdb");
-        this.jdb = jdb;
+        Preconditions.checkArgument(pdb != null, "null pdb");
+        this.pdb = pdb;
     }
 
     /**
@@ -109,7 +109,7 @@ public class DetachedPermazenTransactionHttpMessageConverter extends AbstractHtt
     protected DetachedPermazenTransaction readInternal(Class<? extends DetachedPermazenTransaction> clazz, HttpInputMessage input)
       throws IOException {
         return clazz.cast(DetachedPermazenTransactionHttpMessageConverter.readDetachedTransaction(
-          this.jdb, input, this.validationGroups));
+          this.pdb, input, this.validationGroups));
     }
 
     @Override
@@ -119,7 +119,7 @@ public class DetachedPermazenTransactionHttpMessageConverter extends AbstractHtt
 
 // Utility methods
 
-    static DetachedPermazenTransaction readDetachedTransaction(Permazen jdb, HttpInputMessage input, Class<?>[] validationGroups)
+    static DetachedPermazenTransaction readDetachedTransaction(Permazen pdb, HttpInputMessage input, Class<?>[] validationGroups)
       throws IOException {
 
         // Decode key/value store
@@ -127,7 +127,7 @@ public class DetachedPermazenTransactionHttpMessageConverter extends AbstractHtt
         KVStoreHttpMessageConverter.readKVStore(kvstore, input);
 
         // Create detached transaction
-        final DetachedPermazenTransaction jtx = jdb.createDetachedTransaction(kvstore,
+        final DetachedPermazenTransaction jtx = pdb.createDetachedTransaction(kvstore,
           validationGroups != null ? ValidationMode.MANUAL : ValidationMode.DISABLED);
 
         // Optionally validate

@@ -134,7 +134,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject
     /**
      * The associated {@link Permazen}.
      */
-    protected final Permazen jdb;
+    protected final Permazen pdb;
 
     private final ObjIdPropertyDef objIdPropertyDef = new ObjIdPropertyDef();
     private final ObjTypePropertyDef objTypePropertyDef = new ObjTypePropertyDef();
@@ -148,13 +148,13 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} database
+     * @param pdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    protected JObjectContainer(Permazen jdb, Class<?> type) {
-        Preconditions.checkArgument(jdb != null, "null jdb");
-        this.jdb = jdb;
+    protected JObjectContainer(Permazen pdb, Class<?> type) {
+        Preconditions.checkArgument(pdb != null, "null pdb");
+        this.pdb = pdb;
         this.setType(type);
         this.setPropertyExtractor(this);
     }
@@ -266,7 +266,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject
      * @param action the action to perform
      */
     protected void doInTransaction(Runnable action) {
-        final PermazenTransaction jtx = this.jdb.createTransaction(false, ValidationMode.DISABLED);
+        final PermazenTransaction jtx = this.pdb.createTransaction(false, ValidationMode.DISABLED);
         jtx.getTransaction().setReadOnly(true);
         try {
             jtx.performAction(action);
@@ -287,7 +287,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject
         pdefs.setPropertyDef(this.objVersionPropertyDef);
 
         // Add properties for all fields common to all sub-types of our configured type
-        final SortedMap<Integer, PermazenField> jfields = Util.getCommonJFields(this.jdb.getPermazenClasses(this.type));
+        final SortedMap<Integer, PermazenField> jfields = Util.getCommonJFields(this.pdb.getPermazenClasses(this.type));
         if (jfields != null) {
             for (PermazenField jfield : jfields.values())
                 pdefs.setPropertyDef(new ObjFieldPropertyDef(jfield.getStorageId(), jfield.getName()));
@@ -612,7 +612,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject
         }
 
         private PermazenField getField(final PermazenObject jobj) {
-            return JObjectContainer.this.jdb.getPermazenClass(jobj.getObjId()).getField(this.storageId, PermazenField.class);
+            return JObjectContainer.this.pdb.getPermazenClass(jobj.getObjId()).getField(this.storageId, PermazenField.class);
         }
 
         private Component handleCollectionField(Collection<?> col) {

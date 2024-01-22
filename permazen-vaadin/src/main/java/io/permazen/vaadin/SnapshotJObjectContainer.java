@@ -42,12 +42,12 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} database
+     * @param pdb {@link Permazen} database
      * @param type type restriction, or null for no restriction
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    protected SnapshotJObjectContainer(Permazen jdb, Class<?> type) {
-        super(jdb, type);
+    protected SnapshotJObjectContainer(Permazen pdb, Class<?> type) {
+        super(pdb, type);
     }
 
 // Connectable
@@ -96,7 +96,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
         this.kvstore = new CloseableForwardingKVStore(new MutableView(snapshot), snapshot::close);
 
         // Create snapshot transaction based on the key/value store snapshot and load container
-        final SnapshotJTransaction snapshotTx = this.jdb.createSnapshotTransaction(this.kvstore, false, ValidationMode.MANUAL);
+        final SnapshotJTransaction snapshotTx = this.pdb.createSnapshotTransaction(this.kvstore, false, ValidationMode.MANUAL);
         snapshotTx.performAction(() -> this.load(this.iterateObjects()));
     }
 

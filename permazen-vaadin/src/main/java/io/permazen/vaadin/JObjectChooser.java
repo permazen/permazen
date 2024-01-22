@@ -41,7 +41,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
     private final Button showButton = new Button("Show", e -> this.showButtonClicked());
     private final CheckBox reverseCheckBox = new CheckBox("Reverse sort");
 
-    private final Permazen jdb;
+    private final Permazen pdb;
     private final ParseSession session;
     private final boolean showFields;
     private final TypeContainer typeContainer;
@@ -66,10 +66,10 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
      */
     public JObjectChooser(ParseSession session, Class<?> type, boolean showFields) {
         Preconditions.checkArgument(session != null, "null session");
-        this.jdb = session.getPermazen();
+        this.pdb = session.getPermazen();
         this.session = session;
         this.showFields = showFields;
-        this.typeContainer = new TypeContainer(this.jdb, type);
+        this.typeContainer = new TypeContainer(this.pdb, type);
         this.typeTable = new TypeTable(this.typeContainer);
         this.objectContainer = new ExprQueryJObjectContainer(this.session, this.typeContainer.getRootType());
 
@@ -194,7 +194,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         if (type == null)
             return null;
         try {
-            return this.jdb.getPermazenClass(type);
+            return this.pdb.getPermazenClass(type);
         } catch (IllegalArgumentException e) {
             return null;
         }
@@ -246,7 +246,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         // Rebuild the sort combobox
         final PermazenClass<?> jclass = this.getPermazenClass();
         this.sortKeyContainer = jclass != null ?
-          new SortKeyContainer(this.jdb, jclass) : new SortKeyContainer(this.jdb, this.objectContainer.getType());
+          new SortKeyContainer(this.pdb, jclass) : new SortKeyContainer(this.pdb, this.objectContainer.getType());
         this.sortComboBox.setContainerDataSource(this.sortKeyContainer);
 
         // Try to restore previous sort, otherwise default to sorting by object ID
@@ -293,7 +293,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         }
         this.objectContainer.setType(type);
         this.objectContainer.load(Collections.<PermazenObject>emptySet());
-        this.objectTable = new JObjectTable(this.jdb, this.objectContainer, this.session, this.showFields);
+        this.objectTable = new JObjectTable(this.pdb, this.objectContainer, this.session, this.showFields);
         for (Property.ValueChangeListener listener : this.listeners)
             this.objectTable.addValueChangeListener(listener);
         this.splitPanel.setSecondComponent(this.objectTable);

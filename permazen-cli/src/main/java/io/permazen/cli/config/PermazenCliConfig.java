@@ -34,7 +34,7 @@ public class PermazenCliConfig extends CoreApiCliConfig {
     protected OptionSpec<String> modelPackageOption;
 
     // Database
-    protected Permazen jdb;
+    protected Permazen pdb;
 
     // Internal state
     protected final HashSet<Class<?>> modelClasses = new HashSet<>();
@@ -120,11 +120,11 @@ public class PermazenCliConfig extends CoreApiCliConfig {
 
     @Override
     public void startupDatabase(OptionSet options) {
-        Preconditions.checkState(this.jdb == null, "already started");
+        Preconditions.checkState(this.pdb == null, "already started");
         super.startupDatabase(options);
 
         // Build Permazen instance
-        this.jdb = PermazenConfig.builder()
+        this.pdb = PermazenConfig.builder()
           .database(this.db)
           .modelClasses(this.modelClasses)
           .build()
@@ -132,7 +132,7 @@ public class PermazenCliConfig extends CoreApiCliConfig {
 
         // Configure schema or verify consistency
         final SchemaModel explicitSchemaModel = this.schemaModel;
-        final SchemaModel permazenSchemaModel = this.jdb.getSchemaModel(false);
+        final SchemaModel permazenSchemaModel = this.pdb.getSchemaModel(false);
         if (explicitSchemaModel == null)
             this.schemaModel = permazenSchemaModel;
         else if (!explicitSchemaModel.getSchemaId().equals(permazenSchemaModel.getSchemaId())) {
@@ -145,18 +145,18 @@ public class PermazenCliConfig extends CoreApiCliConfig {
 
         // Initialize database (PERMAZEN mode only)
         if (this.sessionMode.equals(SessionMode.PERMAZEN))
-            this.jdb.initialize();
+            this.pdb.initialize();
     }
 
     @Override
     public void shutdownDatabase() {
         super.shutdownDatabase();
-        this.jdb = null;
+        this.pdb = null;
     }
 
     @Override
     public Permazen getPermazen() {
-        return this.jdb;
+        return this.pdb;
     }
 
 // Session

@@ -244,11 +244,11 @@ public abstract class CliConfig {
      * @throws IllegalStateException if not started yet
      */
     public PermazenExec newPermazenExec() {
-        final Permazen jdb = this.getPermazen();
-        final Database db = jdb == null ? this.getDatabase() : null;
-        final KVDatabase kvdb = jdb == null && db == null ? this.getKVDatabase() : null;
-        Preconditions.checkState(jdb != null || db != null || kvdb != null, "database not started");
-        return new PermazenExec(kvdb, db, jdb) {
+        final Permazen pdb = this.getPermazen();
+        final Database db = pdb == null ? this.getDatabase() : null;
+        final KVDatabase kvdb = pdb == null && db == null ? this.getKVDatabase() : null;
+        Preconditions.checkState(pdb != null || db != null || kvdb != null, "database not started");
+        return new PermazenExec(kvdb, db, pdb) {
             @Override
             protected io.permazen.cli.Session createSession(PermazenExecSession execSession) {
                 final io.permazen.cli.Session session = super.createSession(execSession);
@@ -264,11 +264,11 @@ public abstract class CliConfig {
      * @throws IllegalStateException if not started yet
      */
     public PermazenShell newPermazenShell() {
-        final Permazen jdb = this.getPermazen();
-        final Database db = jdb == null ? this.getDatabase() : null;
-        final KVDatabase kvdb = jdb == null && db == null ? this.getKVDatabase() : null;
-        Preconditions.checkState(jdb != null || db != null || kvdb != null, "database not started");
-        return new PermazenShell(kvdb, db, jdb) {
+        final Permazen pdb = this.getPermazen();
+        final Database db = pdb == null ? this.getDatabase() : null;
+        final KVDatabase kvdb = pdb == null && db == null ? this.getKVDatabase() : null;
+        Preconditions.checkState(pdb != null || db != null || kvdb != null, "database not started");
+        return new PermazenShell(kvdb, db, pdb) {
             @Override
             protected io.permazen.cli.Session createSession(PermazenShellSession shellSession) {
                 final io.permazen.cli.Session session = super.createSession(shellSession);

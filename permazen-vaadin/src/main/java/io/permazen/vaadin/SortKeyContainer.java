@@ -32,21 +32,21 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
 
     public static final String DESCRIPTION_PROPERTY = "description";
 
-    private final Permazen jdb;
+    private final Permazen pdb;
     private final PermazenClass<?> jclass;
     private final Class<?> type;
 
-    SortKeyContainer(Permazen jdb, PermazenClass<?> jclass) {
-        this(jdb, jclass, jclass.getType());
+    SortKeyContainer(Permazen pdb, PermazenClass<?> jclass) {
+        this(pdb, jclass, jclass.getType());
     }
 
-    SortKeyContainer(Permazen jdb, Class<?> type) {
-        this(jdb, null, type);
+    SortKeyContainer(Permazen pdb, Class<?> type) {
+        this(pdb, null, type);
     }
 
-    private SortKeyContainer(Permazen jdb, PermazenClass<?> jclass, Class<?> type) {
+    private SortKeyContainer(Permazen pdb, PermazenClass<?> jclass, Class<?> type) {
         super(SortKey.class);
-        this.jdb = jdb;
+        this.pdb = pdb;
         this.jclass = jclass;
         this.type = type;
 
@@ -56,7 +56,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         sortKeys.add(new VersionSortKey());
 
         // Identify fields common to all sub-types of `type'
-        SortedMap<Integer, PermazenField> commonFields = Util.getCommonJFields(this.jdb.getPermazenClasses(this.type));
+        SortedMap<Integer, PermazenField> commonFields = Util.getCommonJFields(this.pdb.getPermazenClasses(this.type));
 
         // Add sort keys for all indexed fields common to all sub-types
         if (commonFields != null) {

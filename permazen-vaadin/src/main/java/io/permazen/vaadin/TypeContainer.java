@@ -38,32 +38,32 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final Permazen jdb;
+    private final Permazen pdb;
     private final Class<?> rootType;
     private final ArrayList<Node> rootList = new ArrayList<>();
 
     /**
      * Constructor.
      *
-     * @param jdb underlying database
+     * @param pdb underlying database
      */
-    public TypeContainer(Permazen jdb) {
-        this(jdb, null);
+    public TypeContainer(Permazen pdb) {
+        this(pdb, null);
     }
 
     /**
      * Constructor.
      *
-     * @param jdb underlying database
+     * @param pdb underlying database
      * @param type type restrictions, or null for none
      */
-    public TypeContainer(Permazen jdb, Class<?> type) {
+    public TypeContainer(Permazen pdb, Class<?> type) {
         super(Node.class);
-        Preconditions.checkArgument(jdb != null, "null jdb");
-        this.jdb = jdb;
+        Preconditions.checkArgument(pdb != null, "null pdb");
+        this.pdb = pdb;
 
         // Get the types of all JClasses assignable to the given type, and use lowest common ancestor as the "top type"
-        final HashSet<Class<?>> types = this.jdb.getPermazenClasses().values().stream()
+        final HashSet<Class<?>> types = this.pdb.getPermazenClasses().values().stream()
           .filter(jclass -> type == null || type.isAssignableFrom(jclass.getType()))
           .map(PermazenClass::getType)
           .collect(Collectors.toCollection(HashSet::new));
@@ -92,7 +92,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 
         // Create Node's for each PermazenClass
         boolean addedRoot = false;
-        for (PermazenClass<?> jclass : this.jdb.getPermazenClasses().values()) {
+        for (PermazenClass<?> jclass : this.pdb.getPermazenClasses().values()) {
             if (this.rootType.isAssignableFrom(jclass.getType())) {
                 nodes.add(new Node(jclass));
                 if (jclass.getType() == this.rootType)

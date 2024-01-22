@@ -45,32 +45,32 @@ public class PermazenObjectHttpMessageConverter extends AbstractHttpMessageConve
      */
     public static final String ROOT_OBJECT_ID_PARAMETER_NAME = "root";
 
-    private final Permazen jdb;
+    private final Permazen pdb;
 
     private Class<?>[] validationGroups;
 
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} instance
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @param pdb {@link Permazen} instance
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    public PermazenObjectHttpMessageConverter(Permazen jdb) {
-        this(jdb, DetachedPermazenTransactionHttpMessageConverter.MIME_TYPE,
+    public PermazenObjectHttpMessageConverter(Permazen pdb) {
+        this(pdb, DetachedPermazenTransactionHttpMessageConverter.MIME_TYPE,
           DetachedPermazenTransactionHttpMessageConverter.LEGACY_MIME_TYPE);
     }
 
     /**
      * Constructor.
      *
-     * @param jdb {@link Permazen} instance
+     * @param pdb {@link Permazen} instance
      * @param supportedMediaTypes supported media types
-     * @throws IllegalArgumentException if {@code jdb} is null
+     * @throws IllegalArgumentException if {@code pdb} is null
      */
-    public PermazenObjectHttpMessageConverter(Permazen jdb, MediaType... supportedMediaTypes) {
+    public PermazenObjectHttpMessageConverter(Permazen pdb, MediaType... supportedMediaTypes) {
         super(supportedMediaTypes);
-        Preconditions.checkArgument(jdb != null, "null jdb");
-        this.jdb = jdb;
+        Preconditions.checkArgument(pdb != null, "null pdb");
+        this.pdb = pdb;
     }
 
     /**
@@ -104,7 +104,7 @@ public class PermazenObjectHttpMessageConverter extends AbstractHttpMessageConve
 
     @Override
     protected boolean supports(Class<?> target) {
-        return this.jdb.findPermazenClass(target) != null;
+        return this.pdb.findPermazenClass(target) != null;
     }
 
     @Override
@@ -119,7 +119,7 @@ public class PermazenObjectHttpMessageConverter extends AbstractHttpMessageConve
 
         // Decode the detached transaction
         final DetachedPermazenTransaction jtx = DetachedPermazenTransactionHttpMessageConverter.readDetachedTransaction(
-          this.jdb, input, this.validationGroups);
+          this.pdb, input, this.validationGroups);
 
         // Get the root object's ID
         final MediaType mediaType = input.getHeaders().getContentType();

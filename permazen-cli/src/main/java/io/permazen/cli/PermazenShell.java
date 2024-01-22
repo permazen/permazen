@@ -27,7 +27,7 @@ public class PermazenShell extends SimpleShell {
 
     protected final KVDatabase kvdb;
     protected final Database db;
-    protected final Permazen jdb;
+    protected final Permazen pdb;
 
 // Constructors
 
@@ -39,8 +39,8 @@ public class PermazenShell extends SimpleShell {
         this(null, db, null);
     }
 
-    public PermazenShell(Permazen jdb) {
-        this(null, null, jdb);
+    public PermazenShell(Permazen pdb) {
+        this(null, null, pdb);
     }
 
     /**
@@ -51,15 +51,15 @@ public class PermazenShell extends SimpleShell {
      *
      * @param kvdb key/value database
      * @param db core API database
-     * @param jdb Java database
+     * @param pdb Java database
      * @throws IllegalArgumentException if not exactly one parameter is non-null
      */
-    public PermazenShell(KVDatabase kvdb, Database db, Permazen jdb) {
-        Preconditions.checkArgument(Stream.of(kvdb, db, jdb).filter(Objects::nonNull).count() == 1,
+    public PermazenShell(KVDatabase kvdb, Database db, Permazen pdb) {
+        Preconditions.checkArgument(Stream.of(kvdb, db, pdb).filter(Objects::nonNull).count() == 1,
           "exactly one parameter must be non-null");
         this.kvdb = kvdb;
         this.db = db;
-        this.jdb = jdb;
+        this.pdb = pdb;
     }
 
 // SimpleShell
@@ -94,6 +94,6 @@ public class PermazenShell extends SimpleShell {
     }
 
     protected io.permazen.cli.Session createSession(PermazenShellSession shellSession) {
-        return new io.permazen.cli.Session(shellSession, this.jdb, this.db, this.kvdb);
+        return new io.permazen.cli.Session(shellSession, this.pdb, this.db, this.kvdb);
     }
 }
