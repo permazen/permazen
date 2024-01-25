@@ -185,14 +185,14 @@ public interface PermazenObject {
     }
 
     /**
-     * Find all objects reachable through the specified reference cascade.
+     * Find all objects reachable through the specified reference cascade(s).
      *
      * <p>
-     * This method finds all objects reachable from the this through
-     * {@linkplain io.permazen.annotation.PermazenField#forwardCascades forward} and
-     * {@linkplain io.permazen.annotation.PermazenField#inverseCascades inverse} reference field cascades of the specified name.
-     * In other words, a reference field is traversed in the forward or inverse direction if {@code cascadeName} is
-     * specified in the corresponding {@linkplain io.permazen.annotation.PermazenField &#64;PermazenField} annotation property.
+     * This method finds all objects reachable from this instance through reference field cascades having the specified name(s).
+     * In other words, a reference field is traversed in the {@linkplain io.permazen.annotation.PermazenField#forwardCascades
+     * forward} or {@linkplain io.permazen.annotation.PermazenField#inverseCascades inverse} direction if one of the
+     * {@code cascades} is specified in the corresponding {@linkplain io.permazen.annotation.PermazenField &#64;PermazenField}
+     * annotation property.
      *
      * <p>
      * All objects found will be automatically {@linkplain #migrateSchema migrated} to this object's associated
@@ -272,7 +272,7 @@ public interface PermazenObject {
     }
 
     /**
-     * Copy this instance, and other instances it references through the specified reference paths, into the
+     * Copy this instance, and other instances it references through the specified reference cascades, into the
      * specified destination transaction.
      *
      * <p>

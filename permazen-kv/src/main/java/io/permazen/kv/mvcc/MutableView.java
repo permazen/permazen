@@ -24,6 +24,10 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Straightforward implementation of the {@link DeltaKVStore} interface.
+ *
+ * <p>
+ * The amount of memory required scales in proportion to the number of distinct key ranges that are read
+ * or removed (if tracking reads) plus the total lengths of all keys and values written.
  */
 @ThreadSafe
 public class MutableView extends AbstractKVStore implements DeltaKVStore, Cloneable {

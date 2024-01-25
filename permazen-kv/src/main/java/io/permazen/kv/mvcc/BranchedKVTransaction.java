@@ -48,17 +48,19 @@ import java.util.function.BiFunction;
  * {@link #commit}'ing anything, via {@link #checkForConflicts()}.
  *
  * <p>
- * There are a limit to how useful this class can be. The probability for a conflict increases when instances are kept open
- * for a long time and/or there is a high volume of read traffic in this transaction or write traffic in the underlying database.
+ * There is a limit to how "branched" the transaction can get. The probability for a conflict increases when instances are kept open
+ * for a long time and/or there is a high volume of read traffic in this transaction, or write traffic in the underlying database.
  * However, it can be useful in certain scenarios, for example, to support editing a single entity in a GUI application
- * within a single "transaction" that doesn't actually hold open any database resources.
+ * within a single "transaction" that doesn't actually keep open any database resources.
  *
  * <p>
- * The amount of work required for the conflict check scales in proportion to the number of keys read;
- * the amount of memory required scales in proportion to the keys read and the keys and values written.
+ * The amount of work required for the conflict check scales in proportion to the number of keys read in this transaction;
+ * the amount of memory required scales as it does with {@link MutableView}.
  *
  * <p>
  * Instances support {@link #readOnlySnapshot} and {@link #withWeakConsistency withWeakConsistency()}.
+ *
+ * <p>
  * Instances do not support {@link #setTimeout setTimeout()} or {@link #watchKey watchKey()}.
  */
 public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
