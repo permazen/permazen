@@ -20,6 +20,7 @@ import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableRefs;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
@@ -66,6 +67,8 @@ import java.util.function.BiFunction;
 public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
 
     private final KVDatabase kvdb;
+    private final Map<String,?> openOptions;
+    private final Map<String,?> syncOptions;
 
     private State state = State.INITIAL;
 
@@ -75,7 +78,7 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
     // Tracks when to close() the underlying transaction snapshot, i.e., view.getBaseKVStore().
     private CloseableRefs<CloseableKVStore> snapshotRefs;
 
-// Constructor
+// Constructors
 
     /**
      * Constructor.
@@ -87,8 +90,25 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
      * @throws IllegalArgumentException if {@code kvdb} is null
      */
     public BranchedKVTransaction(KVDatabase kvdb) {
+        this(kvdb, null, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * This instance must be {@link #open}'ed before use.
+     *
+     * @param kvdb database
+     * @param openOptions transaction options for opening transaction; may be null
+     * @param syncOptions transaction options for sync/commit transaction(s); may be null
+     * @throws IllegalArgumentException if {@code kvdb} is null
+     */
+    public BranchedKVTransaction(KVDatabase kvdb, Map<String, ?> openOptions, Map<String, ?> syncOptions) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
+        this.openOptions = openOptions;
+        this.syncOptions = syncOptions;
     }
 
 // Lifecycle
@@ -104,7 +124,7 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
      */
     public synchronized void open() {
         this.checkState(State.INITIAL);
-        final KVTransaction tx = this.kvdb.createTransaction();
+        final KVTransaction tx = this.kvdb.createTransaction(this.openOptions);
         try {
             try {
                 final CloseableKVStore snapshot = tx.readOnlySnapshot();
@@ -124,7 +144,7 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
     @Override
     public synchronized void commit() {
         this.checkState(State.OPEN);
-        final KVTransaction tx = this.kvdb.createTransaction();
+        final KVTransaction tx = this.kvdb.createTransaction(this.syncOptions);
         try {
 
             // Check for conflicts and apply our changes
@@ -292,17 +312,17 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
      *
      * <p>
      * This method performs the conflict check that normally occurs during {@link #commit}, but without
-     * actually committing anything.
+     * actually flushing any writes back to the underlying database. This transaction instance remains open.
      *
      * <p>
-     * It opens a new transaction and checks whether any of the keys read by this transaction have changed
-     * since the original snapshot was taken. If so, then the writes from this transaction cannot be consistently
-     * merged back into the database and an exception is thrown.
+     * This checks whether any of the keys read by this transaction have changed since the original snapshot
+     * was taken. If so, then the writes from this transaction cannot be consistently merged back into the
+     * database and so an exception is immediately thrown.
      *
      * @throws TransactionConflictException if any conflicts are found
      */
     public void checkForConflicts() {
-        final KVTransaction tx = this.kvdb.createTransaction();
+        final KVTransaction tx = this.kvdb.createTransaction(this.syncOptions);
         try {
             this.checkForConflicts(tx);
             tx.commit();
