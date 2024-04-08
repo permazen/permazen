@@ -27,8 +27,10 @@ import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
+import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+import io.permazen.kv.mvcc.BranchedKVTransaction;
 import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaItem;
@@ -93,16 +95,30 @@ import org.slf4j.LoggerFactory;
  * Java model class instances have a unique {@link ObjId} which represents database identity. {@link Permazen} guarantees that
  * at most one Java instance will exist for any given {@link PermazenTransaction} and {@link ObjId}.
  *
+ * <p><b>Transactions</b>
+ *
  * <p>
  * New instance creation, index queries, and certain other database-related tasks are initiated through a
- * {@link PermazenTransaction}.
- * Normal database transactions are created via {@link #createTransaction createTransaction()}. Detached transactions are
- * purely in-memory transactions that are detached from the database and may persist indefinitely; their purpose is to hold a
- * snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,
- * they function like normal transactions, with support for index queries, listener callbacks, etc. See
+ * {@link PermazenTransaction}. <b>Normal</b> transactions are created via {@link #createTransaction createTransaction()}.
+ *
+ * <p>
+ * <b>Detached</b> transactions are in-memory transactions that are completely detached from the database. They are never
+ * committed and may persist indefinitely. Their purpose is to hold a database objects in memory where they can be manipulated
+ * like normal Java objects, but with the usual functionality available to open transactions added, such as index queries,
+ * schem tracking, change notifications, reference cascades, etc. Detached transactions are initially empty, and are often
+ * used to hold a copy of some small portion of the database. Because their state is encoded entirely by in-memory key/value
+ * pairs, they are easily serialized/deserialized. See
  * {@link PermazenTransaction#createDetachedTransaction PermazenTransaction.createDetachedTransaction()},
  * {@link PermazenTransaction#getDetachedTransaction}, {@link PermazenObject#copyOut PermazenObject.copyOut()}, and
  * {@link PermazenObject#copyIn PermazenObject.copyIn()}.
+ *
+ * <p>
+ * <b>Branched</b> transactions are like normal transactions, in that when opened they contain an up-to-date view of
+ * the database, but after that they operate entirely in-memory, without any underlying key/value transaction, until
+ * {@link #commit} is invoked. At that time a new key/value transaction is opened, a conflict check is performed,
+ * and if successful all of the transaction's writes are then flushed. Branched transactions require that the underlying
+ * key/value database support {@link KVTransaction#readOnlySnapshot}; see {@link BranchedKVTransaction} for details
+ * and other caveats. Branched transactions are created via {@link #createBranchedTransaction() createBranchedTransaction()}.
  *
  * <p><b>Initialization</b>
  *
@@ -534,6 +550,80 @@ public class Permazen {
         Preconditions.checkArgument(validationMode != null, "null validationMode");
         this.initialize();
         return this.createTransaction(this.db.createTransaction(this.buildTransactionConfig(kvoptions)), validationMode);
+    }
+
+    /**
+     * Create a new branched transaction.
+     *
+     * <p>
+     * Convenience method; equivalent to:
+     *  <blockquote><pre>
+     *  {@link #createBranchedTransaction(ValidationMode, Map) createBranchedTransaction}({@link ValidationMode#AUTOMATIC},
+     *      null, null)
+     *  </pre></blockquote>
+     *
+     * @return the newly created branched transaction
+     * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws UnsupportedOperationException if the key/value database doesn't support {@link KVTransaction#readOnlySnapshot}
+     */
+    public PermazenTransaction createBranchedTransaction() {
+        return this.createBranchedTransaction(ValidationMode.AUTOMATIC, null, null);
+    }
+
+    /**
+     * Create a new branched transaction.
+     *
+     * <p>
+     * Convenience method; equivalent to:
+     *  <blockquote><pre>
+     *  {@link #createBranchedTransaction(ValidationMode, Map) createBranchedTransaction}(validationMode, null, null)
+     *  </pre></blockquote>
+     *
+     * @return the newly created branched transaction
+     * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws UnsupportedOperationException if the key/value database doesn't support {@link KVTransaction#readOnlySnapshot}
+     */
+    public PermazenTransaction createBranchedTransaction(ValidationMode validationMode) {
+        return this.createBranchedTransaction(validationMode, null, null);
+    }
+
+    /**
+     * Create a new branched transaction with the given key/value transaction options.
+     *
+     * <p>
+     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()}: the caller is responsible
+     * for doing that if necessary. However, this method does arrange for
+     * {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent}{@code (null)} to be invoked as soon as the
+     * returned transaction is committed (or rolled back), assuming {@link PermazenTransaction#getCurrent} returns the
+     * {@link PermazenTransaction} returned here at that time.
+     *
+     * @param validationMode the {@link ValidationMode} to use for the new transaction
+     * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
+     * @param syncOptions {@link KVDatabase}-specific transaction options for the branch's commit transaction, or null for none
+     * @return the newly created branched transaction
+     * @throws io.permazen.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws UnsupportedOperationException if the key/value database doesn't support {@link KVTransaction#readOnlySnapshot}
+     * @throws IllegalArgumentException if {@code validationMode} is null
+     */
+    public PermazenTransaction createBranchedTransaction(ValidationMode validationMode,
+      Map<String, ?> openOptions, Map<String, ?> syncOptions) {
+        Preconditions.checkArgument(validationMode != null, "null validationMode");
+        this.initialize();
+        final BranchedKVTransaction kvt = new BranchedKVTransaction(this.db.getKVDatabase(), openOptions, syncOptions);
+        Transaction tx = null;
+        try {
+            kvt.open();
+            tx = this.db.createTransaction(kvt, this.buildTransactionConfig(openOptions));
+        } finally {
+            if (tx == null) {
+                try {
+                    kvt.rollback();
+                } catch (KVTransactionException e) {
+                    // ignore
+                }
+            }
+        }
+        return this.createTransaction(tx, validationMode);
     }
 
     /**
