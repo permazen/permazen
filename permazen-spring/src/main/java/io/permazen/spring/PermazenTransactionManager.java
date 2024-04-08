@@ -150,28 +150,9 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
         if (tx.getPermazenTransaction() != null)
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
 
-        // Set transaction options
+        // Configure transaction options
         final Map<String, Object> options = new HashMap<>();
-        switch (txDef.getIsolationLevel()) {
-        case TransactionDefinition.ISOLATION_READ_UNCOMMITTED:
-            options.put(ISOLATION_OPTION, Isolation.READ_UNCOMMITTED);
-            break;
-        case TransactionDefinition.ISOLATION_READ_COMMITTED:
-            options.put(ISOLATION_OPTION, Isolation.READ_COMMITTED);
-            break;
-        case TransactionDefinition.ISOLATION_REPEATABLE_READ:
-            options.put(ISOLATION_OPTION, Isolation.REPEATABLE_READ);
-            break;
-        case TransactionDefinition.ISOLATION_SERIALIZABLE:
-            options.put(ISOLATION_OPTION, Isolation.SERIALIZABLE);
-            break;
-        case TransactionDefinition.ISOLATION_DEFAULT:
-            options.put(ISOLATION_OPTION, Isolation.DEFAULT);
-            break;
-        default:
-            this.logger.warn("unexpected isolation level " + txDef.getIsolationLevel());
-            break;
-        }
+        this.populateOptions(options, txDef);
 
         // Create Permazen transaction
         final PermazenTransaction jtx;
@@ -202,6 +183,39 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
 
         // Done
         tx.setPermazenTransaction(jtx);
+    }
+
+    /**
+     * Populate the given options map for a new transaction.
+     *
+     * <p>
+     * The implementation in {@link PermazenTransactionManager} populates options based on the transaction isolation
+     * level as described above.
+     *
+     * @param options options map
+     * @param txDef transaction definition
+     */
+    protected void populateOptions(Map<String, Object> options, TransactionDefinition txDef) {
+        switch (txDef.getIsolationLevel()) {
+        case TransactionDefinition.ISOLATION_READ_UNCOMMITTED:
+            options.put(ISOLATION_OPTION, Isolation.READ_UNCOMMITTED);
+            break;
+        case TransactionDefinition.ISOLATION_READ_COMMITTED:
+            options.put(ISOLATION_OPTION, Isolation.READ_COMMITTED);
+            break;
+        case TransactionDefinition.ISOLATION_REPEATABLE_READ:
+            options.put(ISOLATION_OPTION, Isolation.REPEATABLE_READ);
+            break;
+        case TransactionDefinition.ISOLATION_SERIALIZABLE:
+            options.put(ISOLATION_OPTION, Isolation.SERIALIZABLE);
+            break;
+        case TransactionDefinition.ISOLATION_DEFAULT:
+            options.put(ISOLATION_OPTION, Isolation.DEFAULT);
+            break;
+        default:
+            this.logger.warn("unexpected isolation level " + txDef.getIsolationLevel());
+            break;
+        }
     }
 
     /**
