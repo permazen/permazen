@@ -81,6 +81,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
     protected ValidationMode validationMode = DEFAULT_VALIDATION_MODE;
 
     private boolean validateBeforeCommit;
+    private boolean createBranchedTransactions;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -123,8 +124,21 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      *
      * @param validateBeforeCommit whether to validate after inner transactions
      */
-    public void setValidateBeforeCommit(boolean validateBeforeCommit) {
+    public void setValidateBeforeCommit(final boolean validateBeforeCommit) {
         this.validateBeforeCommit = validateBeforeCommit;
+    }
+
+    /**
+     * Configure whether to create branched transactions instead of normal transactions.
+     *
+     * <p>
+     * Default false.
+     *
+     * @param createBranchedTransactions true to create branched transactions
+     * @see Permazen#createBranchedTransaction
+     */
+    public void setCreateBranchedTransactions(final boolean createBranchedTransactions) {
+        this.createBranchedTransactions = createBranchedTransactions;
     }
 
     @Override
@@ -223,15 +237,18 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      *
      * <p>
      * The implementation in {@link PermazenTransactionManager} just delegates to
-     * {@link Permazen#createTransaction(ValidationMode, Map)} using this instance's configured
-     * settings for validation mode and allowing new schema versions.
+     * {@link Permazen#createTransaction(ValidationMode, Map)} (or
+     * {@link Permazen#createBranchedTransaction(ValidationMode, Map, Map)} if so configured) using this instance's
+     * configured settings for validation mode and allowing new schema versions.
      *
      * @param options transaction options
      * @return newly created {@link PermazenTransaction}
      * @throws DatabaseException if an error occurs
      */
     protected PermazenTransaction createTransaction(Map<String, Object> options) {
-        return this.pdb.createTransaction(this.validationMode, options);
+        return this.createBranchedTransactions ?
+          this.pdb.createBranchedTransaction(this.validationMode, options, options) :
+          this.pdb.createTransaction(this.validationMode, options);
     }
 
     /**
