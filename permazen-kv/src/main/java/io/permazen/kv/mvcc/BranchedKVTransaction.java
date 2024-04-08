@@ -67,8 +67,8 @@ import java.util.function.BiFunction;
 public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
 
     private final KVDatabase kvdb;
-    private final Map<String,?> openOptions;
-    private final Map<String,?> syncOptions;
+    private final Map<String, ?> openOptions;
+    private final Map<String, ?> syncOptions;
 
     private State state = State.INITIAL;
 
