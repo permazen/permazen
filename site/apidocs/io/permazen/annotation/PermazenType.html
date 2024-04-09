@@ -92,8 +92,8 @@ loadScripts(document, 'script');</script>
  <p>
  <a href="#autogenFields()">By default</a>, database fields are created automatically for all abstract getter methods,
  so no annotations are required. To override the defaults, or define database fields for non-abstract getter methods,
- add the appropriate <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a>, <a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a>, <a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a>,
- or <a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> annotation.
+ add the appropriate <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a>, <a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a>,
+ <a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a>, or <a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> annotation.
 
  <p>
  These annotations are also supported on the methods in a <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated class:
@@ -132,7 +132,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  This annotation may be configured indirectly as a Spring
- <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  when <code>spring-core</code> is on the classpath.</div>
 </section>
 <section class="summary">
@@ -174,8 +174,13 @@ loadScripts(document, 'script');</script>
 <div class="block">The name of this object type.</div>
 </div>
 <div class="col-first odd-row-color"><code>int</code></div>
-<div class="col-second odd-row-color"><code><a href="#storageId()" class="member-name-link">storageId</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#schemaSalt()" class="member-name-link">schemaSalt</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash function salting value.</div>
+</div>
+<div class="col-first even-row-color"><code>int</code></div>
+<div class="col-second even-row-color"><code><a href="#storageId()" class="member-name-link">storageId</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Storage ID for this object type.</div>
 </div>
 </div>
@@ -306,8 +311,8 @@ loadScripts(document, 'script');</script>
  <p>
  If <a href="#autogenFields()"><code>autogenFields()</code></a> is false, this property is ignored. Otherwise, if this property is true,
  any auto-generated reference fields will allow assignment to deleted objects in normal transactions.
- In other words, they will behave as if they had a <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a> annotation with <a href="PermazenField.html#allowDeleted()"><code>PermazenField.allowDeleted()</code></a>
- set to true.</div>
+ In other words, they will behave as if they had a <a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenField</code></a> annotation with
+ <a href="PermazenField.html#allowDeleted()"><code>PermazenField.allowDeleted()</code></a> set to true.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>whether auto-generated reference fields should allow assignment to a deleted object in normal transactions</dd>
@@ -348,6 +353,36 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Default:</dt>
 <dd>ATTEMPT</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="schemaSalt()">
+<h3>schemaSalt</h3>
+<div class="member-signature"><span class="return-type">int</span>&nbsp;<span class="element-name">schemaSalt</span></div>
+<div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash function salting value.
+
+ <p>
+ This value is included as input to the hash function used by <code>SchemaSupport.getSchemaId()</code>. Therefore,
+ modifying this value will force a schema change, and therefore a subsequent "dummy" migration of all database
+ objects the next time they are accessed, even if there are no other changes to the schema.
+
+ <p>
+ This can be useful (for example) when you want to force revalidation of all instances of the annotated type
+ on the next access, because revalidation is a side effect of a schema migration.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>schema salt</dd>
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="PermazenField.html" title="annotation interface in io.permazen.annotation"><code>PermazenField</code></a></li>
+</ul>
+</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>0</dd>
 </dl>
 </section>
 </li>

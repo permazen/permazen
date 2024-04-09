@@ -107,17 +107,19 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <a href="#commit()"><code>commit()</code></a>'ing anything, via <a href="#checkForConflicts()"><code>checkForConflicts()</code></a>.
 
  <p>
- There are a limit to how useful this class can be. The probability for a conflict increases when instances are kept open
- for a long time and/or there is a high volume of read traffic in this transaction or write traffic in the underlying database.
+ There is a limit to how "branched" the transaction can get. The probability for a conflict increases when instances are kept open
+ for a long time and/or there is a high volume of read traffic in this transaction, or write traffic in the underlying database.
  However, it can be useful in certain scenarios, for example, to support editing a single entity in a GUI application
- within a single "transaction" that doesn't actually hold open any database resources.
+ within a single "transaction" that doesn't actually keep open any database resources.
 
  <p>
- The amount of work required for the conflict check scales in proportion to the number of keys read;
- the amount of memory required scales in proportion to the keys read and the keys and values written.
+ The amount of work required for the conflict check scales in proportion to the number of keys read in this transaction;
+ the amount of memory required scales as it does with <a href="MutableView.html" title="class in io.permazen.kv.mvcc"><code>MutableView</code></a>.
 
  <p>
  Instances support <a href="#readOnlySnapshot()"><code>readOnlySnapshot()</code></a> and <a href="#withWeakConsistency(java.lang.Runnable)"><code>withWeakConsistency()</code></a>.
+
+ <p>
  Instances do not support <a href="#setTimeout(long)"><code>setTimeout()</code></a> or <a href="#watchKey(byte%5B%5D)"><code>watchKey()</code></a>.</div>
 </section>
 <section class="summary">
@@ -132,6 +134,12 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.kv.KVDatabase)" class="member-name-link">BranchedKVTransaction</a><wbr>(<a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>&nbsp;kvdb)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Constructor.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.kv.KVDatabase,java.util.Map,java.util.Map)" class="member-name-link">BranchedKVTransaction</a><wbr>(<a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>&nbsp;kvdb,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
 </div>
 </div>
@@ -297,6 +305,26 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kvdb</code> - database</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>kvdb</code> is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(io.permazen.kv.KVDatabase,java.util.Map,java.util.Map)">
+<h3>BranchedKVTransaction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">BranchedKVTransaction</span><wbr><span class="parameters">(<a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>&nbsp;kvdb,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</span></div>
+<div class="block">Constructor.
+
+ <p>
+ This instance must be <a href="#open()"><code>open()</code></a>'ed before use.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>kvdb</code> - database</dd>
+<dd><code>openOptions</code> - transaction options for opening transaction; may be null</dd>
+<dd><code>syncOptions</code> - transaction options for sync/commit transaction(s); may be null</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>kvdb</code> is null</dd>
 </dl>
@@ -849,12 +877,12 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 
  <p>
  This method performs the conflict check that normally occurs during <a href="#commit()"><code>commit()</code></a>, but without
- actually committing anything.
+ actually flushing any writes back to the underlying database. This transaction instance remains open.
 
  <p>
- It opens a new transaction and checks whether any of the keys read by this transaction have changed
- since the original snapshot was taken. If so, then the writes from this transaction cannot be consistently
- merged back into the database and an exception is thrown.</div>
+ This checks whether any of the keys read by this transaction have changed since the original snapshot
+ was taken. If so, then the writes from this transaction cannot be consistently merged back into the
+ database and so an exception is immediately thrown.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="TransactionConflictException.html" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></code> - if any conflicts are found</dd>

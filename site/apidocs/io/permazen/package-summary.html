@@ -248,7 +248,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Represents a reference field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> or a reference sub-field of a complex field in a <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenSchemItem.html" title="class in io.permazen">PermazenSchemItem</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenSchemaItem.html" title="class in io.permazen">PermazenSchemaItem</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Superclass for the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a>, <a href="PermazenField.html" title="class in io.permazen"><code>PermazenField</code></a>, and <a href="PermazenCompositeIndex.html" title="class in io.permazen"><code>PermazenCompositeIndex</code></a> classes
  which describe the schema associated with a <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a> instance.</div>
@@ -269,38 +269,43 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Reference paths.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="UniquenessConstraints.html" title="interface in io.permazen">UniquenessConstraints</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SchemaUtilityImpl.html" title="class in io.permazen">SchemaUtilityImpl</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Schema utility API.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="UniquenessConstraints.html" title="interface in io.permazen">UniquenessConstraints</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">JSR 303 validation group for Permazen uniqueness constraints.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="UntypedPermazenObject.html" title="class in io.permazen">UntypedPermazenObject</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="UntypedPermazenObject.html" title="class in io.permazen">UntypedPermazenObject</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Represents a <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> for which no Java model type is defined in the instance's associated schema.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UpgradeConversionException.html" title="class in io.permazen">UpgradeConversionException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="UpgradeConversionException.html" title="class in io.permazen">UpgradeConversionException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Exception thrown when an object is upgraded, some simple field's type changes, the field is
  <a href="annotation/PermazenField.html#upgradeConversion()">configured</a> with <a href="UpgradeConversionPolicy.html#REQUIRE"><code>UpgradeConversionPolicy.REQUIRE</code></a>,
  and automated conversion of the field's value to the new type fails.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="UpgradeConversionPolicy.html" title="enum class in io.permazen">UpgradeConversionPolicy</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab3">
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="UpgradeConversionPolicy.html" title="enum class in io.permazen">UpgradeConversionPolicy</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
 <div class="block">Policies to apply when a simple or counter field's type changes during a schema change.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Util.html" title="class in io.permazen">Util</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Util.html" title="class in io.permazen">Util</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Various utility routines.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="ValidationException.html" title="class in io.permazen">ValidationException</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab5">
-<div class="block">Thrown when <a href="PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a> (or <a href="PermazenTransaction.html#commit()"><code>PermazenTransaction.commit()</code></a>) fails due to one or more validation errors.</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="ValidationException.html" title="class in io.permazen">ValidationException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="block">Thrown when <a href="PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a> (or <a href="PermazenTransaction.html#commit()"><code>PermazenTransaction.commit()</code></a>) fails due to one or more
+ validation errors.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab3"><a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab3">
+<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab3">
 <div class="block">Configures whether and how objects are enqueued for validation in a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Version.html" title="class in io.permazen">Version</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Version.html" title="class in io.permazen">Version</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Contains Permazen library version information.</div>
 </div>
 </div>

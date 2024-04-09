@@ -158,6 +158,9 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="#customEncodingRegistries" class="member-name-link">customEncodingRegistries</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-io.permazen.encoding.SimpleEncodingRegistry">Fields inherited from class&nbsp;io.permazen.encoding.<a href="SimpleEncodingRegistry.html" title="class in io.permazen.encoding">SimpleEncodingRegistry</a></h3>
+<code><a href="SimpleEncodingRegistry.html#log">log</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -196,35 +199,51 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Add a null-safe version of a type which is not null-safe.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addOptionalBuiltinEncoding(java.lang.String,java.util.function.Supplier)" class="member-name-link">addOptionalBuiltinEncoding</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;&gt;&nbsp;builder)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the alias (or "nickname") for the given encoding ID in this registry, if any.</div>
+<div class="block">Register an optional built-in encoding.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findCustomEncodingRegistries()" class="member-name-link">findCustomEncodingRegistries</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addOptionalBuiltinEncodings()" class="member-name-link">addOptionalBuiltinEncodings</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Register Permazen's optional built-in encodings.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addStandardBuiltinEncodings()" class="member-name-link">addStandardBuiltinEncodings</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Register Permazen's standard built-in encodings.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the alias (or "nickname") for the given encoding ID in this registry, if any.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findCustomEncodingRegistries()" class="member-name-link">findCustomEncodingRegistries</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Scan the class path (via <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html" title="class or interface in java.util" class="external-link"><code>ServiceLoader</code></a> and the current thread's context class loader)
  for custom <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementations</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> with the given encoding ID in this registry.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get all of the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s in this registry that supports values of the given Java type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#idForAlias(java.lang.String)" class="member-name-link">idForAlias</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;alias)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#idForAlias(java.lang.String)" class="member-name-link">idForAlias</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;alias)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the encoding ID corresponding to the given alias (or "nickname"), if any.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initialize()" class="member-name-link">initialize</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initialize()" class="member-name-link">initialize</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Initialize this instance.</div>
 </div>
 </div>
@@ -415,7 +434,50 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="addBuiltinEncodings()">
 <h3>addBuiltinEncodings</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addBuiltinEncodings</span>()</div>
-<div class="block">Register Permazen's built-in encodings.</div>
+<div class="block">Register Permazen's built-in encodings.
+
+ <p>
+ The implementation in <a href="DefaultEncodingRegistry.html" title="class in io.permazen.encoding"><code>DefaultEncodingRegistry</code></a> invokes <a href="#addStandardBuiltinEncodings()"><code>addStandardBuiltinEncodings()</code></a>
+ and then <a href="#addOptionalBuiltinEncodings()"><code>addOptionalBuiltinEncodings()</code></a>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="addStandardBuiltinEncodings()">
+<h3>addStandardBuiltinEncodings</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addStandardBuiltinEncodings</span>()</div>
+<div class="block">Register Permazen's standard built-in encodings.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="addOptionalBuiltinEncodings()">
+<h3>addOptionalBuiltinEncodings</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addOptionalBuiltinEncodings</span>()</div>
+<div class="block">Register Permazen's optional built-in encodings.
+
+ <p>
+ The optional built-in encodings are ones that depend on optional dependencies. An example is
+ <a href="InternetAddressEncoding.html" title="class in io.permazen.encoding"><code>InternetAddressEncoding</code></a> which depends on the Jakarta Mail API.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="addOptionalBuiltinEncoding(java.lang.String,java.util.function.Supplier)">
+<h3>addOptionalBuiltinEncoding</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addOptionalBuiltinEncoding</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;&gt;&nbsp;builder)</span></div>
+<div class="block">Register an optional built-in encoding.
+
+ <p>
+ The implementation in <a href="DefaultEncodingRegistry.html" title="class in io.permazen.encoding"><code>DefaultEncodingRegistry</code></a> invokes the given <code>builder</code> but will catch
+ and ignore any <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NoClassDefFoundError.html" title="class or interface in java.lang" class="external-link"><code>NoClassDefFoundError</code></a> thrown. Otherwise, the encoding is registered.
+
+ <p>
+ No attempt to <a href="https://docs.oracle.com/javase/specs/jls/se9/html/jls-12.html#jls-12.4.1">initialize</a>
+ the encoding class should have occurred prior to invoking this method.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>description</code> - description for logging purposes</dd>
+<dd><code>builder</code> - builder for encoding</dd>
+</dl>
 </section>
 </li>
 <li>

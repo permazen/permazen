@@ -81,8 +81,7 @@ loadScripts(document, 'script');</script>
       - Access the composite index associated with a list field that includes corresponding list indices</li>
   <li><a href="../PermazenTransaction.html#queryMapValueIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryMapValueIndex()</code></a>
       - Access the composite index associated with a map value field that includes corresponding map keys</li>
-  <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a>
-      - Access a composite index defined on two fields</li>
+  <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on two fields</li>
   <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on three fields</li>
   <li><a href="../PermazenTransaction.html#queryCompositeIndex(java.lang.Class,java.lang.String,java.lang.Class,java.lang.Class,java.lang.Class,java.lang.Class)"><code>PermazenTransaction.queryCompositeIndex()</code></a> - Access a composite index defined on four fields</li>
   <!-- COMPOSITE-INDEX -->
@@ -109,8 +108,11 @@ loadScripts(document, 'script');</script>
 
  <p>
  A composite index may be viewed as a set of tuples of indexed and target values, or as various mappings from one
- or more indexed field values to subsequent values. A composite index may also be viewed as a simpler index on
- any prefix of the indexed fields; for example, see <a href="Index2.html#asIndex1()"><code>Index2.asIndex1()</code></a>.
+ or more indexed field values to subsequent values.
+
+ <p>
+ A composite index may always be viewed as a simpler index on any prefix of its indexed fields; for example, see
+ <a href="Index2.html#asIndex1()"><code>Index2.asIndex1()</code></a>.
 
  <p>
  <b>Complex Sub-Fields</b>
@@ -123,8 +125,8 @@ loadScripts(document, 'script');</script>
  <p>
  For those complex sub-fields that can contain duplicate values (namely, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> element and
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> value), the associated distinguishing value (respectively, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> index
- and <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> key) is appended to the index and becomes the new target type.
- Therefore the resulting index types associated with indexes on complex sub-fields are as follows:
+ and <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link"><code>Map</code></a> key) becomes a new value that is appended to the index.
+ The resulting index types associated with indexes on complex sub-fields of some object type <code>Foobar</code> are as follows:
 
  <div style="margin-left: 20px;">
  <table class="striped">
@@ -165,7 +167,11 @@ loadScripts(document, 'script');</script>
   <td><a href="Index2.html" title="interface in io.permazen.index"><code>Index2</code></a><code>&lt;V, Foobar, K&gt;</code></td>
  </tr>
  </table>
- </div></div>
+ </div>
+
+ <p>
+ To ignore the distinguishing values, convert the <a href="Index2.html" title="interface in io.permazen.index"><code>Index2</code></a> back into an <a href="Index1.html" title="interface in io.permazen.index"><code>Index1</code></a>
+ via <a href="Index2.html#asIndex1()"><code>Index2.asIndex1()</code></a>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

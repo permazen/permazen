@@ -79,11 +79,11 @@ loadScripts(document, 'script');</script>
  This annotation is used in two scenarios:
  <ul>
   <li>To configure a <b>simple</b> or <b>counter</b> database field, by annotating the corresponding abstract Java bean
-      property "getter" method</li>
+      property "getter" method
   <li>To configure the <b>sub-field</b> of a <b>complex</b> database field (i.e., set, list, or map), that is,
       a collection <code>element</code> field, or a map <code>key</code> or <code>value</code> field. In this case this annotation
-      nests within the corresponding <a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a>, <a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a>,
-      or <a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> annotation.</li>
+      nests within the corresponding <a href="PermazenListField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenListField</code></a>,
+      <a href="PermazenSetField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenSetField</code></a>, or <a href="PermazenMapField.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenMapField</code></a> annotation.
  </ul>
 
  <p>
@@ -139,7 +139,8 @@ loadScripts(document, 'script');</script>
  <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> fields may not be indexed.
 
  <p>
- Two or more simple fields may be indexed together in a composite index; see <a href="PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenCompositeIndex</code></a>.
+ Two or more simple fields may be indexed together in a composite index; see
+ <a href="PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenCompositeIndex</code></a>.
 
  <p><b>Cascades</b></p>
 
@@ -221,10 +222,10 @@ loadScripts(document, 'script');</script>
  so a uniqueness constraint added in a new schema will be automatically verified when any object is upgraded.
 
  <p>
- Beware however, that like all other types of validation constraint, uniqueness constraints can be changed without requiring
- a schema change (e.g., by adding <code>&amp;#64;NotNull</code> to an existing property). Therefore, after such changes, it's possible
- for pre-existing database objects that were previously valid to suddenly become invalid, and these invalid objects will not
- be detected until they are validated in some future transaction and a validation exception thrown.
+ Beware however, that like most other types of validation constraint, adding or changing a uniqueness constraint can cause
+ valid database objects to become invalid without notice, or at least until if/when the object is revalidated in some future
+ transaction. In such a situation, you can force a schema change - and therefore revalidation on the next access - by
+ incrementing <a href="PermazenType.html#schemaSalt()"><code>PermazenType.schemaSalt()</code></a> in the field's containing type.
 
  <p><b>Upgrade Conversions</b></p>
 
@@ -236,7 +237,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  This annotation may be configured indirectly as a Spring
- <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-meta-annotations">meta-annotation</a>
+ <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  when <code>spring-core</code> is on the classpath.</div>
 </section>
 <section class="summary">
@@ -263,7 +264,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
 <div class="col-second even-row-color"><code><a href="#forwardCascades()" class="member-name-link">forwardCascades</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Define forward find/copy cascades for the annotated reference field.</div>
+<div class="block">Define forward reference cascades for the annotated reference field.</div>
 </div>
 <div class="col-first odd-row-color"><code>boolean</code></div>
 <div class="col-second odd-row-color"><code><a href="#forwardDelete()" class="member-name-link">forwardDelete</a></code></div>
@@ -490,12 +491,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="forwardCascades()">
 <h3>forwardCascades</h3>
 <div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name">forwardCascades</span></div>
-<div class="block">Define forward find/copy cascades for the annotated reference field.
+<div class="block">Define forward reference cascades for the annotated reference field.
 
  <p>
- When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
- and an object with the annotated reference field is copied, then the annotated reference field will
- will be traversed in the forward direction.
+ When following a cascade of references, if the cascade name is one of the names listed here,
+ and an object with the annotated reference field is encountered, then the annotated reference
+ field will will be traversed in the forward direction.
 
  <p>
  For non-reference fields this property must be equal to its default value.</div>
@@ -523,9 +524,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Define inverse find/copy cascades for the annotated reference field.
 
  <p>
- When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
- and an object with the annotated reference field is copied, then the annotated reference field will
- will be traversed in the inverse direction.
+ When following a cascade of references, if the cascade name is one of the names listed here,
+ and an object with the annotated reference field is encountered, then the annotated reference
+ field will will be traversed in the inverse direction.
 
  <p>
  For non-reference fields this property must be equal to its default value.</div>
@@ -584,7 +585,7 @@ loadScripts(document, 'script');</script>
  For non-reference fields this property must be equal to its default value.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>whether deletion should cascade to the referred-to object</dd>
+<dd>whether deletion should automatically propagate to the referred-to object</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">

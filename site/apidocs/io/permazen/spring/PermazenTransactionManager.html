@@ -155,7 +155,7 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
  transaction definition.</div>
 </div>
 <div class="col-first even-row-color"><code>protected <a href="../Permazen.html" title="class in io.permazen">Permazen</a></code></div>
-<div class="col-second even-row-color"><code><a href="#jdb" class="member-name-link">jdb</a></code></div>
+<div class="col-second even-row-color"><code><a href="#pdb" class="member-name-link">pdb</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">The configured <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> from which transactions are created.</div>
 </div>
@@ -250,14 +250,25 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isExistingTransaction(java.lang.Object)" class="member-name-link">isExistingTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;txObj)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#prepareForCommit(org.springframework.transaction.support.DefaultTransactionStatus)" class="member-name-link">prepareForCommit</a><wbr>(<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/DefaultTransactionStatus.html" title="class or interface in org.springframework.transaction.support" class="external-link">DefaultTransactionStatus</a>&nbsp;status)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#populateOptions(java.util.Map,org.springframework.transaction.TransactionDefinition)" class="member-name-link">populateOptions</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;options,
+ <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/TransactionDefinition.html" title="class or interface in org.springframework.transaction" class="external-link">TransactionDefinition</a>&nbsp;txDef)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Populate the given options map for a new transaction.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#registerAfterCompletionWithExistingTransaction(java.lang.Object,java.util.List)" class="member-name-link">registerAfterCompletionWithExistingTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;txObj,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html" title="class or interface in org.springframework.transaction.support" class="external-link">TransactionSynchronization</a>&gt;&nbsp;synchronizations)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#prepareForCommit(org.springframework.transaction.support.DefaultTransactionStatus)" class="member-name-link">prepareForCommit</a><wbr>(<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/DefaultTransactionStatus.html" title="class or interface in org.springframework.transaction.support" class="external-link">DefaultTransactionStatus</a>&nbsp;status)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#registerAfterCompletionWithExistingTransaction(java.lang.Object,java.util.List)" class="member-name-link">registerAfterCompletionWithExistingTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;txObj,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html" title="class or interface in org.springframework.transaction.support" class="external-link">TransactionSynchronization</a>&gt;&nbsp;synchronizations)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCreateBranchedTransactions(boolean)" class="member-name-link">setCreateBranchedTransactions</a><wbr>(boolean&nbsp;createBranchedTransactions)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Configure whether to create branched transactions instead of normal transactions.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPermazen(io.permazen.Permazen)" class="member-name-link">setPermazen</a><wbr>(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPermazen(io.permazen.Permazen)" class="member-name-link">setPermazen</a><wbr>(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Configure the <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> that this instance will operate on.</div>
 </div>
@@ -314,9 +325,9 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 </section>
 </li>
 <li>
-<section class="detail" id="jdb">
-<h3>jdb</h3>
-<div class="member-signature"><span class="modifiers">protected transient</span>&nbsp;<span class="return-type"><a href="../Permazen.html" title="class in io.permazen">Permazen</a></span>&nbsp;<span class="element-name">jdb</span></div>
+<section class="detail" id="pdb">
+<h3>pdb</h3>
+<div class="member-signature"><span class="modifiers">protected transient</span>&nbsp;<span class="return-type"><a href="../Permazen.html" title="class in io.permazen">Permazen</a></span>&nbsp;<span class="element-name">pdb</span></div>
 <div class="block">The configured <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> from which transactions are created.</div>
 </section>
 </li>
@@ -365,14 +376,14 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <li>
 <section class="detail" id="setPermazen(io.permazen.Permazen)">
 <h3>setPermazen</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPermazen</span><wbr><span class="parameters">(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPermazen</span><wbr><span class="parameters">(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</span></div>
 <div class="block">Configure the <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> that this instance will operate on.
 
  <p>
  Required property.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jdb</code> - associated database</dd>
+<dd><code>pdb</code> - associated database</dd>
 </dl>
 </section>
 </li>
@@ -404,6 +415,26 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>validateBeforeCommit</code> - whether to validate after inner transactions</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setCreateBranchedTransactions(boolean)">
+<h3>setCreateBranchedTransactions</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCreateBranchedTransactions</span><wbr><span class="parameters">(boolean&nbsp;createBranchedTransactions)</span></div>
+<div class="block">Configure whether to create branched transactions instead of normal transactions.
+
+ <p>
+ Default false.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>createBranchedTransactions</code> - true to create branched transactions</dd>
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list-long">
+<li><a href="../Permazen.html#createBranchedTransaction()"><code>Permazen.createBranchedTransaction()</code></a></li>
+</ul>
+</dd>
 </dl>
 </section>
 </li>
@@ -449,6 +480,23 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 </section>
 </li>
 <li>
+<section class="detail" id="populateOptions(java.util.Map,org.springframework.transaction.TransactionDefinition)">
+<h3>populateOptions</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">populateOptions</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;options,
+ <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/TransactionDefinition.html" title="class or interface in org.springframework.transaction" class="external-link">TransactionDefinition</a>&nbsp;txDef)</span></div>
+<div class="block">Populate the given options map for a new transaction.
+
+ <p>
+ The implementation in <a href="PermazenTransactionManager.html" title="class in io.permazen.spring"><code>PermazenTransactionManager</code></a> populates options based on the transaction isolation
+ level as described above.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>options</code> - options map</dd>
+<dd><code>txDef</code> - transaction definition</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="createTransaction(java.util.Map)">
 <h3>createTransaction</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;options)</span></div>
@@ -456,8 +504,9 @@ implements <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-
 
  <p>
  The implementation in <a href="PermazenTransactionManager.html" title="class in io.permazen.spring"><code>PermazenTransactionManager</code></a> just delegates to
- <a href="../Permazen.html#createTransaction(io.permazen.ValidationMode,java.util.Map)"><code>Permazen.createTransaction(ValidationMode, Map)</code></a> using this instance's configured
- settings for validation mode and allowing new schema versions.</div>
+ <a href="../Permazen.html#createTransaction(io.permazen.ValidationMode,java.util.Map)"><code>Permazen.createTransaction(ValidationMode, Map)</code></a> (or
+ <a href="../Permazen.html#createBranchedTransaction(io.permazen.ValidationMode,java.util.Map,java.util.Map)"><code>Permazen.createBranchedTransaction(ValidationMode, Map, Map)</code></a> if so configured) using this instance's
+ configured settings for validation mode and allowing new schema versions.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>options</code> - transaction options</dd>

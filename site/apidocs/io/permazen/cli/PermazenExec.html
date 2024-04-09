@@ -115,11 +115,11 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>protected final <a href="../core/Database.html" title="class in io.permazen.core">Database</a></code></div>
 <div class="col-second even-row-color"><code><a href="#db" class="member-name-link">db</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected final <a href="../Permazen.html" title="class in io.permazen">Permazen</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#jdb" class="member-name-link">jdb</a></code></div>
+<div class="col-first odd-row-color"><code>protected final <a href="../kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#kvdb" class="member-name-link">kvdb</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected final <a href="../kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a></code></div>
-<div class="col-second even-row-color"><code><a href="#kvdb" class="member-name-link">kvdb</a></code></div>
+<div class="col-first even-row-color"><code>protected final <a href="../Permazen.html" title="class in io.permazen">Permazen</a></code></div>
+<div class="col-second even-row-color"><code><a href="#pdb" class="member-name-link">pdb</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
@@ -141,11 +141,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.kv.KVDatabase,io.permazen.core.Database,io.permazen.Permazen)" class="member-name-link">PermazenExec</a><wbr>(<a href="../kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>&nbsp;kvdb,
  <a href="../core/Database.html" title="class in io.permazen.core">Database</a>&nbsp;db,
- <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</code></div>
+ <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</code></div>
 <div class="col-last even-row-color">
 <div class="block">General constructor.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.Permazen)" class="member-name-link">PermazenExec</a><wbr>(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</code></div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.Permazen)" class="member-name-link">PermazenExec</a><wbr>(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
@@ -208,9 +208,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="jdb">
-<h3>jdb</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="../Permazen.html" title="class in io.permazen">Permazen</a></span>&nbsp;<span class="element-name">jdb</span></div>
+<section class="detail" id="pdb">
+<h3>pdb</h3>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="../Permazen.html" title="class in io.permazen">Permazen</a></span>&nbsp;<span class="element-name">pdb</span></div>
 </section>
 </li>
 </ul>
@@ -236,7 +236,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(io.permazen.Permazen)">
 <h3>PermazenExec</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PermazenExec</span><wbr><span class="parameters">(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PermazenExec</span><wbr><span class="parameters">(<a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</span></div>
 </section>
 </li>
 <li>
@@ -244,7 +244,7 @@ loadScripts(document, 'script');</script>
 <h3>PermazenExec</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PermazenExec</span><wbr><span class="parameters">(<a href="../kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>&nbsp;kvdb,
  <a href="../core/Database.html" title="class in io.permazen.core">Database</a>&nbsp;db,
- <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</span></div>
+ <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</span></div>
 <div class="block">General constructor.
 
  <p>
@@ -253,7 +253,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>kvdb</code> - key/value database</dd>
 <dd><code>db</code> - core API database</dd>
-<dd><code>jdb</code> - Java database</dd>
+<dd><code>pdb</code> - Java database</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if not exactly one parameter is non-null</dd>
 </dl>

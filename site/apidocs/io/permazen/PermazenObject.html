@@ -135,7 +135,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#cascade(int,java.lang.String...)" class="member-name-link">cascade</a><wbr>(int&nbsp;recursionLimit,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;cascades)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Find all objects reachable through the specified reference cascade.</div>
+<div class="block">Find all objects reachable through the specified reference cascade(s).</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#copyIn(java.lang.String...)" class="member-name-link">copyIn</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;cascades)</code></div>
@@ -155,7 +155,7 @@ loadScripts(document, 'script');</script>
  <a href="CopyState.html" title="class in io.permazen">CopyState</a>&nbsp;copyState,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;cascades)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Copy this instance, and other instances it references through the specified reference paths, into the
+<div class="block">Copy this instance, and other instances it references through the specified reference cascades, into the
  specified destination transaction.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
@@ -380,14 +380,13 @@ loadScripts(document, 'script');</script>
 <h3>cascade</h3>
 <div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="core/util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a></span>&nbsp;<span class="element-name">cascade</span><wbr><span class="parameters">(int&nbsp;recursionLimit,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;cascades)</span></div>
-<div class="block">Find all objects reachable through the specified reference cascade.
+<div class="block">Find all objects reachable through the specified reference cascade(s).
 
  <p>
- This method finds all objects reachable from the this through
- <a href="annotation/PermazenField.html#forwardCascades()">forward</a> and
- <a href="annotation/PermazenField.html#inverseCascades()">inverse</a> reference field cascades of the specified name.
- In other words, a reference field is traversed in the forward or inverse direction if <code>cascadeName</code> is
- specified in the corresponding <a href="annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">&#64;PermazenField</a> annotation property.
+ This method finds all objects reachable from this instance through reference field cascades having the specified name(s).
+ In other words, a reference field is traversed in the <a href="annotation/PermazenField.html#forwardCascades()">forward</a> or <a href="annotation/PermazenField.html#inverseCascades()">inverse</a> direction if one of the
+ <code>cascades</code> is specified in the corresponding <a href="annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">&#64;PermazenField</a>
+ annotation property.
 
  <p>
  All objects found will be automatically <a href="#migrateSchema()">migrated</a> to this object's associated
@@ -494,7 +493,7 @@ loadScripts(document, 'script');</script>
  int&nbsp;recursionLimit,
  <a href="CopyState.html" title="class in io.permazen">CopyState</a>&nbsp;copyState,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;cascades)</span></div>
-<div class="block">Copy this instance, and other instances it references through the specified reference paths, into the
+<div class="block">Copy this instance, and other instances it references through the specified reference cascades, into the
  specified destination transaction.
 
  <p>

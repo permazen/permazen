@@ -179,60 +179,55 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Get the <a href="../../PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> associated with the object ID.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../../schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#getSchemaId(io.permazen.core.ObjId)" class="member-name-link">getSchemaId</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-first odd-row-color"><code>boolean</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">CopyState.</span><code><a href="../../CopyState.html#isCopied(io.permazen.core.ObjId)" class="member-name-link">isCopied</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;srcId)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Get specified object's current schema's <a href="../../schema/SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>.</div>
-</div>
-<div class="col-first even-row-color"><code>boolean</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">CopyState.</span><code><a href="../../CopyState.html#isCopied(io.permazen.core.ObjId)" class="member-name-link">isCopied</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;srcId)</code></div>
-<div class="col-last even-row-color">
 <div class="block">Determine if an object has been marked as copied.</div>
 </div>
-<div class="col-first odd-row-color"><code>boolean</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">CopyState.</span><code><a href="../../CopyState.html#markCopied(io.permazen.core.ObjId)" class="member-name-link">markCopied</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;srcId)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>boolean</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">CopyState.</span><code><a href="../../CopyState.html#markCopied(io.permazen.core.ObjId)" class="member-name-link">markCopied</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;srcId)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Determine if an object has already been copied, and if not mark it so.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="../../Counter.html" title="class in io.permazen">Counter</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readCounterField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readCounterField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first odd-row-color"><code><a href="../../Counter.html" title="class in io.permazen">Counter</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readCounterField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readCounterField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fieldName,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last even-row-color">
+<div class="col-last odd-row-color">
 <div class="block">Read a counter field.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;?&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readListField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readListField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;?&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readListField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readListField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fieldName,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Read a list field.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;?,<wbr>?&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readMapField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readMapField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;?,<wbr>?&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readMapField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readMapField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fieldName,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last even-row-color">
+<div class="col-last odd-row-color">
 <div class="block">Read a map field.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;?&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readSetField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSetField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fieldName,
- boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Read a set field.</div>
-</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readSimpleField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSimpleField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;?&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readSetField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSetField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fieldName,
  boolean&nbsp;migrateSchema)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Read a set field.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#readSimpleField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSimpleField</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fieldName,
+ boolean&nbsp;migrateSchema)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Read a simple field.</div>
 </div>
-<div class="col-first odd-row-color"><code>void</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#revalidate(io.permazen.core.ObjId,java.lang.Class...)" class="member-name-link">revalidate</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color"><code>void</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">PermazenTransaction.</span><code><a href="../../PermazenTransaction.html#revalidate(io.permazen.core.ObjId,java.lang.Class...)" class="member-name-link">revalidate</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;...&nbsp;groups)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Add the given instance to the validation queue for validation, which will occur either at <a href="../../PermazenTransaction.html#commit()"><code>PermazenTransaction.commit()</code></a> time
  or at the next invocation of <a href="../../PermazenTransaction.html#validate()"><code>PermazenTransaction.validate()</code></a>, whichever occurs first.</div>
 </div>

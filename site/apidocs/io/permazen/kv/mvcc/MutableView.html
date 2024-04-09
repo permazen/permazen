@@ -91,7 +91,11 @@ loadScripts(document, 'script');</script>
 </span><span class="modifiers">public class </span><span class="element-name type-name-label">MutableView</span>
 <span class="extends-implements">extends <a href="../AbstractKVStore.html" title="class in io.permazen.kv">AbstractKVStore</a>
 implements <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Cloneable.html" title="class or interface in java.lang" class="external-link">Cloneable</a></span></div>
-<div class="block">Straightforward implementation of the <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc"><code>DeltaKVStore</code></a> interface.</div>
+<div class="block">Straightforward implementation of the <a href="DeltaKVStore.html" title="interface in io.permazen.kv.mvcc"><code>DeltaKVStore</code></a> interface.
+
+ <p>
+ The amount of memory required scales in proportion to the number of distinct key ranges that are read
+ or removed (if tracking reads) plus the total lengths of all keys and values written.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

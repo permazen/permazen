@@ -170,12 +170,22 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <div class="block">Generate a unique <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> corresponding to the type and encoding structure of this schema item.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLockedDown(boolean)" class="member-name-link">isLockedDown</a><wbr>(boolean&nbsp;includingStorageIds)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaSalt()" class="member-name-link">getSchemaSalt</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLockedDown(boolean)" class="member-name-link">isLockedDown</a><wbr>(boolean&nbsp;includingStorageIds)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this instance is locked down.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSchemaSalt(int)" class="member-name-link">setSchemaSalt</a><wbr>(int&nbsp;schemaSalt)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Set the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
@@ -262,6 +272,28 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>composite indexes in this object type</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getSchemaSalt()">
+<h3>getSchemaSalt</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSchemaSalt</span>()</div>
+<div class="block">Get the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> ID hash salting value</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setSchemaSalt(int)">
+<h3>setSchemaSalt</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSchemaSalt</span><wbr><span class="parameters">(int&nbsp;schemaSalt)</span></div>
+<div class="block">Set the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>schemaSalt</code> - <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash salting value</dd>
 </dl>
 </section>
 </li>

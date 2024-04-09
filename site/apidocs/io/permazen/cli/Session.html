@@ -185,7 +185,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Constructor for <a href="SessionMode.html#KEY_VALUE"><code>SessionMode.KEY_VALUE</code></a>.</div>
 </div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(org.dellroad.jct.core.ConsoleSession,io.permazen.Permazen)" class="member-name-link">Session</a><wbr>(org.dellroad.jct.core.ConsoleSession&lt;?,<wbr>?&gt;&nbsp;consoleSession,
- <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</code></div>
+ <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor for <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a>.</div>
 </div>
@@ -327,7 +327,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)" class="member-name-link">performSessionActionWithCurrentTransaction</a><wbr>(<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>&nbsp;action)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Associate the current <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> with this instance, if not already associated, while performing the given action.</div>
+<div class="block">Associate the current <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> with this instance, if not already associated,
+ while performing the given action.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reportException(java.lang.Exception)" class="member-name-link">reportException</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a>&nbsp;e)</code></div>
@@ -509,12 +510,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(org.dellroad.jct.core.ConsoleSession,io.permazen.Permazen)">
 <h3>Session</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">Session</span><wbr><span class="parameters">(org.dellroad.jct.core.ConsoleSession&lt;?,<wbr>?&gt;&nbsp;consoleSession,
- <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;jdb)</span></div>
+ <a href="../Permazen.html" title="class in io.permazen">Permazen</a>&nbsp;pdb)</span></div>
 <div class="block">Constructor for <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>consoleSession</code> - console session</dd>
-<dd><code>jdb</code> - database</dd>
+<dd><code>pdb</code> - database</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if either parameter is null</dd>
 </dl>
@@ -920,7 +921,8 @@ loadScripts(document, 'script');</script>
 <h3>performSessionActionWithCurrentTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">performSessionActionWithCurrentTransaction</span><wbr><span class="parameters">(<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>&nbsp;action)</span>
                                                    throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/InterruptedException.html" title="class or interface in java.lang" class="external-link">InterruptedException</a></span></div>
-<div class="block">Associate the current <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> with this instance, if not already associated, while performing the given action.
+<div class="block">Associate the current <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> with this instance, if not already associated,
+ while performing the given action.
 
  <p>
  If <code>action</code> throws an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link"><code>Exception</code></a>, it will be caught and handled by <a href="#reportException(java.lang.Exception)"><code>reportException()</code></a>
