@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
+import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
@@ -20,53 +21,88 @@ import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableRefs;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
+import org.dellroad.stuff.spring.RetryTransactionProvider;
 
 /**
  * A {@link KVTransaction} that is based on a snapshot from an original {@link KVTransaction} and that can, at some arbitrary
- * later time, be merged back into a new {@link KVTransaction} from the same database, assuming no conflicts are detected.
+ * later time, be merged back into a new {@link KVTransaction} from the same database, assuming no conflicting changes
+ * have occurred in the meantime.
  *
  * <p>
- * This class only works with {@link KVDatabase}'s that support {@link KVTransaction#readOnlySnapshot readOnlySnapshot()}.
- *
- * <p>
- * In effect, this class gives the appearance of a regular {@link KVTransaction} that can stay open for an arbitrarily long time.
- *
- * <p>
- * New instances must be explicitly opened via {@link #open}. When that occurs, a regular database transaction is opened,
- * a {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database taken, and then that transaction is immediately closed.
- * Reads and writes in this transaction are then tracked and kept entirely in memory and there is no actual transaction open.
- * Later, when this transaction is {@link #commit}'ed, a new regular database transaction is opened, a conflict check is
- * performed to determine whether any of the keys read by this transaction have since changed, and then if not all of this
- * transaction's accumulated writes are applied. Otherwise, if a conflict is found, a {@link TransactionConflictException}
- * is thrown.
- *
- * <p>
- * The conflict check can also be performed on demand at any time while this transaction is open without actually
- * {@link #commit}'ing anything, via {@link #checkForConflicts()}.
- *
- * <p>
- * There is a limit to how "branched" the transaction can get. The probability for a conflict increases when instances are kept open
- * for a long time and/or there is a high volume of read traffic in this transaction, or write traffic in the underlying database.
- * However, it can be useful in certain scenarios, for example, to support editing a single entity in a GUI application
- * within a single "transaction" that doesn't actually keep open any database resources.
- *
- * <p>
- * The amount of work required for the conflict check scales in proportion to the number of keys read in this transaction;
- * the amount of memory required scales as it does with {@link MutableView}.
+ * In effect, this class gives the appearance of a regular {@link KVTransaction} that can stay open for an arbitrarily long time,
+ * with the same consistency guarantees as a normal single transaction. It can be useful in certain scenarios, for example,
+ * to support editing an entity in a GUI application where the user may take several minutes to complete a form, while also
+ * ensuring that everything the user sees while editing the form is still up to date when the form is actually submitted.
  *
  * <p>
  * Instances support {@link #readOnlySnapshot} and {@link #withWeakConsistency withWeakConsistency()}.
  *
  * <p>
  * Instances do not support {@link #setTimeout setTimeout()} or {@link #watchKey watchKey()}.
+ *
+ * <p><b>Transaction Management</b></p>
+ *
+ * <p>
+ * New instances must be explicitly opened via {@link #open}. At that time a regular database transaction is opened,
+ * a {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database taken, and then that transaction is immediately closed.
+ * Reads and writes in this transaction are then tracked and kept entirely in memory; no regular transaction remains open.
+ * Later, when this transaction is {@link #commit}'ed, a new regular database transaction is opened, a conflict check is
+ * performed (to determine whether any of the keys read by this transaction have since changed), and then if there are no
+ * conflicts, all of this transaction's accumulated writes are applied; otherwise, {@link TransactionConflictException} is thrown.
+ *
+ * <p>
+ * The conflict check can also be performed on demand at any time while leaving this transaction open via
+ * {@link #checkForConflicts()}.
+ *
+ * <p>
+ * Because open instances retain an underlying snaphot which consumes resources, callers should ensure that instances are always
+ * eventually committed or rolled back as soon as they are no longer needed. Note that {@link #close} can be used as a synonym
+ * for {@link #rollback}.
+ *
+ * <p><b>Underlying Transaction Configuration</b></p>
+ *
+ * <p>
+ * The real transactions that are used at open and commit time are configurable via the usual transaction options.
+ * In addition, this class adds to those options {@link RETRY_PROVIDER_OPTION} which allows the configuration of
+ * automatic retries for these transactions; for some key/value technologies, retry logic is important for robustness.
+ * The {@link RETRY_PROVIDER_OPTION} option's value is a {@link RetryTransactionProvider}.
+ *
+ * <p><b>Caveats</b></p>
+ *
+ * <p>
+ * This class only works with {@link KVDatabase}'s that support {@link KVTransaction#readOnlySnapshot readOnlySnapshot()}.
+ *
+ * The probability for a conflict increases in proportion to the number of distinct keys (or key ranges) read in this transaction
+ * and/or the amount of writes committed to the underlying database while this transaction remains open. Of course, this also
+ * depends greatly on the problem domain, i.e., whether this and other transactions are doing work that overlaps.
+ *
+ * <p>
+ * Reads and writes are tracked via {@link MutableView}; the amount of memory required is as described in that class.
+ *
+ * <p>
+ * The work required for the conflict check scales in proportion to the number of distinct keys (or key ranges)
+ * read in the transaction.
+ *
+ * @see io.permazen.Permazen#createBranchedTransaction
  */
 public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
 
+    /**
+     * Transaction option for a {@link RetryTransactionProvider} to use with the underlying open and/or commit transactions.
+     */
+    public static final String RETRY_PROVIDER_OPTION = "org.dellroad.stuff.spring.RetryTransactionProvider";
+
     private final KVDatabase kvdb;
+    private final Retryer openRetryer;
+    private final Retryer syncRetryer;
     private final Map<String, ?> openOptions;
     private final Map<String, ?> syncOptions;
 
@@ -99,6 +135,10 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
      * <p>
      * This instance must be {@link #open}'ed before use.
      *
+     * <p>
+     * Any {@link #RETRY_PROVIDER_OPTION} option in {@code openOptions} and/or {@code syncOptions}
+     * is removed (i.e., not passed down {@code kvdb}) and used to automatically retry those transactions.
+     *
      * @param kvdb database
      * @param openOptions transaction options for opening transaction; may be null
      * @param syncOptions transaction options for sync/commit transaction(s); may be null
@@ -107,8 +147,20 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
     public BranchedKVTransaction(KVDatabase kvdb, Map<String, ?> openOptions, Map<String, ?> syncOptions) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
-        this.openOptions = openOptions;
-        this.syncOptions = syncOptions;
+        if (openOptions != null && openOptions.containsKey(RETRY_PROVIDER_OPTION)) {
+            this.openOptions = new HashMap<>(openOptions);
+            this.openRetryer = new Retryer(this.openOptions.remove(RETRY_PROVIDER_OPTION));
+        } else {
+            this.openOptions = openOptions;
+            this.openRetryer = null;
+        }
+        if (syncOptions != null && syncOptions.containsKey(RETRY_PROVIDER_OPTION)) {
+            this.syncOptions = new HashMap<>(syncOptions);
+            this.syncRetryer = new Retryer(this.syncOptions.remove(RETRY_PROVIDER_OPTION));
+        } else {
+            this.syncOptions = syncOptions;
+            this.syncRetryer = null;
+        }
     }
 
 // Lifecycle
@@ -121,48 +173,46 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
      *
      * @throws UnsupportedOperationException if the database doesn't support {@link KVTransaction#readOnlySnapshot}
      * @throws IllegalStateException if this method has already been invoked
+     * @throws KVDatabaseException if the underlying transaction fails
      */
     public synchronized void open() {
         this.checkState(State.INITIAL);
-        final KVTransaction tx = this.kvdb.createTransaction(this.openOptions);
-        try {
-            try {
-                final CloseableKVStore snapshot = tx.readOnlySnapshot();
-                this.snapshotRefs = new CloseableRefs<>(snapshot);
-                this.view = new MutableView(snapshot);
-                tx.commit();
+        final AtomicReference<CloseableKVStore> snapshotRef = new AtomicReference<>();
+        this.tx(this.openOptions, this.openRetryer,
+          this.getClass().getSimpleName() + ".open()",
+          tx -> snapshotRef.set(tx.readOnlySnapshot()),
+          () -> {
+            synchronized (this) {       // this is redundant here but it silences a spotbugs warning
+                this.snapshotRefs = new CloseableRefs<>(snapshotRef.get());
+                this.view = new MutableView(snapshotRef.get());
                 this.state = State.OPEN;
-            } finally {
-                if (this.state != State.OPEN)
-                    this.close();
             }
-        } finally {
-            tx.rollback();
-        }
+          },
+          () -> Optional.ofNullable(snapshotRef.get()).ifPresent(CloseableKVStore::close));
     }
 
     @Override
     public synchronized void commit() {
         this.checkState(State.OPEN);
-        final KVTransaction tx = this.kvdb.createTransaction(this.syncOptions);
-        try {
 
-            // Check for conflicts and apply our changes
-            try {
+        // Disallow Iterator.remove() from getRange() after commit() invoked
+        synchronized (this.view) {
+            this.view.setReadOnly();
+        }
+
+        // Check for conflicts and apply our changes
+        this.tx(this.syncOptions, this.syncRetryer,
+          this.getClass().getSimpleName() + ".commit()",
+          tx -> {
+            synchronized (this) {       // this is redundant here but it silences a spotbugs warning
                 synchronized (this.view) {
-                    this.view.setReadOnly();                // disallow Iterator.remove() from getRange() after commit
                     this.checkForConflicts(tx);
                     this.view.getWrites().applyTo(tx);
                 }
-            } finally {
-                this.close();
             }
-
-            // Commit transaction
-            tx.commit();
-        } finally {
-            tx.rollback();
-        }
+          },
+          this::close,
+          this::close);
     }
 
     @Override
@@ -322,12 +372,40 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
      * @throws TransactionConflictException if any conflicts are found
      */
     public void checkForConflicts() {
-        final KVTransaction tx = this.kvdb.createTransaction(this.syncOptions);
+        this.tx(this.syncOptions, this.syncRetryer,
+          this.getClass().getSimpleName() + ".checkForConflicts()",
+          this::checkForConflicts,
+          null,
+          null);
+    }
+
+    private void tx(Map<String, ?> options, Retryer retryer, String description,
+      Consumer<KVTransaction> operation, Runnable onSuccess, Runnable onFailure) {
+
+        // Sanity check
+        Preconditions.checkArgument(operation != null, "null operation");
+
+        // Wrap the operation in a transaction
+        final Runnable txOperation = () -> {
+            final KVTransaction tx = this.kvdb.createTransaction(options);
+            try {
+                operation.accept(tx);
+                tx.commit();
+            } finally {
+                tx.rollback();
+            }
+        };
+
+        // If we are retrying, wrap with that as well
+        final Runnable retriedOperation = retryer != null ? retryer.wrap(txOperation, description) : txOperation;
+
+        // Now do the operation and invoke callback
+        boolean success = false;
         try {
-            this.checkForConflicts(tx);
-            tx.commit();
+            retriedOperation.run();
+            success = true;
         } finally {
-            tx.rollback();
+            (success ? onSuccess : onFailure).run();
         }
     }
 
@@ -423,6 +501,34 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
 
         public RuntimeException newStateMismatchException(BranchedKVTransaction tx) {
             return this.exceptionCreator.apply(tx, this.stateMismatchMessage);
+        }
+    }
+
+// Retryer
+
+    // Separate class due to linkage to optional dependency dellroad-stuff-spring
+    private static class Retryer {
+
+        private final RetryTransactionProvider provider;
+
+        Retryer(Object obj) {
+            Preconditions.checkArgument(obj != null, "transaction option \"" + RETRY_PROVIDER_OPTION + "\" is null");
+            try {
+                this.provider = (RetryTransactionProvider)obj;
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(
+                  "transaction option \"" + RETRY_PROVIDER_OPTION + "\" is not a RetryTransactionProvider", e);
+            }
+        }
+
+        public Runnable wrap(Runnable operation, String description) {
+            Preconditions.checkArgument(operation != null, "null operation");
+            final RetryTransactionProvider.RetrySetup<Void> setup = new RetryTransactionProvider.RetrySetup<>(
+              BranchedKVTransaction.class.getName(), description, () -> {
+                operation.run();
+                return null;
+              });
+            return () -> this.provider.retry(setup);
         }
     }
 }

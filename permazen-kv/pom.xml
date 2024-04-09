@@ -44,6 +44,11 @@
             <artifactId>dellroad-stuff-main</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.dellroad</groupId>
+            <artifactId>dellroad-stuff-spring</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
