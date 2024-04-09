@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 /**
  * A composite index.
  */
-public class PermazenCompositeIndex extends PermazenSchemItem {
+public class PermazenCompositeIndex extends PermazenSchemaItem {
 
     final Class<?> declaringType;
     final List<PermazenSimpleField> pfields;

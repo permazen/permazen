@@ -31,12 +31,12 @@ import org.objectweb.asm.Type;
 /**
  * Represents a field in a Java model object.
  */
-public abstract class PermazenField extends PermazenSchemItem {
+public abstract class PermazenField extends PermazenSchemaItem {
 
     final Method getter;
     final Annotation annotation;
 
-    PermazenSchemItem parent;                               // either PermazenClass or PermazenComplexField
+    PermazenSchemaItem parent;                                  // either PermazenClass or PermazenComplexField
     boolean requiresDefaultValidation;
 
 // Constructor

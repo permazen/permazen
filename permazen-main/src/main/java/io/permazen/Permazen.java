@@ -152,9 +152,9 @@ public class Permazen {
     final TreeMap<String, PermazenClass<?>> pclassesByName = new TreeMap<>();
     final HashMap<Class<?>, PermazenClass<?>> pclassesByType = new HashMap<>();
     final TreeMap<Integer, PermazenClass<?>> pclassesByStorageId = new TreeMap<>();
-    final HashMap<SchemaId, PermazenSchemItem> schemaItemsBySchemaId = new HashMap<>();
+    final HashMap<SchemaId, PermazenSchemaItem> schemaItemsBySchemaId = new HashMap<>();
     final HashSet<Integer> fieldsRequiringDefaultValidation = new HashSet<>();
-    final HashMap<Integer, PermazenSchemItem> indexesByStorageId = new HashMap<>();       // contains REPRESENTATIVE schema items
+    final HashMap<Integer, PermazenSchemaItem> indexesByStorageId = new HashMap<>();    // contains REPRESENTATIVE schema items
     final HashMap<Tuple2<Integer, String>, PermazenField> typeFieldMap = new HashMap<>();
     @SuppressWarnings("this-escape")
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
@@ -381,7 +381,7 @@ public class Permazen {
             tx.rollback();      // does nothing if transaction succeeded
         }
 
-        // Copy storage ID assignments into the corresponding SchemaItem's and PermazenSchemItem's
+        // Copy storage ID assignments into the corresponding SchemaItem's and PermazenSchemaItem's
         this.pclasses.forEach(pclass -> pclass.visitSchemaItems(item -> {
             final SchemaItem schemaItem = (SchemaItem)item.schemaItem;
             final SchemaId schemaId = schemaItem.getSchemaId();
@@ -401,7 +401,7 @@ public class Permazen {
         this.pclasses.forEach(pclass -> pclass.simpleFieldsByName.values().forEach(
           pfield -> pclass.simpleFieldsByStorageId.put(pfield.storageId, pfield)));
 
-        // Update all PermazenSchemItem's to point to core API SchemaItem instead of SchemaModel SchemaItem
+        // Update all PermazenSchemaItem's to point to core API SchemaItem instead of SchemaModel SchemaItem
         this.pclasses.forEach(pclass -> pclass.replaceSchemaItems(schema));
 
         // Find all fields that require default validation

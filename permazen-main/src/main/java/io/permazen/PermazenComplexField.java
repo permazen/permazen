@@ -106,7 +106,7 @@ public abstract class PermazenComplexField extends PermazenField {
     abstract ComplexSchemaField createSchemaItem();
 
     @Override
-    void visitSchemaItems(Consumer<? super PermazenSchemItem> visitor) {
+    void visitSchemaItems(Consumer<? super PermazenSchemaItem> visitor) {
         super.visitSchemaItems(visitor);
         this.getSubFields().forEach(item -> item.visitSchemaItems(visitor));
     }

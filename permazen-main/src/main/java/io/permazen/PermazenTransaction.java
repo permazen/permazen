@@ -1505,7 +1505,7 @@ public class PermazenTransaction {
             throw new StaleTransactionException(this.tx);
 
         // Find index
-        final PermazenSchemItem schemaItem = this.pdb.indexesByStorageId.get(storageId);
+        final PermazenSchemaItem schemaItem = this.pdb.indexesByStorageId.get(storageId);
         if (schemaItem == null) {
             throw new IllegalArgumentException(String.format(
               "no composite index or simple indexed field exists with storage ID %d", storageId));

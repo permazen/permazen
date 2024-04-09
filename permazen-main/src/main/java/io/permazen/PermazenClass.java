@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> the Java type that represents instances of this database object type
  */
-public class PermazenClass<T> extends PermazenSchemItem {
+public class PermazenClass<T> extends PermazenSchemaItem {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -509,7 +509,7 @@ public class PermazenClass<T> extends PermazenSchemItem {
     }
 
     @Override
-    void visitSchemaItems(Consumer<? super PermazenSchemItem> visitor) {
+    void visitSchemaItems(Consumer<? super PermazenSchemaItem> visitor) {
         super.visitSchemaItems(visitor);
         this.fieldsByName.values().forEach(item -> item.visitSchemaItems(visitor));
         this.jcompositeIndexesByName.values().forEach(item -> item.visitSchemaItems(visitor));

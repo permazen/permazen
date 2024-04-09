@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * Superclass for the {@link PermazenClass}, {@link PermazenField}, and {@link PermazenCompositeIndex} classes
  * which describe the schema associated with a {@link Permazen} instance.
  */
-public abstract class PermazenSchemItem {
+public abstract class PermazenSchemaItem {
 
     final String name;
     final String description;
@@ -26,7 +26,7 @@ public abstract class PermazenSchemItem {
 
 // Constructor
 
-    PermazenSchemItem(String name, int storageId, String description) {
+    PermazenSchemaItem(String name, int storageId, String description) {
         Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(storageId >= 0, "invalid storageId");
         Preconditions.checkArgument(description != null, "null description");
@@ -92,12 +92,12 @@ public abstract class PermazenSchemItem {
 
     abstract io.permazen.schema.SchemaItem createSchemaItem();
 
-    void visitSchemaItems(Consumer<? super PermazenSchemItem> visitor) {
+    void visitSchemaItems(Consumer<? super PermazenSchemaItem> visitor) {
         Preconditions.checkArgument(visitor != null, "null visitor");
         visitor.accept(this);
     }
 
-    final <T extends PermazenSchemItem> void visitSchemaItems(Class<T> nodeType, Consumer<? super T> visitor) {
+    final <T extends PermazenSchemaItem> void visitSchemaItems(Class<T> nodeType, Consumer<? super T> visitor) {
         Preconditions.checkArgument(nodeType != null, "null nodeType");
         this.visitSchemaItems(item -> {
             if (nodeType.isInstance(item))

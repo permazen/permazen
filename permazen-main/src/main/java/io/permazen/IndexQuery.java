@@ -33,7 +33,7 @@ class IndexQuery {
 
     private static final KeyRange NULL_RANGE = new KeyRange(new byte[] { (byte)0xff }, null);
 
-    final PermazenSchemItem schemaItem;           // a REPRESENTATIVE schema item
+    final PermazenSchemaItem schemaItem;            // a REPRESENTATIVE schema item
 
     private final Class<?> targetType;
     private final ArrayList<KeyRanges> filters = new ArrayList<>();
