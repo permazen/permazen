@@ -180,10 +180,10 @@ import java.lang.annotation.Target;
  * so a uniqueness constraint added in a new schema will be automatically verified when any object is upgraded.
  *
  * <p>
- * Beware however, that like all other types of validation constraint, uniqueness constraints can be changed without requiring
- * a schema change (e.g., by adding {@code &#64;NotNull} to an existing property). Therefore, after such changes, it's possible
- * for pre-existing database objects that were previously valid to suddenly become invalid, and these invalid objects will not
- * be detected until they are validated in some future transaction and a validation exception thrown.
+ * Beware however, that like most other types of validation constraint, adding or changing a uniqueness constraint can cause
+ * valid database objects to become invalid without notice, or at least until if/when the object is revalidated in some future
+ * transaction. In such a situation, you can force a schema change - and therefore revalidation on the next access - by
+ * incrementing {@link PermazenType#schemaSalt} in the field's containing type.
  *
  * <p><b>Upgrade Conversions</b></p>
  *
@@ -289,12 +289,12 @@ public @interface PermazenField {
     boolean indexed() default false;
 
     /**
-     * Define forward find/copy cascades for the annotated reference field.
+     * Define forward reference cascades for the annotated reference field.
      *
      * <p>
-     * When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
-     * and an object with the annotated reference field is copied, then the annotated reference field will
-     * will be traversed in the forward direction.
+     * When following a cascade of references, if the cascade name is one of the names listed here,
+     * and an object with the annotated reference field is encountered, then the annotated reference
+     * field will will be traversed in the forward direction.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
@@ -309,9 +309,9 @@ public @interface PermazenField {
      * Define inverse find/copy cascades for the annotated reference field.
      *
      * <p>
-     * When doing a find or copy cascade operation, if the cascade name is one of the names listed here,
-     * and an object with the annotated reference field is copied, then the annotated reference field will
-     * will be traversed in the inverse direction.
+     * When following a cascade of references, if the cascade name is one of the names listed here,
+     * and an object with the annotated reference field is encountered, then the annotated reference
+     * field will will be traversed in the inverse direction.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
@@ -343,7 +343,7 @@ public @interface PermazenField {
      * <p>
      * For non-reference fields this property must be equal to its default value.
      *
-     * @return whether deletion should cascade to the referred-to object
+     * @return whether deletion should automatically propagate to the referred-to object
      * @see #inverseDelete
      * @see PermazenObject#delete
      */

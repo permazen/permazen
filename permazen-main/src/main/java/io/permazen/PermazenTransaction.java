@@ -637,7 +637,7 @@ public class PermazenTransaction {
      * specified in the corresponding {@linkplain io.permazen.annotation.PermazenField &#64;PermazenField} annotation property.
      *
      * <p>
-     * The {@code visited} contains the ID's of objects already visited (or is empty if none); these objects will not
+     * The {@code visited} set contains the ID's of objects already visited (or is empty if none); these objects will not
      * be traversed. In particular, if {@code id} is in {@code visited}, then this method does nothing.
      * Upon return, {@code visited} will have had all of the new objects found added.
      *

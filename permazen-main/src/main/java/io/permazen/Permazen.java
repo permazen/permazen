@@ -115,7 +115,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Branched</b> transactions are like normal transactions, in that when opened they contain an up-to-date view of
  * the database, but after that they operate entirely in-memory, without any underlying key/value transaction, until
- * {@link #commit} is invoked. At that time a new key/value transaction is opened, a conflict check is performed,
+ * {@code commit()} is invoked. At that time a new key/value transaction is opened, a conflict check is performed,
  * and if successful all of the transaction's writes are then flushed. Branched transactions require that the underlying
  * key/value database support {@link KVTransaction#readOnlySnapshot}; see {@link BranchedKVTransaction} for details
  * and other caveats. Branched transactions are created via {@link #createBranchedTransaction() createBranchedTransaction()}.
@@ -558,7 +558,7 @@ public class Permazen {
      * <p>
      * Convenience method; equivalent to:
      *  <blockquote><pre>
-     *  {@link #createBranchedTransaction(ValidationMode, Map) createBranchedTransaction}({@link ValidationMode#AUTOMATIC},
+     *  {@link #createBranchedTransaction(ValidationMode, Map, Map) createBranchedTransaction}({@link ValidationMode#AUTOMATIC},
      *      null, null)
      *  </pre></blockquote>
      *
@@ -576,7 +576,7 @@ public class Permazen {
      * <p>
      * Convenience method; equivalent to:
      *  <blockquote><pre>
-     *  {@link #createBranchedTransaction(ValidationMode, Map) createBranchedTransaction}(validationMode, null, null)
+     *  {@link #createBranchedTransaction(ValidationMode, Map, Map) createBranchedTransaction}(validationMode, null, null)
      *  </pre></blockquote>
      *
      * @return the newly created branched transaction
