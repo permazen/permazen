@@ -210,7 +210,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
  *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
  *  <li>{@link #revalidate revalidate()} - Manually add an object to the validation queue</li>
- *  <li>{@link #getSchemaId getSchemaId()} - Get the schema of an object</li>
  *  <li>{@link #migrateSchema migrateSchema()} - Migrate an object's schema to match this transaction's data model</li>
  * </ul>
  */
@@ -1028,25 +1027,6 @@ public class PermazenTransaction {
             newGroups.addAll(Arrays.asList(groups));
             this.validationQueue.put(id, newGroups.toArray(new Class<?>[newGroups.size()]));
         }
-    }
-
-    /**
-     * Get specified object's current schema's {@link SchemaId}.
-     *
-     * <p>
-     * This does not change the object's schema.
-     *
-     * <p>
-     * This method is typically only used by generated classes; normally, {@link PermazenObject#getSchemaId} would be used instead.
-     *
-     * @param id ID of some object
-     * @return the ID of the object's current schema
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public SchemaId getSchemaId(ObjId id) {
-        return this.tx.getObjType(id).getSchema().getSchemaId();
     }
 
     /**
