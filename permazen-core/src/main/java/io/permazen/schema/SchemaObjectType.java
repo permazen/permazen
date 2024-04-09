@@ -37,6 +37,7 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
 
     private NavigableMap<String, SchemaField> fields = new TreeMap<>();
     private NavigableMap<String, SchemaCompositeIndex> indexes = new TreeMap<>();
+    private int schemaSalt;
 
 // Properties
 
@@ -56,6 +57,25 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
      */
     public NavigableMap<String, SchemaCompositeIndex> getSchemaCompositeIndexes() {
         return this.indexes;
+    }
+
+    /**
+     * Get the hash salting value included in the calculation of {@link SchemaModel#getSchemaId}.
+     *
+     * @return {@link SchemaModel} ID hash salting value
+     */
+    public int getSchemaSalt() {
+        return this.schemaSalt;
+    }
+
+    /**
+     * Set the hash salting value included in the calculation of {@link SchemaModel#getSchemaId}.
+     *
+     * @param schemaSalt {@link SchemaModel} schema ID hash salting value
+     */
+    public void setSchemaSalt(final int schemaSalt) {
+        this.verifyNotLockedDown(false);
+        this.schemaSalt = schemaSalt;
     }
 
 // Recursion
@@ -235,6 +255,8 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
             output.writeInt(this.indexes.size());
             for (SchemaCompositeIndex index : this.indexes.values())
                 index.writeSchemaIdHashData(output, true);
+            if (this.schemaSalt != 0)
+                output.writeInt(this.schemaSalt);
         }
     }
 

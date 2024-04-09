@@ -10,6 +10,8 @@ import io.permazen.Permazen;
 import io.permazen.PermazenObject;
 import io.permazen.ReferencePath;
 import io.permazen.UpgradeConversionPolicy;
+import io.permazen.schema.SchemaId;
+import io.permazen.schema.SchemaModel;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -178,4 +180,21 @@ public @interface PermazenType {
      * @see PermazenField#upgradeConversion
      */
     UpgradeConversionPolicy autogenUpgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
+
+    /**
+     * {@link SchemaModel} schema ID hash function salting value.
+     *
+     * <p>
+     * This value is included as input to the hash function used by {@link SchemaModel#getSchemaId}. Therefore,
+     * modifying this value will force a schema change, and therefore a subsequent "dummy" migration of all database
+     * objects the next time they are accessed, even if there are no other changes to the schema.
+     *
+     * <p>
+     * This can be useful (for example) when you want to force revalidation of all instances of the annotated type
+     * on the next access, because revalidation is a side effect of a schema migration.
+     *
+     * @return schema salt
+     * @see PermazenField
+     */
+    int schemaSalt() default 0;
 }

@@ -56,6 +56,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
 
     final Permazen pdb;
     final Class<T> type;
+    final PermazenType permazenType;
     final ClassGenerator<T> classGenerator;
     final TreeMap<String, PermazenField> fieldsByName = new TreeMap<>();                      // does not include sub-fields
     final TreeMap<Integer, PermazenField> fieldsByStorageId = new TreeMap<>();                // does not include sub-fields
@@ -97,6 +98,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         this.pdb = pdb;
         this.type = type;
         this.classGenerator = new ClassGenerator<>(pdb, this);
+        this.permazenType = Util.getAnnotation(this.type, PermazenType.class);
     }
 
     // Get class generator
@@ -192,11 +194,8 @@ public class PermazenClass<T> extends PermazenSchemaItem {
 
     void createFields(EncodingRegistry encodingRegistry, Collection<PermazenClass<?>> pclasses) {
 
-        // Auto-generate properties?
-        final PermazenType permazenType = Util.getAnnotation(this.type, PermazenType.class);
-
         // Scan for Simple and Counter fields
-        final PermazenFieldScanner<T> simpleFieldScanner = new PermazenFieldScanner<>(this, permazenType);
+        final PermazenFieldScanner<T> simpleFieldScanner = new PermazenFieldScanner<>(this, this.permazenType);
         for (PermazenFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -261,7 +260,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         }
 
         // Scan for Set fields
-        final PermazenSetFieldScanner<T> setFieldScanner = new PermazenSetFieldScanner<>(this, permazenType);
+        final PermazenSetFieldScanner<T> setFieldScanner = new PermazenSetFieldScanner<>(this, this.permazenType);
         for (PermazenSetFieldScanner<T>.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -294,7 +293,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         }
 
         // Scan for List fields
-        final PermazenListFieldScanner<T> listFieldScanner = new PermazenListFieldScanner<>(this, permazenType);
+        final PermazenListFieldScanner<T> listFieldScanner = new PermazenListFieldScanner<>(this, this.permazenType);
         for (PermazenListFieldScanner<T>.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -327,7 +326,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         }
 
         // Scan for Map fields
-        final PermazenMapFieldScanner<T> mapFieldScanner = new PermazenMapFieldScanner<>(this, permazenType);
+        final PermazenMapFieldScanner<T> mapFieldScanner = new PermazenMapFieldScanner<>(this, this.permazenType);
         for (PermazenMapFieldScanner<T>.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -497,6 +496,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
     @Override
     SchemaObjectType toSchemaItem() {
         final SchemaObjectType objectType = (SchemaObjectType)super.toSchemaItem();
+        objectType.setSchemaSalt(this.permazenType.schemaSalt());
         this.fieldsByName.forEach((name, field) -> objectType.getSchemaFields().put(name, field.toSchemaItem()));
         this.jcompositeIndexesByName.forEach(
           (name, index) -> objectType.getSchemaCompositeIndexes().put(name, index.toSchemaItem()));
