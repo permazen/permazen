@@ -9,12 +9,15 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
+import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+import io.permazen.kv.mvcc.MutableView;
+import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
@@ -83,6 +86,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only</li>
  *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
  *  <li>{@link #createDetachedTransaction createDetachedTransaction()} - Create a empty, in-memory transaction</li>
+ *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create an in-memory transaction
+ *      pre-populated with a snapshot of this transaction</li>
  *  <li>{@link #isDetached} - Determine whether this transaction is a detached transaction</li>
  * </ul>
  *
@@ -659,15 +664,16 @@ public class Transaction {
     }
 
     /**
-     * Create an empty, in-memory detached transaction.
+     * Create an in-memory detached transaction.
      *
      * <p>
      * The detached transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
      * (i.e., contain no objects). It can be used as a destination for in-memory copies of objects made via {@link #copy copy()}.
      *
      * <p>
-     * The returned {@link DetachedTransaction} does not support {@link #commit}, {@link #rollback},
-     * or {@link #addCallback addCallback()}, and can be used indefinitely after this transaction closes.
+     * The returned {@link DetachedTransaction} does not support {@link #commit} or {@link #rollback}.
+     * It can be used indefinitely after this transaction closes, but it must be {@link DetachedTransaction#close close()}'d
+     * when no longer needed to release any associated resources.
      *
      * @return empty in-memory detached transaction with compatible schema information
      * @see Database#createDetachedTransaction Database.createDetachedTransaction()
@@ -675,6 +681,42 @@ public class Transaction {
     public synchronized DetachedTransaction createDetachedTransaction() {
         final MemoryKVStore kvstore = new MemoryKVStore();
         Layout.copyMetaData(this.kvt, kvstore);
+        return new DetachedTransaction(this.db, kvstore, this.schema);
+    }
+
+    /**
+     * Create a detached transaction pre-populated with a snapshot of this transaction.
+     *
+     * <p>
+     * The returned transaction will have the same schema meta-data and object content as this instance.
+     * It will be a mutable transaction, but being detached, changes can't be committed.
+     *
+     * <p>
+     * This method requires the underlying key/value transaction to support {@link KVTransaction#readOnlySnapshot}.
+     * As with any other information extracted from this transaction, the returned content is not guaranteed to be
+     * valid until this transaction has been successfully committed.
+     *
+     * <p>
+     * The returned {@link DetachedTransaction} does not support {@link #commit} or {@link #rollback}.
+     * It can be used indefinitely after this transaction closes, but it must be {@link DetachedTransaction#close close()}'d
+     * when no longer needed to release any associated resources.
+     *
+     * @return in-memory copy of this transaction
+     * @throws UnsupportedOperationException if they underlying key/value transaction doesn't support
+     *  {@link KVTransaction#readOnlySnapshot}
+     */
+    public synchronized DetachedTransaction createSnapshotTransaction() {
+
+        // Create a snapshot
+        final CloseableKVStore snapshot = this.kvt.readOnlySnapshot();
+
+        // Make it mutable
+        final MutableView mutableView = new MutableView(snapshot, false);
+
+        // Ensure the snapshot is closed when the detached transaction is closed
+        final CloseableForwardingKVStore kvstore = new CloseableForwardingKVStore(mutableView, snapshot::close);
+
+        // Create new transaction
         return new DetachedTransaction(this.db, kvstore, this.schema);
     }
 

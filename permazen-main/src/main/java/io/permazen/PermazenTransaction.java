@@ -173,6 +173,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getDetachedTransaction getDetachedTransaction()} - Get the default in-memory detached transaction
  *      associated with this regular transaction</li>
  *  <li>{@link #createDetachedTransaction createDetachedTransaction()} - Create a new in-memory detached transaction</li>
+ *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a new in-memory detached transaction
+ *      pre-populated with a snapshot of this transaction</li>
  *  <li>{@link #isDetached} - Determine whether this transaction is a detached transaction</li>
  * </ul>
  *
@@ -462,10 +464,16 @@ public class PermazenTransaction {
     }
 
     /**
-     * Create an empty detached transaction based on this instance.
+     * Create a new, empty detached transaction.
      *
      * <p>
-     * This new instance will have the same schema meta-data as this instance.
+     * The returned transaction will have the same schema meta-data as this instance.
+     * It will be a mutable transaction, but being detached, changes can't be committed.
+     *
+     * <p>
+     * The returned {@link DetachedPermazenTransaction} does not support {@link #commit} or {@link #rollback}.
+     * It can be used indefinitely after this transaction closes, but it must be
+     * {@link DetachedPermazenTransaction#close close()}'d when no longer needed to release any associated resources.
      *
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @return newly created detached transaction
@@ -474,6 +482,34 @@ public class PermazenTransaction {
      */
     public DetachedPermazenTransaction createDetachedTransaction(ValidationMode validationMode) {
         return new DetachedPermazenTransaction(this.pdb, this.tx.createDetachedTransaction(), validationMode);
+    }
+
+    /**
+     * Create a new detached transaction pre-populated with a snapshot of this transaction.
+     *
+     * <p>
+     * The returned transaction will have the same schema meta-data and object content as this instance.
+     * It will be a mutable transaction, but being detached, changes can't be committed.
+     *
+     * <p>
+     * The returned {@link DetachedPermazenTransaction} does not support {@link #commit} or {@link #rollback}.
+     * It can be used indefinitely after this transaction closes, but it must be
+     * {@link DetachedPermazenTransaction#close close()}'d when no longer needed to release any associated resources.
+     *
+     * <p>
+     * This method requires the underlying key/value transaction to support {@link KVTransaction#readOnlySnapshot}.
+     * As with any other information extracted from this transaction, the returned content is not guaranteed to be
+     * valid until this transaction has been successfully committed.
+     *
+     * @param validationMode the {@link ValidationMode} to use for the new transaction
+     * @return newly created detached transaction
+     * @throws IllegalArgumentException if {@code validationMode} is null
+     * @throws UnsupportedOperationException if they underlying key/value transaction doesn't support
+     *  {@link KVTransaction#readOnlySnapshot}
+     * @throws io.permazen.core.StaleTransactionException if this instance is no longer usable
+     */
+    public DetachedPermazenTransaction createSnapshotTransaction(ValidationMode validationMode) {
+        return new DetachedPermazenTransaction(this.pdb, this.tx.createSnapshotTransaction(), validationMode);
     }
 
     /**

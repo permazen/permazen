@@ -26,6 +26,11 @@ import java.io.Closeable;
  * {@link DetachedTransaction}s can be based on an arbitrary {@link KVStore};
  * see {@link Database#createDetachedTransaction Database.createDetachedTransaction()}.
  *
+ + * <p><b>Lifecycle Management</b>
+ *
+ * <p>
+ * Instances of this class should be {@link #close}'d when no longer needed to release any associated resources.
+ *
  * @see Transaction#createDetachedTransaction Transaction.createDetachedTransaction()
  * @see Database#createDetachedTransaction Database.createDetachedTransaction()
  * @see io.permazen.DetachedPermazenTransaction

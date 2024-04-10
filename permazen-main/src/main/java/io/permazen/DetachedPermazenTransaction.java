@@ -45,10 +45,16 @@ import java.io.Closeable;
  *
  * <p>
  * For {@link KVDatabase}'s that support it, using the key/value store snapshot returned by {@link KVTransaction#readOnlySnapshot}
- * allows an efficient "copy" of the entire database into a {@link DetachedPermazenTransaction} using
- * {@link Permazen#createDetachedTransaction(KVStore, ValidationMode) Permazen.createDetachedTransaction()}.
+ * allows an efficient "copy" of the entire database into a {@link DetachedPermazenTransaction}; see
+ * {@link PermazenTransaction#createSnapshotTransaction Permazen.createSnapshotTransaction()}.
  *
- * @see PermazenTransaction#createDetachedTransaction Transaction.createDetachedTransaction()
+ * <p><b>Lifecycle Management</b>
+ *
+ * <p>
+ * Instances of this class should be {@link #close}'d when no longer needed to release any associated resources.
+ *
+ * @see PermazenTransaction#createDetachedTransaction PermazenTransaction.createDetachedTransaction()
+ * @see PermazenTransaction#createSnapshotTransaction PermazenTransaction.createSnapshotTransaction()
  * @see Permazen#createDetachedTransaction Permazen.createDetachedTransaction()
  * @see DetachedTransaction
  */
