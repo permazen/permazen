@@ -10,7 +10,6 @@ import io.permazen.Permazen;
 import io.permazen.PermazenObject;
 import io.permazen.ReferencePath;
 import io.permazen.UpgradeConversionPolicy;
-import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
 import java.lang.annotation.Documented;
