@@ -824,11 +824,11 @@ public class PermazenTransaction {
      *
      * <p>
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned
-     * by this instance.
+     * by this transaction.
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
-     * In that case, attempts to access its fields will throw {@link DeletedObjectException}.
+     * If not, attempts to access its fields will throw {@link DeletedObjectException}.
      * Use {@link PermazenObject#exists PermazenObject.exists()} to check.
      *
      * <p>
@@ -850,15 +850,15 @@ public class PermazenTransaction {
      *
      * <p>
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned
-     * by this instance.
+     * by this transaction.
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
-     * In that case, attempts to access its fields will throw {@link DeletedObjectException}.
+     * If not, attempts to access its fields will throw {@link DeletedObjectException}.
      * Use {@link PermazenObject#exists PermazenObject.exists()} to check.
      *
      * <p>
-     * This method just invoke {@link #get(ObjId)} and then casts the result.
+     * This method just invokes {@link #get(ObjId)} and then casts the result.
      *
      * @param id object ID
      * @param type expected type
@@ -883,7 +883,7 @@ public class PermazenTransaction {
      *
      * <p>
      * <b>A non-null object is always returned, but the corresponding object may not actually exist in this transaction.</b>
-     * In that case, attempts to access its fields will throw {@link DeletedObjectException}.
+     * If not, attempts to access its fields will throw {@link DeletedObjectException}.
      * Use {@link PermazenObject#exists PermazenObject.exists()} to check.
      *
      * <p>
