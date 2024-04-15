@@ -181,7 +181,7 @@ public @interface PermazenType {
     UpgradeConversionPolicy autogenUpgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
 
     /**
-     * {@link SchemaModel} schema ID hash function salting value.
+     * {@link SchemaModel} schema ID hash epoch.
      *
      * <p>
      * This value is included as input to the hash function used by {@link SchemaModel#getSchemaId}. Therefore,
@@ -192,8 +192,8 @@ public @interface PermazenType {
      * This can be useful (for example) when you want to force revalidation of all instances of the annotated type
      * on the next access, because revalidation is a side effect of a schema migration.
      *
-     * @return schema salt
+     * @return schema epoch
      * @see PermazenField
      */
-    int schemaSalt() default 0;
+    int schemaEpoch() default 0;
 }

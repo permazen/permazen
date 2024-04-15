@@ -37,7 +37,7 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
 
     private NavigableMap<String, SchemaField> fields = new TreeMap<>();
     private NavigableMap<String, SchemaCompositeIndex> indexes = new TreeMap<>();
-    private int schemaSalt;
+    private int schemaEpoch;
 
 // Properties
 
@@ -60,22 +60,22 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
     }
 
     /**
-     * Get the hash salting value included in the calculation of {@link SchemaModel#getSchemaId}.
+     * Get the schema epoch included in the calculation of {@link SchemaModel#getSchemaId}.
      *
-     * @return {@link SchemaModel} ID hash salting value
+     * @return {@link SchemaModel} schema ID epoch
      */
-    public int getSchemaSalt() {
-        return this.schemaSalt;
+    public int getSchemaEpoch() {
+        return this.schemaEpoch;
     }
 
     /**
-     * Set the hash salting value included in the calculation of {@link SchemaModel#getSchemaId}.
+     * Set the schema epoch included in the calculation of {@link SchemaModel#getSchemaId}.
      *
-     * @param schemaSalt {@link SchemaModel} schema ID hash salting value
+     * @param schemaEpoch {@link SchemaModel} schema ID epoch
      */
-    public void setSchemaSalt(final int schemaSalt) {
+    public void setSchemaEpoch(final int schemaEpoch) {
         this.verifyNotLockedDown(false);
-        this.schemaSalt = schemaSalt;
+        this.schemaEpoch = schemaEpoch;
     }
 
 // Recursion
@@ -255,8 +255,8 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
             output.writeInt(this.indexes.size());
             for (SchemaCompositeIndex index : this.indexes.values())
                 index.writeSchemaIdHashData(output, true);
-            if (this.schemaSalt != 0)
-                output.writeInt(this.schemaSalt);
+            if (this.schemaEpoch != 0)
+                output.writeInt(this.schemaEpoch);
         }
     }
 

@@ -496,7 +496,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
     @Override
     SchemaObjectType toSchemaItem() {
         final SchemaObjectType objectType = (SchemaObjectType)super.toSchemaItem();
-        objectType.setSchemaSalt(this.permazenType.schemaSalt());
+        objectType.setSchemaEpoch(this.permazenType.schemaEpoch());
         this.fieldsByName.forEach((name, field) -> objectType.getSchemaFields().put(name, field.toSchemaItem()));
         this.jcompositeIndexesByName.forEach(
           (name, index) -> objectType.getSchemaCompositeIndexes().put(name, index.toSchemaItem()));
