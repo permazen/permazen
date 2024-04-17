@@ -192,12 +192,12 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
 
     /**
      * Encode a possibly null value as a {@link String} for later decoding by {@link #fromParseableString fromParseableString()}.
-     * The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by arbitrary additional characters,
-     * and must not start with whitespace or closing square bracket ({@code "]"}).
+     * The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by a word boundary (i.e., anything
+     * other than letter, digit, or underscore), and must not start with whitespace or closing square bracket ({@code "]"}).
      *
      * <p>
-     * In addition, each of the characters in the returned {@link String} must be one of the valid XML characters
-     * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
+     * In addition, each of the characters in the returned {@link String} must be a valid XML character:
+     * tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, or <code>&#92;ue000 - &#92;ufffd</code>.
      *
      * @param value actual value (possibly null)
      * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
