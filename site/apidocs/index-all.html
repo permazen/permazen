@@ -1139,7 +1139,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/mvcc/BranchedKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a> - Class in <a href="io/permazen/kv/mvcc/package-summary.html">io.permazen.kv.mvcc</a></dt>
 <dd>
 <div class="block">A <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
- later time, be merged back into a new <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.</div>
+ later time, be merged back into a new <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicting changes
+ have occurred in the meantime.</div>
 </dd>
 <dt><a href="io/permazen/kv/mvcc/BranchedKVTransaction.html#%3Cinit%3E(io.permazen.kv.KVDatabase)" class="member-name-link">BranchedKVTransaction(KVDatabase)</a> - Constructor for class io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/BranchedKVTransaction.html" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></dt>
 <dd>
@@ -2794,7 +2795,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/core/Transaction.html#createDetachedTransaction()" class="member-name-link">createDetachedTransaction()</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
 <dd>
-<div class="block">Create an empty, in-memory detached transaction.</div>
+<div class="block">Create an in-memory detached transaction.</div>
 </dd>
 <dt><a href="io/permazen/core/Database.html#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.core.TransactionConfig)" class="member-name-link">createDetachedTransaction(KVStore, TransactionConfig)</a> - Method in class io.permazen.core.<a href="io/permazen/core/Database.html" title="class in io.permazen.core">Database</a></dt>
 <dd>
@@ -2810,7 +2811,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/PermazenTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction(ValidationMode)</a> - Method in class io.permazen.<a href="io/permazen/PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></dt>
 <dd>
-<div class="block">Create an empty detached transaction based on this instance.</div>
+<div class="block">Create a new, empty detached transaction.</div>
 </dd>
 <dt><a href="io/permazen/EnumConverter.html#createEnumArrayConverter(java.lang.Class,int)" class="member-name-link">createEnumArrayConverter(Class&lt;? extends Enum&lt;?&gt;&gt;, int)</a> - Static method in class io.permazen.<a href="io/permazen/EnumConverter.html" title="class in io.permazen">EnumConverter</a></dt>
 <dd>
@@ -2947,6 +2948,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/mvstore/MVStoreKVDatabase.html#createSnapshotKVTransaction(io.permazen.kv.mvcc.MutableView,long)" class="member-name-link">createSnapshotKVTransaction(MutableView, long)</a> - Method in class io.permazen.kv.mvstore.<a href="io/permazen/kv/mvstore/MVStoreKVDatabase.html" title="class in io.permazen.kv.mvstore">MVStoreKVDatabase</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/Transaction.html#createSnapshotTransaction()" class="member-name-link">createSnapshotTransaction()</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
+<dd>
+<div class="block">Create a detached transaction pre-populated with a snapshot of this transaction.</div>
+</dd>
+<dt><a href="io/permazen/PermazenTransaction.html#createSnapshotTransaction(io.permazen.ValidationMode)" class="member-name-link">createSnapshotTransaction(ValidationMode)</a> - Method in class io.permazen.<a href="io/permazen/PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></dt>
+<dd>
+<div class="block">Create a new detached transaction pre-populated with a snapshot of this transaction.</div>
+</dd>
 <dt><a href="io/permazen/kv/raft/fallback/FallbackKVDatabase.html#createSourceTransaction(io.permazen.kv.raft.RaftKVDatabase)" class="member-name-link">createSourceTransaction(RaftKVDatabase)</a> - Method in class io.permazen.kv.raft.fallback.<a href="io/permazen/kv/raft/fallback/FallbackKVDatabase.html" title="class in io.permazen.kv.raft.fallback">FallbackKVDatabase</a></dt>
 <dd>
 <div class="block">Create a Raft source transaction.</div>
@@ -7452,6 +7461,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the <a href="io/permazen/schema/SchemaCompositeIndex.html" title="class in io.permazen.schema"><code>SchemaCompositeIndex</code></a>s defined on this object type's fields, indexed by name.</div>
 </dd>
+<dt><a href="io/permazen/schema/SchemaObjectType.html#getSchemaEpoch()" class="member-name-link">getSchemaEpoch()</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema">SchemaObjectType</a></dt>
+<dd>
+<div class="block">Get the schema epoch included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+</dd>
 <dt><a href="io/permazen/schema/SchemaObjectType.html#getSchemaFields()" class="member-name-link">getSchemaFields()</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema">SchemaObjectType</a></dt>
 <dd>
 <div class="block">Get this object type's <a href="io/permazen/schema/SchemaField.html" title="class in io.permazen.schema"><code>SchemaField</code></a>s, indexed by name.</div>
@@ -7564,10 +7577,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/jsck/JsckConfig.html#getSchemaOverrides()" class="member-name-link">getSchemaOverrides()</a> - Method in class io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></dt>
 <dd>
 <div class="block">Configure schemas to forcibly apply into the schema table.</div>
-</dd>
-<dt><a href="io/permazen/schema/SchemaObjectType.html#getSchemaSalt()" class="member-name-link">getSchemaSalt()</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema">SchemaObjectType</a></dt>
-<dd>
-<div class="block">Get the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
 </dd>
 <dt><a href="io/permazen/core/SchemaBundle.html#getSchemasBySchemaId()" class="member-name-link">getSchemasBySchemaId()</a> - Method in class io.permazen.core.<a href="io/permazen/core/SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></dt>
 <dd>
@@ -13458,6 +13467,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Rethrow this exception, which may have been created in a different thread, in the context of the current thread.</div>
 </dd>
+<dt><a href="io/permazen/kv/mvcc/BranchedKVTransaction.html#RETRY_PROVIDER_OPTION" class="member-name-link">RETRY_PROVIDER_OPTION</a> - Static variable in class io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/BranchedKVTransaction.html" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></dt>
+<dd>
+<div class="block">Transaction option for a <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/spring/RetryTransactionProvider.html" title="class or interface in org.dellroad.stuff.spring" class="external-link"><code>RetryTransactionProvider</code></a> to use with the underlying open and/or commit transactions.</div>
+</dd>
 <dt><a href="io/permazen/kv/RetryTransactionException.html" class="type-name-link" title="class in io.permazen.kv">RetryTransactionException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
 <dd>
 <div class="block">Exception thrown when an attempt to access a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> results
@@ -13649,6 +13662,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/schema/SchemaCompositeIndex.html#%3Cinit%3E()" class="member-name-link">SchemaCompositeIndex()</a> - Constructor for class io.permazen.schema.<a href="io/permazen/schema/SchemaCompositeIndex.html" title="class in io.permazen.schema">SchemaCompositeIndex</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/annotation/PermazenType.html#schemaEpoch()" class="member-name-link">schemaEpoch()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenType.html" title="annotation interface in io.permazen.annotation">PermazenType</a></dt>
+<dd>
+<div class="block"><a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash epoch.</div>
+</dd>
 <dt><a href="io/permazen/schema/SchemaField.html" class="type-name-link" title="class in io.permazen.schema">SchemaField</a> - Class in <a href="io/permazen/schema/package-summary.html">io.permazen.schema</a></dt>
 <dd>
 <div class="block">A field in a <a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>.</div>
@@ -13717,10 +13734,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#SCHEMAS_TAG" class="member-name-link">SCHEMAS_TAG</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/annotation/PermazenType.html#schemaSalt()" class="member-name-link">schemaSalt()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenType.html" title="annotation interface in io.permazen.annotation">PermazenType</a></dt>
-<dd>
-<div class="block"><a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash function salting value.</div>
-</dd>
 <dt><a href="io/permazen/SchemaUtilityImpl.html" class="type-name-link" title="class in io.permazen">SchemaUtilityImpl</a> - Class in <a href="io/permazen/package-summary.html">io.permazen</a></dt>
 <dd>
 <div class="block">Schema utility API.</div>
@@ -14504,6 +14517,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/mssql/MSSQLKVDatabase.html#setSchema(java.lang.String)" class="member-name-link">setSchema(String)</a> - Method in class io.permazen.kv.mssql.<a href="io/permazen/kv/mssql/MSSQLKVDatabase.html" title="class in io.permazen.kv.mssql">MSSQLKVDatabase</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/schema/SchemaObjectType.html#setSchemaEpoch(int)" class="member-name-link">setSchemaEpoch(int)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema">SchemaObjectType</a></dt>
+<dd>
+<div class="block">Set the schema epoch included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+</dd>
 <dt><a href="io/permazen/schema/SetSchemaField.html" class="type-name-link" title="class in io.permazen.schema">SetSchemaField</a> - Class in <a href="io/permazen/schema/package-summary.html">io.permazen.schema</a></dt>
 <dd>
 <div class="block">A set field in one version of a <a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>.</div>
@@ -14516,10 +14533,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/jsck/JsckConfig.html#setSchemaOverrides(java.util.Map)" class="member-name-link">setSchemaOverrides(Map&lt;Integer, SchemaModel&gt;)</a> - Method in class io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/schema/SchemaObjectType.html#setSchemaSalt(int)" class="member-name-link">setSchemaSalt(int)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema">SchemaObjectType</a></dt>
-<dd>
-<div class="block">Set the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
-</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a> - Class in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#%3Cinit%3E()" class="member-name-link">SetSessionModeCommand()</a> - Constructor for class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>

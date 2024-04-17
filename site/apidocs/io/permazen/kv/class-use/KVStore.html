@@ -530,7 +530,8 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><code><a href="../mvcc/BranchedKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.mvcc">BranchedKVTransaction</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">A <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
- later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.</div>
+ later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicting changes
+ have occurred in the meantime.</div>
 </div>
 <div class="col-first even-row-color"><code>class&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../mvcc/MemoryAtomicKVStore.html" class="type-name-link" title="class in io.permazen.kv.mvcc">MemoryAtomicKVStore</a></code></div>

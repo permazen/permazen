@@ -159,20 +159,20 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="SchemaCompositeIndex.html" title="class in io.permazen.schema"><code>SchemaCompositeIndex</code></a>s defined on this object type's fields, indexed by name.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="SchemaField.html" title="class in io.permazen.schema">SchemaField</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaFields()" class="member-name-link">getSchemaFields</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaEpoch()" class="member-name-link">getSchemaEpoch</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the schema epoch included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="SchemaField.html" title="class in io.permazen.schema">SchemaField</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaFields()" class="member-name-link">getSchemaFields</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get this object type's <a href="SchemaField.html" title="class in io.permazen.schema"><code>SchemaField</code></a>s, indexed by name.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="SchemaId.html" title="class in io.permazen.schema">SchemaId</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaId()" class="member-name-link">getSchemaId</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Generate a unique <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> corresponding to the type and encoding structure of this schema item.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaSalt()" class="member-name-link">getSchemaSalt</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="SchemaId.html" title="class in io.permazen.schema">SchemaId</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaId()" class="member-name-link">getSchemaId</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+<div class="block">Generate a unique <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> corresponding to the type and encoding structure of this schema item.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
@@ -183,9 +183,9 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <div class="block">Determine whether this instance is locked down.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSchemaSalt(int)" class="member-name-link">setSchemaSalt</a><wbr>(int&nbsp;schemaSalt)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSchemaEpoch(int)" class="member-name-link">setSchemaEpoch</a><wbr>(int&nbsp;schemaEpoch)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Set the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+<div class="block">Set the schema epoch included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
@@ -276,24 +276,24 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 </section>
 </li>
 <li>
-<section class="detail" id="getSchemaSalt()">
-<h3>getSchemaSalt</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSchemaSalt</span>()</div>
-<div class="block">Get the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+<section class="detail" id="getSchemaEpoch()">
+<h3>getSchemaEpoch</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSchemaEpoch</span>()</div>
+<div class="block">Get the schema epoch included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd><a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> ID hash salting value</dd>
+<dd><a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID epoch</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="setSchemaSalt(int)">
-<h3>setSchemaSalt</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSchemaSalt</span><wbr><span class="parameters">(int&nbsp;schemaSalt)</span></div>
-<div class="block">Set the hash salting value included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
+<section class="detail" id="setSchemaEpoch(int)">
+<h3>setSchemaEpoch</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSchemaEpoch</span><wbr><span class="parameters">(int&nbsp;schemaEpoch)</span></div>
+<div class="block">Set the schema epoch included in the calculation of <code>SchemaSupport.getSchemaId()</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>schemaSalt</code> - <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash salting value</dd>
+<dd><code>schemaEpoch</code> - <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID epoch</dd>
 </dl>
 </section>
 </li>

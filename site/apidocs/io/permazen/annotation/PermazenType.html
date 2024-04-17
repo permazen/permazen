@@ -174,9 +174,9 @@ loadScripts(document, 'script');</script>
 <div class="block">The name of this object type.</div>
 </div>
 <div class="col-first odd-row-color"><code>int</code></div>
-<div class="col-second odd-row-color"><code><a href="#schemaSalt()" class="member-name-link">schemaSalt</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#schemaEpoch()" class="member-name-link">schemaEpoch</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash function salting value.</div>
+<div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash epoch.</div>
 </div>
 <div class="col-first even-row-color"><code>int</code></div>
 <div class="col-second even-row-color"><code><a href="#storageId()" class="member-name-link">storageId</a></code></div>
@@ -357,10 +357,10 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="schemaSalt()">
-<h3>schemaSalt</h3>
-<div class="member-signature"><span class="return-type">int</span>&nbsp;<span class="element-name">schemaSalt</span></div>
-<div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash function salting value.
+<section class="detail" id="schemaEpoch()">
+<h3>schemaEpoch</h3>
+<div class="member-signature"><span class="return-type">int</span>&nbsp;<span class="element-name">schemaEpoch</span></div>
+<div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash epoch.
 
  <p>
  This value is included as input to the hash function used by <code>SchemaSupport.getSchemaId()</code>. Therefore,
@@ -372,7 +372,7 @@ loadScripts(document, 'script');</script>
  on the next access, because revalidation is a side effect of a schema migration.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>schema salt</dd>
+<dd>schema epoch</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">

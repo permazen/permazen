@@ -281,12 +281,12 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toParseableString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Period.html" title="class or interface in java.time" class="external-link">Period</a>&nbsp;period)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#toParseableString(T)">Encoding</a></code></span></div>
 <div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.
- The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by arbitrary additional characters,
- and must not start with whitespace or closing square bracket (<code>"]"</code>).
+ The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by a word boundary (i.e., anything
+ other than letter, digit, or underscore), and must not start with whitespace or closing square bracket (<code>"]"</code>).
 
  <p>
- In addition, each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be one of the valid XML characters
- (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).</div>
+ In addition, each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be a valid XML character:
+ tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, or <code>&#92;ue000 - &#92;ufffd</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>period</code> - actual value (possibly null)</dd>

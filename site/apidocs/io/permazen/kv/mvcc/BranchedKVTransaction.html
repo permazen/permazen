@@ -46,13 +46,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -85,45 +85,91 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>, <a href="../CloseableKVStore.html" title="interface in io.permazen.kv">CloseableKVStore</a></span></div>
 <div class="block">A <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is based on a snapshot from an original <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> and that can, at some arbitrary
- later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicts are detected.
+ later time, be merged back into a new <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> from the same database, assuming no conflicting changes
+ have occurred in the meantime.
 
  <p>
- This class only works with <a href="../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>'s that support <a href="../KVTransaction.html#readOnlySnapshot()"><code>readOnlySnapshot()</code></a>.
-
- <p>
- In effect, this class gives the appearance of a regular <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that can stay open for an arbitrarily long time.
-
- <p>
- New instances must be explicitly opened via <a href="#open()"><code>open()</code></a>. When that occurs, a regular database transaction is opened,
- a <a href="../KVTransaction.html#readOnlySnapshot()">snapshot</a> of the database taken, and then that transaction is immediately closed.
- Reads and writes in this transaction are then tracked and kept entirely in memory and there is no actual transaction open.
- Later, when this transaction is <a href="#commit()"><code>commit()</code></a>'ed, a new regular database transaction is opened, a conflict check is
- performed to determine whether any of the keys read by this transaction have since changed, and then if not all of this
- transaction's accumulated writes are applied. Otherwise, if a conflict is found, a <a href="TransactionConflictException.html" title="class in io.permazen.kv.mvcc"><code>TransactionConflictException</code></a>
- is thrown.
-
- <p>
- The conflict check can also be performed on demand at any time while this transaction is open without actually
- <a href="#commit()"><code>commit()</code></a>'ing anything, via <a href="#checkForConflicts()"><code>checkForConflicts()</code></a>.
-
- <p>
- There is a limit to how "branched" the transaction can get. The probability for a conflict increases when instances are kept open
- for a long time and/or there is a high volume of read traffic in this transaction, or write traffic in the underlying database.
- However, it can be useful in certain scenarios, for example, to support editing a single entity in a GUI application
- within a single "transaction" that doesn't actually keep open any database resources.
-
- <p>
- The amount of work required for the conflict check scales in proportion to the number of keys read in this transaction;
- the amount of memory required scales as it does with <a href="MutableView.html" title="class in io.permazen.kv.mvcc"><code>MutableView</code></a>.
+ In effect, this class gives the appearance of a regular <a href="../KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that can stay open for an arbitrarily long time,
+ with the same consistency guarantees as a normal single transaction. It can be useful in certain scenarios, for example,
+ to support editing an entity in a GUI application where the user may take several minutes to complete a form, while also
+ ensuring that everything the user sees while editing the form is still up to date when the form is actually submitted.
 
  <p>
  Instances support <a href="#readOnlySnapshot()"><code>readOnlySnapshot()</code></a> and <a href="#withWeakConsistency(java.lang.Runnable)"><code>withWeakConsistency()</code></a>.
 
  <p>
- Instances do not support <a href="#setTimeout(long)"><code>setTimeout()</code></a> or <a href="#watchKey(byte%5B%5D)"><code>watchKey()</code></a>.</div>
+ Instances do not support <a href="#setTimeout(long)"><code>setTimeout()</code></a> or <a href="#watchKey(byte%5B%5D)"><code>watchKey()</code></a>.
+
+ <p><b>Transaction Management</b></p>
+
+ <p>
+ New instances must be explicitly opened via <a href="#open()"><code>open()</code></a>. At that time a regular database transaction is opened,
+ a <a href="../KVTransaction.html#readOnlySnapshot()">snapshot</a> of the database taken, and then that transaction is immediately closed.
+ Reads and writes in this transaction are then tracked and kept entirely in memory; no regular transaction remains open.
+ Later, when this transaction is <a href="#commit()"><code>commit()</code></a>'ed, a new regular database transaction is opened, a conflict check is
+ performed (to determine whether any of the keys read by this transaction have since changed), and then if there are no
+ conflicts, all of this transaction's accumulated writes are applied; otherwise, <a href="TransactionConflictException.html" title="class in io.permazen.kv.mvcc"><code>TransactionConflictException</code></a> is thrown.
+
+ <p>
+ The conflict check can also be performed on demand at any time while leaving this transaction open via
+ <a href="#checkForConflicts()"><code>checkForConflicts()</code></a>.
+
+ <p>
+ Because open instances retain an underlying snaphot which consumes resources, callers should ensure that instances are always
+ eventually committed or rolled back as soon as they are no longer needed. Note that <a href="#close()"><code>close()</code></a> can be used as a synonym
+ for <a href="#rollback()"><code>rollback()</code></a>.
+
+ <p><b>Underlying Transaction Configuration</b></p>
+
+ <p>
+ The real transactions that are used at open and commit time are configurable via the usual transaction options.
+ In addition, this class adds to those options <a href="#RETRY_PROVIDER_OPTION"><code>RETRY_PROVIDER_OPTION</code></a> which allows the configuration of
+ automatic retries for these transactions; for some key/value technologies, retry logic is important for robustness.
+ The <a href="#RETRY_PROVIDER_OPTION"><code>RETRY_PROVIDER_OPTION</code></a> option's value is a <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/spring/RetryTransactionProvider.html" title="class or interface in org.dellroad.stuff.spring" class="external-link"><code>RetryTransactionProvider</code></a>.
+
+ <p><b>Caveats</b></p>
+
+ <p>
+ This class only works with <a href="../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>'s that support <a href="../KVTransaction.html#readOnlySnapshot()"><code>readOnlySnapshot()</code></a>.
+
+ The probability for a conflict increases in proportion to the number of distinct keys (or key ranges) read in this transaction
+ and/or the amount of writes committed to the underlying database while this transaction remains open. Of course, this also
+ depends greatly on the problem domain, i.e., whether this and other transactions are doing work that overlaps.
+
+ <p>
+ Reads and writes are tracked via <a href="MutableView.html" title="class in io.permazen.kv.mvcc"><code>MutableView</code></a>; the amount of memory required is as described in that class.
+
+ <p>
+ The work required for the conflict check scales in proportion to the number of distinct keys (or key ranges)
+ read in the transaction.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list-long">
+<li><a href="../../Permazen.html#createBranchedTransaction()"><code>Permazen.createBranchedTransaction()</code></a></li>
+</ul>
+</dd>
+</dl>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#RETRY_PROVIDER_OPTION" class="member-name-link">RETRY_PROVIDER_OPTION</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Transaction option for a <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/spring/RetryTransactionProvider.html" title="class or interface in org.dellroad.stuff.spring" class="external-link"><code>RetryTransactionProvider</code></a> to use with the underlying open and/or commit transactions.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -289,6 +335,29 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="RETRY_PROVIDER_OPTION">
+<h3>RETRY_PROVIDER_OPTION</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RETRY_PROVIDER_OPTION</span></div>
+<div class="block">Transaction option for a <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/spring/RetryTransactionProvider.html" title="class or interface in org.dellroad.stuff.spring" class="external-link"><code>RetryTransactionProvider</code></a> to use with the underlying open and/or commit transactions.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="../../../../constant-values.html#io.permazen.kv.mvcc.BranchedKVTransaction.RETRY_PROVIDER_OPTION">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -319,7 +388,11 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <div class="block">Constructor.
 
  <p>
- This instance must be <a href="#open()"><code>open()</code></a>'ed before use.</div>
+ This instance must be <a href="#open()"><code>open()</code></a>'ed before use.
+
+ <p>
+ Any <a href="#RETRY_PROVIDER_OPTION"><code>RETRY_PROVIDER_OPTION</code></a> option in <code>openOptions</code> and/or <code>syncOptions</code>
+ is removed (i.e., not passed down <code>kvdb</code>) and used to automatically retry those transactions.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kvdb</code> - database</dd>
@@ -350,6 +423,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="external-link">UnsupportedOperationException</a></code> - if the database doesn't support <a href="../KVTransaction.html#readOnlySnapshot()"><code>KVTransaction.readOnlySnapshot()</code></a></dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this method has already been invoked</dd>
+<dd><code><a href="../KVDatabaseException.html" title="class in io.permazen.kv">KVDatabaseException</a></code> - if the underlying transaction fails</dd>
 </dl>
 </section>
 </li>

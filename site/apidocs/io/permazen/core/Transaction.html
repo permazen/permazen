@@ -118,6 +118,8 @@ loadScripts(document, 'script');</script>
   <li><a href="#setRollbackOnly()"><code>setRollbackOnly()</code></a> - Set transaction for rollack only</li>
   <li><a href="#addCallback(io.permazen.core.Transaction.Callback)"><code>addCallback()</code></a> - Register a <a href="Transaction.Callback.html" title="interface in io.permazen.core"><code>Transaction.Callback</code></a> on transaction completion</li>
   <li><a href="#createDetachedTransaction()"><code>createDetachedTransaction()</code></a> - Create a empty, in-memory transaction</li>
+  <li><a href="#createSnapshotTransaction()"><code>createSnapshotTransaction()</code></a> - Create an in-memory transaction
+      pre-populated with a snapshot of this transaction</li>
   <li><a href="#isDetached()"><code>isDetached()</code></a> - Determine whether this transaction is a detached transaction</li>
  </ul>
 
@@ -393,333 +395,338 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedTransaction.html" title="class in io.permazen.core">DetachedTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createDetachedTransaction()" class="member-name-link">createDetachedTransaction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create an empty, in-memory detached transaction.</div>
+<div class="block">Create an in-memory detached transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#delete(io.permazen.core.ObjId)" class="member-name-link">delete</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedTransaction.html" title="class in io.permazen.core">DetachedTransaction</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createSnapshotTransaction()" class="member-name-link">createSnapshotTransaction</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Create a detached transaction pre-populated with a snapshot of this transaction.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#delete(io.permazen.core.ObjId)" class="member-name-link">delete</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Delete an object.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exists(io.permazen.core.ObjId)" class="member-name-link">exists</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exists(io.permazen.core.ObjId)" class="member-name-link">exists</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine if an object exists.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#followReferencePath(java.util.stream.Stream,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D)" class="member-name-link">followReferencePath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;startObjects,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#followReferencePath(java.util.stream.Stream,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D)" class="member-name-link">followReferencePath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;startObjects,
  int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Find all objects referred to by any object in the given start set through the specified path of references.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#generateId(java.lang.String)" class="member-name-link">generateId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#generateId(java.lang.String)" class="member-name-link">generateId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Generate a random, unused <a href="ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a> for the given object type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAll()" class="member-name-link">getAll</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAll()" class="member-name-link">getAll</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get all objects in the database.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAll(java.lang.String)" class="member-name-link">getAll</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAll(java.lang.String)" class="member-name-link">getAll</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get all objects whose object type has the specified name.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Database.html" title="class in io.permazen.core">Database</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDatabase()" class="member-name-link">getDatabase</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Database.html" title="class in io.permazen.core">Database</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDatabase()" class="member-name-link">getDatabase</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the database with which this transaction is associated.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFieldDescription(io.permazen.core.ObjId,java.lang.String)" class="member-name-link">getFieldDescription</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFieldDescription(io.permazen.core.ObjId,java.lang.String)" class="member-name-link">getFieldDescription</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get a description of the given object field.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>byte[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKey(io.permazen.core.ObjId)" class="member-name-link">getKey</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>byte[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKey(io.permazen.core.ObjId)" class="member-name-link">getKey</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <code>byte[]</code> key prefix in the underlying key/value store corresponding to the specified object.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKVTransaction()" class="member-name-link">getKVTransaction</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKVTransaction()" class="member-name-link">getKVTransaction</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the underlying key/value store transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObjDescription(io.permazen.core.ObjId)" class="member-name-link">getObjDescription</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObjDescription(io.permazen.core.ObjId)" class="member-name-link">getObjDescription</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get a description of the given object.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ObjType.html" title="class in io.permazen.core">ObjType</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObjType(io.permazen.core.ObjId)" class="member-name-link">getObjType</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ObjType.html" title="class in io.permazen.core">ObjType</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getObjType(io.permazen.core.ObjId)" class="member-name-link">getObjType</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the given object's <a href="ObjType.html" title="class in io.permazen.core"><code>ObjType</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Schema.html" title="class in io.permazen.core">Schema</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchema()" class="member-name-link">getSchema</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Schema.html" title="class in io.permazen.core">Schema</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchema()" class="member-name-link">getSchema</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the database schema associated with this transaction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaBundle()" class="member-name-link">getSchemaBundle</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaBundle()" class="member-name-link">getSchemaBundle</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the database's schema bundle</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeDescription(io.permazen.core.ObjId)" class="member-name-link">getTypeDescription</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeDescription(io.permazen.core.ObjId)" class="member-name-link">getTypeDescription</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get a description of the given object's type.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeName(int)" class="member-name-link">getTypeName</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeName(int)" class="member-name-link">getTypeName</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the object type assigned to the given storage ID.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUserObject()" class="member-name-link">getUserObject</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUserObject()" class="member-name-link">getUserObject</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the object with this instance by <a href="#setUserObject(java.lang.Object)"><code>setUserObject()</code></a>, if any.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#invertReferencePath(int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.util.stream.Stream)" class="member-name-link">invertReferencePath</a><wbr>(int[]&nbsp;path,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#invertReferencePath(int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.util.stream.Stream)" class="member-name-link">invertReferencePath</a><wbr>(int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;targetObjects)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Find all objects that refer to any object in the given target set through the specified path of references.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDetached()" class="member-name-link">isDetached</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDetached()" class="member-name-link">isDetached</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this instance is a <a href="DetachedTransaction.html" title="class in io.permazen.core"><code>DetachedTransaction</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isOpen()" class="member-name-link">isOpen</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isOpen()" class="member-name-link">isOpen</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this transaction is still open.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isReadOnly()" class="member-name-link">isReadOnly</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isReadOnly()" class="member-name-link">isReadOnly</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this transaction is read-only.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRollbackOnly()" class="member-name-link">isRollbackOnly</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRollbackOnly()" class="member-name-link">isRollbackOnly</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this transaction is marked rollback only.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#migrateSchema(io.permazen.core.ObjId)" class="member-name-link">migrateSchema</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#migrateSchema(io.permazen.core.ObjId)" class="member-name-link">migrateSchema</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Migrate the specified object, if necessary, to <a href="#getSchema()">the schema associated with this transaction</a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;?,<wbr>?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryCompositeIndex2(int)" class="member-name-link">queryCompositeIndex2</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;?,<wbr>?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryCompositeIndex2(int)" class="member-name-link">queryCompositeIndex2</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query a <a href="CompositeIndex.html" title="class in io.permazen.core"><code>CompositeIndex</code></a> on two fields to find all value tuples stored in the corresponding
  field tuple and, for each value tuple, the set of all objects having those values in those fields.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex3.html" title="class in io.permazen.core">CoreIndex3</a>&lt;?,<wbr>?,<wbr>?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryCompositeIndex3(int)" class="member-name-link">queryCompositeIndex3</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex3.html" title="class in io.permazen.core">CoreIndex3</a>&lt;?,<wbr>?,<wbr>?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryCompositeIndex3(int)" class="member-name-link">queryCompositeIndex3</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query a <a href="CompositeIndex.html" title="class in io.permazen.core"><code>CompositeIndex</code></a> on three fields to find all value tuples stored in the corresponding
  field tuple and, for each value tuple, the set of all objects having those values in those fields.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex4.html" title="class in io.permazen.core">CoreIndex4</a>&lt;?,<wbr>?,<wbr>?,<wbr>?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryCompositeIndex4(int)" class="member-name-link">queryCompositeIndex4</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex4.html" title="class in io.permazen.core">CoreIndex4</a>&lt;?,<wbr>?,<wbr>?,<wbr>?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryCompositeIndex4(int)" class="member-name-link">queryCompositeIndex4</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query a <a href="CompositeIndex.html" title="class in io.permazen.core"><code>CompositeIndex</code></a> on four fields to find all value tuples stored in the corresponding
  field tuple and, for each value tuple, the set of all objects having those values in those fields.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AbstractCoreIndex.html" title="class in io.permazen.core">AbstractCoreIndex</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryIndex(int)" class="member-name-link">queryIndex</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AbstractCoreIndex.html" title="class in io.permazen.core">AbstractCoreIndex</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryIndex(int)" class="member-name-link">queryIndex</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query any simple or composite index.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryListElementIndex(int)" class="member-name-link">queryListElementIndex</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryListElementIndex(int)" class="member-name-link">queryListElementIndex</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query a <a href="ListElementIndex.html" title="class in io.permazen.core"><code>ListElementIndex</code></a> to find all values stored in some list field and, for each value,
  the set of all objects having that value as an element in the list and the corresponding list index.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>,<wbr>?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryMapValueIndex(int)" class="member-name-link">queryMapValueIndex</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>,<wbr>?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#queryMapValueIndex(int)" class="member-name-link">queryMapValueIndex</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query a <a href="MapValueIndex.html" title="class in io.permazen.core"><code>MapValueIndex</code></a> to find all values stored in some map field and, for each value,
  the set of all objects having that value as a value in the map and the corresponding key.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex1.html" title="class in io.permazen.core">CoreIndex1</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#querySchemaIndex()" class="member-name-link">querySchemaIndex</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex1.html" title="class in io.permazen.core">CoreIndex1</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#querySchemaIndex()" class="member-name-link">querySchemaIndex</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query objects by schema.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex1.html" title="class in io.permazen.core">CoreIndex1</a>&lt;?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#querySimpleIndex(int)" class="member-name-link">querySimpleIndex</a><wbr>(int&nbsp;storageId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CoreIndex1.html" title="class in io.permazen.core">CoreIndex1</a>&lt;?,<wbr><a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#querySimpleIndex(int)" class="member-name-link">querySimpleIndex</a><wbr>(int&nbsp;storageId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Query a <a href="SimpleIndex.html" title="class in io.permazen.core"><code>SimpleIndex</code></a> to find all values stored in some field and, for each value,
  the set of all objects having that value in the field.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readCounterField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readCounterField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readCounterField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readCounterField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read the value of a <a href="CounterField.html" title="class in io.permazen.core"><code>CounterField</code></a> from an object, optionally updating the object's schema.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readListField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readListField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readListField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readListField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Access a <a href="ListField.html" title="class in io.permazen.core"><code>ListField</code></a> associated with an object, optionally updating the object's schema.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;?,<wbr>?&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readMapField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readMapField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link">NavigableMap</a>&lt;?,<wbr>?&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readMapField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readMapField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Access a <a href="MapField.html" title="class in io.permazen.core"><code>MapField</code></a> associated with an object, optionally updating the object's schema.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readSetField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSetField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readSetField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSetField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Access a <a href="SetField.html" title="class in io.permazen.core"><code>SetField</code></a> associated with an object, optionally updating the object's schema.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readSimpleField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSimpleField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readSimpleField(io.permazen.core.ObjId,java.lang.String,boolean)" class="member-name-link">readSimpleField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read the value of a <a href="SimpleField.html" title="class in io.permazen.core"><code>SimpleField</code></a> from an object, optionally migrating the object's schema.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeCreateListener(io.permazen.core.CreateListener)" class="member-name-link">removeCreateListener</a><wbr>(<a href="CreateListener.html" title="interface in io.permazen.core">CreateListener</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeCreateListener(io.permazen.core.CreateListener)" class="member-name-link">removeCreateListener</a><wbr>(<a href="CreateListener.html" title="interface in io.permazen.core">CreateListener</a>&nbsp;listener)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove an <a href="CreateListener.html" title="interface in io.permazen.core"><code>CreateListener</code></a> from this transaction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeDeleteListener(io.permazen.core.DeleteListener)" class="member-name-link">removeDeleteListener</a><wbr>(<a href="DeleteListener.html" title="interface in io.permazen.core">DeleteListener</a>&nbsp;listener)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeDeleteListener(io.permazen.core.DeleteListener)" class="member-name-link">removeDeleteListener</a><wbr>(<a href="DeleteListener.html" title="interface in io.permazen.core">DeleteListener</a>&nbsp;listener)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove an <a href="DeleteListener.html" title="interface in io.permazen.core"><code>DeleteListener</code></a> from this transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)" class="member-name-link">removeFieldChangeListener</a><wbr>(int&nbsp;storageId,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)" class="member-name-link">removeFieldChangeListener</a><wbr>(int&nbsp;storageId,
  int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove a field monitor previously added via <a href="#addSimpleFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a>,
  <a href="#addSetFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SetFieldChangeListener)"><code>addSetFieldChangeListener()</code></a>,
  <a href="#addListFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.ListFieldChangeListener)"><code>addListFieldChangeListener()</code></a>,
  <a href="#addMapFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a>,
  or <a href="#addFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)"><code>addFieldChangeListener()</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeListFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.ListFieldChangeListener)" class="member-name-link">removeListFieldChangeListener</a><wbr>(int&nbsp;storageId,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeListFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.ListFieldChangeListener)" class="member-name-link">removeListFieldChangeListener</a><wbr>(int&nbsp;storageId,
  int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters,
  <a href="ListFieldChangeListener.html" title="interface in io.permazen.core">ListFieldChangeListener</a>&nbsp;listener)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove a field monitor previously added via <a href="#addListFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.ListFieldChangeListener)"><code>addListFieldChangeListener()</code></a>
  (or <a href="#addFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)"><code>addFieldChangeListener()</code></a>).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeMapFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.MapFieldChangeListener)" class="member-name-link">removeMapFieldChangeListener</a><wbr>(int&nbsp;storageId,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeMapFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.MapFieldChangeListener)" class="member-name-link">removeMapFieldChangeListener</a><wbr>(int&nbsp;storageId,
  int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters,
  <a href="MapFieldChangeListener.html" title="interface in io.permazen.core">MapFieldChangeListener</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove a field monitor previously added via <a href="#addMapFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a>
  (or <a href="#addFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)"><code>addFieldChangeListener()</code></a>).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSchema(io.permazen.schema.SchemaId)" class="member-name-link">removeSchema</a><wbr>(<a href="../schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a>&nbsp;schemaId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSchema(io.permazen.schema.SchemaId)" class="member-name-link">removeSchema</a><wbr>(<a href="../schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a>&nbsp;schemaId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Manually remove the given schema from the database.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSchemaChangeListener(io.permazen.core.SchemaChangeListener)" class="member-name-link">removeSchemaChangeListener</a><wbr>(<a href="SchemaChangeListener.html" title="interface in io.permazen.core">SchemaChangeListener</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSchemaChangeListener(io.permazen.core.SchemaChangeListener)" class="member-name-link">removeSchemaChangeListener</a><wbr>(<a href="SchemaChangeListener.html" title="interface in io.permazen.core">SchemaChangeListener</a>&nbsp;listener)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove an <a href="SchemaChangeListener.html" title="interface in io.permazen.core"><code>SchemaChangeListener</code></a> from this transaction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSetFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SetFieldChangeListener)" class="member-name-link">removeSetFieldChangeListener</a><wbr>(int&nbsp;storageId,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSetFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SetFieldChangeListener)" class="member-name-link">removeSetFieldChangeListener</a><wbr>(int&nbsp;storageId,
  int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters,
  <a href="SetFieldChangeListener.html" title="interface in io.permazen.core">SetFieldChangeListener</a>&nbsp;listener)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove a field monitor previously added via <a href="#addSetFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SetFieldChangeListener)"><code>addSetFieldChangeListener()</code></a>
  (or <a href="#addFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)"><code>addFieldChangeListener()</code></a>).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSimpleFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SimpleFieldChangeListener)" class="member-name-link">removeSimpleFieldChangeListener</a><wbr>(int&nbsp;storageId,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSimpleFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SimpleFieldChangeListener)" class="member-name-link">removeSimpleFieldChangeListener</a><wbr>(int&nbsp;storageId,
  int[]&nbsp;path,
  <a href="../kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a>[]&nbsp;filters,
  <a href="SimpleFieldChangeListener.html" title="interface in io.permazen.core">SimpleFieldChangeListener</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove a field monitor previously added via <a href="#addSimpleFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a>
  (or <a href="#addFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,java.lang.Object)"><code>addFieldChangeListener()</code></a>).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rollback()" class="member-name-link">rollback</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rollback()" class="member-name-link">rollback</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Roll back this transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setListeners(io.permazen.core.Transaction.ListenerSet)" class="member-name-link">setListeners</a><wbr>(<a href="Transaction.ListenerSet.html" title="class in io.permazen.core">Transaction.ListenerSet</a>&nbsp;listeners)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setListeners(io.permazen.core.Transaction.ListenerSet)" class="member-name-link">setListeners</a><wbr>(<a href="Transaction.ListenerSet.html" title="class in io.permazen.core">Transaction.ListenerSet</a>&nbsp;listeners)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Apply a snapshot created via <a href="#snapshotListeners()"><code>snapshotListeners()</code></a> to this instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadOnly(boolean)" class="member-name-link">setReadOnly</a><wbr>(boolean&nbsp;readOnly)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadOnly(boolean)" class="member-name-link">setReadOnly</a><wbr>(boolean&nbsp;readOnly)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Enable or disable read-only mode.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRollbackOnly()" class="member-name-link">setRollbackOnly</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRollbackOnly()" class="member-name-link">setRollbackOnly</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Mark this transaction for rollback only.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTimeout(long)" class="member-name-link">setTimeout</a><wbr>(long&nbsp;timeout)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTimeout(long)" class="member-name-link">setTimeout</a><wbr>(long&nbsp;timeout)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUserObject(java.lang.Object)" class="member-name-link">setUserObject</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUserObject(java.lang.Object)" class="member-name-link">setUserObject</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Associate an arbitrary object with this instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Transaction.ListenerSet.html" title="class in io.permazen.core">Transaction.ListenerSet</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#snapshotListeners()" class="member-name-link">snapshotListeners</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Transaction.ListenerSet.html" title="class in io.permazen.core">Transaction.ListenerSet</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#snapshotListeners()" class="member-name-link">snapshotListeners</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create a read-only snapshot of all (<a href="CreateListener.html" title="interface in io.permazen.core"><code>CreateListener</code></a>s, <a href="DeleteListener.html" title="interface in io.permazen.core"><code>DeleteListener</code></a>s, <a href="SchemaChangeListener.html" title="interface in io.permazen.core"><code>SchemaChangeListener</code></a>s,
  <a href="SimpleFieldChangeListener.html" title="interface in io.permazen.core"><code>SimpleFieldChangeListener</code></a>s, <a href="SetFieldChangeListener.html" title="interface in io.permazen.core"><code>SetFieldChangeListener</code></a>s, <a href="ListFieldChangeListener.html" title="interface in io.permazen.core"><code>ListFieldChangeListener</code></a>s, and
  <a href="MapFieldChangeListener.html" title="interface in io.permazen.core"><code>MapFieldChangeListener</code></a>s currently registered on this instance.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withWeakConsistency(java.lang.Runnable)" class="member-name-link">withWeakConsistency</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withWeakConsistency(java.lang.Runnable)" class="member-name-link">withWeakConsistency</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Apply weaker transaction consistency while performing the given action, if supported.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeCounterField(io.permazen.core.ObjId,java.lang.String,long,boolean)" class="member-name-link">writeCounterField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeCounterField(io.permazen.core.ObjId,java.lang.String,long,boolean)" class="member-name-link">writeCounterField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  long&nbsp;value,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the value of a <a href="CounterField.html" title="class in io.permazen.core"><code>CounterField</code></a> in an object, optionally updating the object's schema.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeSimpleField(io.permazen.core.ObjId,java.lang.String,java.lang.Object,boolean)" class="member-name-link">writeSimpleField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeSimpleField(io.permazen.core.ObjId,java.lang.String,java.lang.Object,boolean)" class="member-name-link">writeSimpleField</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;value,
  boolean&nbsp;migrateSchema)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Change the value of a <a href="SimpleField.html" title="class in io.permazen.core"><code>SimpleField</code></a> in an object, optionally updating the object's schema.</div>
 </div>
 </div>
@@ -991,15 +998,16 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createDetachedTransaction()">
 <h3>createDetachedTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DetachedTransaction.html" title="class in io.permazen.core">DetachedTransaction</a></span>&nbsp;<span class="element-name">createDetachedTransaction</span>()</div>
-<div class="block">Create an empty, in-memory detached transaction.
+<div class="block">Create an in-memory detached transaction.
 
  <p>
  The detached transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
  (i.e., contain no objects). It can be used as a destination for in-memory copies of objects made via <a href="#copy(io.permazen.core.ObjId,io.permazen.core.Transaction,boolean,boolean,io.permazen.core.util.ObjIdMap,io.permazen.core.util.ObjIdMap)"><code>copy()</code></a>.
 
  <p>
- The returned <a href="DetachedTransaction.html" title="class in io.permazen.core"><code>DetachedTransaction</code></a> does not support <a href="#commit()"><code>commit()</code></a>, <a href="#rollback()"><code>rollback()</code></a>,
- or <a href="#addCallback(io.permazen.core.Transaction.Callback)"><code>addCallback()</code></a>, and can be used indefinitely after this transaction closes.</div>
+ The returned <a href="DetachedTransaction.html" title="class in io.permazen.core"><code>DetachedTransaction</code></a> does not support <a href="#commit()"><code>commit()</code></a> or <a href="#rollback()"><code>rollback()</code></a>.
+ It can be used indefinitely after this transaction closes, but it must be <a href="DetachedTransaction.html#close()"><code>close()</code></a>'d
+ when no longer needed to release any associated resources.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>empty in-memory detached transaction with compatible schema information</dd>
@@ -1009,6 +1017,34 @@ loadScripts(document, 'script');</script>
 <li><a href="Database.html#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.core.TransactionConfig)"><code>Database.createDetachedTransaction()</code></a></li>
 </ul>
 </dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createSnapshotTransaction()">
+<h3>createSnapshotTransaction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DetachedTransaction.html" title="class in io.permazen.core">DetachedTransaction</a></span>&nbsp;<span class="element-name">createSnapshotTransaction</span>()</div>
+<div class="block">Create a detached transaction pre-populated with a snapshot of this transaction.
+
+ <p>
+ The returned transaction will have the same schema meta-data and object content as this instance.
+ It will be a mutable transaction, but being detached, changes can't be committed.
+
+ <p>
+ This method requires the underlying key/value transaction to support <a href="../kv/KVTransaction.html#readOnlySnapshot()"><code>KVTransaction.readOnlySnapshot()</code></a>.
+ As with any other information extracted from this transaction, the returned content is not guaranteed to be
+ valid until this transaction has been successfully committed.
+
+ <p>
+ The returned <a href="DetachedTransaction.html" title="class in io.permazen.core"><code>DetachedTransaction</code></a> does not support <a href="#commit()"><code>commit()</code></a> or <a href="#rollback()"><code>rollback()</code></a>.
+ It can be used indefinitely after this transaction closes, but it must be <a href="DetachedTransaction.html#close()"><code>close()</code></a>'d
+ when no longer needed to release any associated resources.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>in-memory copy of this transaction</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="external-link">UnsupportedOperationException</a></code> - if they underlying key/value transaction doesn't support
+  <a href="../kv/KVTransaction.html#readOnlySnapshot()"><code>KVTransaction.readOnlySnapshot()</code></a></dd>
 </dl>
 </section>
 </li>

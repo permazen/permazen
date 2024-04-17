@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
       Transactions are supported at this layer and are accessed via <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.
       There are several available <a href="kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementations, including wrappers
       for many third party key/value stores.</li>
-  <li>On top of that sits the <b>Core API Layer</b>, which provides a rigourous "object database" abstraction on top of
+  <li>On top of that sits the <b>Core API Layer</b>, which provides a rigorous "object database" abstraction on top of
       a <a href="kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>. It supports a flat hierarchy of "object" types, where an object consists of fields that are
       either simple (i.e., any Java type that can be (de)serialized to/from a <code>byte[]</code> array), list, set, or map.
       It also includes tightly controlled schema tracking, simple and composite indexes, and lifecycle and change notifications.
@@ -118,26 +118,55 @@ loadScripts(document, 'script');</script>
 
  <p>
  New instance creation, index queries, and certain other database-related tasks are initiated through a
- <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>. <b>Normal</b> transactions are created via <a href="#createTransaction()"><code>createTransaction()</code></a>.
+ <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>. Normal transactions are created via <a href="#createTransaction()"><code>createTransaction()</code></a>.
+
+ <p><b>Detached Transactions</b>
 
  <p>
- <b>Detached</b> transactions are in-memory transactions that are completely detached from the database. They are never
+ Detached transactions are in-memory transactions that are completely detached from the database. They are never
  committed and may persist indefinitely. Their purpose is to hold a database objects in memory where they can be manipulated
  like normal Java objects, but with the usual functionality available to open transactions added, such as index queries,
- schem tracking, change notifications, reference cascades, etc. Detached transactions are initially empty, and are often
+ schema tracking, change notifications, reference cascades, etc. Detached transactions are initially empty, and are often
  used to hold a copy of some small portion of the database. Because their state is encoded entirely by in-memory key/value
- pairs, they are easily serialized/deserialized. See
- <a href="PermazenTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)"><code>PermazenTransaction.createDetachedTransaction()</code></a>,
+ pairs, they are easily serialized/deserialized. They are also useful in non-database applications where a Java data
+ structure in which all reference fields are invertable is needed.
+
+ <p>
+ See <a href="PermazenTransaction.html#createDetachedTransaction(io.permazen.ValidationMode)"><code>PermazenTransaction.createDetachedTransaction()</code></a>,
  <a href="PermazenTransaction.html#getDetachedTransaction()"><code>PermazenTransaction.getDetachedTransaction()</code></a>, <a href="PermazenObject.html#copyOut(java.lang.String...)"><code>PermazenObject.copyOut()</code></a>, and
  <a href="PermazenObject.html#copyIn(java.lang.String...)"><code>PermazenObject.copyIn()</code></a>.
 
+ <p><b>Branched Transactions</b>
+
  <p>
- <b>Branched</b> transactions are like normal transactions, in that when opened they contain an up-to-date view of
- the database, but after that they operate entirely in-memory, without any underlying key/value transaction, until
- <code>commit()</code> is invoked. At that time a new key/value transaction is opened, a conflict check is performed,
- and if successful all of the transaction's writes are then flushed. Branched transactions require that the underlying
- key/value database support <a href="kv/KVTransaction.html#readOnlySnapshot()"><code>KVTransaction.readOnlySnapshot()</code></a>; see <a href="kv/mvcc/BranchedKVTransaction.html" title="class in io.permazen.kv.mvcc"><code>BranchedKVTransaction</code></a> for details
- and other caveats. Branched transactions are created via <a href="#createBranchedTransaction()"><code>createBranchedTransaction()</code></a>.
+ Branched transactions behave like normal transactions, but internally they are constructed from two separate
+ key/value transactions, one that occurs when the branched transaction is opened, and another that occurs at commit time.
+ When a branched transaction is opened, a read-only <i>snapshot</i> of the key/value database is taken, and then that
+ key/value transaction is closed. While it remains open the branched transaction operates entirely in-memory using the
+ snapshot, without any underlying key/value transaction, and all reads and writes are tracked internally. At commit
+ time, a new key/value transaction is opened, a conflict check is performed, and if there are no conflicts all of the
+ branched transaction's collected writes are flushed out and the transction is committed.
+
+ <p>
+ Because they consume no database resources while open, branched transactions can stay open for an arbitrarily long
+ time, yet they still provide the same consistency guarantees as normal transactions. Of course this comes at the cost of
+ having to track reads and writes in-memory and performing the conflict check, but they can be useful in certain scenarios,
+ for example, when a user is editing some database object in a GUI application, where the user may take several minutes
+ to complete the form, but because only a single object is being edited the operation is guaranteed to access a small amount
+ of data. In many applications it's important to detect conflicts, for example, where two users edit the same object and
+ the second user's changes would completely overwite the first user's changes. Traditionally this kind of conflict check
+ is done at the application layer, by using two separate transactions and applying application-level conflict detection,
+ or the application relies on database object versioning to detect unexpected changes, which is an incomplete solution
+ because it fails to detect changes in <i>other</i> objects that may be viewed by the user while deciding what to change
+ (e.g., some other object that the edited object refers to). In other words, traditional database object versioning detects
+ write/write conflicts but not read/write conflicts. Branched transactions provide full consistency automatically by
+ guaranteeing that <i>all</i> information the user sees while editing the form is still valid at the time the form is
+ submitted.
+
+ <p>
+ Branched transactions require that the underlying key/value database support <a href="kv/KVTransaction.html#readOnlySnapshot()"><code>KVTransaction.readOnlySnapshot()</code></a>
+ and require keeping track of every database read and write during the transaction; see <a href="kv/mvcc/BranchedKVTransaction.html" title="class in io.permazen.kv.mvcc"><code>BranchedKVTransaction</code></a>
+ for details and other caveats. They are created via <a href="#createBranchedTransaction()"><code>createBranchedTransaction()</code></a>.
 
  <p><b>Initialization</b>
 

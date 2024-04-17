@@ -225,7 +225,7 @@ loadScripts(document, 'script');</script>
  Beware however, that like most other types of validation constraint, adding or changing a uniqueness constraint can cause
  valid database objects to become invalid without notice, or at least until if/when the object is revalidated in some future
  transaction. In such a situation, you can force a schema change - and therefore revalidation on the next access - by
- incrementing <a href="PermazenType.html#schemaSalt()"><code>PermazenType.schemaSalt()</code></a> in the field's containing type.
+ incrementing <a href="PermazenType.html#schemaEpoch()"><code>PermazenType.schemaEpoch()</code></a> in the field's containing type.
 
  <p><b>Upgrade Conversions</b></p>
 
