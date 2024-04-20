@@ -7,6 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.Values;
 import io.permazen.core.DeleteAction;
 
 import java.lang.reflect.Method;
@@ -99,8 +100,25 @@ class PermazenFieldScanner<T> extends AbstractPermazenFieldScanner<T, PermazenFi
             return false;
         }
         @Override
-        public String[] uniqueExclude() {
-            return new String[0];
+        public Values uniqueExcludes() {
+            return new Values() {
+                @Override
+                public boolean nulls() {
+                    return false;
+                }
+                @Override
+                public boolean nonNulls() {
+                    return false;
+                }
+                @Override
+                public String[] value() {
+                    return new String[0];
+                }
+                @Override
+                public Class<Values> annotationType() {
+                    return Values.class;
+                }
+            };
         }
         @Override
         public String[] forwardCascades() {

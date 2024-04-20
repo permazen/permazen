@@ -19,9 +19,6 @@ import io.permazen.index.Index1;
 import io.permazen.schema.SimpleSchemaField;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,7 +38,7 @@ public class PermazenSimpleField extends PermazenField {
     final Encoding<?> encoding;
     final boolean indexed;
     final boolean unique;
-    final ArrayList<Object> uniqueExcludes;         // note: these are core API values, sorted by this.encoding
+    final ValueMatch<?> uniqueExcludes;
     final UpgradeConversionPolicy upgradeConversion;
     final Method setter;
 
@@ -60,24 +57,16 @@ public class PermazenSimpleField extends PermazenField {
         this.setter = setter;
         this.upgradeConversion = annotation.upgradeConversion();
 
-        // Parse uniqueExcludes
-        final int numExcludes = annotation.uniqueExclude().length;
-        if (numExcludes > 0) {
+        // Parse uniqueExcludes(), if any
+        if (!ValueMatch.isEmpty(annotation.uniqueExcludes())) {
             assert this.unique;
-            this.uniqueExcludes = new ArrayList<>(numExcludes);
-            for (String string : annotation.uniqueExclude()) {
-                if (string.equals(io.permazen.annotation.PermazenField.NULL))
-                    this.uniqueExcludes.add(null);
-                else {
-                    try {
-                        this.uniqueExcludes.add(this.encoding.fromString(string));
-                    } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(
-                          String.format("invalid uniqueExclude() value \"%s\": %s", string, e.getMessage()), e);
-                    }
-                }
+            try {
+                this.uniqueExcludes = ValueMatch.create(this.encoding, annotation.uniqueExcludes());
+                this.uniqueExcludes.validate(false);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(String.format(
+                  "invalid uniqueExcludes() for field \"%s\": %s", name, e.getMessage()), e);
             }
-            Collections.sort(this.uniqueExcludes, (Comparator<Object>)this.encoding);
         } else
             this.uniqueExcludes = null;
     }

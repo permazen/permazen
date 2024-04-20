@@ -29,7 +29,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -408,9 +407,9 @@ public class PermazenClass<T> extends PermazenSchemaItem {
 
             // Create corresponding indexes
             for (io.permazen.annotation.PermazenCompositeIndex annotation : annotations) {
-                if (annotation.uniqueExclude().length > 0 && !annotation.unique()) {
+                if (annotation.uniqueExcludes().length > 0 && !annotation.unique()) {
                     throw new IllegalArgumentException(String.format(
-                      "invalid @%s annotation on %s: use of uniqueExclude() requires unique = true",
+                      "invalid @%s annotation on %s: use of uniqueExcludes() requires unique() = true",
                       io.permazen.annotation.PermazenCompositeIndex.class.getSimpleName(), supertype));
                 }
                 this.addCompositeIndex(supertype, annotation);
@@ -606,9 +605,9 @@ public class PermazenClass<T> extends PermazenSchemaItem {
             throw new IllegalArgumentException(String.format(
               "invalid %s: unique() constraint not allowed on complex sub-field", description));
         }
-        if (annotation.uniqueExclude().length > 0 && !annotation.unique()) {
+        if (!ValueMatch.isEmpty(annotation.uniqueExcludes()) && !annotation.unique()) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: use of uniqueExclude() requires unique = true", description));
+              "invalid %s: use of uniqueExcludes() requires unique() = true", description));
         }
 
         // See if encoding encompasses one or more PermazenClass types and is therefore a reference type
@@ -740,12 +739,6 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         if (!isReferenceType && annotation.unique() && !annotation.indexed()) {
             throw new IllegalArgumentException(String.format(
               "invalid %s: unique() constraint requires field to be indexed", description));
-        }
-        if (nonReferenceType != null
-          && nonReferenceType.getTypeToken().isPrimitive()
-          && Arrays.asList(annotation.uniqueExclude()).contains(io.permazen.annotation.PermazenField.NULL)) {
-            throw new IllegalArgumentException(String.format(
-              "invalid %s: uniqueExclude() = PermazenField.NULL is incompatible with fields having primitive type", description));
         }
         if (!isReferenceType && annotation.forwardCascades().length != 0) {
             throw new IllegalArgumentException(String.format(

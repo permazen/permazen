@@ -8,6 +8,7 @@ package io.permazen;
 import io.permazen.annotation.OnValidate;
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.Values;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.groups.Default;
@@ -181,7 +182,7 @@ public class ValidationGroupTest extends MainTestSupport {
         public abstract String getFieldD();
         public abstract void setFieldD(String fieldD);
 
-        @PermazenField(indexed = true, unique = true, uniqueExclude = PermazenField.NULL)
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values(nulls = true))
         public abstract String getFieldE();
         public abstract void setFieldE(String fieldE);
 

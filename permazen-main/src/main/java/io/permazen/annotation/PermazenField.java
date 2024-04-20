@@ -171,9 +171,8 @@ import java.lang.annotation.Target;
  * when the validation queue is processed, and is affected by the transaction's configured {@link ValidationMode}.
  *
  * <p>
- * Optionally, specific values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
- * If so, the specified values may appear in more than one object without violating the constraint. Because it's not possible
- * to specify null in annotations, specify {@link #NULL} to indicate that null values should be excluded.
+ * Optionally, specific values may be marked as excluded from the uniqueness constraint via {@link #uniqueExcludes}.
+ * If so, the specified values may appear in more than one object without violating the constraint.
  *
  * <p>
  * In {@link ValidationMode#AUTOMATIC}, any upgraded {@link PermazenObject}s are automatically added to the validation queue,
@@ -202,15 +201,6 @@ import java.lang.annotation.Target;
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
 @Documented
 public @interface PermazenField {
-
-    /**
-     * Value for use with {@link #uniqueExclude} to represent a null value.
-     *
-     * <p>
-     * Note: this particular {@link String} will never conflict with any actual field values because it contains a character
-     * that is not allowed in the return value from {@link Encoding#toString(Object) Encoding.toString()}.
-     */
-    String NULL = "\u0000";
 
     /**
      * The name of this field.
@@ -366,34 +356,43 @@ public @interface PermazenField {
      * <p>
      * This property must be false for sub-fields of complex fields, and for any field that is not indexed.
      *
+     * <p>
+     * For reference fields, a uniqueness constraint enforces a one-to-one relationship.
+     *
      * @return whether the field's value should be unique
-     * @see #uniqueExclude
+     * @see #uniqueExcludes
      * @see io.permazen.UniquenessConstraints
      */
     boolean unique() default false;
 
     /**
-     * Specify field value(s) which are excluded from the uniqueness constraint.
+     * Specify field value(s) which should be excluded from the uniqueness constraint.
      *
      * <p>
-     * The specified values must be valid {@link String} encodings of the associated field (as returned by
-     * {@link Encoding#toString(Object) Encoding.toString(T)}), or the constant {@link #NULL}
-     * to indicate a null value. For example:
+     * Examples:
      * <pre>
-     *  &#64;PermazenField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
-     *  public abstract float getPriority();
-     *
-     *  &#64;PermazenField(indexed = true, unique = true, uniqueExclude = { PermazenField.NULL })
+     *  // Exclude objects with null names from the uniqueness constraint
+     *  &#64;PermazenField(indexed = true, <b>unique = true, uniqueExcludes = &#64;Values(nulls = true))</b>
      *  public abstract String getName();
+     *
+     *  // Exclude objects with non-finite priorities from the uniqueness constraint
+     *  &#64;PermazenField(indexed = true, <b>unique = true, uniqueExcludes = &#64;Values({ "Infinity", "-Infinity", "NaN" })</b>)
+     *  public abstract float getPriority();
      * </pre>
+     *
+     * <p>
+     * Use of {@link Values &#64;Values}{@code (nonNulls = true)} would be somewhat unusual; that would mean there can be
+     * at most one object with a null value in the field, but otherwise there are no restrictions. Specifying both
+     * {@link Values#nulls nulls()} and {@link Values#nonNulls nonNulls()} generates an error, as that would exclude
+     * every object from the constraint, rendering it pointless.
      *
      * <p>
      * This property must be left empty when {@link #unique} is false.
      *
-     * @return values to exclude from the uniqueness constraint
+     * @return field values to be excluded from the uniqueness constraint
      * @see #unique
      */
-    String[] uniqueExclude() default {};
+    Values uniqueExcludes() default @Values;
 
     /**
      * Allow the field to reference non-existent objects in normal transactions.

@@ -7,7 +7,6 @@ package io.permazen.annotation;
 
 import io.permazen.PermazenObject;
 import io.permazen.UniquenessConstraints;
-import io.permazen.encoding.Encoding;
 
 import jakarta.validation.groups.Default;
 
@@ -22,7 +21,7 @@ import java.lang.annotation.Target;
  * Java annotation that defines a composite index.
  *
  * <p>
- * A composite index is an index on two or more fields (to define a single-field index, see {@link PermazenField#indexed}.
+ * A composite index is an index on two or more fields (to define a single-field index, see {@link PermazenField#indexed}).
  * All fields participating in a composite index must be (a) simple and (b) not a sub-field of a complex field.
  *
  * <p>
@@ -38,7 +37,7 @@ import java.lang.annotation.Target;
  * on simply indexed fields (see {@link PermazenField#unique &#64;PermazenField.unique()}). A uniqueness constriant on a composite
  * index means each combination of field values must be unique to a single object. Specific field value combinations may be
  * excluded from the uniqueness constraint by specifying the corresponding comma-separated {@link String}-encoded tuples
- * in {@link #uniqueExclude}.
+ * in {@link #uniqueExcludes}.
  *
  * @see PermazenType
  * @see PermazenField#indexed
@@ -94,62 +93,84 @@ public @interface PermazenCompositeIndex {
      * {@link PermazenObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
      *
      * @return whether the composite index's field values should be unique
-     * @see #uniqueExclude
+     * @see #uniqueExcludes
      * @see UniquenessConstraints
      */
     boolean unique() default false;
 
     /**
-     * Specify field value combination(s) to be excluded from the uniqueness constraint.
+     * Specify field value combinations to be excluded from the uniqueness constraint.
      *
      * <p>
-     * The specified values must {@link String}s containing comma-separated encodings of the associated fields.
+     * The annotation value is a list of {@link ValuesList &#64;ValuesList} annotations, each of which describes some
+     * combination of field values that should grant the containing object exclusion from the uniqueness constraint.
      *
      * <p>
-     * Unlike the field values used with {@link PermazenField#uniqueExclude &#64;PermazenField.uniqueExclude()}, the field values
-     * contained here are the {@linkplain Encoding#toParseableString self-delimiting string forms}.
+     * Each {@link ValuesList &#64;ValuesList} is a list of {@link Values &#64;Values} annotations, one for each field
+     * in the index. For an object to be excluded from the uniqueness constraint, <b>all</b> of the indexed fields' values
+     * must match the correpsonding {@link Values &#64;Values} annotation.
      *
      * <p>
-     * For some encodings this makes a difference: e.g., {@link String} values must be surrounded by double quotes.
-     * For example:
-     *
+     * For example, consider this class:
      * <pre>
-     * &#64;PermazenType(compositeIndexes =
-     *  &#64;PermazenCompositeIndex(name = "firstAndLast", fields = { "lastName", firstName" },
-     *                      <b>unique = true, uniqueExclude = "\"Unknown\", \"Unknown\""</b>))
      *  public abstract class Person {
      *
-     *      public abstract String getLastName();
-     *      public abstract void setLastName(String x);
+     *      public abstract String getName();
+     *      public abstract void setName(String x);
      *
-     *      public abstract String getFirstName();
-     *      public abstract void setFirstName(String x);
+     *      public abstract int getId();
+     *      public abstract void setId(int x);
      *  }
      * </pre>
      *
      * <p>
-     * To specify a null value in the list, specify the {@linkplain Encoding#toParseableString
-     * self-delimiting string form} of the null value (this is almost always the string {@code "null"}):
+     * To require a {@code Person}'s name and ID combination to be unique, but exclude
+     * {@code Person}'s whose name is null <i>and</i> whose ID is equal to -1 or -2:
      *
      * <pre>
      * &#64;PermazenType(compositeIndexes =
-     *  &#64;PermazenCompositeIndex(name = "firstAndLast", fields = { "lastName", firstName" },
-     *                      <b>unique = true, uniqueExclude = "null, null"</b>))
+     *  &#64;PermazenCompositeIndex(name = "nameAndId", fields = { "name", "id" },
+     *      <b>unique = true,
+     *      uniqueExcludes = &#64;ValuesList({ &#64;Values(nulls = true), &#64;Values({ "-1", "-2" }) })
+     *  ))</b>))
      *  public abstract class Person {
-     *
-     *      public abstract String getLastName();
-     *      public abstract void setLastName(String x);
-     *
-     *      public abstract String getFirstName();
-     *      public abstract void setFirstName(String x);
+     *      ...
      *  }
      * </pre>
+     *
+     * <p>
+     * To require a {@code Person}'s name and ID combination to be unique, but exclude
+     * {@code Person}'s whose name is null <i>or</i> whose ID is equal to -1 or -2:
+     *
+     * <pre>
+     * &#64;PermazenType(compositeIndexes =
+     *  &#64;PermazenCompositeIndex(name = "nameAndId", fields = { "name", "id" },
+     *      <b>unique = true,
+     *      uniqueExcludes = {
+     *          &#64;ValuesList({ &#64;Values(nulls = true), &#64;Values(nonNulls = true) }),
+     *          &#64;ValuesList({ &#64;Values(nulls = true, nonNulls = true), &#64;Values({ "-1", "-2" }) })
+     *  }))</b>))
+     *  public abstract class Person {
+     *      ...
+     *  }
+     * </pre>
+     *
+     * <p>
+     * Notes:
+     * <ul>
+     *  <li>To match all possible values, use {@link Values &#64;Values}{@code (nulls = true, nonNulls = true)}
+     *  <li>For primitive fields, {@link Values#nulls &#64;Values.nulls()} is not relevant.
+     * </ul>
+     *
+     * <p>
+     * It is an error if, for any {@link ValuesList &#64;ValuesList}, every possible field combination
+     * would match, as this would pointlessly exclude every object.
      *
      * <p>
      * This property must be left empty when {@link #unique} is false.
      *
-     * @return value combinations to exclude from the uniqueness constraint
+     * @return field value combinations to exclude from the uniqueness constraint
      * @see #unique
      */
-    String[] uniqueExclude() default {};
+    ValuesList[] uniqueExcludes() default {};
 }

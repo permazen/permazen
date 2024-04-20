@@ -7,6 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.Values;
 import io.permazen.core.DeleteAction;
 
 import org.testng.annotations.Test;
@@ -120,7 +121,7 @@ public class PermazenFieldConflictTest extends MainTestSupport {
         void setRef(UniqueConflict x);
     }
 
-// UniqueExclude conflict
+// Unique exclude conflict
 
     @Test
     public void testUniqueExcludeConflict() {
@@ -134,11 +135,11 @@ public class PermazenFieldConflictTest extends MainTestSupport {
     }
 
     public interface UniqueExcludeConflict1 {
-        @PermazenField(indexed = true, unique = true, uniqueExclude = { "+Infinity", "-Infinity", "NaN" })
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values({ "+Infinity", "-Infinity", "NaN" }))
         float getFloat();
     }
     public interface UniqueExcludeConflict2 {
-        @PermazenField(indexed = true, unique = true, uniqueExclude = { "+Infinity", "-Infinity" })
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values({ "+Infinity", "-Infinity" }))
         float getFloat();
     }
     @PermazenType
@@ -164,7 +165,7 @@ public class PermazenFieldConflictTest extends MainTestSupport {
         Float getFloat();
     }
     public interface UniqueExcludeNullConflict2 {
-        @PermazenField(indexed = true, unique = true, uniqueExclude = PermazenField.NULL)
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values(nulls = true))
         Float getFloat();
     }
     @PermazenType

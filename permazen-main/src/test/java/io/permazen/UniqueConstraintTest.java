@@ -7,6 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.Values;
 import io.permazen.core.ObjId;
 
 import java.util.Date;
@@ -75,7 +76,7 @@ public class UniqueConstraintTest extends MainTestSupport {
 
             ptx.validate();
 
-        // Now test uniqueExclude()
+        // Now test uniqueExcludes()
 
             final UniqueValue bar1 = ptx.create(UniqueValue.class);
             final UniqueValue bar2 = ptx.create(UniqueValue.class);
@@ -115,7 +116,7 @@ public class UniqueConstraintTest extends MainTestSupport {
 
             ptx.validate();
 
-        // Check uniqueExclude of null
+        // Check uniqueExcludes() of null
 
             final UniqueNull null1 = ptx.create(UniqueNull.class);
             final UniqueNull null2 = ptx.create(UniqueNull.class);
@@ -440,12 +441,42 @@ public class UniqueConstraintTest extends MainTestSupport {
         }
     }
 
+    @Test
+    public void testInvalid1() throws Exception {
+        try {
+            BasicTest.newPermazen(UniqueInvalid1.class);
+            assert false : "expected exception";
+        } catch (IllegalArgumentException e) {
+            this.log.info("got expected {}", e.toString());
+        }
+    }
+
+    @Test
+    public void testInvalid2() throws Exception {
+        try {
+            BasicTest.newPermazen(UniqueInvalid2.class);
+            assert false : "expected exception";
+        } catch (IllegalArgumentException e) {
+            this.log.info("got expected {}", e.toString());
+        }
+    }
+
+    @Test
+    public void testInvalid3() throws Exception {
+        try {
+            BasicTest.newPermazen(UniqueInvalid3.class);
+            assert false : "expected exception";
+        } catch (IllegalArgumentException e) {
+            this.log.info("got expected {}", e.toString());
+        }
+    }
+
 // Model Classes
 
     @PermazenType
     public abstract static class UniqueName implements PermazenObject {
 
-        @PermazenField(indexed = true, uniqueExclude = "frob", unique = true)
+        @PermazenField(indexed = true, uniqueExcludes = @Values("frob"), unique = true)
         public abstract String getName();
         public abstract void setName(String name);
     }
@@ -461,7 +492,7 @@ public class UniqueConstraintTest extends MainTestSupport {
     @PermazenType
     public abstract static class UniqueValue implements PermazenObject {
 
-        @PermazenField(indexed = true, unique = true, uniqueExclude = { "NaN", "123.45", "Infinity" })
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values({ "NaN", "123.45", "Infinity" }))
         public abstract float getValue();
         public abstract void setValue(float value);
     }
@@ -469,7 +500,7 @@ public class UniqueConstraintTest extends MainTestSupport {
     @PermazenType
     public abstract static class UniqueNull implements PermazenObject {
 
-        @PermazenField(indexed = true, unique = true, uniqueExclude = PermazenField.NULL)
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values(nulls = true))
         public abstract Date getDate();
         public abstract void setDate(Date date);
     }
@@ -477,9 +508,33 @@ public class UniqueConstraintTest extends MainTestSupport {
     @PermazenType
     public abstract static class UniqueEnum implements PermazenObject {
 
-        @PermazenField(indexed = true, unique = true, uniqueExclude = "BLUE")
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values("BLUE"))
         public abstract Color getColor();
         public abstract void setColor(Color color);
+    }
+
+    @PermazenType
+    public abstract static class UniqueInvalid1 implements PermazenObject {
+
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values(nulls = true))
+        public abstract float getValue();
+        public abstract void setValue(float value);
+    }
+
+    @PermazenType
+    public abstract static class UniqueInvalid2 implements PermazenObject {
+
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values(nonNulls = true))
+        public abstract float getValue();
+        public abstract void setValue(float value);
+    }
+
+    @PermazenType
+    public abstract static class UniqueInvalid3 implements PermazenObject {
+
+        @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values(nonNulls = true, value = "12.34"))
+        public abstract float getValue();
+        public abstract void setValue(float value);
     }
 
     public enum Color {

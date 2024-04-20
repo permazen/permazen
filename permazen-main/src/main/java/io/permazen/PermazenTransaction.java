@@ -71,7 +71,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1774,9 +1773,8 @@ public class PermazenTransaction {
                     // Get field's (core API) value
                     final Object value = this.tx.readSimpleField(id, pfield.name, false);
 
-                    // Compare to excluded value list
-                    if (pfield.uniqueExcludes != null
-                      && Collections.binarySearch(pfield.uniqueExcludes, value, (Comparator<Object>)pfield.encoding) >= 0)
+                    // Is this value excluded from the uniqueness constraint?
+                    if (pfield.uniqueExcludes != null && pfield.uniqueExcludes.matches(value))
                         continue;
 
                     // Query core API index to find other objects with the same value in the field, but restrict the search to
@@ -1792,6 +1790,7 @@ public class PermazenTransaction {
                     }
                 }
 
+            compositeIndexUniqueLoop:
                 // Check composite index uniqueness constraints
                 for (PermazenCompositeIndex pindex : pclass.uniqueConstraintCompositeIndexes) {
                     assert pindex.unique;
@@ -1802,10 +1801,20 @@ public class PermazenTransaction {
                     for (PermazenSimpleField pfield : pindex.pfields)
                         values.add(this.tx.readSimpleField(id, pfield.name, false));
 
-                    // Compare to excluded value combinations list
-                    if (pindex.uniqueExcludes != null
-                      && Collections.binarySearch(pindex.uniqueExcludes, values, pindex.uniqueComparator) >= 0)
-                        continue;
+                    // Is this combination of values excluded from the uniqueness constraint?
+                    if (pindex.uniqueExcludes != null) {
+                        for (List<ValueMatch<?>> fieldMatches : pindex.uniqueExcludes) {
+                            boolean allFieldsMatched = true;
+                            for (int i = 0; i < numFields; i++) {
+                                if (!fieldMatches.get(i).matches(values.get(i))) {
+                                    allFieldsMatched = false;
+                                    break;
+                                }
+                            }
+                            if (allFieldsMatched)
+                                continue compositeIndexUniqueLoop;
+                        }
+                    }
 
                     // Query core API index to find all objects with the same values in the fields
                     final IndexQuery info = this.pdb.getIndexQuery(new IndexQuery.Key(pindex));

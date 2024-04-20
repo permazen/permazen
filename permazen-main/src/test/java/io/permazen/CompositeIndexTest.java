@@ -8,6 +8,8 @@ package io.permazen;
 import io.permazen.annotation.PermazenCompositeIndex;
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.Values;
+import io.permazen.annotation.ValuesList;
 import io.permazen.core.Database;
 import io.permazen.core.DeleteAction;
 import io.permazen.kv.simple.MemoryKVDatabase;
@@ -156,12 +158,7 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               buildSet(a, b, c));
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             a.setField2(Thread.State.TERMINATED);
             b.setField2(Thread.State.TERMINATED);
@@ -170,7 +167,7 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               null);
 
-            ptx.validate();
+            this.checkValid(true);
 
             a.setField2(Thread.State.RUNNABLE);
             b.setField2(Thread.State.RUNNABLE);
@@ -189,7 +186,7 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(view.get(new Tuple2<PermazenObject, Thread.State>(null, Thread.State.RUNNABLE)),
               buildSet(a));
 
-            ptx.validate();
+            this.checkValid(true);
 
             ptx.commit();
 
@@ -225,38 +222,28 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(a, b, c));
 
-            ptx.validate();
+            this.checkValid(true);
 
             a.setField2(Thread.State.RUNNABLE);
 
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(b, c));
 
-            ptx.validate();
+            this.checkValid(true);
 
             b.setField2(Thread.State.RUNNABLE);
 
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(c));
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             c.setField2(Thread.State.RUNNABLE);
 
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               null);
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             a.setField2(Thread.State.TERMINATED);
             b.setField2(Thread.State.TERMINATED);
@@ -270,31 +257,21 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(b, c));
 
-            ptx.validate();
+            this.checkValid(true);
 
             b.setField3(4567);
 
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               buildSet(c));
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             c.setField3(4567);
 
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.TERMINATED, -1234)),
               null);
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             b.setField1(a);
             c.setField2(Thread.State.RUNNABLE);
@@ -305,7 +282,7 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(view.get(new Tuple3<PermazenObject, Thread.State, Integer>(null, Thread.State.RUNNABLE, 4567)),
               buildSet(c));
 
-            ptx.validate();
+            this.checkValid(true);
 
             ptx.commit();
 
@@ -346,12 +323,7 @@ public class CompositeIndexTest extends MainTestSupport {
               view.get(new Tuple4<PermazenObject, Thread.State, Integer, String>(null, Thread.State.RUNNABLE, -1234, "foobar")),
               buildSet(a, b, c));
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             a.setField1(c);
             b.setField4("janfu");
@@ -360,7 +332,7 @@ public class CompositeIndexTest extends MainTestSupport {
               view.get(new Tuple4<PermazenObject, Thread.State, Integer, String>(null, Thread.State.RUNNABLE, -1234, "foobar")),
               buildSet(c));
 
-            ptx.validate();
+            this.checkValid(true);
 
             // Validate all of the unique exclusions
 
@@ -380,25 +352,137 @@ public class CompositeIndexTest extends MainTestSupport {
             b.setField4("foobar");
             c.setField4("foobar");
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             for (Thread.State s : new Thread.State[] {
               Thread.State.TIMED_WAITING, Thread.State.BLOCKED, Thread.State.WAITING, Thread.State.NEW, Thread.State.TERMINATED }) {
                 a.setField2(s);
                 b.setField2(s);
                 c.setField2(s);
-                ptx.validate();
+                this.checkValid(true);
             }
 
             ptx.commit();
 
         } finally {
             PermazenTransaction.setCurrent(null);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testCompositeIndex5() throws Exception {
+        final Permazen pdb = BasicTest.newPermazen(IndexedOn5.class);
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
+        try {
+
+            final NavigableMap<Tuple3<Thread.State, Integer, String>, NavigableSet<IndexedOn5>> view
+              = ptx.queryCompositeIndex(IndexedOn5.class, "index5", Thread.State.class, Integer.class, String.class).asMap();
+
+            final IndexedOn5 a = ptx.create(IndexedOn5.class);
+            final IndexedOn5 b = ptx.create(IndexedOn5.class);
+            final IndexedOn5 c = ptx.create(IndexedOn5.class);
+
+            Assert.assertEquals(
+              view.get(new Tuple3<Thread.State, Integer, String>(null, 0, null)),
+              buildSet(a, b, c));
+
+    // Check: @ValuesList({ @Values("RUNNABLE"), @Values("0"), @Values(nonNulls = true) }),
+
+            checkValid(false);
+
+            a.setField2(Thread.State.RUNNABLE);
+            b.setField2(Thread.State.RUNNABLE);
+            c.setField2(Thread.State.RUNNABLE);
+
+            checkValid(false);              // all three are duplicates, none are excluded
+
+            a.setField4("not null");
+            checkValid(false);              // a excluded, but b and c are still duplicates
+            b.setField4("not null");
+            checkValid(true);               // a and b excluded, c is unique
+            c.setField4("not null");
+            checkValid(true);               // all are excluded
+
+            a.setField2(Thread.State.NEW);
+            checkValid(true);               // b and c still excluded, a is unique
+            b.setField2(Thread.State.NEW);
+            checkValid(false);              // only c excluded, a & b are duplicates
+            c.setField2(Thread.State.NEW);
+            checkValid(false);              // all three are duplicates, none are excluded
+
+            Assert.assertEquals(
+              view.get(new Tuple3<Thread.State, Integer, String>(Thread.State.NEW, 0, "not null")),
+              buildSet(a, b, c));
+
+    // Check: @ValuesList({ @Values(nonNulls = true), @Values("-1234"), @Values(nonNulls = true) }),
+
+            a.setField3(-1234);
+            b.setField3(-1234);
+            c.setField3(-1234);
+            checkValid(true);               // all are excluded (fields field2 and field4 are both null)
+
+            a.setField2(null);
+            checkValid(true);               // b and c still excluded, a is unique
+            b.setField4(null);
+            checkValid(true);               // only c excluded, but a & b are not duplicates
+            a.setField4(null);
+            b.setField2(null);
+            checkValid(false);              // only c excluded, a & b are now duplicates again
+            c.setField4(null);
+            c.setField2(null);
+            checkValid(false);              // all three are duplicates, none are excluded
+
+            Assert.assertEquals(
+              view.get(new Tuple3<Thread.State, Integer, String>(null, -1234, null)),
+              buildSet(a, b, c));
+
+    // Check: @ValuesList({ @Values(nulls = true, nonNulls = true), @Values(nulls = true, nonNulls = true), @Values("duplicate") })
+
+            a.setField3(42);
+            b.setField3(42);
+            c.setField3(42);
+
+            Assert.assertEquals(
+              view.get(new Tuple3<Thread.State, Integer, String>(null, 42, null)),
+              buildSet(a, b, c));
+
+            a.setField4("duplicate");
+            checkValid(false);              // a is excluded, b and c are still duplicates
+            b.setField4("duplicate");
+            checkValid(true);               // a and b are excluded, c is unique
+            c.setField4("duplicate");
+            checkValid(true);               // all three are excluded
+
+            Assert.assertEquals(
+              view.get(new Tuple3<Thread.State, Integer, String>(null, 42, "duplicate")),
+              buildSet(a, b, c));
+
+            ptx.commit();
+
+        } finally {
+            PermazenTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    public void testInvalidCompositeIndex1() throws Exception {
+        try {
+            BasicTest.newPermazen(InvalidIndexed1.class);
+            assert false : "expected exception";
+        } catch (IllegalArgumentException e) {
+            this.log.info("got expected {}", e.toString());
+        }
+    }
+
+    @Test
+    public void testInvalidCompositeIndex2() throws Exception {
+        try {
+            BasicTest.newPermazen(InvalidIndexed2.class);
+            assert false : "expected exception";
+        } catch (IllegalArgumentException e) {
+            this.log.info("got expected {}", e.toString());
         }
     }
 
@@ -432,12 +516,7 @@ public class CompositeIndexTest extends MainTestSupport {
             Assert.assertEquals(viewA.get(new Tuple2<PermazenObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(a));
             Assert.assertEquals(viewB.get(new Tuple2<PermazenObject, Thread.State>(a, Thread.State.RUNNABLE)), buildSet(b));
 
-            try {
-                ptx.validate();
-                assert false : "view = " + view;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false, view);
 
             a.setField1(null);
             b.setField1(null);
@@ -463,12 +542,7 @@ public class CompositeIndexTest extends MainTestSupport {
             C c = ptx.create(C.class);
             D d = ptx.create(D.class);
 
-            try {
-                ptx.validate();
-                assert false;
-            } catch (ValidationException e) {
-                this.log.info("got expected {}", e.toString());
-            }
+            this.checkValid(false);
 
             c.setField1(d);
 
@@ -476,6 +550,17 @@ public class CompositeIndexTest extends MainTestSupport {
 
         } finally {
             PermazenTransaction.setCurrent(null);
+        }
+    }
+
+    private void checkValid(boolean valid, Object... extra) {
+        final PermazenTransaction ptx = PermazenTransaction.getCurrent();
+        try {
+            ptx.validate();
+            assert valid : "transaction is unexpectedly valid: " + (extra.length > 0 ? extra[0] : null);
+        } catch (ValidationException e) {
+            assert !valid : "transaction is unexpectedly invalid: " + e;
+            this.log.info("got expected {}", e.toString());
         }
     }
 
@@ -541,7 +626,7 @@ public class CompositeIndexTest extends MainTestSupport {
       name = "index2",
       fields = { "field1", "field2" },
       unique = true,
-      uniqueExclude = "null, TERMINATED")
+      uniqueExcludes = @ValuesList({ @Values(nulls = true), @Values("TERMINATED") }))
     @PermazenType
     public interface IndexedOn2 extends Fields {
     }
@@ -550,7 +635,7 @@ public class CompositeIndexTest extends MainTestSupport {
       name = "index3",
       fields = { "field1", "field2", "field3" },
       unique = true,
-      uniqueExclude = "null, TERMINATED, -1234")
+      uniqueExcludes = @ValuesList({ @Values(nulls = true), @Values("TERMINATED"), @Values("-1234") }))
     @PermazenType
     public interface IndexedOn3 extends Fields {
     }
@@ -559,15 +644,55 @@ public class CompositeIndexTest extends MainTestSupport {
       name = "index4",
       fields = { "field1", "field2", "field3", "field4" },
       unique = true,
-      uniqueExclude = {
-        "null, TIMED_WAITING, -1234, \"foobar\"",
-        "null, BLOCKED, -1234, \"foobar\"",
-        "null, WAITING, -1234, \"foobar\"",
-        "null, NEW, -1234, \"foobar\"",
-        "null, TERMINATED, -1234, \"foobar\""
+      uniqueExcludes = {
+        @ValuesList({ @Values(nulls = true), @Values("BLOCKED"),          @Values("-1234"), @Values("foobar") }),
+        @ValuesList({ @Values(nulls = true), @Values("NEW"),              @Values("-1234"), @Values("foobar") }),
+        @ValuesList({ @Values(nulls = true), @Values("TERMINATED"),       @Values("-1234"), @Values("foobar") }),
+        @ValuesList({ @Values(nulls = true), @Values("TIMED_WAITING"),    @Values("-1234"), @Values("foobar") }),
+        @ValuesList({ @Values(nulls = true), @Values("WAITING"),          @Values("-1234"), @Values("foobar") })
       })
     @PermazenType
     public interface IndexedOn4 extends Fields {
+    }
+
+    @PermazenCompositeIndex(
+      name = "index5",
+      fields = { "field2", "field3", "field4" },
+      unique = true,
+      uniqueExcludes = {
+
+        // Allow multiple objects with field2=RUNNABLE and field3=0, as long as only one of them has field4=null
+        @ValuesList({ @Values("RUNNABLE"), @Values("0"), @Values(nonNulls = true) }),
+
+        // Allow multiple objects with field3=-1234, as long as both field2 and field4 are not null
+        @ValuesList({ @Values(nonNulls = true), @Values("-1234"), @Values(nonNulls = true) }),
+
+        // Allow multiple objects with field4="duplicate"
+        @ValuesList({ @Values(nulls = true, nonNulls = true), @Values(nulls = true, nonNulls = true), @Values("duplicate") })
+      })
+    @PermazenType
+    public interface IndexedOn5 extends Fields {
+    }
+
+    // Invalid - "nulls = true" on primitive field
+    @PermazenCompositeIndex(
+      name = "index",
+      fields = { "field2", "field3", "field4" },
+      unique = true,
+      uniqueExcludes = @ValuesList({ @Values("RUNNABLE"), @Values(nulls = true), @Values("foobar") }))
+    @PermazenType
+    public interface InvalidIndexed1 extends Fields {
+    }
+
+    // Invalid - no matches
+    @PermazenCompositeIndex(
+      name = "index",
+      fields = { "field2", "field3", "field4" },
+      unique = true,
+      uniqueExcludes =
+        @ValuesList({ @Values(nulls = true, nonNulls = true), @Values(nonNulls = true), @Values(nulls = true, nonNulls = true) }))
+    @PermazenType
+    public interface InvalidIndexed2 extends Fields {
     }
 
 // Model Classes #3
