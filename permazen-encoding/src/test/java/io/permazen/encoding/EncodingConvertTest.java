@@ -9,6 +9,9 @@ import com.google.common.net.InetAddresses;
 
 import io.permazen.test.TestSupport;
 
+import java.util.ArrayList;
+import java.util.stream.Stream;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -19,19 +22,14 @@ public class EncodingConvertTest extends TestSupport {
     private final EncodingRegistry registry = new DefaultEncodingRegistry();
 
     @Test(dataProvider = "convertCases")
-    public void testConvertEncoding(String typeName, Object[] values, Object[] cases) throws Exception {
+    public void testConvertEncoding1(String typeName, String targetTypeName, Object input, Object output) throws Exception {
         final EncodingId encodingId = EncodingIds.builtin(typeName);
         final Encoding<?> stype = this.registry.getEncoding(encodingId);
         assert stype != null : "didn't find encoding \"" + typeName + "\"";
-        for (int i = 0; i < cases.length; i += 2) {
-            final String targetTypeName = (String)cases[i];
-            final EncodingId targetEncodingId = EncodingIds.builtin(targetTypeName);
-            final Object[] targetValues = (Object[])cases[i + 1];
-            final Encoding<?> dtype = this.registry.getEncoding(targetEncodingId);
-            assert dtype != null : "didn't find target encoding \"" + targetTypeName + "\"";
-            for (int j = 0; j < values.length; j++)
-                this.check(stype, dtype, values[j], targetValues[j]);
-        }
+        final EncodingId targetEncodingId = EncodingIds.builtin(targetTypeName);
+        final Encoding<?> dtype = this.registry.getEncoding(targetEncodingId);
+        assert dtype != null : "didn't find encoding \"" + targetTypeName + "\"";
+        this.check(stype, dtype, input, output);
     }
 
     private <S, T> void check(Encoding<S> stype, Encoding<T> dtype, Object input, Object expected0) throws Exception {
@@ -62,7 +60,7 @@ public class EncodingConvertTest extends TestSupport {
 
     @DataProvider(name = "convertCases")
     public Object[][] genConvertCases() throws Exception {
-        return new Object[][] {
+        final Object[][] array = new Object[][] {
 
             // Primitive types to other primitive types and String
             {
@@ -357,5 +355,28 @@ public class EncodingConvertTest extends TestSupport {
                 }
             },
         };
+
+        // Flatten array
+        return Stream.of(array)
+          .flatMap(elem -> {
+            final String inputTypeName = (String)elem[0];
+            final Object[] inputValues = (Object[])elem[1];
+            final Object[] cases = (Object[])elem[2];
+            final ArrayList<Object[]> list = new ArrayList<>();
+            for (int i = 0; i < cases.length; i += 2) {
+                final String targetTypeName = (String)cases[i];
+                final Object[] targetValues = (Object[])cases[i + 1];
+                assert targetValues.length == inputValues.length;
+                for (int j = 0; j < targetValues.length; j++)
+                    list.add(new Object[] {
+                        inputTypeName,
+                        targetTypeName,
+                        inputValues[j],
+                        targetValues[j]
+                    });
+                }
+                return list.stream();
+          })
+          .toArray(Object[][]::new);
     }
 }
