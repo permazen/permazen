@@ -593,8 +593,10 @@ public class PermazenClass<T> extends PermazenSchemaItem {
             }
         }
 
-        // Include containing type for annotation description; with autogenProperties it can be more than one
-        description += " in " + this.type;
+        // Include containing type for annotation description (if needed); with autogenProperties it can be more than one
+        final String typeName = this.type.getName();
+        if (!description.contains(typeName))
+            description += " in " + this.type;
 
         // Complex sub-field?
         final boolean isSubField = setter == null;
