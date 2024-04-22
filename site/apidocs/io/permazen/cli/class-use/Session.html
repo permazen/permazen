@@ -300,9 +300,8 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;params)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>byte[]</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractKVCommand.BytesParser.</span><code><a href="../cmd/AbstractKVCommand.BytesParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractKVCommand.BytesParser.</span><code><a href="../cmd/AbstractKVCommand.BytesParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>void</code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">InfoCommand.</span><code><a href="../cmd/InfoCommand.html#run(io.permazen.cli.Session)" class="member-name-link">run</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</code></div>
@@ -363,52 +362,35 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Get object meta-data.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../../core/CompositeIndex.html" title="class in io.permazen.core">CompositeIndex</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">CompositeIndexParser.</span><code><a href="../parse/CompositeIndexParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-first odd-row-color"><code><a href="../parse/EncodingParser.html" title="type parameter in EncodingParser">T</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">EncodingParser.</span><code><a href="../parse/EncodingParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="../parse/EncodingParser.html" title="type parameter in EncodingParser">T</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">EncodingParser.</span><code><a href="../parse/EncodingParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="../parse/EnumNameParser.html" title="type parameter in EnumNameParser">T</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">EnumNameParser.</span><code><a href="../parse/EnumNameParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="../parse/IndexedFieldParser.Result.html" title="class in io.permazen.cli.parse">IndexedFieldParser.Result</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">IndexedFieldParser.</span><code><a href="../parse/IndexedFieldParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-first even-row-color"><code><a href="../parse/EnumNameParser.html" title="type parameter in EnumNameParser">T</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">EnumNameParser.</span><code><a href="../parse/EnumNameParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../../core/ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">ObjIdParser.</span><code><a href="../parse/ObjIdParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ObjIdParser.</span><code><a href="../parse/ObjIdParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code><a href="../../core/ObjType.html" title="class in io.permazen.core">ObjType</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">ObjTypeParser.</span><code><a href="../parse/ObjTypeParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">ObjTypeParser.</span><code><a href="../parse/ObjTypeParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../parse/Parser.html" title="type parameter in Parser">T</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">Parser.</span><code><a href="../parse/Parser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Parser.</span><code><a href="../parse/Parser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Parse text from the given parse context.</div>
+<div class="block">Parse value from the given text.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">WhateverParser.</span><code><a href="../parse/WhateverParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">WhateverParser.</span><code><a href="../parse/WhateverParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">WordParser.</span><code><a href="../parse/WordParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">WordParser.</span><code><a href="../parse/WordParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static <a href="../../core/Field.html" title="class in io.permazen.core">Field</a>&lt;?&gt;</code></div>
 <div class="col-second even-row-color"><span class="type-name-label">ParseUtil.</span><code><a href="../parse/ParseUtil.html#resolveField(io.permazen.cli.Session,io.permazen.core.ObjId,java.lang.String)" class="member-name-link">resolveField</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,

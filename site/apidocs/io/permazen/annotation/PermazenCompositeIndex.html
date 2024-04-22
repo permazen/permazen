@@ -76,7 +76,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Java annotation that defines a composite index.
 
  <p>
- A composite index is an index on two or more fields (to define a single-field index, see <a href="PermazenField.html#indexed()"><code>PermazenField.indexed()</code></a>.
+ A composite index is an index on two or more fields (to define a single-field index, see <a href="PermazenField.html#indexed()"><code>PermazenField.indexed()</code></a>).
  All fields participating in a composite index must be (a) simple and (b) not a sub-field of a complex field.
 
  <p>
@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
  on simply indexed fields (see <a href="PermazenField.html#unique()"><code>&#64;PermazenField.unique()</code></a>). A uniqueness constriant on a composite
  index means each combination of field values must be unique to a single object. Specific field value combinations may be
  excluded from the uniqueness constraint by specifying the corresponding comma-separated <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>-encoded tuples
- in <a href="#uniqueExclude()"><code>uniqueExclude()</code></a>.</div>
+ in <a href="#uniqueExcludes()"><code>uniqueExcludes()</code></a>.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -146,10 +146,10 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Require each object's field combination to be unique among all types to which this annotation applies.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
-<div class="col-second even-row-color"><code><a href="#uniqueExclude()" class="member-name-link">uniqueExclude</a></code></div>
+<div class="col-first even-row-color"><code><a href="ValuesList.html" title="annotation interface in io.permazen.annotation">ValuesList</a>[]</code></div>
+<div class="col-second even-row-color"><code><a href="#uniqueExcludes()" class="member-name-link">uniqueExcludes</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Specify field value combination(s) to be excluded from the uniqueness constraint.</div>
+<div class="block">Specify field value combinations to be excluded from the uniqueness constraint.</div>
 </div>
 </div>
 </section>
@@ -238,7 +238,7 @@ loadScripts(document, 'script');</script>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="#uniqueExclude()"><code>uniqueExclude()</code></a></li>
+<li><a href="#uniqueExcludes()"><code>uniqueExcludes()</code></a></li>
 <li><a href="../UniquenessConstraints.html" title="interface in io.permazen"><code>UniquenessConstraints</code></a></li>
 </ul>
 </dd>
@@ -250,58 +250,81 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="uniqueExclude()">
-<h3>uniqueExclude</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name">uniqueExclude</span></div>
-<div class="block">Specify field value combination(s) to be excluded from the uniqueness constraint.
+<section class="detail" id="uniqueExcludes()">
+<h3>uniqueExcludes</h3>
+<div class="member-signature"><span class="return-type"><a href="ValuesList.html" title="annotation interface in io.permazen.annotation">ValuesList</a>[]</span>&nbsp;<span class="element-name">uniqueExcludes</span></div>
+<div class="block">Specify field value combinations to be excluded from the uniqueness constraint.
 
  <p>
- The specified values must <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s containing comma-separated encodings of the associated fields.
+ The annotation value is a list of <a href="ValuesList.html" title="annotation interface in io.permazen.annotation"><code>&#64;ValuesList</code></a> annotations, each of which describes some
+ combination of field values that should grant the containing object exclusion from the uniqueness constraint.
 
  <p>
- Unlike the field values used with <a href="PermazenField.html#uniqueExclude()"><code>&#64;PermazenField.uniqueExclude()</code></a>, the field values
- contained here are the <a href="../encoding/Encoding.html#toParseableString(T)">self-delimiting string forms</a>.
+ Each <a href="ValuesList.html" title="annotation interface in io.permazen.annotation"><code>&#64;ValuesList</code></a> is a list of <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a> annotations, one for each field
+ in the index. For an object to be excluded from the uniqueness constraint, <b>all</b> of the indexed fields' values
+ must match the correpsonding <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a> annotation.
 
  <p>
- For some encodings this makes a difference: e.g., <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> values must be surrounded by double quotes.
- For example:
-
+ For example, consider this class:
  <pre>
- &#64;PermazenType(compositeIndexes =
-  &#64;PermazenCompositeIndex(name = "firstAndLast", fields = { "lastName", firstName" },
-                      <b>unique = true, uniqueExclude = "\"Unknown\", \"Unknown\""</b>))
   public abstract class Person {
 
-      public abstract String getLastName();
-      public abstract void setLastName(String x);
+      public abstract String getName();
+      public abstract void setName(String x);
 
-      public abstract String getFirstName();
-      public abstract void setFirstName(String x);
+      public abstract int getId();
+      public abstract void setId(int x);
   }
  </pre>
 
  <p>
- To specify a null value in the list, specify the <a href="../encoding/Encoding.html#toParseableString(T)">self-delimiting string form</a> of the null value (this is almost always the string <code>"null"</code>):
+ To require a <code>Person</code>'s name and ID combination to be unique, but exclude
+ <code>Person</code>'s whose name is null <i>and</i> whose ID is equal to -1 or -2:
 
  <pre>
  &#64;PermazenType(compositeIndexes =
-  &#64;PermazenCompositeIndex(name = "firstAndLast", fields = { "lastName", firstName" },
-                      <b>unique = true, uniqueExclude = "null, null"</b>))
+  &#64;PermazenCompositeIndex(name = "nameAndId", fields = { "name", "id" },
+      <b>unique = true,
+      uniqueExcludes = &#64;ValuesList({ &#64;Values(nulls = true), &#64;Values({ "-1", "-2" }) })
+  ))</b>))
   public abstract class Person {
-
-      public abstract String getLastName();
-      public abstract void setLastName(String x);
-
-      public abstract String getFirstName();
-      public abstract void setFirstName(String x);
+      ...
   }
  </pre>
+
+ <p>
+ To require a <code>Person</code>'s name and ID combination to be unique, but exclude
+ <code>Person</code>'s whose name is null <i>or</i> whose ID is equal to -1 or -2:
+
+ <pre>
+ &#64;PermazenType(compositeIndexes =
+  &#64;PermazenCompositeIndex(name = "nameAndId", fields = { "name", "id" },
+      <b>unique = true,
+      uniqueExcludes = {
+          &#64;ValuesList({ &#64;Values(nulls = true), &#64;Values(nonNulls = true) }),
+          &#64;ValuesList({ &#64;Values(nulls = true, nonNulls = true), &#64;Values({ "-1", "-2" }) })
+  }))</b>))
+  public abstract class Person {
+      ...
+  }
+ </pre>
+
+ <p>
+ Notes:
+ <ul>
+  <li>To match all possible values, use <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a><code>(nulls = true, nonNulls = true)</code>
+  <li>For primitive fields, <a href="Values.html#nulls()"><code>&#64;Values.nulls()</code></a> is not relevant.
+ </ul>
+
+ <p>
+ It is an error if, for any <a href="ValuesList.html" title="annotation interface in io.permazen.annotation"><code>&#64;ValuesList</code></a>, every possible field combination
+ would match, as this would pointlessly exclude every object.
 
  <p>
  This property must be left empty when <a href="#unique()"><code>unique()</code></a> is false.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>value combinations to exclude from the uniqueness constraint</dd>
+<dd>field value combinations to exclude from the uniqueness constraint</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">

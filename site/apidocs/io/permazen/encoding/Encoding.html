@@ -88,44 +88,47 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">Encoding&lt;T&gt;</span><span class="extends-implements">
 extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;T&gt;, <a href="../util/NaturalSortAware.html" title="interface in io.permazen.util">NaturalSortAware</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></span></div>
-<div class="block">Defines a binary encoding, ordering, and range of possible values for a Java type encoded to/from a <code>byte[]</code> array.
+<div class="block">A range of values of some Java type, along with string and binary encodings and a total ordering of those values.
 
  <p>
- An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> maps between instances of its supported Java type and the self-delimited <code>byte[]</code> encoding of
- those instances used in the database. The <code>byte[]</code> encoding defines the database sort order (via unsigned
- lexicographical ordering), and this ordering is also reflected via <a href="#compare(T,T)"><code>Encoding.compare()</code></a>.
+ <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s are used to map between instances of some Java type and the <code>byte[]</code> encodings of those instances
+ stored in a Permazen database. The <code>byte[]</code> encoding defines the database sort order (via unsigned lexicographical
+ ordering), and this same ordering is reflected in Java via <a href="#compare(T,T)"><code>compare()</code></a>.
 
  <p>
- An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> also defines two mappings between Java instances and <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> values.
- There are two separate <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> forms, a regular form and a self-delimiting form.
+ An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> also defines a mapping between Java instances and <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> values.
 
  <p>
- <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s have these requirements and properties:
+ Instances may have an associated <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, which is a globally unique URN-style identifier that allows the encoding
+ to be referred to by name (e.g., in an <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>). Encodings with no <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> are called <i>anonymous</i>.
+
+ <p>
+ <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s must satsify these requirements:
  <ul>
-  <li>They have an associated Java type which can represent any of the field's values in Java (possibly including null).
-  <li>They may have an <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, which is a globally unique URN-style identifier that allows the encoding
-      to be looked up by name in an <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>. Encodings with no <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> are called <i>anonymous</i>.
-  <li>Instances <a href="#compare(T,T)">totally order</a> their Java values. If the associated Java type implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link"><code>Comparable</code></a>,
-      then the two orderings do not necessarily have to agree, but they should if possible; see also <a href="#sortsNaturally()"><code>sortsNaturally()</code></a>.</li>
-  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., <code>byte[]</code> array)
-      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
-      sort consistently with the <a href="#compare(T,T)">total ordering</a> of the corresponding Java values.</li>
-  <li>All possible values can be encoded/decoded to/from <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s without losing information,
-      with both a <a href="#toString(T)">regular string form</a> for non-null values only and a
-      <a href="#toParseableString(T)">self-delimiting string form</a> for any value including null
-      (these two forms may be the same).</li>
-  <li><code>null</code> may or may not be a supported value; if so, it must be handled by <a href="#compare(T,T)"><code>compare()</code></a> (typically
-      null values sort last) and have binary and string encodings just like any other value.</li>
+  <li>Instances have an associated Java type which can represent any of the encoding's supported values. However, an encoding
+      is not required to support <i>every</i> instance of the Java type. For example, there can be an encoding of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link"><code>Integer</code></a>
+      that only supports non-negative values.
+  <li>Instances totally order their supported Java values via <a href="#compare(T,T)"><code>compare()</code></a>. If the associated Java type itself
+      implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link"><code>Comparable</code></a>, then the two orderings do not necessarily have to agree, but they should if possible;
+      see also <a href="#sortsNaturally()"><code>sortsNaturally()</code></a>.
+  <li><code>null</code> may or may not be a supported value; see <a href="#allowsNull()"><code>allowsNull()</code></a>. If so, it must be fully supported value just
+      like any other; for example, it must be handled by <a href="#compare(T,T)"><code>compare()</code></a> (typically null values sort last).
+      Note that this is an additional requirement beyond what <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> strictly requires.
   <li>There is a <a href="#getDefaultValue()">default value</a>. For types that support null, the default value must be null.
-      Database field values that are equal to their field's encoding's default value are not actually stored.</li>
+  <li>All <i>non-null</i> values can be encoded/decoded into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> without losing information; see
+      <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
+  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., <code>byte[]</code>
+      array) without losing information. Moreover, these binary strings, when sorted lexicographically using unsigned comparison,
+      sort consistently with the encoding's <a href="#compare(T,T)">total ordering</a> of the corresponding Java values;
+      see <a href="#read(io.permazen.util.ByteReader)"><code>read()</code></a> and <a href="#write(io.permazen.util.ByteWriter,T)"><code>write()</code></a>.
+  <li>An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s string and binary encodings and sort ordering is guaranteed to <i>never change</i>, unless the
+      <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> is also changed, which effectvely defines a new encoding. However, in such scenarios automatic
+      schema migrations are easily handled by adding appropriate logic to <a href="#convert(io.permazen.encoding.Encoding,S)"><code>convert()</code></a>.
  </ul>
 
  <p>
  Two <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> instances should be equal according to <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#equals(java.lang.Object)" title="class or interface in java.util" class="external-link"><code>equals()</code></a> only when they behave identically
  with respect to all of the above.
-
- <p>
- An <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> contains a registry of <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s indexed by <a href="#getEncodingId()">encoding ID</a>.
 
  <p>
  Instances must be stateless (and therefore also thread safe).</div>
@@ -188,7 +191,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#decode(byte%5B%5D)" class="member-name-link">decode</a><wbr>(byte[]&nbsp;bytes)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Decode a valie from the given <code>byte[]</code> array.</div>
+<div class="block">Decode a valid from the given <code>byte[]</code> array.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default byte[]</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#encode(T)" class="member-name-link">encode</a><wbr>(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</code></div>
@@ -196,74 +199,63 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <div class="block">Encode the given value into a <code>byte[]</code> array.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString</a><wbr>(<a href="../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;context)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Parse a value previously encoded by <a href="#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Parse a non-null value previously encoded by <a href="#toString(T)"><code>toString(T)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default byte[]</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getDefaultValue()" class="member-name-link">getDefaultValue</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default byte[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getDefaultValue()" class="member-name-link">getDefaultValue</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getDefaultValueObject()" class="member-name-link">getDefaultValueObject</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getDefaultValueObject()" class="member-name-link">getDefaultValueObject</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the default value for this encoding.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getEncodingId()" class="member-name-link">getEncodingId</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getEncodingId()" class="member-name-link">getEncodingId</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the globally unique encoding ID that identifies this encoding, if any.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="../kv/KeyRange.html" title="class in io.permazen.kv">KeyRange</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getKeyRange(io.permazen.util.Bounds)" class="member-name-link">getKeyRange</a><wbr>(<a href="../util/Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;? extends <a href="Encoding.html" title="type parameter in Encoding">T</a>&gt;&nbsp;bounds)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="../kv/KeyRange.html" title="class in io.permazen.kv">KeyRange</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getKeyRange(io.permazen.util.Bounds)" class="member-name-link">getKeyRange</a><wbr>(<a href="../util/Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;? extends <a href="Encoding.html" title="type parameter in Encoding">T</a>&gt;&nbsp;bounds)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Calculate the <a href="../kv/KeyRange.html" title="class in io.permazen.kv"><code>KeyRange</code></a> that includes exactly those encoded values that lie within the given bounds.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="Encoding.html" title="type parameter in Encoding">T</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getTypeToken()" class="member-name-link">getTypeToken</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="Encoding.html" title="type parameter in Encoding">T</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getTypeToken()" class="member-name-link">getTypeToken</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the Java type corresponding to this encoding's values.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Determine whether any of this encoding's encoded values start with a <code>0x00</code> byte.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Determine whether any of this encoding's encoded values start with a <code>0xff</code> byte.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Read a value from the given input.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Read and discard a value from the given input.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Determine if this instance sorts Java instances naturally.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#toParseableString(T)" class="member-name-link">toParseableString</a><wbr>(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
@@ -331,10 +323,9 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 
  <p>
  Once associated with a specific encoding, an encoding ID must never be changed or reused. If an <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s
- encoding changes in any way, then its encoding ID MUST also change. This applies only to the encoding itself,
+ encoding changes in any way, then its encoding ID <b>must</b> also change. This applies only to the encoding itself,
  and not the <a href="#getTypeToken()">associated Java type</a>. For example, an <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s associated Java type
- can change over time, e.g., when <code>javax.mail.internet.InternetAddress</code> moved to
- <code>jakarta.mail.internet.InternetAddress</code>) in Jakarta EE 9.</div>
+ can change over time, e.g., if the Java class changes package or class name.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>this encoding's unique ID, or null if this encoding is anonymous</dd>
@@ -389,7 +380,11 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <section class="detail" id="getDefaultValue()">
 <h3>getDefaultValue</h3>
 <div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">getDefaultValue</span>()</div>
-<div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.</div>
+<div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.
+
+ <p>
+ The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns the binary encoding of the value returned by
+ <a href="#getDefaultValueObject()"><code>getDefaultValueObject()</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>encoded default value</dd>
@@ -400,7 +395,10 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <section class="detail" id="getDefaultValueObject()">
 <h3>getDefaultValueObject</h3>
 <div class="member-signature"><span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">getDefaultValueObject</span>()</div>
-<div class="block">Get the default value for this encoding.</div>
+<div class="block">Get the default value for this encoding.
+
+ <p>
+ If this encoding <a href="#allowsNull()">supports null values</a>, then this must return null.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>default value</dd>
@@ -411,7 +409,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <section class="detail" id="skip(io.permazen.util.ByteReader)">
 <h3>skip</h3>
 <div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">skip</span><wbr><span class="parameters">(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</span></div>
-<div class="block">Read and discard a value from the given input.</div>
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>reader</code> - byte input</dd>
@@ -425,16 +423,12 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <li>
 <section class="detail" id="toString(T)">
 <h3 id="toString(java.lang.Object)">toString</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toString</span><wbr><span class="parameters">(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toString</span><wbr><span class="parameters">(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</span></div>
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
 
  <p>
  Each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be one of the valid XML characters
- (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> checks that <code>value</code> is not null, then delegates to <a href="#toParseableString(T)"><code>toParseableString(T)</code></a>.
- Subclasses that override this method should also override <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
+ (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>value</code> - actual value, never null</dd>
@@ -454,13 +448,8 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <li>
 <section class="detail" id="fromString(java.lang.String)">
 <h3>fromString</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">fromString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</span></div>
-<div class="block">Parse a non-null value previously encoded by <a href="#toString(T)"><code>toString(T)</code></a>.
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> creates a new <a href="../util/ParseContext.html" title="class in io.permazen.util"><code>ParseContext</code></a> based on <code>string</code>,
- delegates to <a href="#toParseableString(T)"><code>toParseableString(T)</code></a> to parse it, and verifies that all of <code>string</code> was consumed
- during the parse. Subclasses that override this method should also override <a href="#toString(T)"><code>toString(T)</code></a>.</div>
+<div class="member-signature"><span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">fromString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</span></div>
+<div class="block">Parse a non-null value previously encoded by <a href="#toString(T)"><code>toString(T)</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>string</code> - non-null value previously encoded as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> by <a href="#toString(T)"><code>toString(T)</code></a></dd>
@@ -468,49 +457,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <dd>actual value</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the input is invalid</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="toParseableString(T)">
-<h3 id="toParseableString(java.lang.Object)">toParseableString</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toParseableString</span><wbr><span class="parameters">(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</span></div>
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.
- The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by a word boundary (i.e., anything
- other than letter, digit, or underscore), and must not start with whitespace or closing square bracket (<code>"]"</code>).
-
- <p>
- In addition, each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be a valid XML character:
- tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, or <code>&#92;ue000 - &#92;ufffd</code>.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>value</code> - actual value (possibly null)</dd>
-<dt>Returns:</dt>
-<dd>string encoding of <code>value</code> acceptable to <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>value</code> is null and this encoding does not support null</dd>
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="fromParseableString(io.permazen.util.ParseContext)">
-<h3>fromParseableString</h3>
-<div class="member-signature"><span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">fromParseableString</span><wbr><span class="parameters">(<a href="../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;context)</span></div>
-<div class="block">Parse a value previously encoded by <a href="#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>context</code> - parse context starting with a string previously encoded via <a href="#toParseableString(T)"><code>toParseableString()</code></a></dd>
-<dt>Returns:</dt>
-<dd>actual value (possibly null)</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the input is invalid</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>string</code> is null</dd>
 </dl>
 </section>
 </li>
@@ -526,7 +473,8 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
  a valid value for this encoding; if so, the value is returned. Otherwise, it invokes
  <code>encoding.</code><a href="#toString(T)"><code>toString(value)</code></a> to convert <code>value</code> into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>, and then
  attempts to parse that string via <code>this.</code><a href="#fromString(java.lang.String)"><code>fromString()</code></a>; if the parse fails,
- an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> is thrown.
+ an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> is thrown. Note this means that any value will convert successfully
+ to a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>, as long as it doesn't contain an invalid escape sequence (see <a href="StringEncoding.html#toString(java.lang.String)"><code>StringEncoding.toString(java.lang.String)</code></a>).
 
  <p>
  If <code>value</code> is null, the implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns null, unless this encoding does not support
@@ -535,12 +483,15 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
  <p>
  Permazen's built-in encodings include the following conversions:
  <ul>
-  <li>Primitive types other than Boolean convert as if by the corresponding Java cast</li>
-  <li>Non-Boolean primitive types convert to Boolean as if by <code>value != 0</code></li>
-  <li>Boolean converts to non-Boolean primitive types by first converting to zero (if false) or one (if true)</li>
-  <li>A <code>char</code> and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> of length one are convertible (other <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s are not)</li>
-  <li>A <code>char[]</code> array and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> are convertible</li>
-  <li>Arrays are converted by converting each array element individually (if possible)</li>
+  <li>Non-boolean Primitive types:
+      <ul>
+      <li>Convert from other non-boolean primitive types as if by the corresponding Java cast
+      <li>Convert from boolean by converting to zero (if false) or one (if true)
+      </ul>
+  <li>Boolean: converts from other primitive types as if by <code>value != 0</code>
+  <li>A <code>char[]</code> array and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> are convertible to each other
+  <li>A <code>char</code> and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> of length one are convertible to each other (other <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s are not)
+  <li>Arrays: converted by converting each array element individually (if possible)
  </ul></div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
@@ -563,7 +514,8 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 
  <p>
  Note that this method must throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a>, not <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/ClassCastException.html" title="class or interface in java.lang" class="external-link"><code>ClassCastException</code></a>
- or <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link"><code>NullPointerException</code></a>, if <code>obj</code> does not have the correct type, or is an illegal null value.
+ or <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link"><code>NullPointerException</code></a>, if <code>obj</code> does not have the correct type, or is an unsupported value
+ - including null if null is not supported.
 
  <p>
  This method is allowed to perform widening conversions of the object that lose no information, e.g.,
@@ -597,8 +549,8 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
  i.e., the unsigned lexicographical ordering of the corresponding <code>byte[]</code> encoded field values.
 
  <p>
- If null is a supported Java value, then the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> must accept null parameters without
- throwing an exception (note, this is a stronger requirement than the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> interface normally requires).
+ If null is a supported Java value, then the this method must accept null parameters without throwing an exception
+ (note, this is a stronger requirement than the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> interface normally requires).
 
  <p>
  Note: by convention, null values usually sort last.</div>
@@ -728,7 +680,11 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <section class="detail" id="encode(T)">
 <h3 id="encode(java.lang.Object)">encode</h3>
 <div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">encode</span><wbr><span class="parameters">(<a href="Encoding.html" title="type parameter in Encoding">T</a>&nbsp;value)</span></div>
-<div class="block">Encode the given value into a <code>byte[]</code> array.</div>
+<div class="block">Encode the given value into a <code>byte[]</code> array.
+
+ <p>
+ The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> creates a temporary <a href="../util/ByteWriter.html" title="class in io.permazen.util"><code>ByteWriter</code></a>
+ and then delegates to <a href="#write(io.permazen.util.ByteWriter,T)"><code>write()</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>value</code> - value to encode, possibly null</dd>
@@ -743,7 +699,11 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <section class="detail" id="decode(byte[])">
 <h3>decode</h3>
 <div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">decode</span><wbr><span class="parameters">(byte[]&nbsp;bytes)</span></div>
-<div class="block">Decode a valie from the given <code>byte[]</code> array.</div>
+<div class="block">Decode a valid from the given <code>byte[]</code> array.
+
+ <p>
+ The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> creates a temporary <a href="../util/ByteReader.html" title="class in io.permazen.util"><code>ByteReader</code></a>
+ and then delegates to <a href="#read(io.permazen.util.ByteReader)"><code>read()</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>bytes</code> - encoded value</dd>

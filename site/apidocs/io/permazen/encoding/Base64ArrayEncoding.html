@@ -96,11 +96,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">Base64ArrayEncoding&lt;T,<wbr>E&gt;</span>
 <span class="extends-implements">extends <a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a>&lt;T,<wbr>E&gt;</span></div>
-<div class="block">For Primitive array types encode to <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> via Base-64 encoding of raw data. Does not support null arrays.
-
- <p>
- Note: in order to return a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> that is self-delimiting, <a href="#toParseableString(T)"><code>toParseableString()</code></a> appends
- an extra <code>"="</code> character when the length of the array is equal to 3 (mod 4).</div>
+<div class="block">Adds support for an alternate Base-64 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding for primitive array types.
+ Does not support null arrays.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -163,44 +160,32 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/DataOutputStream.html" title="class or interface in java.io" class="external-link">DataOutputStream</a>&nbsp;output)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString</a><wbr>(<a href="../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;context)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Parse a value previously encoded by <a href="Encoding.html#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toParseableString(T)" class="member-name-link">toParseableString</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toParseableString(T,boolean)" class="member-name-link">toParseableString</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array,
- boolean&nbsp;base64)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T,boolean)" class="member-name-link">toString</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T,boolean)" class="member-name-link">toString</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array,
  boolean&nbsp;base64)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useBase64Encoding(T)" class="member-name-link">useBase64Encoding</a><wbr>(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Invoked by <a href="#toString(T)"><code>toString(T)</code></a> to determine whether to encode using base 64 or not.</div>
 </div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.ArrayEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></h3>
-<code><a href="ArrayEncoding.html#compare(T,T)">compare</a>, <a href="ArrayEncoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="ArrayEncoding.html#createArray(java.util.List)">createArray</a>, <a href="ArrayEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ArrayEncoding.html#getArrayElement(T,int)">getArrayElement</a>, <a href="ArrayEncoding.html#getArrayLength(T)">getArrayLength</a>, <a href="ArrayEncoding.html#getElementType()">getElementType</a>, <a href="ArrayEncoding.html#hashCode()">hashCode</a></code></div>
+<code><a href="ArrayEncoding.html#compare(T,T)">compare</a>, <a href="ArrayEncoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="ArrayEncoding.html#createArray(java.util.List)">createArray</a>, <a href="ArrayEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ArrayEncoding.html#fromArrayString(java.lang.String)">fromArrayString</a>, <a href="ArrayEncoding.html#getArrayElement(T,int)">getArrayElement</a>, <a href="ArrayEncoding.html#getArrayLength(T)">getArrayLength</a>, <a href="ArrayEncoding.html#getElementType()">getElementType</a>, <a href="ArrayEncoding.html#hashCode()">hashCode</a>, <a href="ArrayEncoding.html#toArrayString(java.lang.String%5B%5D,boolean)">toArrayString</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
 <code><a href="AbstractEncoding.html#getDefaultValueObject()">getDefaultValueObject</a>, <a href="AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="AbstractEncoding.html#toString()">toString</a></code></div>
@@ -244,13 +229,12 @@ loadScripts(document, 'script');</script>
 <h3>fromString</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a></span>&nbsp;<span class="element-name">fromString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#fromString(java.lang.String)">Encoding</a></code></span></div>
-<div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> creates a new <a href="../util/ParseContext.html" title="class in io.permazen.util"><code>ParseContext</code></a> based on <code>string</code>,
- delegates to <a href="Encoding.html#toParseableString(T)"><code>Encoding.toParseableString(T)</code></a> to parse it, and verifies that all of <code>string</code> was consumed
- during the parse. Subclasses that override this method should also override <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
+<div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Encoding.html#fromString(java.lang.String)">fromString</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&gt;</code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="ArrayEncoding.html#fromString(java.lang.String)">fromString</a></code>&nbsp;in class&nbsp;<code><a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>,<wbr><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>string</code> - non-null value previously encoded as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a></dd>
 <dt>Returns:</dt>
@@ -267,12 +251,12 @@ loadScripts(document, 'script');</script>
 
  <p>
  Each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be one of the valid XML characters
- (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> checks that <code>value</code> is not null, then delegates to <a href="Encoding.html#toParseableString(T)"><code>Encoding.toParseableString(T)</code></a>.
- Subclasses that override this method should also override <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
+ (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Encoding.html#toString(T)">toString</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&gt;</code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="ArrayEncoding.html#toString(T)">toString</a></code>&nbsp;in class&nbsp;<code><a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>,<wbr><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>array</code> - actual value, never null</dd>
 <dt>Returns:</dt>
@@ -291,16 +275,11 @@ loadScripts(document, 'script');</script>
 <h3 id="toString(java.lang.Object,boolean)">toString</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toString</span><wbr><span class="parameters">(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array,
  boolean&nbsp;base64)</span></div>
-<div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
-
- <p>
- This class supports two <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encodings: base 64 and "list" syntax with square brackets and commas.
- The method <a href="#toString(T)"><code>toString(Object)</code></a> returns the base 64 form; this method works exactly the same way but
- allows the caller to specify which form to generate. Either form is parseable by <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
+<div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>array</code> - array to encode, never null</dd>
-<dd><code>base64</code> - true for base 64 synax, false for list syntax</dd>
+<dd><code>array</code> - array to encode</dd>
+<dd><code>base64</code> - true for base 64 synax, false for standard syntax</dd>
 <dt>Returns:</dt>
 <dd>string encoding of <code>value</code> acceptable to <a href="#fromString(java.lang.String)"><code>fromString()</code></a></dd>
 <dt>Throws:</dt>
@@ -309,74 +288,18 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="toParseableString(T)">
-<h3 id="toParseableString(java.lang.Object)">toParseableString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toParseableString</span><wbr><span class="parameters">(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#toParseableString(T)">Encoding</a></code></span></div>
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.
- The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by a word boundary (i.e., anything
- other than letter, digit, or underscore), and must not start with whitespace or closing square bracket (<code>"]"</code>).
+<section class="detail" id="useBase64Encoding(T)">
+<h3 id="useBase64Encoding(java.lang.Object)">useBase64Encoding</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">useBase64Encoding</span><wbr><span class="parameters">(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array)</span></div>
+<div class="block">Invoked by <a href="#toString(T)"><code>toString(T)</code></a> to determine whether to encode using base 64 or not.
 
  <p>
- In addition, each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be a valid XML character:
- tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, or <code>&#92;ue000 - &#92;ufffd</code>.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="Encoding.html#toParseableString(T)">toParseableString</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&gt;</code></dd>
-<dt>Overrides:</dt>
-<dd><code><a href="ArrayEncoding.html#toParseableString(T)">toParseableString</a></code>&nbsp;in class&nbsp;<code><a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>,<wbr><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt;</code></dd>
-<dt>Parameters:</dt>
-<dd><code>array</code> - actual value (possibly null)</dd>
-<dt>Returns:</dt>
-<dd>string encoding of <code>value</code> acceptable to <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a></dd>
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="toParseableString(T,boolean)">
-<h3 id="toParseableString(java.lang.Object,boolean)">toParseableString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toParseableString</span><wbr><span class="parameters">(<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&nbsp;array,
- boolean&nbsp;base64)</span></div>
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.
-
- <p>
- This class supports two <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encodings: base 64 and "list" syntax with square brackets and commas.
- The method <a href="#toParseableString(T)"><code>toParseableString(Object)</code></a> returns the base 64 form; this method works exactly the same way but
- allows the caller to specify which form to generate. Either form is parseable by
- <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
+ The implementation in <a href="Base64ArrayEncoding.html" title="class in io.permazen.encoding"><code>Base64ArrayEncoding</code></a> rerturns true for arrays longer than 16 elements.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>array</code> - array to encode, possibly null</dd>
-<dd><code>base64</code> - true for base 64 synax, false for list syntax</dd>
+<dd><code>array</code> - array to be encoded, never null</dd>
 <dt>Returns:</dt>
-<dd>string encoding of <code>value</code> acceptable to <a href="#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>value</code> is null and this type does not support null</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="fromParseableString(io.permazen.util.ParseContext)">
-<h3>fromParseableString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a></span>&nbsp;<span class="element-name">fromParseableString</span><wbr><span class="parameters">(<a href="../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;context)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)">Encoding</a></code></span></div>
-<div class="block">Parse a value previously encoded by <a href="Encoding.html#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)">fromParseableString</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&gt;</code></dd>
-<dt>Overrides:</dt>
-<dd><code><a href="ArrayEncoding.html#fromParseableString(io.permazen.util.ParseContext)">fromParseableString</a></code>&nbsp;in class&nbsp;<code><a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a>&lt;<a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>,<wbr><a href="Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt;</code></dd>
-<dt>Parameters:</dt>
-<dd><code>context</code> - parse context starting with a string previously encoded via <a href="Encoding.html#toParseableString(T)"><code>toParseableString()</code></a></dd>
-<dt>Returns:</dt>
-<dd>actual value (possibly null)</dd>
+<dd>true for base 64 encoding, otherwise false</dd>
 </dl>
 </section>
 </li>

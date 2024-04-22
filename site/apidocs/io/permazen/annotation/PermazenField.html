@@ -41,13 +41,13 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#annotation-interface-optional-element-summary">Optional</a>&nbsp;|&nbsp;</li>
 <li>Required</li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#annotation-interface-element-detail">Element</a></li>
 </ul>
 </div>
@@ -213,9 +213,8 @@ loadScripts(document, 'script');</script>
  when the validation queue is processed, and is affected by the transaction's configured <a href="../ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a>.
 
  <p>
- Optionally, specific values may be marked as excluded from the uniqueness constraint via <a href="#uniqueExclude()"><code>uniqueExclude()</code></a>.
- If so, the specified values may appear in more than one object without violating the constraint. Because it's not possible
- to specify null in annotations, specify <a href="#NULL"><code>NULL</code></a> to indicate that null values should be excluded.
+ Optionally, specific values may be marked as excluded from the uniqueness constraint via <a href="#uniqueExcludes()"><code>uniqueExcludes()</code></a>.
+ If so, the specified values may appear in more than one object without violating the constraint.
 
  <p>
  In <a href="../ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a>, any upgraded <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s are automatically added to the validation queue,
@@ -303,10 +302,10 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Require this field's value to be unique among all database objects.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
-<div class="col-second even-row-color"><code><a href="#uniqueExclude()" class="member-name-link">uniqueExclude</a></code></div>
+<div class="col-first even-row-color"><code><a href="Values.html" title="annotation interface in io.permazen.annotation">Values</a></code></div>
+<div class="col-second even-row-color"><code><a href="#uniqueExcludes()" class="member-name-link">uniqueExcludes</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Specify field value(s) which are excluded from the uniqueness constraint.</div>
+<div class="block">Specify field value(s) which should be excluded from the uniqueness constraint.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../UpgradeConversionPolicy.html" title="enum class in io.permazen">UpgradeConversionPolicy</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#upgradeConversion()" class="member-name-link">upgradeConversion</a></code></div>
@@ -316,54 +315,10 @@ loadScripts(document, 'script');</script>
 </div>
 </section>
 </li>
-<!-- =========== FIELD SUMMARY =========== -->
-<li>
-<section class="field-summary" id="field-summary">
-<h2>Field Summary</h2>
-<div class="caption"><span>Fields</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Field</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NULL" class="member-name-link">NULL</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Value for use with <a href="#uniqueExclude()"><code>uniqueExclude()</code></a> to represent a null value.</div>
-</div>
-</div>
-</section>
-</li>
 </ul>
 </section>
 <section class="details" id="annotation-interface-element-detail">
 <ul class="details-list">
-<!-- ============ FIELD DETAIL =========== -->
-<li>
-<section class="field-details" id="field-detail">
-<h2>Field Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="NULL">
-<h3>NULL</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NULL</span></div>
-<div class="block">Value for use with <a href="#uniqueExclude()"><code>uniqueExclude()</code></a> to represent a null value.
-
- <p>
- Note: this particular <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> will never conflict with any actual field values because it contains a character
- that is not allowed in the return value from <a href="../encoding/Encoding.html#toString(T)"><code>Encoding.toString()</code></a>.</div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="../../../constant-values.html#io.permazen.annotation.PermazenField.NULL">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ============ ANNOTATION INTERFACE MEMBER DETAIL =========== -->
 <li>
 <section class="member-details">
@@ -618,14 +573,17 @@ loadScripts(document, 'script');</script>
  <a href="../PermazenObject.html#revalidate(java.lang.Class...)"><code>myobj.revalidate(UniquenessConstraints.class)</code></a>.
 
  <p>
- This property must be false for sub-fields of complex fields, and for any field that is not indexed.</div>
+ This property must be false for sub-fields of complex fields, and for any field that is not indexed.
+
+ <p>
+ For reference fields, a uniqueness constraint enforces a one-to-one relationship.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>whether the field's value should be unique</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
-<li><a href="#uniqueExclude()"><code>uniqueExclude()</code></a></li>
+<li><a href="#uniqueExcludes()"><code>uniqueExcludes()</code></a></li>
 <li><a href="../UniquenessConstraints.html" title="interface in io.permazen"><code>UniquenessConstraints</code></a></li>
 </ul>
 </dd>
@@ -637,28 +595,34 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="uniqueExclude()">
-<h3>uniqueExclude</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name">uniqueExclude</span></div>
-<div class="block">Specify field value(s) which are excluded from the uniqueness constraint.
+<section class="detail" id="uniqueExcludes()">
+<h3>uniqueExcludes</h3>
+<div class="member-signature"><span class="return-type"><a href="Values.html" title="annotation interface in io.permazen.annotation">Values</a></span>&nbsp;<span class="element-name">uniqueExcludes</span></div>
+<div class="block">Specify field value(s) which should be excluded from the uniqueness constraint.
 
  <p>
- The specified values must be valid <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encodings of the associated field (as returned by
- <a href="../encoding/Encoding.html#toString(T)"><code>Encoding.toString(T)</code></a>), or the constant <a href="#NULL"><code>NULL</code></a>
- to indicate a null value. For example:
+ Examples:
  <pre>
-  &#64;PermazenField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
-  public abstract float getPriority();
-
-  &#64;PermazenField(indexed = true, unique = true, uniqueExclude = { PermazenField.NULL })
+  // Exclude objects with null names from the uniqueness constraint
+  &#64;PermazenField(indexed = true, <b>unique = true, uniqueExcludes = &#64;Values(nulls = true))</b>
   public abstract String getName();
+
+  // Exclude objects with non-finite priorities from the uniqueness constraint
+  &#64;PermazenField(indexed = true, <b>unique = true, uniqueExcludes = &#64;Values({ "Infinity", "-Infinity", "NaN" })</b>)
+  public abstract float getPriority();
  </pre>
+
+ <p>
+ Use of <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a><code>(nonNulls = true)</code> would be somewhat unusual; that would mean there can be
+ at most one object with a null value in the field, but otherwise there are no restrictions. Specifying both
+ <a href="Values.html#nulls()"><code>nulls()</code></a> and <a href="Values.html#nonNulls()"><code>nonNulls()</code></a> generates an error, as that would exclude
+ every object from the constraint, rendering it pointless.
 
  <p>
  This property must be left empty when <a href="#unique()"><code>unique()</code></a> is false.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>values to exclude from the uniqueness constraint</dd>
+<dd>field values to be excluded from the uniqueness constraint</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
@@ -668,7 +632,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>Default:</dt>
-<dd>{}</dd>
+<dd>@io.permazen.annotation.Values</dd>
 </dl>
 </section>
 </li>

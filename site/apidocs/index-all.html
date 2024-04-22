@@ -524,7 +524,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Determine whether this encoding supports null values.</div>
 </dd>
 <dt><a href="io/permazen/encoding/NullSafeEncoding.html#allowsNull()" class="member-name-link">allowsNull()</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Always returns true.</div>
+</dd>
 <dt><a href="io/permazen/kv/test/KVDatabaseTest.html#allowsWriteSkewAnomaly()" class="member-name-link">allowsWriteSkewAnomaly()</a> - Method in class io.permazen.kv.test.<a href="io/permazen/kv/test/KVDatabaseTest.html" title="class in io.permazen.kv.test">KVDatabaseTest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/spring/AnnotatedClassScanner.html" class="type-name-link" title="class in io.permazen.spring">AnnotatedClassScanner</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
@@ -1009,7 +1011,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/encoding/Base64ArrayEncoding.html" class="type-name-link" title="class in io.permazen.encoding">Base64ArrayEncoding</a>&lt;<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>,<wbr><a href="io/permazen/encoding/Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt; - Class in <a href="io/permazen/encoding/package-summary.html">io.permazen.encoding</a></dt>
 <dd>
-<div class="block">For Primitive array types encode to <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> via Base-64 encoding of raw data.</div>
+<div class="block">Adds support for an alternate Base-64 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding for primitive array types.</div>
 </dd>
 <dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.PrimitiveEncoding,com.google.common.reflect.TypeToken)" class="member-name-link">Base64ArrayEncoding(PrimitiveEncoding&lt;E&gt;, TypeToken&lt;T&gt;)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
@@ -2353,12 +2355,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">A composite index on two or more fields in an <a href="io/permazen/core/ObjType.html" title="class in io.permazen.core"><code>ObjType</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/CompositeIndexParser.html" class="type-name-link" title="class in io.permazen.cli.parse">CompositeIndexParser</a> - Class in <a href="io/permazen/cli/parse/package-summary.html">io.permazen.cli.parse</a></dt>
-<dd>
-<div class="block">Parses a composite index.</div>
-</dd>
-<dt><a href="io/permazen/cli/parse/CompositeIndexParser.html#%3Cinit%3E()" class="member-name-link">CompositeIndexParser()</a> - Constructor for class io.permazen.cli.parse.<a href="io/permazen/cli/parse/CompositeIndexParser.html" title="class in io.permazen.cli.parse">CompositeIndexParser</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/mvstore/MVCursorIterator.html#computeNext()" class="member-name-link">computeNext()</a> - Method in class io.permazen.kv.mvstore.<a href="io/permazen/kv/mvstore/MVCursorIterator.html" title="class in io.permazen.kv.mvstore">MVCursorIterator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/mvstore/MVStoreKVImplementation.Config.html#%3Cinit%3E()" class="member-name-link">Config()</a> - Constructor for class io.permazen.kv.mvstore.<a href="io/permazen/kv/mvstore/MVStoreKVImplementation.Config.html" title="class in io.permazen.kv.mvstore">MVStoreKVImplementation.Config</a></dt>
@@ -3231,7 +3227,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/encoding/Encoding.html#decode(byte%5B%5D)" class="member-name-link">decode(byte[])</a> - Method in interface io.permazen.encoding.<a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a></dt>
 <dd>
-<div class="block">Decode a valie from the given <code>byte[]</code> array.</div>
+<div class="block">Decode a valid from the given <code>byte[]</code> array.</div>
 </dd>
 <dt><a href="io/permazen/util/LongEncoder.html#decode(byte%5B%5D)" class="member-name-link">decode(byte[])</a> - Static method in class io.permazen.util.<a href="io/permazen/util/LongEncoder.html" title="class in io.permazen.util">LongEncoder</a></dt>
 <dd>
@@ -4009,7 +4005,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/encoding/Encoding.html" class="type-name-link" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/Encoding.html" title="type parameter in Encoding">T</a>&gt; - Interface in <a href="io/permazen/encoding/package-summary.html">io.permazen.encoding</a></dt>
 <dd>
-<div class="block">Defines a binary encoding, ordering, and range of possible values for a Java type encoded to/from a <code>byte[]</code> array.</div>
+<div class="block">A range of values of some Java type, along with string and binary encodings and a total ordering of those values.</div>
 </dd>
 <dt><a href="io/permazen/schema/XMLConstants.html#ENCODING_ATTRIBUTE" class="member-name-link">ENCODING_ATTRIBUTE</a> - Static variable in class io.permazen.schema.<a href="io/permazen/schema/XMLConstants.html" title="class in io.permazen.schema">XMLConstants</a></dt>
 <dd>&nbsp;</dd>
@@ -4031,7 +4027,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Parses a value having type supported by an <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/EncodingParser.html#%3Cinit%3E(io.permazen.encoding.Encoding)" class="member-name-link">EncodingParser(Encoding&lt;?&gt;)</a> - Constructor for class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EncodingParser.html" title="class in io.permazen.cli.parse">EncodingParser</a></dt>
+<dt><a href="io/permazen/cli/parse/EncodingParser.html#%3Cinit%3E(io.permazen.encoding.Encoding)" class="member-name-link">EncodingParser(Encoding&lt;T&gt;)</a> - Constructor for class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EncodingParser.html" title="class in io.permazen.cli.parse">EncodingParser</a></dt>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
@@ -4687,6 +4683,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">FoundationDB transaction.</div>
 </dd>
+<dt><a href="io/permazen/encoding/ArrayEncoding.html#fromArrayString(java.lang.String)" class="member-name-link">fromArrayString(String)</a> - Static method in class io.permazen.encoding.<a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></dt>
+<dd>
+<div class="block">Parse a combined <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation of an array of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s and return the individual strings.</div>
+</dd>
 <dt><a href="io/permazen/cli/cmd/AbstractKVCommand.html#fromCString(java.lang.String)" class="member-name-link">fromCString(String)</a> - Static method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.html" title="class in io.permazen.cli.cmd">AbstractKVCommand</a></dt>
 <dd>
 <div class="block">Parse a <code>byte[]</code> array encoded as a double-quoted C-string representation by <a href="io/permazen/cli/cmd/AbstractKVCommand.html#toCString(byte%5B%5D)"><code>toCString()</code></a>.</div>
@@ -4695,70 +4695,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Performs the inverse of <a href="io/permazen/util/ByteUtil.html#toDouble(byte%5B%5D)"><code>toDouble()</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/core/ObjIdEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.core.<a href="io/permazen/core/ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Inet6AddressEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Inet6AddressEncoding.html" title="class in io.permazen.encoding">Inet6AddressEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/ArrayEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/BigDecimalEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BigDecimalEncoding.html" title="class in io.permazen.encoding">BigDecimalEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/BigIntegerEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BigIntegerEncoding.html" title="class in io.permazen.encoding">BigIntegerEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/BitSetEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BitSetEncoding.html" title="class in io.permazen.encoding">BitSetEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/CharacterEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/CharacterEncoding.html" title="class in io.permazen.encoding">CharacterEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/DateEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">DateEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/DurationEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DurationEncoding.html" title="class in io.permazen.encoding">DurationEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Encoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in interface io.permazen.encoding.<a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a></dt>
-<dd>
-<div class="block">Parse a value previously encoded by <a href="io/permazen/encoding/Encoding.html#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
-</dd>
-<dt><a href="io/permazen/encoding/InstantEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/InstantEncoding.html" title="class in io.permazen.encoding">InstantEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/LocalDateEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">LocalDateEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/LocalDateTimeEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">LocalDateTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/LocalTimeEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">LocalTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/MonthDayEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/MonthDayEncoding.html" title="class in io.permazen.encoding">MonthDayEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/NullSafeEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/OffsetDateTimeEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" title="class in io.permazen.encoding">OffsetDateTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/OffsetTimeEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetTimeEncoding.html" title="class in io.permazen.encoding">OffsetTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/PeriodEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PeriodEncoding.html" title="class in io.permazen.encoding">PeriodEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/PrimitiveEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PrimitiveEncoding.html" title="class in io.permazen.encoding">PrimitiveEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/StringConvertedEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/StringEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/TupleEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/UnsignedIntEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UnsignedIntEncoding.html" title="class in io.permazen.encoding">UnsignedIntEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/UUIDEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UUIDEncoding.html" title="class in io.permazen.encoding">UUIDEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/YearEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearEncoding.html" title="class in io.permazen.encoding">YearEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/YearMonthEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearMonthEncoding.html" title="class in io.permazen.encoding">YearMonthEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/ZonedDateTimeEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" title="class in io.permazen.encoding">ZonedDateTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/ZoneOffsetEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString(ParseContext)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZoneOffsetEncoding.html" title="class in io.permazen.encoding">ZoneOffsetEncoding</a></dt>
+<dt><a href="io/permazen/core/ObjIdEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.core.<a href="io/permazen/core/ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Inet6AddressEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Inet6AddressEncoding.html" title="class in io.permazen.encoding">Inet6AddressEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/ArrayEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
@@ -4770,15 +4711,53 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/CharacterEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/CharacterEncoding.html" title="class in io.permazen.encoding">CharacterEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/DateEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">DateEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/DurationEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DurationEncoding.html" title="class in io.permazen.encoding">DurationEncoding</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Encoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in interface io.permazen.encoding.<a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a></dt>
 <dd>
 <div class="block">Parse a non-null value previously encoded by <a href="io/permazen/encoding/Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 </dd>
+<dt><a href="io/permazen/encoding/InstantEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/InstantEncoding.html" title="class in io.permazen.encoding">InstantEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/LocalDateEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">LocalDateEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/LocalDateTimeEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">LocalDateTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/LocalTimeEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">LocalTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/MonthDayEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/MonthDayEncoding.html" title="class in io.permazen.encoding">MonthDayEncoding</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/NullSafeEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/OffsetDateTimeEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" title="class in io.permazen.encoding">OffsetDateTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/OffsetTimeEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetTimeEncoding.html" title="class in io.permazen.encoding">OffsetTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/PeriodEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PeriodEncoding.html" title="class in io.permazen.encoding">PeriodEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/PrimitiveEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PrimitiveEncoding.html" title="class in io.permazen.encoding">PrimitiveEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/StringConvertedEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/StringEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></dt>
+<dd>
+<div class="block">Parse a non-null value previously encoded by <a href="io/permazen/encoding/StringEncoding.html#toString(java.lang.String)"><code>toString()</code></a>.</div>
+</dd>
+<dt><a href="io/permazen/encoding/TupleEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/UnsignedIntEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UnsignedIntEncoding.html" title="class in io.permazen.encoding">UnsignedIntEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/UUIDEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UUIDEncoding.html" title="class in io.permazen.encoding">UUIDEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/YearEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearEncoding.html" title="class in io.permazen.encoding">YearEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/YearMonthEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearMonthEncoding.html" title="class in io.permazen.encoding">YearMonthEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/ZonedDateTimeEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" title="class in io.permazen.encoding">ZonedDateTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/ZoneOffsetEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZoneOffsetEncoding.html" title="class in io.permazen.encoding">ZoneOffsetEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/schema/SchemaModel.html#fromXML(java.io.InputStream)" class="member-name-link">fromXML(InputStream)</a> - Static method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
 <dd>
@@ -5907,10 +5886,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the <a href="io/permazen/kv/raft/fallback/FallbackTarget.html" title="class in io.permazen.kv.raft.fallback"><code>FallbackTarget</code></a>(s).</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.Result.html#getField()" class="member-name-link">getField()</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.Result.html" title="class in io.permazen.cli.parse">IndexedFieldParser.Result</a></dt>
-<dd>
-<div class="block">Get the indexed field.</div>
-</dd>
 <dt><a href="io/permazen/core/SimpleIndex.html#getField()" class="member-name-link">getField()</a> - Method in class io.permazen.core.<a href="io/permazen/core/SimpleIndex.html" title="class in io.permazen.core">SimpleIndex</a></dt>
 <dd>
 <div class="block">Get the indexed field.</div>
@@ -5931,15 +5906,9 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get a description of the given object field.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.html#getFieldFilter()" class="member-name-link">getFieldFilter()</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.html" title="class in io.permazen.cli.parse">IndexedFieldParser</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/change/FieldChange.html#getFieldName()" class="member-name-link">getFieldName()</a> - Method in class io.permazen.change.<a href="io/permazen/change/FieldChange.html" title="class in io.permazen.change">FieldChange</a></dt>
 <dd>
 <div class="block">Get the name of the field that changed.</div>
-</dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.Result.html#getFieldName()" class="member-name-link">getFieldName()</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.Result.html" title="class in io.permazen.cli.parse">IndexedFieldParser.Result</a></dt>
-<dd>
-<div class="block">Get the field's name.</div>
 </dd>
 <dt><a href="io/permazen/core/ReferencedObjectException.html#getFieldName()" class="member-name-link">getFieldName()</a> - Method in exception io.permazen.core.<a href="io/permazen/core/ReferencedObjectException.html" title="class in io.permazen.core">ReferencedObjectException</a></dt>
 <dd>
@@ -7158,10 +7127,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the parent field if this is a sub-field of a <a href="io/permazen/schema/ComplexSchemaField.html" title="class in io.permazen.schema"><code>ComplexSchemaField</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.Result.html#getParentField()" class="member-name-link">getParentField()</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.Result.html" title="class in io.permazen.cli.parse">IndexedFieldParser.Result</a></dt>
-<dd>
-<div class="block">Get the indexed field's parent field, if any.</div>
-</dd>
 <dt><a href="io/permazen/core/SimpleField.html#getParentField()" class="member-name-link">getParentField()</a> - Method in class io.permazen.core.<a href="io/permazen/core/SimpleField.html" title="class in io.permazen.core">SimpleField</a></dt>
 <dd>
 <div class="block">Get the parent field if this field is a sub-field of a complex field.</div>
@@ -7744,8 +7709,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the sub-field with the given name.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.html#getSubFieldFilter()" class="member-name-link">getSubFieldFilter()</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.html" title="class in io.permazen.cli.parse">IndexedFieldParser</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/CollectionField.html#getSubFields()" class="member-name-link">getSubFields()</a> - Method in class io.permazen.core.<a href="io/permazen/core/CollectionField.html" title="class in io.permazen.core">CollectionField</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/ComplexField.html#getSubFields()" class="member-name-link">getSubFields()</a> - Method in class io.permazen.core.<a href="io/permazen/core/ComplexField.html" title="class in io.permazen.core">ComplexField</a></dt>
@@ -8502,7 +8465,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/encoding/MonthDayEncoding.html#hasPrefix0xff()" class="member-name-link">hasPrefix0xff()</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/MonthDayEncoding.html" title="class in io.permazen.encoding">MonthDayEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/NullSafeEncoding.html#hasPrefix0xff()" class="member-name-link">hasPrefix0xff()</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Always returns true.</div>
+</dd>
 <dt><a href="io/permazen/encoding/PeriodEncoding.html#hasPrefix0xff()" class="member-name-link">hasPrefix0xff()</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PeriodEncoding.html" title="class in io.permazen.encoding">PeriodEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/StringConvertedEncoding.html#hasPrefix0xff()" class="member-name-link">hasPrefix0xff()</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a></dt>
@@ -8733,16 +8698,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/schema/XMLConstants.html#INDEXED_ATTRIBUTE" class="member-name-link">INDEXED_ATTRIBUTE</a> - Static variable in class io.permazen.schema.<a href="io/permazen/schema/XMLConstants.html" title="class in io.permazen.schema">XMLConstants</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.html" class="type-name-link" title="class in io.permazen.cli.parse">IndexedFieldParser</a> - Class in <a href="io/permazen/cli/parse/package-summary.html">io.permazen.cli.parse</a></dt>
-<dd>
-<div class="block">Parses the name of an indexed field.</div>
-</dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.html#%3Cinit%3E()" class="member-name-link">IndexedFieldParser()</a> - Constructor for class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.html" title="class in io.permazen.cli.parse">IndexedFieldParser</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.Result.html" class="type-name-link" title="class in io.permazen.cli.parse">IndexedFieldParser.Result</a> - Class in <a href="io/permazen/cli/parse/package-summary.html">io.permazen.cli.parse</a></dt>
-<dd>
-<div class="block">Result returned from an <a href="io/permazen/cli/parse/IndexedFieldParser.html" title="class in io.permazen.cli.parse"><code>IndexedFieldParser</code></a> parse.</div>
-</dd>
 <dt><a href="io/permazen/util/ConvertedList.html#indexOf(java.lang.Object)" class="member-name-link">indexOf(Object)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ConvertedList.html" title="class in io.permazen.util">ConvertedList</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/IndexSwitch.html" class="type-name-link" title="interface in io.permazen.core">IndexSwitch</a>&lt;<a href="io/permazen/core/IndexSwitch.html" title="type parameter in IndexSwitch">R</a>&gt; - Interface in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
@@ -11276,6 +11231,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Support superclass for the <a href="io/permazen/kv/raft/FollowerRole.html" title="class in io.permazen.kv.raft">follower</a> and <a href="io/permazen/kv/raft/CandidateRole.html" title="class in io.permazen.kv.raft">candidate</a> roles,
  both of which have an election timer.</div>
 </dd>
+<dt><a href="io/permazen/annotation/Values.html#nonNulls()" class="member-name-link">nonNulls()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/Values.html" title="annotation interface in io.permazen.annotation">Values</a></dt>
+<dd>
+<div class="block">Specify whether any non-null value should match.</div>
+</dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#NOT_COMMITTED" class="member-name-link">NOT_COMMITTED</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
 <div class="block">Transaction not committed due to conflict with another transaction.</div>
@@ -11287,10 +11246,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#NS_URI" class="member-name-link">NS_URI</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>
 <div class="block">The supported XML namespace URI.</div>
-</dd>
-<dt><a href="io/permazen/annotation/PermazenField.html#NULL" class="member-name-link">NULL</a> - Static variable in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">PermazenField</a></dt>
-<dd>
-<div class="block">Value for use with <a href="io/permazen/annotation/PermazenField.html#uniqueExclude()"><code>PermazenField.uniqueExclude()</code></a> to represent a null value.</div>
 </dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#NULL_ATTR" class="member-name-link">NULL_ATTR</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
@@ -11308,6 +11263,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/raft/fallback/NullMergeStrategy.html#%3Cinit%3E()" class="member-name-link">NullMergeStrategy()</a> - Constructor for class io.permazen.kv.raft.fallback.<a href="io/permazen/kv/raft/fallback/NullMergeStrategy.html" title="class in io.permazen.kv.raft.fallback">NullMergeStrategy</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/annotation/Values.html#nulls()" class="member-name-link">nulls()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/Values.html" title="annotation interface in io.permazen.annotation">Values</a></dt>
+<dd>
+<div class="block">Specify whether the null value should match.</div>
+</dd>
 <dt><a href="io/permazen/encoding/NullSafeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">NullSafeEncoding</a>&lt;<a href="io/permazen/encoding/NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt; - Class in <a href="io/permazen/encoding/package-summary.html">io.permazen.encoding</a></dt>
 <dd>
 <div class="block">An <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that wraps any other <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> not supporting null values and adds support for null values.</div>
@@ -11694,27 +11653,23 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Directory's parent does not exist.</div>
 </dd>
-<dt><a href="io/permazen/cli/cmd/AbstractKVCommand.BytesParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.BytesParser.html" title="class in io.permazen.cli.cmd">AbstractKVCommand.BytesParser</a></dt>
+<dt><a href="io/permazen/cli/cmd/AbstractKVCommand.BytesParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.BytesParser.html" title="class in io.permazen.cli.cmd">AbstractKVCommand.BytesParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/CompositeIndexParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/CompositeIndexParser.html" title="class in io.permazen.cli.parse">CompositeIndexParser</a></dt>
+<dt><a href="io/permazen/cli/parse/EncodingParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EncodingParser.html" title="class in io.permazen.cli.parse">EncodingParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/EncodingParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EncodingParser.html" title="class in io.permazen.cli.parse">EncodingParser</a></dt>
+<dt><a href="io/permazen/cli/parse/EnumNameParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EnumNameParser.html" title="class in io.permazen.cli.parse">EnumNameParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/EnumNameParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EnumNameParser.html" title="class in io.permazen.cli.parse">EnumNameParser</a></dt>
+<dt><a href="io/permazen/cli/parse/ObjIdParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjIdParser.html" title="class in io.permazen.cli.parse">ObjIdParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/IndexedFieldParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.html" title="class in io.permazen.cli.parse">IndexedFieldParser</a></dt>
+<dt><a href="io/permazen/cli/parse/ObjTypeParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjTypeParser.html" title="class in io.permazen.cli.parse">ObjTypeParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/ObjIdParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjIdParser.html" title="class in io.permazen.cli.parse">ObjIdParser</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/ObjTypeParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjTypeParser.html" title="class in io.permazen.cli.parse">ObjTypeParser</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/Parser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in interface io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a></dt>
+<dt><a href="io/permazen/cli/parse/Parser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in interface io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a></dt>
 <dd>
-<div class="block">Parse text from the given parse context.</div>
+<div class="block">Parse value from the given text.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/WhateverParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/WhateverParser.html" title="class in io.permazen.cli.parse">WhateverParser</a></dt>
+<dt><a href="io/permazen/cli/parse/WhateverParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/WhateverParser.html" title="class in io.permazen.cli.parse">WhateverParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/WordParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse(Session, ParseContext, boolean)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/WordParser.html" title="class in io.permazen.cli.parse">WordParser</a></dt>
+<dt><a href="io/permazen/cli/parse/WordParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/WordParser.html" title="class in io.permazen.cli.parse">WordParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/ParamParser.html#parse(io.permazen.cli.Session,java.util.List)" class="member-name-link">parse(Session, List&lt;String&gt;)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/ParamParser.html" title="class in io.permazen.cli">ParamParser</a></dt>
 <dd>
@@ -14926,7 +14881,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Encoding.html#skip(io.permazen.util.ByteReader)" class="member-name-link">skip(ByteReader)</a> - Method in interface io.permazen.encoding.<a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a></dt>
 <dd>
-<div class="block">Read and discard a value from the given input.</div>
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 </dd>
 <dt><a href="io/permazen/encoding/FloatArrayEncoding.html#skip(io.permazen.util.ByteReader)" class="member-name-link">skip(ByteReader)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/FloatArrayEncoding.html" title="class in io.permazen.encoding">FloatArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
@@ -15593,6 +15548,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Overridden in <a href="io/permazen/util/AbstractIterationSet.html" title="class in io.permazen.util"><code>AbstractIterationSet</code></a> to minimize the use of <a href="io/permazen/util/AbstractIterationSet.html#size()"><code>AbstractIterationSet.size()</code></a>.</div>
 </dd>
+<dt><a href="io/permazen/encoding/ArrayEncoding.html#toArrayString(java.lang.String%5B%5D,boolean)" class="member-name-link">toArrayString(String[], boolean)</a> - Static method in class io.permazen.encoding.<a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></dt>
+<dd>
+<div class="block">Create a single, combined <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation of an array of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s.</div>
+</dd>
 <dt><a href="io/permazen/cli/cmd/AbstractKVCommand.html#toCString(byte%5B%5D)" class="member-name-link">toCString(byte[])</a> - Static method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.html" title="class in io.permazen.cli.cmd">AbstractKVCommand</a></dt>
 <dd>
 <div class="block">Convert a <code>byte[]</code> array into a double-quoted C-string representation, surrounded by double quotes,
@@ -15608,72 +15567,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#TOO_MANY_WATCHES" class="member-name-link">TOO_MANY_WATCHES</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
 <div class="block">Too many watches currently set.</div>
-</dd>
-<dt><a href="io/permazen/core/ObjIdEncoding.html#toParseableString(io.permazen.core.ObjId)" class="member-name-link">toParseableString(ObjId)</a> - Method in class io.permazen.core.<a href="io/permazen/core/ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/CharacterEncoding.html#toParseableString(java.lang.Character)" class="member-name-link">toParseableString(Character)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/CharacterEncoding.html" title="class in io.permazen.encoding">CharacterEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/UnsignedIntEncoding.html#toParseableString(java.lang.Integer)" class="member-name-link">toParseableString(Integer)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UnsignedIntEncoding.html" title="class in io.permazen.encoding">UnsignedIntEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/StringEncoding.html#toParseableString(java.lang.String)" class="member-name-link">toParseableString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/BigDecimalEncoding.html#toParseableString(java.math.BigDecimal)" class="member-name-link">toParseableString(BigDecimal)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BigDecimalEncoding.html" title="class in io.permazen.encoding">BigDecimalEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/BigIntegerEncoding.html#toParseableString(java.math.BigInteger)" class="member-name-link">toParseableString(BigInteger)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BigIntegerEncoding.html" title="class in io.permazen.encoding">BigIntegerEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/DurationEncoding.html#toParseableString(java.time.Duration)" class="member-name-link">toParseableString(Duration)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DurationEncoding.html" title="class in io.permazen.encoding">DurationEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/InstantEncoding.html#toParseableString(java.time.Instant)" class="member-name-link">toParseableString(Instant)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/InstantEncoding.html" title="class in io.permazen.encoding">InstantEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/LocalDateEncoding.html#toParseableString(java.time.LocalDate)" class="member-name-link">toParseableString(LocalDate)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">LocalDateEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/LocalDateTimeEncoding.html#toParseableString(java.time.LocalDateTime)" class="member-name-link">toParseableString(LocalDateTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">LocalDateTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/LocalTimeEncoding.html#toParseableString(java.time.LocalTime)" class="member-name-link">toParseableString(LocalTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">LocalTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/MonthDayEncoding.html#toParseableString(java.time.MonthDay)" class="member-name-link">toParseableString(MonthDay)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/MonthDayEncoding.html" title="class in io.permazen.encoding">MonthDayEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/OffsetDateTimeEncoding.html#toParseableString(java.time.OffsetDateTime)" class="member-name-link">toParseableString(OffsetDateTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" title="class in io.permazen.encoding">OffsetDateTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/OffsetTimeEncoding.html#toParseableString(java.time.OffsetTime)" class="member-name-link">toParseableString(OffsetTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetTimeEncoding.html" title="class in io.permazen.encoding">OffsetTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/PeriodEncoding.html#toParseableString(java.time.Period)" class="member-name-link">toParseableString(Period)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PeriodEncoding.html" title="class in io.permazen.encoding">PeriodEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/YearEncoding.html#toParseableString(java.time.Year)" class="member-name-link">toParseableString(Year)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearEncoding.html" title="class in io.permazen.encoding">YearEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/YearMonthEncoding.html#toParseableString(java.time.YearMonth)" class="member-name-link">toParseableString(YearMonth)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearMonthEncoding.html" title="class in io.permazen.encoding">YearMonthEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/ZonedDateTimeEncoding.html#toParseableString(java.time.ZonedDateTime)" class="member-name-link">toParseableString(ZonedDateTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" title="class in io.permazen.encoding">ZonedDateTimeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/ZoneOffsetEncoding.html#toParseableString(java.time.ZoneOffset)" class="member-name-link">toParseableString(ZoneOffset)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZoneOffsetEncoding.html" title="class in io.permazen.encoding">ZoneOffsetEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/BitSetEncoding.html#toParseableString(java.util.BitSet)" class="member-name-link">toParseableString(BitSet)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BitSetEncoding.html" title="class in io.permazen.encoding">BitSetEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/DateEncoding.html#toParseableString(java.util.Date)" class="member-name-link">toParseableString(Date)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">DateEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/UUIDEncoding.html#toParseableString(java.util.UUID)" class="member-name-link">toParseableString(UUID)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UUIDEncoding.html" title="class in io.permazen.encoding">UUIDEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Inet6AddressEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(Inet6Address)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Inet6AddressEncoding.html" title="class in io.permazen.encoding">Inet6AddressEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/ArrayEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Encoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in interface io.permazen.encoding.<a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a></dt>
-<dd>
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="io/permazen/encoding/Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
-</dd>
-<dt><a href="io/permazen/encoding/NullSafeEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/PrimitiveEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PrimitiveEncoding.html" title="class in io.permazen.encoding">PrimitiveEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/StringConvertedEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/TupleEncoding.html#toParseableString(T)" class="member-name-link">toParseableString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#toParseableString(T,boolean)" class="member-name-link">toParseableString(T, boolean)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
-<dd>
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="io/permazen/encoding/Base64ArrayEncoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/util/CloseableIterator.html#toStream()" class="member-name-link">toStream()</a> - Method in interface io.permazen.util.<a href="io/permazen/util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a></dt>
 <dd>
@@ -15890,21 +15783,59 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Convert a byte array into a string of hex digits, or <code>"null"</code> if <code>buf</code> is null.</div>
 </dd>
+<dt><a href="io/permazen/core/ObjIdEncoding.html#toString(io.permazen.core.ObjId)" class="member-name-link">toString(ObjId)</a> - Method in class io.permazen.core.<a href="io/permazen/core/ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/ObjDumper.html#toString(io.permazen.core.Transaction,io.permazen.core.ObjId,int)" class="member-name-link">toString(Transaction, ObjId, int)</a> - Static method in class io.permazen.core.util.<a href="io/permazen/core/util/ObjDumper.html" title="class in io.permazen.core.util">ObjDumper</a></dt>
 <dd>
 <div class="block">Helper for Java model object <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link"><code>Object.toString()</code></a> methods that wish to display all fields in the object.</div>
 </dd>
 <dt><a href="io/permazen/encoding/CharacterEncoding.html#toString(java.lang.Character)" class="member-name-link">toString(Character)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/CharacterEncoding.html" title="class in io.permazen.encoding">CharacterEncoding</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/encoding/StringEncoding.html#toString(java.lang.String)" class="member-name-link">toString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></dt>
+<dt><a href="io/permazen/encoding/UnsignedIntEncoding.html#toString(java.lang.Integer)" class="member-name-link">toString(Integer)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UnsignedIntEncoding.html" title="class in io.permazen.encoding">UnsignedIntEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/StringEncoding.html#toString(java.lang.String)" class="member-name-link">toString(String)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></dt>
+<dd>
+<div class="block">Encode the given non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>.</div>
+</dd>
 <dt><a href="io/permazen/encoding/BigDecimalEncoding.html#toString(java.math.BigDecimal)" class="member-name-link">toString(BigDecimal)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BigDecimalEncoding.html" title="class in io.permazen.encoding">BigDecimalEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/BigIntegerEncoding.html#toString(java.math.BigInteger)" class="member-name-link">toString(BigInteger)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BigIntegerEncoding.html" title="class in io.permazen.encoding">BigIntegerEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/DurationEncoding.html#toString(java.time.Duration)" class="member-name-link">toString(Duration)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DurationEncoding.html" title="class in io.permazen.encoding">DurationEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/InstantEncoding.html#toString(java.time.Instant)" class="member-name-link">toString(Instant)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/InstantEncoding.html" title="class in io.permazen.encoding">InstantEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/LocalDateEncoding.html#toString(java.time.LocalDate)" class="member-name-link">toString(LocalDate)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">LocalDateEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/LocalDateTimeEncoding.html#toString(java.time.LocalDateTime)" class="member-name-link">toString(LocalDateTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">LocalDateTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/LocalTimeEncoding.html#toString(java.time.LocalTime)" class="member-name-link">toString(LocalTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">LocalTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/MonthDayEncoding.html#toString(java.time.MonthDay)" class="member-name-link">toString(MonthDay)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/MonthDayEncoding.html" title="class in io.permazen.encoding">MonthDayEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/OffsetDateTimeEncoding.html#toString(java.time.OffsetDateTime)" class="member-name-link">toString(OffsetDateTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" title="class in io.permazen.encoding">OffsetDateTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/OffsetTimeEncoding.html#toString(java.time.OffsetTime)" class="member-name-link">toString(OffsetTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/OffsetTimeEncoding.html" title="class in io.permazen.encoding">OffsetTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/PeriodEncoding.html#toString(java.time.Period)" class="member-name-link">toString(Period)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PeriodEncoding.html" title="class in io.permazen.encoding">PeriodEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/YearEncoding.html#toString(java.time.Year)" class="member-name-link">toString(Year)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearEncoding.html" title="class in io.permazen.encoding">YearEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/YearMonthEncoding.html#toString(java.time.YearMonth)" class="member-name-link">toString(YearMonth)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/YearMonthEncoding.html" title="class in io.permazen.encoding">YearMonthEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/ZonedDateTimeEncoding.html#toString(java.time.ZonedDateTime)" class="member-name-link">toString(ZonedDateTime)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" title="class in io.permazen.encoding">ZonedDateTimeEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/ZoneOffsetEncoding.html#toString(java.time.ZoneOffset)" class="member-name-link">toString(ZoneOffset)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ZoneOffsetEncoding.html" title="class in io.permazen.encoding">ZoneOffsetEncoding</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/BitSetEncoding.html#toString(java.util.BitSet)" class="member-name-link">toString(BitSet)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/BitSetEncoding.html" title="class in io.permazen.encoding">BitSetEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/DateEncoding.html#toString(java.util.Date)" class="member-name-link">toString(Date)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">DateEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/UUIDEncoding.html#toString(java.util.UUID)" class="member-name-link">toString(UUID)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/UUIDEncoding.html" title="class in io.permazen.encoding">UUIDEncoding</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Inet6AddressEncoding.html#toString(T)" class="member-name-link">toString(Inet6Address)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Inet6AddressEncoding.html" title="class in io.permazen.encoding">Inet6AddressEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/ArrayEncoding.html#toString(T)" class="member-name-link">toString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#toString(T)" class="member-name-link">toString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
@@ -15914,7 +15845,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/encoding/NullSafeEncoding.html#toString(T)" class="member-name-link">toString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/PrimitiveEncoding.html#toString(T)" class="member-name-link">toString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/PrimitiveEncoding.html" title="class in io.permazen.encoding">PrimitiveEncoding</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/StringConvertedEncoding.html#toString(T)" class="member-name-link">toString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/TupleEncoding.html#toString(T)" class="member-name-link">toString(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#toString(T,boolean)" class="member-name-link">toString(T, boolean)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
 <dd>
@@ -16237,13 +16172,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Require this field's value to be unique among all database objects.</div>
 </dd>
-<dt><a href="io/permazen/annotation/PermazenCompositeIndex.html#uniqueExclude()" class="member-name-link">uniqueExclude()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation">PermazenCompositeIndex</a></dt>
+<dt><a href="io/permazen/annotation/PermazenCompositeIndex.html#uniqueExcludes()" class="member-name-link">uniqueExcludes()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation">PermazenCompositeIndex</a></dt>
 <dd>
-<div class="block">Specify field value combination(s) to be excluded from the uniqueness constraint.</div>
+<div class="block">Specify field value combinations to be excluded from the uniqueness constraint.</div>
 </dd>
-<dt><a href="io/permazen/annotation/PermazenField.html#uniqueExclude()" class="member-name-link">uniqueExclude()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">PermazenField</a></dt>
+<dt><a href="io/permazen/annotation/PermazenField.html#uniqueExcludes()" class="member-name-link">uniqueExcludes()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">PermazenField</a></dt>
 <dd>
-<div class="block">Specify field value(s) which are excluded from the uniqueness constraint.</div>
+<div class="block">Specify field value(s) which should be excluded from the uniqueness constraint.</div>
 </dd>
 <dt><a href="io/permazen/util/UniqueIterator.html" class="type-name-link" title="class in io.permazen.util">UniqueIterator</a>&lt;<a href="io/permazen/util/UniqueIterator.html" title="type parameter in UniqueIterator">E</a>&gt; - Class in <a href="io/permazen/util/package-summary.html">io.permazen.util</a></dt>
 <dd>
@@ -16416,6 +16351,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/encoding/URIEncoding.html#%3Cinit%3E()" class="member-name-link">URIEncoding()</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/URIEncoding.html" title="class in io.permazen.encoding">URIEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/encoding/Base64ArrayEncoding.html#useBase64Encoding(T)" class="member-name-link">useBase64Encoding(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></dt>
+<dd>
+<div class="block">Invoked by <a href="io/permazen/encoding/Base64ArrayEncoding.html#toString(T)"><code>Base64ArrayEncoding.toString(T)</code></a> to determine whether to encode using base 64 or not.</div>
+</dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#USED_DURING_COMMIT" class="member-name-link">USED_DURING_COMMIT</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
 <div class="block">Operation issued while a commit was outstanding.</div>
@@ -16516,6 +16455,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/annotation/ReferencePath.html#value()" class="member-name-link">value()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/ReferencePath.html" title="annotation interface in io.permazen.annotation">ReferencePath</a></dt>
 <dd>
 <div class="block">The reference path to follow.</div>
+</dd>
+<dt><a href="io/permazen/annotation/Values.html#value()" class="member-name-link">value()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/Values.html" title="annotation interface in io.permazen.annotation">Values</a></dt>
+<dd>
+<div class="block">Enumerate specific field value(s) that should match.</div>
+</dd>
+<dt><a href="io/permazen/annotation/ValuesList.html#value()" class="member-name-link">value()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/ValuesList.html" title="annotation interface in io.permazen.annotation">ValuesList</a></dt>
+<dd>
+<div class="block">Get the matching criteria for each field in the list.</div>
 </dd>
 <dt><a href="io/permazen/core/MapField.html#VALUE_FIELD_NAME" class="member-name-link">VALUE_FIELD_NAME</a> - Static variable in class io.permazen.core.<a href="io/permazen/core/MapField.html" title="class in io.permazen.core">MapField</a></dt>
 <dd>&nbsp;</dd>
@@ -16653,6 +16600,14 @@ the order they are declared.</div>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
+</dd>
+<dt><a href="io/permazen/annotation/Values.html" class="type-name-link" title="annotation interface in io.permazen.annotation">Values</a> - Annotation Interface in <a href="io/permazen/annotation/package-summary.html">io.permazen.annotation</a></dt>
+<dd>
+<div class="block">Defines a predicate that matches certain values of a simple field.</div>
+</dd>
+<dt><a href="io/permazen/annotation/ValuesList.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ValuesList</a> - Annotation Interface in <a href="io/permazen/annotation/package-summary.html">io.permazen.annotation</a></dt>
+<dd>
+<div class="block">Defines a predicate that matches certain combined values of a list of simple fields.</div>
 </dd>
 <dt><a href="io/permazen/cli/config/JavaNameConverter.html#valueType()" class="member-name-link">valueType()</a> - Method in class io.permazen.cli.config.<a href="io/permazen/cli/config/JavaNameConverter.html" title="class in io.permazen.cli.config">JavaNameConverter</a></dt>
 <dd>&nbsp;</dd>
@@ -17027,7 +16982,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="io/permazen/cli/parse/WordParser.html" class="type-name-link" title="class in io.permazen.cli.parse">WordParser</a> - Class in <a href="io/permazen/cli/parse/package-summary.html">io.permazen.cli.parse</a></dt>
 <dd>
-<div class="block">Parses a word (one or more non-whitespace characters).</div>
+<div class="block">Parses a word (one or more characters).</div>
 </dd>
 <dt><a href="io/permazen/cli/parse/WordParser.html#%3Cinit%3E(java.lang.String)" class="member-name-link">WordParser(String)</a> - Constructor for class io.permazen.cli.parse.<a href="io/permazen/cli/parse/WordParser.html" title="class in io.permazen.cli.parse">WordParser</a></dt>
 <dd>

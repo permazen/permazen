@@ -150,6 +150,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVLoadCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">KVLoadCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVPutCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">KVPutCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVRemoveCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">KVRemoveCommand</a></li>
+<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVSaveCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">KVSaveCommand</a></li>
 </ul>
 </li>
 <li class="circle">io.permazen.kv.raft.cmd.<a href="io/permazen/kv/raft/cmd/AbstractRaftCommand.html" class="type-name-link" title="class in io.permazen.kv.raft.cmd">AbstractRaftCommand</a>
@@ -169,7 +170,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/InfoCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">InfoCommand</a> (implements io.permazen.cli.<a href="io/permazen/cli/Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>)</li>
 <li class="circle">io.permazen.jsck.cmd.<a href="io/permazen/jsck/cmd/JsckCommand.html" class="type-name-link" title="class in io.permazen.jsck.cmd">JsckCommand</a></li>
-<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVSaveCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">KVSaveCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/LoadCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">LoadCommand</a></li>
 <li class="circle">io.permazen.kv.raft.cmd.<a href="io/permazen/kv/raft/cmd/RaftFallbackForceStandaloneCommand.html" class="type-name-link" title="class in io.permazen.kv.raft.cmd">RaftFallbackForceStandaloneCommand</a></li>
 <li class="circle">io.permazen.kv.raft.cmd.<a href="io/permazen/kv/raft/cmd/RaftFallbackStatusCommand.html" class="type-name-link" title="class in io.permazen.kv.raft.cmd">RaftFallbackStatusCommand</a></li>
@@ -565,7 +565,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.cli.app.<a href="io/permazen/cli/app/CliMain.html" class="type-name-link" title="class in io.permazen.cli.app">CliMain</a></li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/CloseableRefs.html" class="type-name-link" title="class in io.permazen.util">CloseableRefs</a>&lt;C&gt;</li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/CloseableTracker.html" class="type-name-link" title="class in io.permazen.util">CloseableTracker</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
-<li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/CompositeIndexParser.html" class="type-name-link" title="class in io.permazen.cli.parse">CompositeIndexParser</a> (implements io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;T&gt;)</li>
 <li class="circle">io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/Conflict.html" class="type-name-link" title="class in io.permazen.kv.mvcc">Conflict</a>
 <ul>
 <li class="circle">io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/ReadAdjustConflict.html" class="type-name-link" title="class in io.permazen.kv.mvcc">ReadAdjustConflict</a></li>
@@ -642,8 +641,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/FoundationKVTransaction.html" class="type-name-link" title="class in io.permazen.kv.fdb">FoundationKVTransaction</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>)</li>
 <li class="circle">io.permazen.core.util.<a href="io/permazen/core/util/GeneratedIdCache.html" class="type-name-link" title="class in io.permazen.core.util">GeneratedIdCache</a></li>
 <li class="circle">io.permazen.<a href="io/permazen/ImportContext.html" class="type-name-link" title="class in io.permazen">ImportContext</a></li>
-<li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.html" class="type-name-link" title="class in io.permazen.cli.parse">IndexedFieldParser</a> (implements io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;T&gt;)</li>
-<li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/IndexedFieldParser.Result.html" class="type-name-link" title="class in io.permazen.cli.parse">IndexedFieldParser.Result</a></li>
 <li class="circle">io.permazen.jsck.<a href="io/permazen/jsck/Issue.html" class="type-name-link" title="class in io.permazen.jsck">Issue</a>
 <ul>
 <li class="circle">io.permazen.jsck.<a href="io/permazen/jsck/InvalidKey.html" class="type-name-link" title="class in io.permazen.jsck">InvalidKey</a></li>
@@ -1184,6 +1181,8 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenTransient.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenTransient</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenType.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenType</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/ReferencePath.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ReferencePath</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/Values.html" class="type-name-link" title="annotation interface in io.permazen.annotation">Values</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/ValuesList.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ValuesList</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 </ul>
 </section>
 <section class="hierarchy">

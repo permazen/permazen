@@ -151,7 +151,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
@@ -177,35 +177,45 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString</a><wbr>(<a href="../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Parse a value previously encoded by <a href="Encoding.html#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromArrayString(java.lang.String)" class="member-name-link">fromArrayString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Parse a combined <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation of an array of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s and return the individual strings.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getArrayElement(T,int)" class="member-name-link">getArrayElement</a><wbr>(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getArrayElement(T,int)" class="member-name-link">getArrayElement</a><wbr>(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array,
  int&nbsp;index)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get an element from the given array.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getArrayLength(T)" class="member-name-link">getArrayLength</a><wbr>(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getArrayLength(T)" class="member-name-link">getArrayLength</a><wbr>(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the length of the given array.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getElementType()" class="member-name-link">getElementType</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getElementType()" class="member-name-link">getElementType</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the element type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toArrayString(java.lang.String%5B%5D,boolean)" class="member-name-link">toArrayString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;strings,
+ boolean&nbsp;spacing)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Create a single, combined <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation of an array of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toParseableString(T)" class="member-name-link">toParseableString</a><wbr>(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.</div>
+<div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
 </div>
 </div>
@@ -221,7 +231,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="Encoding.html#allowsNull()">allowsNull</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#fromString(java.lang.String)">fromString</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="Encoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="Encoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="Encoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#toString(T)">toString</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a>, <a href="Encoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
+<code><a href="Encoding.html#allowsNull()">allowsNull</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="Encoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="Encoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="Encoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a>, <a href="Encoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
 </section>
 </li>
 </ul>
@@ -269,22 +279,20 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="toParseableString(T)">
-<h3 id="toParseableString(java.lang.Object)">toParseableString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toParseableString</span><wbr><span class="parameters">(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#toParseableString(T)">Encoding</a></code></span></div>
-<div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a>.
- The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by a word boundary (i.e., anything
- other than letter, digit, or underscore), and must not start with whitespace or closing square bracket (<code>"]"</code>).
+<section class="detail" id="toString(T)">
+<h3 id="toString(java.lang.Object)">toString</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toString</span><wbr><span class="parameters">(<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&nbsp;array)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#toString(T)">Encoding</a></code></span></div>
+<div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.
 
  <p>
- In addition, each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be a valid XML character:
- tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, or <code>&#92;ue000 - &#92;ufffd</code>.</div>
+ Each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be one of the valid XML characters
+ (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>array</code> - actual value (possibly null)</dd>
+<dd><code>array</code> - actual value, never null</dd>
 <dt>Returns:</dt>
-<dd>string encoding of <code>value</code> acceptable to <a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)"><code>fromParseableString()</code></a></dd>
+<dd>string encoding of <code>value</code> acceptable to <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a></dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="see-list">
@@ -295,17 +303,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="fromParseableString(io.permazen.util.ParseContext)">
-<h3>fromParseableString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a></span>&nbsp;<span class="element-name">fromParseableString</span><wbr><span class="parameters">(<a href="../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;context)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#fromParseableString(io.permazen.util.ParseContext)">Encoding</a></code></span></div>
-<div class="block">Parse a value previously encoded by <a href="Encoding.html#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- and positioned at the start of the given parsing context.</div>
+<section class="detail" id="fromString(java.lang.String)">
+<h3>fromString</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a></span>&nbsp;<span class="element-name">fromString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#fromString(java.lang.String)">Encoding</a></code></span></div>
+<div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>context</code> - parse context starting with a string previously encoded via <a href="Encoding.html#toParseableString(T)"><code>toParseableString()</code></a></dd>
+<dd><code>string</code> - non-null value previously encoded as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a></dd>
 <dt>Returns:</dt>
-<dd>actual value (possibly null)</dd>
+<dd>actual value</dd>
 </dl>
 </section>
 </li>
@@ -322,8 +329,8 @@ loadScripts(document, 'script');</script>
  i.e., the unsigned lexicographical ordering of the corresponding <code>byte[]</code> encoded field values.
 
  <p>
- If null is a supported Java value, then the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> must accept null parameters without
- throwing an exception (note, this is a stronger requirement than the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> interface normally requires).
+ If null is a supported Java value, then the this method must accept null parameters without throwing an exception
+ (note, this is a stronger requirement than the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> interface normally requires).
 
  <p>
  Note: by convention, null values usually sort last.</div>
@@ -364,7 +371,8 @@ loadScripts(document, 'script');</script>
  a valid value for this encoding; if so, the value is returned. Otherwise, it invokes
  <code>encoding.</code><a href="Encoding.html#toString(T)"><code>toString(value)</code></a> to convert <code>value</code> into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>, and then
  attempts to parse that string via <code>this.</code><a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>; if the parse fails,
- an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> is thrown.
+ an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> is thrown. Note this means that any value will convert successfully
+ to a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>, as long as it doesn't contain an invalid escape sequence (see <a href="StringEncoding.html#toString(java.lang.String)"><code>StringEncoding.toString(java.lang.String)</code></a>).
 
  <p>
  If <code>value</code> is null, the implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns null, unless this encoding does not support
@@ -373,12 +381,15 @@ loadScripts(document, 'script');</script>
  <p>
  Permazen's built-in encodings include the following conversions:
  <ul>
-  <li>Primitive types other than Boolean convert as if by the corresponding Java cast</li>
-  <li>Non-Boolean primitive types convert to Boolean as if by <code>value != 0</code></li>
-  <li>Boolean converts to non-Boolean primitive types by first converting to zero (if false) or one (if true)</li>
-  <li>A <code>char</code> and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> of length one are convertible (other <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s are not)</li>
-  <li>A <code>char[]</code> array and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> are convertible</li>
-  <li>Arrays are converted by converting each array element individually (if possible)</li>
+  <li>Non-boolean Primitive types:
+      <ul>
+      <li>Convert from other non-boolean primitive types as if by the corresponding Java cast
+      <li>Convert from boolean by converting to zero (if false) or one (if true)
+      </ul>
+  <li>Boolean: converts from other primitive types as if by <code>value != 0</code>
+  <li>A <code>char[]</code> array and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> are convertible to each other
+  <li>A <code>char</code> and a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> of length one are convertible to each other (other <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s are not)
+  <li>Arrays: converted by converting each array element individually (if possible)
  </ul></div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
@@ -388,6 +399,41 @@ loadScripts(document, 'script');</script>
 <dd><code>value</code> - the value to convert</dd>
 <dt>Returns:</dt>
 <dd><code>value</code> converted to this instance's type</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="toArrayString(java.lang.String[],boolean)">
+<h3>toArrayString</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toArrayString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;strings,
+ boolean&nbsp;spacing)</span></div>
+<div class="block">Create a single, combined <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation of an array of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>strings</code> - the individual strings</dd>
+<dd><code>spacing</code> - true to include spaces around each element</dd>
+<dt>Returns:</dt>
+<dd>combined array string</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>strings</code> is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="fromArrayString(java.lang.String)">
+<h3>fromArrayString</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name">fromArrayString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</span></div>
+<div class="block">Parse a combined <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation of an array of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>s and return the individual strings.
+
+ <p>
+ This method inverts <a href="#toArrayString(java.lang.String%5B%5D,boolean)"><code>ArrayEncoding.toArrayString()</code></a>. Extra whitespace is ignored.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>string</code> - the array string</dd>
+<dt>Returns:</dt>
+<dd>array of original strings</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>string</code> is null</dd>
 </dl>
 </section>
 </li>

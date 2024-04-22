@@ -296,9 +296,8 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><span class="type-name-label">ObjInfo.</span><code><a href="../../cli/parse/ObjInfo.html#getObjId()" class="member-name-link">getObjId</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">ObjIdParser.</span><code><a href="../../cli/parse/ObjIdParser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../../cli/Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ObjIdParser.</span><code><a href="../../cli/parse/ObjIdParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../../cli/Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="caption"><span>Methods in <a href="../../cli/parse/package-summary.html">io.permazen.cli.parse</a> with parameters of type <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a></span></div>
@@ -377,7 +376,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Create a new object with a randomly assigned object ID and having the given type and schema.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">ObjIdEncoding.</span><code><a href="../ObjIdEncoding.html#fromParseableString(io.permazen.util.ParseContext)" class="member-name-link">fromParseableString</a><wbr>(<a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ObjIdEncoding.</span><code><a href="../ObjIdEncoding.html#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code><a href="../ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">Transaction.</span><code><a href="../Transaction.html#generateId(java.lang.String)" class="member-name-link">generateId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</code></div>
@@ -925,7 +924,7 @@ V&gt;&nbsp;void</code></div>
 <div class="block">Set the value of this field in the given object.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">ObjIdEncoding.</span><code><a href="../ObjIdEncoding.html#toParseableString(io.permazen.core.ObjId)" class="member-name-link">toParseableString</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;value)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">ObjIdEncoding.</span><code><a href="../ObjIdEncoding.html#toString(io.permazen.core.ObjId)" class="member-name-link">toString</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;value)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>void</code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">ObjIdEncoding.</span><code><a href="../ObjIdEncoding.html#write(io.permazen.util.ByteWriter,io.permazen.core.ObjId)" class="member-name-link">write</a><wbr>(<a href="../../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,

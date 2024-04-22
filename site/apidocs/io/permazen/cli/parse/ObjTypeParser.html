@@ -120,11 +120,10 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../core/ObjType.html" title="class in io.permazen.core">ObjType</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Parse text from the given parse context.</div>
+<div class="block">Parse value from the given text.</div>
 </div>
 </div>
 </div>
@@ -158,24 +157,18 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)">
+<section class="detail" id="parse(io.permazen.cli.Session,java.lang.String)">
 <h3>parse</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../../core/ObjType.html" title="class in io.permazen.core">ObjType</a></span>&nbsp;<span class="element-name">parse</span><wbr><span class="parameters">(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Parser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)">Parser</a></code></span></div>
-<div class="block">Parse text from the given parse context.
-
- <p>
- Generally speaking, this method may assume that any whitespace allowed before the item
- being parsed has already been skipped over (that's a matter for the containing parser).</div>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Parser.html#parse(io.permazen.cli.Session,java.lang.String)">Parser</a></code></span></div>
+<div class="block">Parse value from the given text.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="Parser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)">parse</a></code>&nbsp;in interface&nbsp;<code><a href="Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;<a href="../../core/ObjType.html" title="class in io.permazen.core">ObjType</a>&gt;</code></dd>
+<dd><code><a href="Parser.html#parse(io.permazen.cli.Session,java.lang.String)">parse</a></code>&nbsp;in interface&nbsp;<code><a href="Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;<a href="../../core/ObjType.html" title="class in io.permazen.core">ObjType</a>&gt;</code></dd>
 <dt>Parameters:</dt>
-<dd><code>session</code> - parse session</dd>
-<dd><code>ctx</code> - input to parse</dd>
-<dd><code>complete</code> - false if parse is "for real", true if only for tab completion calculation</dd>
+<dd><code>session</code> - CLI session</dd>
+<dd><code>text</code> - input to parse</dd>
 <dt>Returns:</dt>
 <dd>parsed value</dd>
 </dl>

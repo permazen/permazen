@@ -162,7 +162,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Read and discard a value from the given input.</div>
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
@@ -175,10 +175,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Base64ArrayEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a></h3>
-<code><a href="Base64ArrayEncoding.html#checkDecodeLength(int)">checkDecodeLength</a>, <a href="Base64ArrayEncoding.html#decode(java.io.DataInputStream,int)">decode</a>, <a href="Base64ArrayEncoding.html#encode(T,java.io.DataOutputStream)">encode</a>, <a href="Base64ArrayEncoding.html#fromParseableString(io.permazen.util.ParseContext)">fromParseableString</a>, <a href="Base64ArrayEncoding.html#fromString(java.lang.String)">fromString</a>, <a href="Base64ArrayEncoding.html#toParseableString(T)">toParseableString</a>, <a href="Base64ArrayEncoding.html#toParseableString(T,boolean)">toParseableString</a>, <a href="Base64ArrayEncoding.html#toString(T)">toString</a>, <a href="Base64ArrayEncoding.html#toString(T,boolean)">toString</a></code></div>
+<code><a href="Base64ArrayEncoding.html#checkDecodeLength(int)">checkDecodeLength</a>, <a href="Base64ArrayEncoding.html#decode(java.io.DataInputStream,int)">decode</a>, <a href="Base64ArrayEncoding.html#encode(T,java.io.DataOutputStream)">encode</a>, <a href="Base64ArrayEncoding.html#fromString(java.lang.String)">fromString</a>, <a href="Base64ArrayEncoding.html#toString(T)">toString</a>, <a href="Base64ArrayEncoding.html#toString(T,boolean)">toString</a>, <a href="Base64ArrayEncoding.html#useBase64Encoding(T)">useBase64Encoding</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.ArrayEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></h3>
-<code><a href="ArrayEncoding.html#compare(T,T)">compare</a>, <a href="ArrayEncoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="ArrayEncoding.html#createArray(java.util.List)">createArray</a>, <a href="ArrayEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ArrayEncoding.html#getArrayElement(T,int)">getArrayElement</a>, <a href="ArrayEncoding.html#getArrayLength(T)">getArrayLength</a>, <a href="ArrayEncoding.html#getElementType()">getElementType</a>, <a href="ArrayEncoding.html#hashCode()">hashCode</a></code></div>
+<code><a href="ArrayEncoding.html#compare(T,T)">compare</a>, <a href="ArrayEncoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="ArrayEncoding.html#createArray(java.util.List)">createArray</a>, <a href="ArrayEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ArrayEncoding.html#fromArrayString(java.lang.String)">fromArrayString</a>, <a href="ArrayEncoding.html#getArrayElement(T,int)">getArrayElement</a>, <a href="ArrayEncoding.html#getArrayLength(T)">getArrayLength</a>, <a href="ArrayEncoding.html#getElementType()">getElementType</a>, <a href="ArrayEncoding.html#hashCode()">hashCode</a>, <a href="ArrayEncoding.html#toArrayString(java.lang.String%5B%5D,boolean)">toArrayString</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
 <code><a href="AbstractEncoding.html#getDefaultValueObject()">getDefaultValueObject</a>, <a href="AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="AbstractEncoding.html#toString()">toString</a></code></div>
@@ -250,7 +250,7 @@ loadScripts(document, 'script');</script>
 <h3>skip</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">skip</span><wbr><span class="parameters">(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#skip(io.permazen.util.ByteReader)">Encoding</a></code></span></div>
-<div class="block">Read and discard a value from the given input.</div>
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>reader</code> - byte input</dd>

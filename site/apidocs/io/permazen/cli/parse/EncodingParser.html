@@ -96,7 +96,7 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.Encoding)" class="member-name-link">EncodingParser</a><wbr>(<a href="../../encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;&nbsp;encoding)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.Encoding)" class="member-name-link">EncodingParser</a><wbr>(<a href="../../encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="EncodingParser.html" title="type parameter in EncodingParser">T</a>&gt;&nbsp;encoding)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor.</div>
 </div>
@@ -120,11 +120,10 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <div class="block">Create an instance based on type name.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="EncodingParser.html" title="type parameter in EncodingParser">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Parse text from the given parse context.</div>
+<div class="block">Parse value from the given text.</div>
 </div>
 </div>
 </div>
@@ -146,7 +145,7 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <li>
 <section class="detail" id="&lt;init&gt;(io.permazen.encoding.Encoding)">
 <h3>EncodingParser</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">EncodingParser</span><wbr><span class="parameters">(<a href="../../encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;&nbsp;encoding)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">EncodingParser</span><wbr><span class="parameters">(<a href="../../encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="EncodingParser.html" title="type parameter in EncodingParser">T</a>&gt;&nbsp;encoding)</span></div>
 <div class="block">Constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -163,24 +162,18 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)">
+<section class="detail" id="parse(io.permazen.cli.Session,java.lang.String)">
 <h3>parse</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="EncodingParser.html" title="type parameter in EncodingParser">T</a></span>&nbsp;<span class="element-name">parse</span><wbr><span class="parameters">(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../util/ParseContext.html" title="class in io.permazen.util">ParseContext</a>&nbsp;ctx,
- boolean&nbsp;complete)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Parser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)">Parser</a></code></span></div>
-<div class="block">Parse text from the given parse context.
-
- <p>
- Generally speaking, this method may assume that any whitespace allowed before the item
- being parsed has already been skipped over (that's a matter for the containing parser).</div>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Parser.html#parse(io.permazen.cli.Session,java.lang.String)">Parser</a></code></span></div>
+<div class="block">Parse value from the given text.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="Parser.html#parse(io.permazen.cli.Session,io.permazen.util.ParseContext,boolean)">parse</a></code>&nbsp;in interface&nbsp;<code><a href="Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;<a href="EncodingParser.html" title="type parameter in EncodingParser">T</a>&gt;</code></dd>
+<dd><code><a href="Parser.html#parse(io.permazen.cli.Session,java.lang.String)">parse</a></code>&nbsp;in interface&nbsp;<code><a href="Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;<a href="EncodingParser.html" title="type parameter in EncodingParser">T</a>&gt;</code></dd>
 <dt>Parameters:</dt>
-<dd><code>session</code> - parse session</dd>
-<dd><code>ctx</code> - input to parse</dd>
-<dd><code>complete</code> - false if parse is "for real", true if only for tab completion calculation</dd>
+<dd><code>session</code> - CLI session</dd>
+<dd><code>text</code> - input to parse</dd>
 <dt>Returns:</dt>
 <dd>parsed value</dd>
 </dl>
@@ -191,6 +184,8 @@ implements <a href="Parser.html" title="interface in io.permazen.cli.parse">Pars
 <h3>getEncodingParser</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="EncodingParser.html" title="class in io.permazen.cli.parse">EncodingParser</a>&lt;?&gt;</span>&nbsp;<span class="element-name">getEncodingParser</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;typeName)</span></div>
 <div class="block">Create an instance based on type name.
+
+ <p>
  Resolution of <code>typeName</code> is deferred until parse time when the database is available.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
