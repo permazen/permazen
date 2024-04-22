@@ -25,10 +25,10 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 
-public class KVSaveCommand extends AbstractCommand {
+public class KVSaveCommand extends AbstractKVCommand {
 
     public KVSaveCommand() {
-        super("kvsave -i:indent -w:weak file.xml:file minKey? maxKey?");
+        super("kvsave -i:indent -w:weak file.xml:file minKey:bytes? maxKey:bytes?");
     }
 
     @Override
