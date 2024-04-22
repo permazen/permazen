@@ -10,12 +10,10 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link LocalDateTime} type. Null values are not supported by this class.
@@ -25,8 +23,6 @@ import java.util.regex.Pattern;
  * followed by {@linkplain Instant#getNano nanoseconds} of the date/time in {@link ZoneOffset#UTC UTC}.
  */
 public class LocalDateTimeEncoding extends BuiltinEncoding<LocalDateTime> {
-
-    static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+T[0-9]+:[0-9]+(:[0-9]+(\\.[0-9]+)?)?");
 
     private static final long serialVersionUID = -3302238853808401737L;
 
@@ -59,12 +55,14 @@ public class LocalDateTimeEncoding extends BuiltinEncoding<LocalDateTime> {
     }
 
     @Override
-    public LocalDateTime fromParseableString(ParseContext ctx) {
-        return LocalDateTime.parse(ctx.matchPrefix(LocalDateTimeEncoding.PATTERN).group());
+    public LocalDateTime fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return LocalDateTime.parse(string);
     }
 
     @Override
-    public String toParseableString(LocalDateTime localDateTime) {
+    public String toString(LocalDateTime localDateTime) {
+        Preconditions.checkArgument(localDateTime != null, "null localDateTime");
         return localDateTime.toString();
     }
 

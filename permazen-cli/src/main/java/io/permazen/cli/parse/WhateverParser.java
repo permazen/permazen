@@ -5,8 +5,9 @@
 
 package io.permazen.cli.parse;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.cli.Session;
-import io.permazen.util.ParseContext;
 
 /**
  * Accepts anything.
@@ -14,9 +15,13 @@ import io.permazen.util.ParseContext;
 public class WhateverParser implements Parser<String> {
 
     @Override
-    public String parse(Session session, ParseContext ctx, boolean complete) {
-        final String result = ctx.getInput();
-        ctx.setIndex(ctx.getOriginalInput().length());
-        return result;
+    public String parse(Session session, String text) {
+
+        // Sanity check
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(text != null, "null text");
+
+        // OK
+        return text;
     }
 }

@@ -138,8 +138,8 @@ public final class ObjDumper {
                 @Override
                 public <T> Void caseSimpleField(SimpleField<T> field) {
                     final Encoding<T> encoding = field.getEncoding();
-                    writer.println(encoding.toParseableString(
-                      encoding.validate(tx.readSimpleField(id, field.getName(), false))));
+                    final T value = encoding.validate(tx.readSimpleField(id, field.getName(), false));
+                    writer.println(value != null ? "\"" + encoding.toString(value) + "\"" : "null");
                     return null;
                 }
 
@@ -180,7 +180,7 @@ public final class ObjDumper {
                         writer.print(eindent);
                         if (showIndex)
                             writer.print("[" + count + "] ");
-                        writer.println(encoding.toParseableString(item));
+                        writer.println(item != null ? "\"" + encoding.toString(item) + "\"" : "null");
                         count++;
                     }
                     writer.println(count == 0 ? " }" : indent + "}");
@@ -202,8 +202,11 @@ public final class ObjDumper {
                             count++;
                             break;
                         }
-                        writer.println(eindent + keyEncoding.toParseableString(entry.getKey())
-                          + " -> " + valueEncoding.toParseableString(entry.getValue()));
+                        final K key = entry.getKey();
+                        final V value = entry.getValue();
+                        final String keyStr = key != null ? "\"" + keyEncoding.toString(key) + "\"" : "null";
+                        final String valueStr = value != null ? "\"" + valueEncoding.toString(value) + "\"" : "null";
+                        writer.println(eindent + keyStr + " -> " + valueStr);
                         count++;
                     }
                     writer.println(count == 0 ? " }" : indent + "}");

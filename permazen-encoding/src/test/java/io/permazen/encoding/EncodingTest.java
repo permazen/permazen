@@ -11,7 +11,6 @@ import io.permazen.test.TestSupport;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
 import jakarta.mail.internet.InternetAddress;
 
@@ -111,27 +110,16 @@ public class EncodingTest extends TestSupport {
                 }
             }
 
-            // Parseable string encoding
-            Assert.assertEquals(encoding.toParseableString(value2), encoding.toParseableString(value));
-            final String s2 = encoding.toParseableString(value);
-            this.checkValidString(value, s2);
-            final ParseContext ctx = new ParseContext(s2 + ",abcd");
-            final T value4 = encoding.fromParseableString(ctx);
-            this.assertEquals(encoding, value4, value);
-            Assert.assertEquals(ctx.getInput(), ",abcd");
-
             // "list" style string encoding for some primitive arrays
             if (encoding instanceof Base64ArrayEncoding) {
                 final Base64ArrayEncoding<T, ?> arrayType = (Base64ArrayEncoding<T, ?>)encoding;
 
-                // Parseable string encoding
-                Assert.assertEquals(arrayType.toParseableString(value2, false), arrayType.toParseableString(value, false));
-                final String s3 = arrayType.toParseableString(value, false);
+                // String encoding
+                Assert.assertEquals(arrayType.toString(value2, false), arrayType.toString(value, false));
+                final String s3 = arrayType.toString(value, false);
                 this.checkValidString(value, s3);
-                final ParseContext ctx2 = new ParseContext(s3 + ",abcd");
-                final T value5 = arrayType.fromParseableString(ctx2);
+                final T value5 = arrayType.fromString(s3);
                 this.assertEquals(arrayType, value5, value);
-                Assert.assertEquals(ctx2.getInput(), ",abcd");
             }
 
             // Check sort order
@@ -142,16 +130,19 @@ public class EncodingTest extends TestSupport {
                 final boolean fieldEqual = encoding.compare(previous, value) == 0;
                 final boolean fieldLessThan = encoding.compare(previous, value) < 0;
 
+                final String vstr = value != null ? "\"" + encoding.toString(value) + "\"" : "null";
+                final String pstr = previous != null ? "\"" + encoding.toString(previous) + "\"" : "null";
+
                 Assert.assertTrue(bytesLessThan || bytesEqual, "Binary sort failure @ " + i + ": expected "
-                  + encoding.toParseableString(previous) + " [" + ByteUtil.toString(encodings[i - 1]) + "] <= "
-                  + encoding.toParseableString(value) + " [" + ByteUtil.toString(encodings[i]) + "]");
+                  + pstr + " [" + ByteUtil.toString(encodings[i - 1]) + "] <= "
+                  + vstr + " [" + ByteUtil.toString(encodings[i]) + "]");
                 Assert.assertTrue(fieldLessThan || fieldEqual, "Java sort failure @ " + i + ": expected "
-                  + encoding.toParseableString(previous) + " <= " + encoding.toParseableString(value));
+                  + pstr + " <= " + vstr);
 
                 Assert.assertEquals(bytesEqual, fieldEqual, "equality mismatch @ " + i + ": "
-                  + encoding.toParseableString(previous) + " and " + encoding.toParseableString(value));
+                  + pstr + " and " + vstr);
                 Assert.assertEquals(bytesLessThan, fieldLessThan, "less-than mismatch @ " + i + ": "
-                  + encoding.toParseableString(previous) + " and " + encoding.toParseableString(value));
+                  + pstr + " and " + vstr);
             }
         }
     }

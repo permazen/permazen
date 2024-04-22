@@ -39,23 +39,23 @@ public class EncodingConvertTest extends TestSupport {
             actual = dtype.convert(stype, stype.validate(input));
             if (expected0 == FAIL) {
                 throw new AssertionError("convert glitch: " + stype + " -> " + dtype
-                  + "; value " + stype.toParseableString(stype.validate(input))
-                  + "; expected failure"
-                  + " but got " + dtype.toParseableString(dtype.validate(actual)));
+                  + "; value \"" + stype.toString(stype.validate(input))
+                  + "\"; expected failure"
+                  + " but got \"" + dtype.toString(dtype.validate(actual)) + "\"");
             }
         } catch (IllegalArgumentException e) {
             if (expected0 != FAIL) {
                 throw new AssertionError("convert failure: " + stype + " -> " + dtype
-                  + "; value " + stype.toParseableString(stype.validate(input))
-                  + "; expected " + dtype.toParseableString(expected)
-                  + " but got " + e, e);
+                  + "; value \"" + stype.toString(stype.validate(input))
+                  + "\"; expected \"" + dtype.toString(expected)
+                  + "\" but got " + e, e);
             }
             return;
         }
         EncodingTest.assertEquals(dtype, actual, expected, "convert mismatch: " + stype + " -> " + dtype
-          + "; value " + stype.toParseableString(stype.validate(input))
-          + "; expected " + dtype.toParseableString(expected)
-          + " but got " + dtype.toParseableString(dtype.validate(actual)));
+          + "; value \"" + stype.toString(stype.validate(input))
+          + "\"; expected \"" + dtype.toString(expected)
+          + "\" but got \"" + dtype.toString(dtype.validate(actual)) + "\"");
     }
 
     @DataProvider(name = "convertCases")

@@ -365,8 +365,10 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             final T value = encoding.read(reader);
             if (encoding instanceof ReferenceEncoding)
                 this.add(label, (ObjId)value);
+            else if (value == null)
+                this.add(label + " null");
             else
-                this.add(label + " " + encoding.toParseableString(value));
+                this.add(label + " " + encoding.toString(value));
         }
 
         void addRemainder(String description) {

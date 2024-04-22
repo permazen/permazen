@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.math.BigInteger;
 
@@ -90,17 +89,6 @@ public class BigIntegerEncoding extends BuiltinEncoding<BigInteger> {
     public BigInteger fromString(String string) {
         Preconditions.checkArgument(string != null);
         return new BigInteger(string);
-    }
-
-    @Override
-    public String toParseableString(BigInteger value) {
-        return this.toString(value);
-    }
-
-    @Override
-    public BigInteger fromParseableString(ParseContext ctx) {
-        Preconditions.checkArgument(ctx != null);
-        return this.fromString(ctx.matchPrefix("-?\\p{Digit}+").group());
     }
 
     @Override

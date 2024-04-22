@@ -6,8 +6,6 @@
 package io.permazen.cli.parse;
 
 import io.permazen.cli.Session;
-import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
 
 /**
  * Generic parsing interface.
@@ -18,17 +16,13 @@ import io.permazen.util.ParseException;
 public interface Parser<T> {
 
     /**
-     * Parse text from the given parse context.
+     * Parse value from the given text.
      *
-     * <p>
-     * Generally speaking, this method may assume that any whitespace allowed before the item
-     * being parsed has already been skipped over (that's a matter for the containing parser).
-     *
-     * @param session parse session
-     * @param ctx input to parse
-     * @param complete false if parse is "for real", true if only for tab completion calculation
+     * @param session CLI session
+     * @param text input to parse
      * @return parsed value
-     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     * @throws IllegalArgumentException if parse fails
+     * @throws IllegalArgumentException if either parameter is null
      */
-    T parse(Session session, ParseContext ctx, boolean complete);
+    T parse(Session session, String text);
 }

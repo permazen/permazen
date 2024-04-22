@@ -853,7 +853,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
         // Parse field value
         try {
-            return encoding.fromString(text);
+            final T value = encoding.fromString(text);
+            if (value == null)
+                throw new RuntimeException("internal error: Encoding.fromString() returned null value");
+            return value;
         } catch (Exception e) {
             throw this.newInvalidInputException(reader, e,
               "invalid value \"%s\" for field \"%s\": %s", text, field.getName(), e.getMessage());

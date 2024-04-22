@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.math.BigDecimal;
@@ -165,26 +164,14 @@ public class BigDecimalEncoding extends BuiltinEncoding<BigDecimal> {
 
     @Override
     public String toString(BigDecimal value) {
-        Preconditions.checkArgument(value != null);
+        Preconditions.checkArgument(value != null, "null value");
         return value.toString();
     }
 
     @Override
     public BigDecimal fromString(String string) {
-        Preconditions.checkArgument(string != null);
+        Preconditions.checkArgument(string != null, "null string");
         return new BigDecimal(string);
-    }
-
-    @Override
-    public String toParseableString(BigDecimal value) {
-        return this.toString(value);
-    }
-
-    @Override
-    public BigDecimal fromParseableString(ParseContext ctx) {
-        Preconditions.checkArgument(ctx != null);
-        return this.fromString(ctx.matchPrefix(
-          "[-+]?(\\p{Digit}+(\\.\\p{Digit}+)?|\\.\\p{Digit}+)([Ee][-+]?\\p{Digit}+)?").group());
     }
 
     @Override

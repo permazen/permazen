@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.Duration;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Duration} type. Null values are not supported by this class.
@@ -23,8 +21,6 @@ import java.util.regex.Pattern;
  * followed by {@linkplain Duration#getNano nanoseconds}.
  */
 public class DurationEncoding extends BuiltinEncoding<Duration> {
-
-    private static final Pattern PATTERN = Pattern.compile("PT(-?[0-9]+H)?(-?[0-9]+M)?(-?[0-9]+(\\.[0-9]+)?S)?");
 
     private static final long serialVersionUID = 969067179729229705L;
 
@@ -56,12 +52,14 @@ public class DurationEncoding extends BuiltinEncoding<Duration> {
     }
 
     @Override
-    public Duration fromParseableString(ParseContext ctx) {
-        return Duration.parse(ctx.matchPrefix(DurationEncoding.PATTERN).group());
+    public Duration fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return Duration.parse(string);
     }
 
     @Override
-    public String toParseableString(Duration duration) {
+    public String toString(Duration duration) {
+        Preconditions.checkArgument(duration != null, "null duration");
         return duration.toString();
     }
 

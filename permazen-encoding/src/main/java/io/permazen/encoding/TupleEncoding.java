@@ -11,7 +11,6 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.tuple.Tuple;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,29 +89,26 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     }
 
     @Override
-    public String toParseableString(T tuple) {
+    public String toString(T tuple) {
+        Preconditions.checkArgument(tuple != null, "null tuple");
         final List<Object> values = this.asList(tuple);
-        final StringBuilder buf = new StringBuilder();
-        buf.append('[');
-        for (int i = 0; i < this.size; i++) {
-            if (i > 0)
-                buf.append(',');
-            buf.append(this.toParseableString(this.encodings.get(i), values.get(i)));
-        }
-        buf.append(']');
-        return buf.toString();
+        final String[] elements = new String[this.size];
+        for (int i = 0; i < this.size; i++)
+            elements[i] = this.toString(this.encodings.get(i), values.get(i));
+        return ArrayEncoding.toArrayString(elements, true);
     }
 
     @Override
-    public T fromParseableString(ParseContext context) {
-        context.expect('[');
-        final Object[] values = new Object[this.size];
-        for (int i = 0; i < this.size; i++) {
-            if (i > 0)
-                context.expect(',');
-            values[i] = this.encodings.get(i).fromParseableString(context);
+    public T fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        final String[] elements = ArrayEncoding.fromArrayString(string);
+        if (elements.length != this.size) {
+            throw new IllegalArgumentException(String.format(
+              "wrong number of elements (%d) in %d-tuple", elements.length, this.size));
         }
-        context.expect(']');
+        final Object[] values = new Object[this.size];
+        for (int i = 0; i < this.size; i++)
+            values[i] = this.encodings.get(i).fromString(elements[i]);
         return this.createTuple(values);
     }
 
@@ -151,8 +147,8 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> String toParseableString(Encoding<T> encoding, Object obj) {
-        return encoding.toParseableString(encoding.validate(obj));
+    private <T> String toString(Encoding<T> encoding, Object obj) {
+        return encoding.toString(encoding.validate(obj));
     }
 
     // This method exists solely to bind the generic type parameters

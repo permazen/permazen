@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
@@ -56,22 +55,10 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
 
     @Override
     public Character fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
         final String s = StringEncoder.decode(string);
         if (s.length() != 1)
             throw new IllegalArgumentException("more than one character found");
-        return s.charAt(0);
-    }
-
-    @Override
-    public String toParseableString(Character value) {
-        return StringEncoder.enquote(String.valueOf(value));
-    }
-
-    @Override
-    public Character fromParseableString(ParseContext context) {
-        final String s = StringEncoder.dequote(context.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group());
-        if (s.length() != 1)
-            throw context.buildException("more than one character found within quotation marks");
         return s.charAt(0);
     }
 

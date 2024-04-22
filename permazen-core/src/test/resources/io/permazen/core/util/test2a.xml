@@ -39,8 +39,8 @@
             <d>1.2345...[truncated]</d>
             <date>2014-0...[truncated]</date>
             <e1>BBB</e1>
-            <ea1>[DDD, ...[truncated]</ea1>
-            <ea2>[[DDD,...[truncated]</ea2>
+            <ea1>[ "DDD...[truncated]</ea1>
+            <ea2>[ "[ \...[truncated]</ea2>
             <f>123.45</f>
             <i>123</i>
             <j>999999...[truncated]</j>

@@ -9,11 +9,9 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.time.MonthDay;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link MonthDay} type. Null values are not supported by this class.
@@ -23,8 +21,6 @@ import java.util.regex.Pattern;
  * {@linkplain MonthDay#getMonthValue month value}{@code - 1}, plus the {@linkplain MonthDay#getDayOfMonth day of the month}.
  */
 public class MonthDayEncoding extends BuiltinEncoding<MonthDay> {
-
-    private static final Pattern PATTERN = Pattern.compile("--[0-9]{2}-[0-9]{2}");
 
     private static final long serialVersionUID = -8813919603844250786L;
 
@@ -57,12 +53,14 @@ public class MonthDayEncoding extends BuiltinEncoding<MonthDay> {
     }
 
     @Override
-    public MonthDay fromParseableString(ParseContext ctx) {
-        return MonthDay.parse(ctx.matchPrefix(MonthDayEncoding.PATTERN).group());
+    public MonthDay fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return MonthDay.parse(string);
     }
 
     @Override
-    public String toParseableString(MonthDay monthDay) {
+    public String toString(MonthDay monthDay) {
+        Preconditions.checkArgument(monthDay != null, "null monthDay");
         return monthDay.toString();
     }
 

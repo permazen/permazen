@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.Year;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Year} type. Null values are not supported by this class.
@@ -22,8 +20,6 @@ import java.util.regex.Pattern;
  * Binary encoding is the {@link LongEncoder}-encoded {@linkplain Year#getValue year value}.
  */
 public class YearEncoding extends BuiltinEncoding<Year> {
-
-    private static final Pattern PATTERN = Pattern.compile("[-+]?[0-9]+");
 
     private static final long serialVersionUID = 6800527893478605289L;
 
@@ -53,12 +49,14 @@ public class YearEncoding extends BuiltinEncoding<Year> {
     }
 
     @Override
-    public Year fromParseableString(ParseContext ctx) {
-        return Year.parse(ctx.matchPrefix(YearEncoding.PATTERN).group());
+    public Year fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return Year.parse(string);
     }
 
     @Override
-    public String toParseableString(Year year) {
+    public String toString(Year year) {
+        Preconditions.checkArgument(year != null, "null year");
         int value = year.getValue();
         String sign = "";
         if (value < 0) {

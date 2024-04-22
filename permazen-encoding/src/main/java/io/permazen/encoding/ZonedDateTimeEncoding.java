@@ -5,12 +5,11 @@
 
 package io.permazen.encoding;
 
-import io.permazen.util.ParseContext;
+import com.google.common.base.Preconditions;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.regex.Matcher;
 
 /**
  * Non-null {@link ZonedDateTime} type. Null values are not supported by this class.
@@ -44,15 +43,24 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
 // Encoding
 
     @Override
-    public ZonedDateTime fromParseableString(ParseContext ctx) {
-        final OffsetDateTime offsetDateTime = this.type1.fromParseableString(ctx);
-        final Matcher matcher = ctx.tryPattern("\\[(.+)\\]");
-        final ZoneId zoneId = matcher != null ? this.type2.fromString(matcher.group(1)) : offsetDateTime.getOffset();
+    public ZonedDateTime fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        final OffsetDateTime offsetDateTime;
+        final ZoneId zoneId;
+        final int bracket = string.indexOf('[');
+        if (bracket != -1 && string.charAt(string.length() - 1) == ']') {
+            offsetDateTime = this.type1.fromString(string.substring(0, bracket));
+            zoneId = this.type2.fromString(string.substring(bracket + 1, string.length() - 1));
+        } else {
+            offsetDateTime = this.type1.fromString(string);
+            zoneId = offsetDateTime.getOffset();
+        }
         return ZonedDateTime.ofInstant(offsetDateTime.toInstant(), zoneId);
     }
 
     @Override
-    public String toParseableString(ZonedDateTime zonedDateTime) {
+    public String toString(ZonedDateTime zonedDateTime) {
+        Preconditions.checkArgument(zonedDateTime != null, "null zonedDateTime");
         return zonedDateTime.toString();
     }
 

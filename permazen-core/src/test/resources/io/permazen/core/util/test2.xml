@@ -39,8 +39,8 @@
             <d>1.2345E39</d>
             <date>2014-05-09T03:02:48Z</date>
             <e1>BBB</e1>
-            <ea1>[DDD, null, EEE]</ea1>
-            <ea2>[[DDD, null, EEE], null, [], [null, EEE, null]]</ea2>
+            <ea1>[ "DDD", null, "EEE" ]</ea1>
+            <ea2>[ "[ \"DDD\", null, \"EEE\" ]", null, "[]", "[ null, \"EEE\", null ]" ]</ea2>
             <f>123.45</f>
             <i>123</i>
             <j>99999999999</j>

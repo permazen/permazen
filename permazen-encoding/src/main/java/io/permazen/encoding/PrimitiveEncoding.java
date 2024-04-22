@@ -5,7 +5,7 @@
 
 package io.permazen.encoding;
 
-import io.permazen.util.ParseContext;
+import com.google.common.base.Preconditions;
 
 import org.dellroad.stuff.java.Primitive;
 
@@ -25,12 +25,13 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
     }
 
     @Override
-    public T fromParseableString(ParseContext ctx) {
-        return this.primitive.parseValue(ctx.matchPrefix(this.primitive.getParsePattern()).group());
+    public T fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return this.primitive.parseValue(string);
     }
 
     @Override
-    public String toParseableString(T value) {
+    public String toString(T value) {
         if (value == null)
             throw new IllegalArgumentException("illegal null value for primitive type " + this.primitive);
         return String.valueOf(value);

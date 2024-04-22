@@ -10,10 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.cli.Session;
 import io.permazen.cli.parse.Parser;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractKVCommand extends AbstractCommand {
@@ -189,14 +186,20 @@ public abstract class AbstractKVCommand extends AbstractCommand {
     public static class BytesParser implements Parser<byte[]> {
 
         @Override
-        public byte[] parse(Session session, ParseContext ctx, boolean complete) {
-            final Matcher cstringMatcher = ctx.tryPattern(CSTRING_PATTERN);
-            if (cstringMatcher != null)
-                return AbstractKVCommand.fromCString(cstringMatcher.group());
-            final Matcher hexbytesMatcher = ctx.tryPattern(HEXBYTES_PATTERN);
-            if (hexbytesMatcher != null)
-                return ByteUtil.parse(hexbytesMatcher.group());
-            throw new ParseException(ctx, "invalid byte array value");
+        public byte[] parse(Session session, String text) {
+            Preconditions.checkArgument(session != null, "null session");
+            Preconditions.checkArgument(text != null, "null text");
+            try {
+                return AbstractKVCommand.fromCString(text);
+            } catch (IllegalArgumentException e) {
+                // failed
+            }
+            try {
+                return ByteUtil.parse(text);
+            } catch (IllegalArgumentException e) {
+                // failed
+            }
+            throw new IllegalArgumentException("invalid byte array value");
         }
     }
 }

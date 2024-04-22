@@ -5,6 +5,7 @@
 
 package io.permazen.encoding;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.util.ParseContext;
@@ -13,6 +14,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.dellroad.stuff.string.StringEncoder;
 
 /**
  * Support superclass for builtin array {@link Encoding}s.
@@ -61,35 +64,25 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
     }
 
     @Override
-    public String toParseableString(T array) {
-        assert array != null;
-        final StringBuilder buf = new StringBuilder();
-        buf.append('[');
+    public String toString(T array) {
+        Preconditions.checkArgument(array != null, "null array");
         final int length = this.getArrayLength(array);
+        final String[] elements = new String[length];
         for (int i = 0; i < length; i++) {
-            if (i > 0)
-                buf.append(',').append(' ');
-            buf.append(this.elementType.toParseableString(this.getArrayElement(array, i)));
+            final E element = this.getArrayElement(array, i);
+            if (element != null)
+                elements[i] = this.elementType.toString(element);
         }
-        buf.append(']');
-        return buf.toString();
+        return ArrayEncoding.toArrayString(elements, true);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public T fromParseableString(ParseContext context) {
-        final ArrayList<E> list = new ArrayList<>();
-        context.expect('[');
-        while (true) {
-            context.skipWhitespace();
-            if (context.tryLiteral("]"))
-                break;
-            if (!list.isEmpty()) {
-                context.expect(',');
-                context.skipWhitespace();
-            }
-            list.add(this.elementType.fromParseableString(context));
-        }
+    public T fromString(String string) {
+        final String[] elements = ArrayEncoding.fromArrayString(string);
+        final ArrayList<E> list = new ArrayList<>(elements.length);
+        for (String element : elements)
+            list.add(element != null ? this.elementType.fromString(element) : null);
         return this.createArray(list);
     }
 
@@ -153,6 +146,70 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         for (int i = 0; i < length; i++)
             list.add(this.elementType.convert(that.elementType, that.getArrayElement(value, i)));
         return this.createArray(list);
+    }
+
+// Stringification
+
+    /**
+     * Create a single, combined {@link String} representation of an array of {@link String}s.
+     *
+     * @param strings the individual strings
+     * @param spacing true to include spaces around each element
+     * @return combined array string
+     * @throws IllegalArgumentException if {@code strings} is null
+     */
+    public static String toArrayString(String[] strings, boolean spacing) {
+        Preconditions.checkArgument(strings != null, "null strings");
+        final StringBuilder buf = new StringBuilder();
+        buf.append('[');
+        for (String string : strings) {
+            if (buf.length() > 1)
+                buf.append(',');
+            if (spacing)
+                buf.append(' ');
+            buf.append(string != null ? StringEncoder.enquote(string) : "null");
+        }
+        if (spacing && buf.length() > 1)
+            buf.append(' ');
+        buf.append(']');
+        return buf.toString();
+    }
+
+    /**
+     * Parse a combined {@link String} representation of an array of {@link String}s and return the individual strings.
+     *
+     * <p>
+     * This method inverts {@link ArrayEncoding#toArrayString ArrayEncoding.toArrayString()}. Extra whitespace is ignored.
+     *
+     * @param string the array string
+     * @return array of original strings
+     * @throws IllegalArgumentException if {@code string} is null
+     */
+    public static String[] fromArrayString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        final ParseContext ctx = new ParseContext(string);
+        final ArrayList<String> list = new ArrayList<>();
+        ctx.skipWhitespace();
+        ctx.expect('[');
+        while (true) {
+            ctx.skipWhitespace();
+            if (ctx.tryLiteral("]")) {
+                ctx.skipWhitespace();
+                break;
+            }
+            if (!list.isEmpty()) {
+                ctx.expect(',');
+                ctx.skipWhitespace();
+            }
+            if (ctx.tryPattern("null\\b") != null)
+                list.add(null);
+            else {
+                final String quote = ctx.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group();
+                list.add(StringEncoder.dequote(quote));
+            }
+        }
+        Preconditions.checkArgument(ctx.isEOF(), "trailing garbage after array");
+        return list.toArray(new String[list.size()]);
     }
 
 // Subclass overrides

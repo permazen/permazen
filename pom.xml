@@ -87,7 +87,7 @@
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- dellroad-dependencies overrides -->
-        <dellroad-stuff.version>3.0.1</dellroad-stuff.version>
+        <dellroad-stuff.version>3.0.4</dellroad-stuff.version>
 
         <!-- Versions for dependencies used by multiple modules -->
         <testng.version>7.7.1</testng.version>

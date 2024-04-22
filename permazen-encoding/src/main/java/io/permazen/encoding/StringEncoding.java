@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import org.dellroad.stuff.string.StringEncoder;
@@ -97,25 +96,39 @@ public class StringEncoding extends BuiltinEncoding<String> {
         }
     }
 
+    /**
+     * Encode the given non-null value as a {@link String}.
+     *
+     * <p>
+     * Because {@link Encoding#toString Encoding.toString()} disallows XML-invalid characters, the returned
+     * string is not always equal to {@code value}. Instead, the implementation in {@link StringEncoding}
+     * delegates to {@link StringEncoder#encode StringEncoder.encode()} to backslash-escape invalid characters.
+     *
+     * @param value string value, never null
+     * @return backslash-escaped {@code value}
+     * @throws IllegalArgumentException if {@code value} is null
+     */
     @Override
     public String toString(String value) {
         Preconditions.checkArgument(value != null, "null value");
         return StringEncoder.encode(value, false);
     }
 
+    /**
+     * Parse a non-null value previously encoded by {@link #toString(String) toString()}.
+     *
+     * <p>
+     * The implementation in {@link StringEncoding} delegates to {@link StringEncoder#decode StringEncoder.decode()}.
+     *
+     * @param string non-null value previously encoded by {@link #toString(String) toString()}
+     * @return decoded value
+     * @throws IllegalArgumentException if {@code string} is invalid
+     * @throws IllegalArgumentException if {@code string} is null
+     */
     @Override
     public String fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
         return StringEncoder.decode(string);
-    }
-
-    @Override
-    public String toParseableString(String value) {
-        return StringEncoder.enquote(value);
-    }
-
-    @Override
-    public String fromParseableString(ParseContext ctx) {
-        return StringEncoder.dequote(ctx.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group());
     }
 
     @Override

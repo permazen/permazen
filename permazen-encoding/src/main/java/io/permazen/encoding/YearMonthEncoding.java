@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.YearMonth;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link YearMonth} type. Null values are not supported by this class.
@@ -23,8 +21,6 @@ import java.util.regex.Pattern;
  * followed by the {@linkplain YearMonth#getMonthValue month value}.
  */
 public class YearMonthEncoding extends BuiltinEncoding<YearMonth> {
-
-    private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+");
 
     private static final long serialVersionUID = 2773124141026846109L;
 
@@ -56,12 +52,14 @@ public class YearMonthEncoding extends BuiltinEncoding<YearMonth> {
     }
 
     @Override
-    public YearMonth fromParseableString(ParseContext ctx) {
-        return YearMonth.parse(ctx.matchPrefix(YearMonthEncoding.PATTERN).group());
+    public YearMonth fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return YearMonth.parse(string);
     }
 
     @Override
-    public String toParseableString(YearMonth yearMonth) {
+    public String toString(YearMonth yearMonth) {
+        Preconditions.checkArgument(yearMonth != null, "null yearMonth");
         return yearMonth.toString();
     }
 

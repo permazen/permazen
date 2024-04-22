@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.BitSet;
@@ -60,28 +59,17 @@ public class BitSetEncoding extends BuiltinEncoding<BitSet> {
 
     @Override
     public String toString(BitSet bitSet) {
-        Preconditions.checkArgument(bitSet != null);
+        Preconditions.checkArgument(bitSet != null, "null bitSet");
         return "[" + ByteUtil.toString(this.reverse(bitSet.toByteArray())) + "]";
     }
 
     @Override
     public BitSet fromString(String string) {
-        Preconditions.checkArgument(string != null);
+        Preconditions.checkArgument(string != null, "null string");
         final int length = string.length();
         Preconditions.checkArgument(length > 0 && string.charAt(0) == '[' && string.charAt(length - 1) == ']',
           "invalid BitSet string \"" + string + "\"");
         return BitSet.valueOf(this.reverse(ByteUtil.parse(string.substring(1, length - 1))));
-    }
-
-    @Override
-    public String toParseableString(BitSet bitSet) {
-        return this.toString(bitSet);
-    }
-
-    @Override
-    public BitSet fromParseableString(ParseContext ctx) {
-        Preconditions.checkArgument(ctx != null);
-        return this.fromString(ctx.matchPrefix("\\[\\p{XDigit}*\\]").group());
     }
 
     @Override

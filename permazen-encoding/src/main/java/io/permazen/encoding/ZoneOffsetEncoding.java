@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.ZoneOffset;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link ZoneOffset} type. Null values are not supported by this class.
@@ -24,8 +22,6 @@ import java.util.regex.Pattern;
  * {@linkplain ZoneOffset#compareTo sort} before lower ones.
  */
 public class ZoneOffsetEncoding extends BuiltinEncoding<ZoneOffset> {
-
-    static final Pattern PATTERN = Pattern.compile("(Z|[-+][0-9]{2}:[0-9]{2}(:[0-9]{2})?)");
 
     private static final long serialVersionUID = 4606196393878370203L;
 
@@ -55,12 +51,14 @@ public class ZoneOffsetEncoding extends BuiltinEncoding<ZoneOffset> {
     }
 
     @Override
-    public ZoneOffset fromParseableString(ParseContext ctx) {
-        return ZoneOffset.of(ctx.matchPrefix(ZoneOffsetEncoding.PATTERN).group());
+    public ZoneOffset fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return ZoneOffset.of(string);
     }
 
     @Override
-    public String toParseableString(ZoneOffset zoneOffset) {
+    public String toString(ZoneOffset zoneOffset) {
+        Preconditions.checkArgument(zoneOffset != null, "null zoneOffset");
         return zoneOffset.getId();
     }
 

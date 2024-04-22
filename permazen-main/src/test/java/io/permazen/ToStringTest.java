@@ -42,8 +42,8 @@ public class ToStringTest extends MainTestSupport {
     @DataProvider(name = "cases")
     public Object[][] testToStringCases() throws Exception {
         return new Object[][] {
-            { Person1.class,  "object @OBJID@ type @TYPENAME@ (schema \"@SCHEMAID@\")\n age = 23\nname = \"fred\"" },
-            { Person2.class,  "object @OBJID@ type @TYPENAME@ (schema \"@SCHEMAID@\")\n age = 23\nname = \"fred\"" },
+            { Person1.class,  "object @OBJID@ type @TYPENAME@ (schema \"@SCHEMAID@\")\n age = \"23\"\nname = \"fred\"" },
+            { Person2.class,  "object @OBJID@ type @TYPENAME@ (schema \"@SCHEMAID@\")\n age = \"23\"\nname = \"fred\"" },
             { Person3.class,  "fred:23" },
         };
     }

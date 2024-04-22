@@ -860,7 +860,7 @@ public class SchemaBundle {
                     if (!schemaTable) {           // decode the SchemaId
                         try {
                             buf.append(String.format(" (%s)",
-                              Encodings.STRING.toParseableString(Encodings.STRING.read(new ByteReader(data)))));
+                              Encodings.STRING.toString(Encodings.STRING.read(new ByteReader(data)))));
                         } catch (IllegalArgumentException e) {
                             buf.append(String.format(" (can't decode: %s)", e));
                         }

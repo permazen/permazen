@@ -8,11 +8,8 @@ package io.permazen.cli.parse;
 import com.google.common.base.Preconditions;
 
 import io.permazen.cli.Session;
-import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
 
 import java.util.function.Function;
-import java.util.regex.Matcher;
 
 import org.dellroad.stuff.java.EnumUtil;
 
@@ -37,22 +34,15 @@ public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
     }
 
     @Override
-    public T parse(Session session, ParseContext ctx, boolean complete) {
+    public T parse(Session session, String text) {
 
-        // Get enum value name
-        final Matcher matcher = ctx.tryPattern("[^\\s;]*");
-        if (matcher == null) {
-            final ParseException e = new ParseException(ctx);
-            if (ctx.isEOF() && complete)
-                e.addCompletions(EnumUtil.getValues(this.type).stream().map(this.nameFunction));
-            throw e;
-        }
-        final String valueName = matcher.group();
+        // Sanity check
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(text != null, "null text");
 
         // Find corresponding enum value
         return EnumUtil.getValues(this.type).stream()
-          .filter(value -> valueName.equals(this.nameFunction.apply(value)))
-          .findAny().orElseThrow(() -> new ParseException(ctx, "unknown value \"" + valueName + "\"")
-            .addCompletions(ParseUtil.complete(EnumUtil.getValues(this.type).stream().map(this.nameFunction), valueName)));
+          .filter(value -> text.equals(this.nameFunction.apply(value)))
+          .findAny().orElseThrow(() -> new IllegalArgumentException("unknown value \"" + text + "\""));
     }
 }

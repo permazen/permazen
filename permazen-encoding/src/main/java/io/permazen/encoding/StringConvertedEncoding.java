@@ -11,9 +11,6 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
-
-import org.dellroad.stuff.string.StringEncoder;
 
 /**
  * {@link Encoding} for any Java type that can be encoded and ordered as a {@link String}.
@@ -93,13 +90,13 @@ public class StringConvertedEncoding<T> extends AbstractEncoding<T> {
 
     @Override
     public String toString(T obj) {
-        if (obj == null)
-            throw new IllegalArgumentException("illegal null value");
+        Preconditions.checkArgument(obj != null, "null value");
         return this.converter.convert(obj);
     }
 
     @Override
     public T fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
         try {
             return this.converter.reverse().convert(string);
         } catch (IllegalArgumentException e) {
@@ -107,16 +104,6 @@ public class StringConvertedEncoding<T> extends AbstractEncoding<T> {
         } catch (Exception e) {
             throw new IllegalArgumentException("conversion from String failed", e);
         }
-    }
-
-    @Override
-    public String toParseableString(T obj) {
-        return StringEncoder.enquote(this.toString(obj));
-    }
-
-    @Override
-    public T fromParseableString(ParseContext ctx) {
-        return this.fromString(StringEncoder.dequote(ctx.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group()));
     }
 
     @Override

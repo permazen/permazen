@@ -15,50 +15,52 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.NaturalSortAware;
-import io.permazen.util.ParseContext;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Defines a binary encoding, ordering, and range of possible values for a Java type encoded to/from a {@code byte[]} array.
+ * A range of values of some Java type, along with string and binary encodings and a total ordering of those values.
  *
  * <p>
- * An {@link Encoding} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
- * those instances used in the database. The {@code byte[]} encoding defines the database sort order (via unsigned
- * lexicographical ordering), and this ordering is also reflected via {@link #compare Encoding.compare()}.
+ * {@link Encoding}'s are used to map between instances of some Java type and the {@code byte[]} encodings of those instances
+ * stored in a Permazen database. The {@code byte[]} encoding defines the database sort order (via unsigned lexicographical
+ * ordering), and this same ordering is reflected in Java via {@link #compare compare()}.
  *
  * <p>
- * An {@link Encoding} also defines two mappings between Java instances and {@link String} values.
- * There are two separate {@link String} forms, a regular form and a self-delimiting form.
+ * An {@link Encoding} also defines a mapping between Java instances and {@link String} values.
  *
  * <p>
- * {@link Encoding}s have these requirements and properties:
+ * Instances may have an associated {@link EncodingId}, which is a globally unique URN-style identifier that allows the encoding
+ * to be referred to by name (e.g., in an {@link EncodingRegistry}). Encodings with no {@link EncodingId} are called <i>anonymous</i>.
+ *
+ * <p>
+ * {@link Encoding}s must satsify these requirements:
  * <ul>
- *  <li>They have an associated Java type which can represent any of the field's values in Java (possibly including null).
- *  <li>They may have an {@link EncodingId}, which is a globally unique URN-style identifier that allows the encoding
- *      to be looked up by name in an {@link EncodingRegistry}. Encodings with no {@link EncodingId} are called <i>anonymous</i>.
- *  <li>Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},
- *      then the two orderings do not necessarily have to agree, but they should if possible; see also {@link #sortsNaturally}.</li>
- *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
- *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
- *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
- *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
- *      with both a {@linkplain #toString(Object) regular string form} for non-null values only and a
- *      {@linkplain #toParseableString self-delimiting string form} for any value including null
- *      (these two forms may be the same).</li>
- *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare compare()} (typically
- *      null values sort last) and have binary and string encodings just like any other value.</li>
+ *  <li>Instances have an associated Java type which can represent any of the encoding's supported values. However, an encoding
+ *      is not required to support <i>every</i> instance of the Java type. For example, there can be an encoding of {@link Integer}
+ *      that only supports non-negative values.
+ *  <li>Instances totally order their supported Java values via {@link #compare compare()}. If the associated Java type itself
+ *      implements {@link Comparable}, then the two orderings do not necessarily have to agree, but they should if possible;
+ *      see also {@link #sortsNaturally}.
+ *  <li>{@code null} may or may not be a supported value; see {@link #allowsNull}. If so, it must be fully supported value just
+ *      like any other; for example, it must be handled by {@link #compare compare()} (typically null values sort last).
+ *      Note that this is an additional requirement beyond what {@link Comparator} strictly requires.
  *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.
- *      Database field values that are equal to their field's encoding's default value are not actually stored.</li>
+ *  <li>All <i>non-null</i> values can be encoded/decoded into a {@link String} without losing information; see
+ *      {@link #toString(Object) toString()} and {@link #fromString fromString()}.
+ *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]}
+ *      array) without losing information. Moreover, these binary strings, when sorted lexicographically using unsigned comparison,
+ *      sort consistently with the encoding's {@linkplain #compare total ordering} of the corresponding Java values;
+ *      see {@link #read read()} and {@link #write write()}.
+ *  <li>An {@link Encoding}'s string and binary encodings and sort ordering is guaranteed to <i>never change</i>, unless the
+ *      {@link EncodingId} is also changed, which effectvely defines a new encoding. However, in such scenarios automatic
+ *      schema migrations are easily handled by adding appropriate logic to {@link #convert convert()}.
  * </ul>
  *
  * <p>
  * Two {@link Encoding} instances should be equal according to {@link #equals equals()} only when they behave identically
  * with respect to all of the above.
- *
- * <p>
- * An {@link EncodingRegistry} contains a registry of {@link Encoding}s indexed by {@linkplain #getEncodingId encoding ID}.
  *
  * <p>
  * Instances must be stateless (and therefore also thread safe).
@@ -78,10 +80,9 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * <p>
      * Once associated with a specific encoding, an encoding ID must never be changed or reused. If an {@link Encoding}'s
-     * encoding changes in any way, then its encoding ID MUST also change. This applies only to the encoding itself,
+     * encoding changes in any way, then its encoding ID <b>must</b> also change. This applies only to the encoding itself,
      * and not the {@linkplain #getTypeToken associated Java type}. For example, an {@link Encoding}'s associated Java type
-     * can change over time, e.g., when {@code javax.mail.internet.InternetAddress} moved to
-     * {@code jakarta.mail.internet.InternetAddress}) in Jakarta EE 9.
+     * can change over time, e.g., if the Java class changes package or class name.
      *
      * @return this encoding's unique ID, or null if this encoding is anonymous
      */
@@ -118,6 +119,10 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     /**
      * Get the default value for this encoding encoded as a {@code byte[]} array.
      *
+     * <p>
+     * The implementation in {@link Encoding} returns the binary encoding of the value returned by
+     * {@link #getDefaultValueObject}.
+     *
      * @return encoded default value
      */
     default byte[] getDefaultValue() {
@@ -133,12 +138,15 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     /**
      * Get the default value for this encoding.
      *
+     * <p>
+     * If this encoding {@linkplain #allowsNull supports null values}, then this must return null.
+     *
      * @return default value
      */
     T getDefaultValueObject();
 
     /**
-     * Read and discard a value from the given input.
+     * Read and discard a {@code byte[]} encoded value from the given input.
      *
      * @param reader byte input
      * @throws IllegalArgumentException if invalid input is encountered
@@ -152,69 +160,24 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * <p>
      * Each of the characters in the returned {@link String} must be one of the valid XML characters
-     * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
-     *
-     * <p>
-     * The implementation in {@link Encoding} checks that {@code value} is not null, then delegates to {@link #toParseableString}.
-     * Subclasses that override this method should also override {@link #fromString fromString()}.
+     * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).
      *
      * @param value actual value, never null
      * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
      * @throws IllegalArgumentException if {@code value} is null
      * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */
-    default String toString(T value) {
-        Preconditions.checkArgument(value != null, "null value");
-        return this.toParseableString(value);
-    }
+    String toString(T value);
 
     /**
      * Parse a non-null value previously encoded by {@link #toString(Object) toString(T)}.
      *
-     * <p>
-     * The implementation in {@link Encoding} creates a new {@link ParseContext} based on {@code string},
-     * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed
-     * during the parse. Subclasses that override this method should also override {@link #toString(Object) toString(T)}.
-     *
      * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object) toString(T)}
      * @return actual value
      * @throws IllegalArgumentException if the input is invalid
+     * @throws IllegalArgumentException if {@code string} is null
      */
-    default T fromString(String string) {
-        final ParseContext ctx = new ParseContext(string);
-        final T value = this.fromParseableString(ctx);
-        if (!ctx.isEOF()) {
-            throw new IllegalArgumentException("found trailing garbage starting with \""
-              + ParseContext.truncate(ctx.getInput(), 20) + "\"");
-        }
-        return value;
-    }
-
-    /**
-     * Encode a possibly null value as a {@link String} for later decoding by {@link #fromParseableString fromParseableString()}.
-     * The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by a word boundary (i.e., anything
-     * other than letter, digit, or underscore), and must not start with whitespace or closing square bracket ({@code "]"}).
-     *
-     * <p>
-     * In addition, each of the characters in the returned {@link String} must be a valid XML character:
-     * tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, or <code>&#92;ue000 - &#92;ufffd</code>.
-     *
-     * @param value actual value (possibly null)
-     * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
-     * @throws IllegalArgumentException if {@code value} is null and this encoding does not support null
-     * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
-     */
-    String toParseableString(T value);
-
-    /**
-     * Parse a value previously encoded by {@link #toParseableString toParseableString()} as a self-delimited {@link String}
-     * and positioned at the start of the given parsing context.
-     *
-     * @param context parse context starting with a string previously encoded via {@link #toParseableString toParseableString()}
-     * @return actual value (possibly null)
-     * @throws IllegalArgumentException if the input is invalid
-     */
-    T fromParseableString(ParseContext context);
+    T fromString(String string);
 
     /**
      * Attempt to convert a value from the given {@link Encoding} into a value of this {@link Encoding}.
@@ -224,7 +187,8 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * a valid value for this encoding; if so, the value is returned. Otherwise, it invokes
      * {@code encoding.}{@link #toString(Object) toString(value)} to convert {@code value} into a {@link String}, and then
      * attempts to parse that string via {@code this.}{@link #fromString fromString()}; if the parse fails,
-     * an {@link IllegalArgumentException} is thrown.
+     * an {@link IllegalArgumentException} is thrown. Note this means that any value will convert successfully
+     * to a {@link String}, as long as it doesn't contain an invalid escape sequence (see {@link StringEncoding#toString}).
      *
      * <p>
      * If {@code value} is null, the implementation in {@link Encoding} returns null, unless this encoding does not support
@@ -233,12 +197,15 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * <p>
      * Permazen's built-in encodings include the following conversions:
      * <ul>
-     *  <li>Primitive types other than Boolean convert as if by the corresponding Java cast</li>
-     *  <li>Non-Boolean primitive types convert to Boolean as if by {@code value != 0}</li>
-     *  <li>Boolean converts to non-Boolean primitive types by first converting to zero (if false) or one (if true)</li>
-     *  <li>A {@code char} and a {@link String} of length one are convertible (other {@link String}s are not)</li>
-     *  <li>A {@code char[]} array and a {@link String} are convertible</li>
-     *  <li>Arrays are converted by converting each array element individually (if possible)</li>
+     *  <li>Non-boolean Primitive types:
+     *      <ul>
+     *      <li>Convert from other non-boolean primitive types as if by the corresponding Java cast
+     *      <li>Convert from boolean by converting to zero (if false) or one (if true)
+     *      </ul>
+     *  <li>Boolean: converts from other primitive types as if by {@code value != 0}
+     *  <li>A {@code char[]} array and a {@link String} are convertible to each other
+     *  <li>A {@code char} and a {@link String} of length one are convertible to each other (other {@link String}s are not)
+     *  <li>Arrays: converted by converting each array element individually (if possible)
      * </ul>
      *
      * @param encoding the {@link Encoding} of {@code value}
@@ -263,7 +230,8 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * <p>
      * Note that this method must throw {@link IllegalArgumentException}, not {@link ClassCastException}
-     * or {@link NullPointerException}, if {@code obj} does not have the correct type, or is an illegal null value.
+     * or {@link NullPointerException}, if {@code obj} does not have the correct type, or is an unsupported value
+     * - including null if null is not supported.
      *
      * <p>
      * This method is allowed to perform widening conversions of the object that lose no information, e.g.,
@@ -298,8 +266,8 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * i.e., the unsigned lexicographical ordering of the corresponding {@code byte[]} encoded field values.
      *
      * <p>
-     * If null is a supported Java value, then the returned {@link Comparator} must accept null parameters without
-     * throwing an exception (note, this is a stronger requirement than the {@link Comparator} interface normally requires).
+     * If null is a supported Java value, then the this method must accept null parameters without throwing an exception
+     * (note, this is a stronger requirement than the {@link Comparator} interface normally requires).
      *
      * <p>
      * Note: by convention, null values usually sort last.
@@ -429,6 +397,10 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     /**
      * Encode the given value into a {@code byte[]} array.
      *
+     * <p>
+     * The implementation in {@link Encoding} creates a temporary {@link ByteWriter}
+     * and then delegates to {@link #write write()}.
+     *
      * @param value value to encode, possibly null
      * @return encoded value
      * @throws IllegalArgumentException if {@code obj} is invalid
@@ -440,7 +412,11 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     }
 
     /**
-     * Decode a valie from the given {@code byte[]} array.
+     * Decode a valid from the given {@code byte[]} array.
+     *
+     * <p>
+     * The implementation in {@link Encoding} creates a temporary {@link ByteReader}
+     * and then delegates to {@link #read read()}.
      *
      * @param bytes encoded value
      * @return decoded value, possibly null

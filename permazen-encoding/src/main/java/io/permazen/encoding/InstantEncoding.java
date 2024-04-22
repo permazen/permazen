@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.Instant;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Instant} type. Null values are not supported by this class.
@@ -23,8 +21,6 @@ import java.util.regex.Pattern;
  * followed by {@linkplain Instant#getNano nanoseconds}.
  */
 public class InstantEncoding extends BuiltinEncoding<Instant> {
-
-    private static final Pattern PATTERN = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z");
 
     private static final long serialVersionUID = -3907615112193058091L;
 
@@ -56,12 +52,14 @@ public class InstantEncoding extends BuiltinEncoding<Instant> {
     }
 
     @Override
-    public Instant fromParseableString(ParseContext ctx) {
-        return Instant.parse(ctx.matchPrefix(InstantEncoding.PATTERN).group());
+    public Instant fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return Instant.parse(string);
     }
 
     @Override
-    public String toParseableString(Instant instant) {
+    public String toString(Instant instant) {
+        Preconditions.checkArgument(instant != null, "null instant");
         return instant.toString();
     }
 

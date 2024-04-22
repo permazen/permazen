@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.LocalTime;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link LocalTime} type. Null values are not supported by this class.
@@ -23,8 +21,6 @@ import java.util.regex.Pattern;
  * {@linkplain LocalTime#toNanoOfDay nanoseconds in the day}.
  */
 public class LocalTimeEncoding extends BuiltinEncoding<LocalTime> {
-
-    static final Pattern PATTERN = Pattern.compile("[0-9]+:[0-9]+(:[0-9]+(\\.[0-9]+)?)?");
 
     private static final long serialVersionUID = -6138317689607411426L;
 
@@ -54,12 +50,14 @@ public class LocalTimeEncoding extends BuiltinEncoding<LocalTime> {
     }
 
     @Override
-    public LocalTime fromParseableString(ParseContext ctx) {
-        return LocalTime.parse(ctx.matchPrefix(LocalTimeEncoding.PATTERN).group());
+    public LocalTime fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return LocalTime.parse(string);
     }
 
     @Override
-    public String toParseableString(LocalTime localTime) {
+    public String toString(LocalTime localTime) {
+        Preconditions.checkArgument(localTime != null, "null localTime");
         return localTime.toString();
     }
 

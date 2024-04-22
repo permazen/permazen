@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.Period;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link Period} type. Null values are not supported by this class.
@@ -23,8 +21,6 @@ import java.util.regex.Pattern;
  * the {@linkplain Period#getMonths months}, and the {@linkplain Period#getDays days}.
  */
 public class PeriodEncoding extends BuiltinEncoding<Period> {
-
-    private static final Pattern PATTERN = Pattern.compile("P(-?[0-9]+Y)?(-?[0-9]+M)?(-?[0-9]+?D)?|P-?[0-9]+W");
 
     private static final long serialVersionUID = -5481674489895732054L;
 
@@ -58,12 +54,13 @@ public class PeriodEncoding extends BuiltinEncoding<Period> {
     }
 
     @Override
-    public Period fromParseableString(ParseContext ctx) {
-        return Period.parse(ctx.matchPrefix(PeriodEncoding.PATTERN).group());
+    public Period fromString(String string) {
+        return Period.parse(string);
     }
 
     @Override
-    public String toParseableString(Period period) {
+    public String toString(Period period) {
+        Preconditions.checkArgument(period != null, "null period");
         return period.toString();
     }
 

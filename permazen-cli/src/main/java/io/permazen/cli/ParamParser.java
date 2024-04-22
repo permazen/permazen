@@ -14,7 +14,6 @@ import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
 import io.permazen.encoding.EncodingRegistry;
-import io.permazen.util.ParseContext;
 import io.permazen.util.ParseException;
 
 import java.util.ArrayList;
@@ -116,11 +115,11 @@ public class ParamParser {
         final EncodingId encodingId = this.encodingRegistry.idForAlias(typeName);
         final Encoding<?> encoding = this.encodingRegistry.getEncoding(encodingId);
         if (encoding != null) {
-            return (session, ctx, complete) -> {
+            return (session, text) -> {
                 try {
-                    return encoding.fromParseableString(ctx);
+                    return encoding.fromString(text);
                 } catch (IllegalArgumentException e) {
-                    throw new ParseException(ctx, "invalid " + typeName + " value", e);
+                    throw new IllegalArgumentException("invalid " + typeName + " value", e);
                 }
             };
         }
@@ -165,7 +164,7 @@ public class ParamParser {
             if (parser != null) {
                 if (pos == params.size())
                     throw new IllegalArgumentException("option \"" + param + "\" requires an argument");
-                values.put(optionFlag.getName(), parser.parse(session, new ParseContext(params.get(pos++)), false));
+                values.put(optionFlag.getName(), parser.parse(session, params.get(pos++)));
             } else
                 values.put(optionFlag.getName(), true);
         }
@@ -176,7 +175,7 @@ public class ParamParser {
             final String typeName = param.getTypeName();
             final Parser<?> parser = param.getParser();
             while (paramValues.size() < param.getMax() && pos < params.size())
-                paramValues.add(parser.parse(session, new ParseContext(params.get(pos++)), false));
+                paramValues.add(parser.parse(session, params.get(pos++)));
             if (paramValues.size() < param.getMin())
                 throw new IllegalArgumentException("missing \"" + param.getName() + "\" parameter");
             if (param.getMax() > 1)

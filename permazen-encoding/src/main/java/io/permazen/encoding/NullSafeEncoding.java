@@ -9,19 +9,13 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
 /**
  * An {@link Encoding} that wraps any other {@link Encoding} not supporting null values and adds support for null values.
  *
  * <p>
  * This class pre-pends a {@code 0x01} to the binary encoding of non-null values, and uses a single {@code 0xff} byte to
- * represent null values. Therefore, null values sort last.
- *
- * <p>
- * The default value becomes null, for which {@code "null"} is the value returned by {@link #toParseableString toParseableString()}.
- * Therefore, {@code "null"} must not be returned by the wrapped type's {@link #toParseableString toParseableString()}
- * for any value.
+ * represent null values. Therefore, null values sort last. Also, the default value is null.
  *
  * <p>
  * This class will automatically "inline" the {@code 0xff} for null values and omit the {@code 0x01} for non-null values
@@ -157,16 +151,6 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
     }
 
     @Override
-    public T fromParseableString(ParseContext context) {
-        return context.tryPattern("null\\b") != null ? null : this.inner.fromParseableString(context);
-    }
-
-    @Override
-    public String toParseableString(T value) {
-        return value == null ? "null" : this.inner.toParseableString(value);
-    }
-
-    @Override
     public <S> T convert(Encoding<S> type, S value) {
         Preconditions.checkArgument(type != null, "null type");
         return value == null ? null : this.inner.convert(type, value);
@@ -186,11 +170,21 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
         return inner.sortsNaturally();
     }
 
+    /**
+     * Always returns true.
+     *
+     * @return true
+     */
     @Override
     public boolean allowsNull() {
         return true;
     }
 
+    /**
+     * Always returns true.
+     *
+     * @return true
+     */
     @Override
     public boolean hasPrefix0xff() {
         return true;

@@ -5,35 +5,32 @@
 
 package io.permazen.cli.cmd;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.cli.Session;
 import io.permazen.cli.parse.Parser;
-import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
 
 import java.io.File;
-import java.util.regex.Matcher;
 
 abstract class AbstractFileParser implements Parser<File> {
 
     @Override
-    public File parse(Session session, ParseContext ctx, boolean complete) {
+    public File parse(Session session, String text) {
 
-        // Get filename
-        final Matcher matcher = ctx.tryPattern("[^\\s;]*");
-        if (matcher == null)
-            throw new ParseException(ctx);
-        final String path = matcher.group();
+        // Sanity check
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(text != null, "null text");
 
         // Check file for validity
-        final File file = new File(path);
-        if (!complete && this.validateFile(file, complete))
+        final File file = new File(text);
+        if (this.validateFile(file))
             return file;
 
         // Throw parse exception
-        throw this.createParseException(ctx, file);
+        throw this.createParseException(file);
     }
 
-    protected abstract boolean validateFile(File file, boolean complete);
+    protected abstract boolean validateFile(File file);
 
-    protected abstract ParseException createParseException(ParseContext ctx, File file);
+    protected abstract IllegalArgumentException createParseException(File file);
 }

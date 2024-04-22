@@ -13,14 +13,11 @@ import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This is the inner, non-null supporting {@link Encoding} for {@link EnumValueEncoding}.
@@ -100,20 +97,6 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
         if (value == null)
             throw new IllegalArgumentException(String.format("unknown enum identifier \"%s\"", string));
         return value;
-    }
-
-    @Override
-    public String toParseableString(EnumValue value) {
-        return this.toString(value);
-    }
-
-    @Override
-    public EnumValue fromParseableString(ParseContext context) {
-        final Matcher matcher = context.tryPattern(Pattern.compile(EnumValueEncoding.IDENT_PATTERN));
-        if (matcher == null)
-            throw context.buildException("expected enum identifier");
-        final String ident = matcher.group();
-        return this.fromString(ident);
     }
 
     @Override

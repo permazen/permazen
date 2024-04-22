@@ -10,10 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.time.LocalDate;
-import java.util.regex.Pattern;
 
 /**
  * Non-null {@link LocalDate} type. Null values are not supported by this class.
@@ -22,8 +20,6 @@ import java.util.regex.Pattern;
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing the {@linkplain LocalDate#toEpochDay epoch day}.
  */
 public class LocalDateEncoding extends BuiltinEncoding<LocalDate> {
-
-    private static final Pattern PATTERN = Pattern.compile("-?[0-9]+-[0-9]+-[0-9]+");
 
     private static final long serialVersionUID = -1245720029314097665L;
 
@@ -53,12 +49,14 @@ public class LocalDateEncoding extends BuiltinEncoding<LocalDate> {
     }
 
     @Override
-    public LocalDate fromParseableString(ParseContext ctx) {
-        return LocalDate.parse(ctx.matchPrefix(LocalDateEncoding.PATTERN).group());
+    public LocalDate fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return LocalDate.parse(string);
     }
 
     @Override
-    public String toParseableString(LocalDate localDate) {
+    public String toString(LocalDate localDate) {
+        Preconditions.checkArgument(localDate != null, "null localDate");
         return localDate.toString();
     }
 

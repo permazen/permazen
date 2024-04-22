@@ -11,7 +11,6 @@ import io.permazen.encoding.AbstractEncoding;
 import io.permazen.encoding.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
 /**
  * Non-null encoding for {@link ObjId}s. Null values are not supported by this class.
@@ -61,12 +60,13 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
     }
 
     @Override
-    public ObjId fromParseableString(ParseContext ctx) {
-        return new ObjId(ctx.matchPrefix(ObjId.PATTERN).group());
+    public ObjId fromString(String string) {
+        return new ObjId(string);
     }
 
     @Override
-    public String toParseableString(ObjId value) {
+    public String toString(ObjId value) {
+        Preconditions.checkArgument(value != null, "null value");
         return value.toString();
     }
 

@@ -5,7 +5,7 @@
 
 package io.permazen.encoding;
 
-import io.permazen.util.ParseContext;
+import com.google.common.base.Preconditions;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -43,13 +43,14 @@ public class OffsetDateTimeEncoding extends Concat2Encoding<OffsetDateTime, Inst
 // Encoding
 
     @Override
-    public OffsetDateTime fromParseableString(ParseContext ctx) {
-        return OffsetDateTime.parse(ctx.matchPrefix(LocalDateTimeEncoding.PATTERN).group()
-          + ctx.matchPrefix(ZoneOffsetEncoding.PATTERN).group());
+    public OffsetDateTime fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return OffsetDateTime.parse(string);
     }
 
     @Override
-    public String toParseableString(OffsetDateTime offsetDateTime) {
+    public String toString(OffsetDateTime offsetDateTime) {
+        Preconditions.checkArgument(offsetDateTime != null, "null offsetDateTime");
         return offsetDateTime.toString();
     }
 

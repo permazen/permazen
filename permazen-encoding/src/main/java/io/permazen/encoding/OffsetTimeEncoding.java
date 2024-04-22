@@ -5,7 +5,7 @@
 
 package io.permazen.encoding;
 
-import io.permazen.util.ParseContext;
+import com.google.common.base.Preconditions;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -49,13 +49,14 @@ public class OffsetTimeEncoding extends Concat2Encoding<OffsetTime, Long, ZoneOf
 // Encoding
 
     @Override
-    public OffsetTime fromParseableString(ParseContext ctx) {
-        return OffsetTime.parse(ctx.matchPrefix(LocalTimeEncoding.PATTERN).group()
-          + ctx.matchPrefix(ZoneOffsetEncoding.PATTERN).group());
+    public OffsetTime fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return OffsetTime.parse(string);
     }
 
     @Override
-    public String toParseableString(OffsetTime offsetTime) {
+    public String toString(OffsetTime offsetTime) {
+        Preconditions.checkArgument(offsetTime != null, "null offsetTime");
         return offsetTime.toString();
     }
 

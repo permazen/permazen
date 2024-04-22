@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 public class ParamParserTest extends TestSupport {
 
     private final SimpleCommandLineParser commandLineParser = new SimpleCommandLineParser();
+    private final DefaultEncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
+    private final MockSession session = new MockSession();
 
     @Test(dataProvider = "cases")
     public void testParamParser(String specs, String command, Map<String, Object> expected) throws Exception {
@@ -32,9 +34,8 @@ public class ParamParserTest extends TestSupport {
         final ParamParser parser = new ParamParser(specs) {
             @Override
             protected Parser<?> getParser(String typeName) {
-                final DefaultEncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
-                final EncodingId encodingId = encodingRegistry.idForAlias(typeName);
-                final Encoding<?> encoding = new DefaultEncodingRegistry().getEncoding(encodingId);
+                final EncodingId encodingId = ParamParserTest.this.encodingRegistry.idForAlias(typeName);
+                final Encoding<?> encoding = ParamParserTest.this.encodingRegistry.getEncoding(encodingId);
                 return encoding != null ? this.createEncodingParser(encoding) : super.getParser(typeName);
             }
             private <T> EncodingParser<T> createEncodingParser(Encoding<T> encoding) {
@@ -46,7 +47,7 @@ public class ParamParserTest extends TestSupport {
         try {
             final List<String> params = this.commandLineParser.parseCommandLine(command);
             this.log.info("*** ParamParserTest: split command={} (len={})", params, params.size());
-            final Map<String, Object> actual = parser.parse(null, params);
+            final Map<String, Object> actual = parser.parse(this.session, params);
             Assert.assertEquals(actual, expected, "\n  ACTUAL: " + actual + "\nEXPECTED: " + expected + "\n");
         } catch (CommandLineParser.SyntaxException | IllegalArgumentException e) {
             if (expected != null)
@@ -137,8 +138,26 @@ public class ParamParserTest extends TestSupport {
         },
 
         {
+            "str1:String",
+            " \\\"\\\"",
+            buildMap("str1", "\"\"")
+        },
+
+        {
+            "str2:String",
+            " foo\\\"bar",
+            buildMap("str2", "foo\"bar")
+        },
+
+        {
+            "str3:String",
+            " \"foo\\\"bar\"",
+            buildMap("str3", "foo\"bar")
+        },
+
+        {
             "-v:version:int -d:debug --foo:foo p1:String p2:double?",
-            " --foo -v 123 -d -- \"\\\"hello there\\\"\"",
+            " --foo -v 123 -d -- \"hello there\"",
             buildMap("foo", true, "version", 123, "debug", true, "p1", "hello there")
         },
 
@@ -157,13 +176,13 @@ public class ParamParserTest extends TestSupport {
         {
             "-v:version:int -d:debug --foo:foo p1:String p2:double+",
             " --foo -v 123 -d -- \"\\\"goodbye there\\\"\" -342.574e17",
-            buildMap("foo", true, "version", 123, "debug", true, "p1", "goodbye there", "p2", buildList(-342.574e17))
+            buildMap("foo", true, "version", 123, "debug", true, "p1", "\"goodbye there\"", "p2", buildList(-342.574e17))
         },
 
         {
             "-v:version:int -d:debug --foo:foo p1:String p2:double*",
             " \\\"\\\" -Infinity -0.0 +0.0 123.45",
-            buildMap("p1", "", "p2", buildList(Double.NEGATIVE_INFINITY, -0.0, +0.0, 123.45))
+            buildMap("p1", "\"\"", "p2", buildList(Double.NEGATIVE_INFINITY, -0.0, +0.0, 123.45))
         },
 
         };

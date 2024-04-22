@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
-import io.permazen.util.ParseContext;
 
 import java.util.Date;
 
@@ -49,12 +48,13 @@ public class DateEncoding extends BuiltinEncoding<Date> {
     }
 
     @Override
-    public Date fromParseableString(ParseContext ctx) {
-        return DateEncoder.decode(ctx.matchPrefix(DateEncoder.PATTERN).group());
+    public Date fromString(String string) {
+        return DateEncoder.decode(string);
     }
 
     @Override
-    public String toParseableString(Date date) {
+    public String toString(Date date) {
+        Preconditions.checkArgument(date != null, "null date");
         return DateEncoder.encode(date);
     }
 

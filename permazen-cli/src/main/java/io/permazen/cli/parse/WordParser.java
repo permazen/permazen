@@ -8,15 +8,12 @@ package io.permazen.cli.parse;
 import com.google.common.base.Preconditions;
 
 import io.permazen.cli.Session;
-import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
 
 import java.util.Collection;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 
 /**
- * Parses a word (one or more non-whitespace characters).
+ * Parses a word (one or more characters).
  */
 public class WordParser implements Parser<String> {
 
@@ -64,26 +61,22 @@ public class WordParser implements Parser<String> {
     }
 
     @Override
-    public String parse(Session session, ParseContext ctx, boolean complete) {
+    public String parse(Session session, String text) {
 
-        // Get word
-        final Matcher matcher = ctx.tryPattern("[^\\s;]*");
-        if (matcher == null)
-            throw new ParseException(ctx);
-        final String word = matcher.group();
+        // Sanity check
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(text != null, "null text");
 
         // Check word
         final Collection<String> validWords = this.getWords();
         if (validWords != null) {
             final TreeSet<String> sortedWords = new TreeSet<>(validWords);
-            if (!sortedWords.contains(word)) {
-                throw new ParseException(ctx, "unknown " + this.description + " \"" + word + "\"")
-                  .addCompletions(ParseUtil.complete(sortedWords, word));
-            }
-        } else if (word.length() == 0)
-            throw new ParseException(ctx, "missing " + this.description);
+            if (!sortedWords.contains(text))
+                throw new IllegalArgumentException(String.format("unknown %s \"%s\"", this.description, text));
+        } else if (text.length() == 0)
+            throw new IllegalArgumentException("missing " + this.description);
 
         // Done
-        return word;
+        return text;
     }
 }

@@ -5,20 +5,17 @@
 
 package io.permazen.cli.cmd;
 
-import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
-
 import java.io.File;
 
 class InputFileParser extends AbstractFileParser {
 
     @Override
-    protected boolean validateFile(File file, boolean complete) {
+    protected boolean validateFile(File file) {
         return file.exists() && !file.isDirectory() && file.canRead();
     }
 
     @Override
-    protected ParseException createParseException(ParseContext ctx, File file) {
-        return new ParseException(ctx, "can't read file \"" + file + "\"");
+    protected IllegalArgumentException createParseException(File file) {
+        return new IllegalArgumentException(String.format("can't read file \"%s\"", file));
     }
 }

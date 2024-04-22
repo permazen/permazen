@@ -5,9 +5,8 @@
 
 package io.permazen.encoding;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
-
-import io.permazen.util.ParseContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,15 +16,11 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * For Primitive array types encode to {@link String} via Base-64 encoding of raw data. Does not support null arrays.
- *
- * <p>
- * Note: in order to return a {@link String} that is self-delimiting, {@link #toParseableString toParseableString()} appends
- * an extra {@code "="} character when the length of the array is equal to 3 (mod 4).
+ * Adds support for an alternate Base-64 {@link String} encoding for primitive array types.
+ * Does not support null arrays.
  *
  * @param <T> array type
  * @param <E> array element type
@@ -38,7 +33,7 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
     private static final byte[] BASE64_LINE_TERMINATOR = new byte[] { (byte)'\n' };
 
     private static final Pattern BASE64_PATTERN = Pattern.compile(
-      "((([-_+/\\p{Alnum}]\\s*){4})*)(([-_+/\\p{Alnum}]\\s*){2}==|([-_+/\\p{Alnum}]\\s*){3}=|=)");
+      "((([-_+/\\p{Alnum}]\\s*){4})*)(([-_+/\\p{Alnum}]\\s*){2}==|([-_+/\\p{Alnum}]\\s*){3}=)");
 
     private final int size;
 
@@ -47,84 +42,51 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
         this.size = elementType.primitive.getSize();
     }
 
+// Encoding
+
     @Override
     public T fromString(String string) {
-        if (string.length() == 0)
-            return this.createArray(Collections.<E>emptyList());
-        if (string.charAt(0) == '[')                                    // backward compat
-            return super.fromString(string);
-        return this.decodeString(string);
+        Preconditions.checkArgument(string != null, "null string");
+        if (BASE64_PATTERN.matcher(string).matches())
+            return this.decodeBase64(string);
+        return super.fromString(string);
     }
 
     @Override
     public String toString(T array) {
-        return this.encodeString(array).toString();
+        Preconditions.checkArgument(array != null, "null array");
+        return this.toString(array, this.useBase64Encoding(array));
     }
+
+// Other Methods
 
     /**
      * Encode a non-null value as a {@link String} for later decoding by {@link #fromString fromString()}.
      *
-     * <p>
-     * This class supports two {@link String} encodings: base 64 and "list" syntax with square brackets and commas.
-     * The method {@link #toString(Object)} returns the base 64 form; this method works exactly the same way but
-     * allows the caller to specify which form to generate. Either form is parseable by {@link #fromString fromString()}.
-     *
-     * @param array array to encode, never null
-     * @param base64 true for base 64 synax, false for list syntax
+     * @param array array to encode
+     * @param base64 true for base 64 synax, false for standard syntax
      * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
      * @throws IllegalArgumentException if {@code value} is null
      */
     public String toString(T array, boolean base64) {
-        return base64 ? this.toString(array) : super.toString(array);
-    }
-
-    @Override
-    public String toParseableString(T array) {
-        String s = this.encodeString(array);
-        final int length = s.length();
-        if (length == 0 || s.charAt(length - 1) != '=')
-            s += '=';                                                   // required in order to be self-delimiting
-        return s;
+        return base64 ? this.encodeBase64(array) : super.toString(array);
     }
 
     /**
-     * Encode a possibly null value as a {@link String} for later decoding by {@link #fromParseableString fromParseableString()}.
+     * Invoked by {@link #toString(T)} to determine whether to encode using base 64 or not.
      *
      * <p>
-     * This class supports two {@link String} encodings: base 64 and "list" syntax with square brackets and commas.
-     * The method {@link #toParseableString(Object)} returns the base 64 form; this method works exactly the same way but
-     * allows the caller to specify which form to generate. Either form is parseable by
-     * {@link #fromParseableString fromParseableString()}.
+     * The implementation in {@link Base64ArrayEncoding} rerturns true for arrays longer than 16 elements.
      *
-     * @param array array to encode, possibly null
-     * @param base64 true for base 64 synax, false for list syntax
-     * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
-     * @throws IllegalArgumentException if {@code value} is null and this type does not support null
+     * @param array array to be encoded, never null
+     * @return true for base 64 encoding, otherwise false
      */
-    public String toParseableString(T array, boolean base64) {
-        return base64 ? this.toParseableString(array) : super.toParseableString(array);
+    protected boolean useBase64Encoding(T array) {
+        return this.getArrayLength(array) > 16;
     }
 
-    @Override
-    public T fromParseableString(ParseContext context) {
-
-        // Check for "list" syntax
-        if (context.peek() == '[')
-            return super.fromParseableString(context);
-
-        // Strip off extra trailing "=", if any
-        final Matcher matcher = context.matchPrefix(BASE64_PATTERN);
-        final String head = matcher.group(1);
-        final String tail = matcher.group(4);
-        String base64 = head;
-        if (!tail.equals("="))
-            base64 += tail;
-
-        // Decode base 64
-        return this.decodeString(base64);
-    }
-
-    private String encodeString(T array) {
+    private String encodeBase64(T array) {
+        Preconditions.checkArgument(array != null, "null array");
         final int length = this.getArrayLength(array);
         if (length == 0)
             return "";
@@ -137,7 +99,8 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
         return Base64.getMimeEncoder(BASE64_LINE_LENGTH, BASE64_LINE_TERMINATOR).encodeToString(buf.toByteArray());
     }
 
-    private T decodeString(String base64) {
+    private T decodeBase64(String base64) {
+        Preconditions.checkArgument(base64 != null, "null base64");
         if (base64.trim().isEmpty())
             return this.createArray(Collections.<E>emptyList());
         base64 = base64.replace('-', '+').replace('_', '/');            // undo URL-safe mode, if needed
@@ -155,8 +118,10 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
 
     @SuppressWarnings("unchecked")
     protected T checkDecodeLength(int numBytes) {
-        if (numBytes % this.size != 0)
-            throw new IllegalArgumentException("input has length " + numBytes + " which is not a multiple of " + this.size);
+        if (numBytes % this.size != 0) {
+            throw new IllegalArgumentException(String.format(
+              "input has length %d which is not a multiple of %d", numBytes, this.size));
+        }
         return (T)Array.newInstance(this.elementType.getTypeToken().getRawType(), numBytes / this.size);
     }
 }

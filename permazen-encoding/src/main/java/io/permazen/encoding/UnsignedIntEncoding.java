@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 import io.permazen.util.UnsignedIntEncoder;
 
 import org.dellroad.stuff.java.Primitive;
@@ -64,14 +63,15 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
     }
 
     @Override
-    public String toParseableString(Integer value) {
+    public String toString(Integer value) {
         Preconditions.checkArgument(value != null, "null value");
         return String.valueOf(value);
     }
 
     @Override
-    public Integer fromParseableString(ParseContext ctx) {
-        return Primitive.INTEGER.parseValue(ctx.matchPrefix(Primitive.INTEGER.getParsePattern()).group());
+    public Integer fromString(String string) {
+        Preconditions.checkArgument(string != null, "null string");
+        return Primitive.INTEGER.parseValue(string);
     }
 
     @Override

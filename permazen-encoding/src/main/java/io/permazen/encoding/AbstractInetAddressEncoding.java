@@ -11,7 +11,6 @@ import com.google.common.net.InetAddresses;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
-import io.permazen.util.ParseContext;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -66,7 +65,7 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Builti
 
     @Override
     public String toString(T addr) {
-        Preconditions.checkArgument(addr != null);
+        Preconditions.checkArgument(addr != null, "null addr");
         return InetAddresses.toAddrString(addr);
     }
 
@@ -76,19 +75,8 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Builti
         try {
             return this.addrType.cast(InetAddresses.forString(string));
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("invalid " + this.addrType.getSimpleName() + " \"" + string + "\"");
+            throw new IllegalArgumentException(String.format("invalid %s \"%s\"", this.addrType.getSimpleName(), string));
         }
-    }
-
-    @Override
-    public String toParseableString(T addr) {
-        return this.toString(addr);
-    }
-
-    @Override
-    public T fromParseableString(ParseContext ctx) {
-        Preconditions.checkArgument(ctx != null);
-        return this.fromString(ctx.matchPrefix(this.pattern).group());
     }
 
     @Override

@@ -5,6 +5,8 @@
 
 package io.permazen.cli.parse;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.cli.Session;
 import io.permazen.core.ObjType;
 import io.permazen.core.Schema;
@@ -12,7 +14,6 @@ import io.permazen.core.Transaction;
 import io.permazen.core.UnknownTypeException;
 import io.permazen.schema.SchemaId;
 import io.permazen.util.ParseContext;
-import io.permazen.util.ParseException;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -30,31 +31,35 @@ import java.util.regex.Matcher;
 public class ObjTypeParser implements Parser<ObjType> {
 
     @Override
-    public ObjType parse(Session session, final ParseContext ctx, final boolean complete) {
-        final ParserAction parserAction = new ParserAction(ctx, complete);
+    public ObjType parse(Session session, String text) {
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(text != null, "null text");
+        final ParserAction parserAction = new ParserAction(text);
         try {
             session.performSessionAction(parserAction);
         } catch (InterruptedException e) {
-            throw new ParseException(ctx, "interrupted");
+            throw new IllegalArgumentException("interrupted");
         }
         final ObjType result = parserAction.getResult();
         final Exception exception = parserAction.getException();
-        if (exception != null || result == null)
-            throw exception instanceof ParseException ? (ParseException)exception : new ParseException(ctx, exception);
+        if (exception != null || result == null) {
+            throw exception instanceof IllegalArgumentException ?
+              (IllegalArgumentException)exception : new IllegalArgumentException(exception);
+        }
         return result;
     }
 
-    private ObjType parseInTransaction(Session session, final ParseContext ctx, final boolean complete) {
+    private ObjType parseInTransaction(Session session, String text) {
 
         // Try to parse as an object type name with optional #schemaId suffix
+        final ParseContext ctx = new ParseContext(text);
         final int startIndex = ctx.getIndex();
         final Matcher matcher;
         try {
             matcher = ctx.matchPrefix("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)(#(Schema_[0-9a-f]{32}))?$");
         } catch (IllegalArgumentException e) {
             ctx.setIndex(startIndex);
-            throw new ParseException(ctx, "invalid object type")
-              .addCompletions(session.getSchemaModel().getSchemaObjectTypes().keySet());
+            throw new IllegalArgumentException("invalid object type");
         }
         final String typeName = matcher.group(1);
         final SchemaId schemaId = Optional.ofNullable(matcher.group(3)).map(SchemaId::new).orElse(null);
@@ -66,8 +71,7 @@ public class ObjTypeParser implements Parser<ObjType> {
             try {
                 schema = tx.getSchemaBundle().getSchema(schemaId);
             } catch (IllegalArgumentException e) {
-                ctx.setIndex(startIndex);
-                throw new ParseException(ctx, String.format("invalid object type schema \"%s\"", schemaId));
+                throw new IllegalArgumentException(String.format("invalid object type schema \"%s\"", schemaId));
             }
         } else
             schema = tx.getSchema();
@@ -76,29 +80,26 @@ public class ObjTypeParser implements Parser<ObjType> {
         try {
             return schema.getObjType(typeName);
         } catch (UnknownTypeException e) {
-            throw new ParseException(ctx, String.format("unknown object type \"%s\"", typeName))
-               .addCompletions(ParseUtil.complete(schema.getObjTypes().keySet(), typeName));
+            throw new IllegalArgumentException(String.format("unknown object type \"%s\"", typeName));
         }
     }
 
     private class ParserAction implements Session.RetryableTransactionalAction {
 
-        private final ParseContext ctx;
-        private final boolean complete;
+        private final String text;
 
         private ObjType result;
         private Exception exception;
 
-        ParserAction(ParseContext ctx, boolean complete) {
-            this.ctx = ctx;
-            this.complete = complete;
+        ParserAction(String text) {
+            this.text = text;
         }
 
         @Override
         public void run(Session session) throws Exception {
             try {
-                this.result = ObjTypeParser.this.parseInTransaction(session, this.ctx, this.complete);
-            } catch (ParseException e) {
+                this.result = ObjTypeParser.this.parseInTransaction(session, this.text);
+            } catch (IllegalArgumentException e) {
                 this.exception = e;
             }
         }
