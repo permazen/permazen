@@ -47,27 +47,14 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
     /**
      * Constructor.
      *
-     * @param encodingId encoding ID
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param inner inner type that is not null safe
      */
     public NullSafeEncoding(EncodingId encodingId, Encoding<T> inner) {
         super(encodingId, inner.getTypeToken().wrap(), null);
-        Preconditions.checkArgument(!inner.allowsNull(), "inner type is already null-safe");
+        Preconditions.checkArgument(!inner.supportsNull(), "inner type is already null-safe");
         this.inner = inner;
         this.inline = !inner.hasPrefix0xff();
-    }
-
-    /**
-     * Constructor when wrapping a non-registered inner type.
-     *
-     * <p>
-     * Takes encoding ID from {@code inner}; therefore, this instance and {@code inner}
-     * cannot be both registered in an {@link EncodingRegistry}.
-     *
-     * @param inner inner type that is not null safe
-     */
-    public NullSafeEncoding(Encoding<T> inner) {
-       this(inner.getEncodingId(), inner);
     }
 
     /**
@@ -75,8 +62,15 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
      *
      * @return inner type that is not null safe
      */
-    public Encoding<T> getInnerType() {
+    public Encoding<T> getInnerEncoding() {
         return this.inner;
+    }
+
+// Encoding
+
+    @Override
+    public NullSafeEncoding<T> withEncodingId(EncodingId encodingId) {
+        return new NullSafeEncoding<>(encodingId, this.inner);
     }
 
     @Override
@@ -176,7 +170,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
      * @return true
      */
     @Override
-    public boolean allowsNull() {
+    public boolean supportsNull() {
         return true;
     }
 

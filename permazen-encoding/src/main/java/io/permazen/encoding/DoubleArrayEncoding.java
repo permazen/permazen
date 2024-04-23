@@ -33,11 +33,16 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     private static final int NUM_BYTES = 8;
     private static final byte[] END = new byte[NUM_BYTES];
 
-    private final DoubleEncoding doubleType = new DoubleEncoding();
+    private final DoubleEncoding doubleType = new DoubleEncoding(null);
 
     @SuppressWarnings("serial")
-    public DoubleArrayEncoding() {
-        super(new DoubleEncoding(), new TypeToken<double[]>() { });
+    public DoubleArrayEncoding(EncodingId encodingId) {
+        super(encodingId, new DoubleEncoding(null), new TypeToken<double[]>() { });
+    }
+
+    @Override
+    public DoubleArrayEncoding withEncodingId(EncodingId encodingId) {
+        return new DoubleArrayEncoding(encodingId);
     }
 
     @Override

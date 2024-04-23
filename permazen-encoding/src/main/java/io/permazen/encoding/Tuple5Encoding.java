@@ -18,22 +18,6 @@ public class Tuple5Encoding<V1, V2, V3, V4, V5> extends TupleEncoding<Tuple5<V1,
     private static final long serialVersionUID = -3834483329232587435L;
 
     /**
-     * Create an anonymous instance.
-     *
-     * @param value1Encoding component value encoding
-     * @param value2Encoding component value encoding
-     * @param value3Encoding component value encoding
-     * @param value4Encoding component value encoding
-     * @param value5Encoding component value encoding
-     * @throws IllegalArgumentException if any component value encoding is null
-     */
-    @SuppressWarnings("serial")
-    public Tuple5Encoding(Encoding<V1> value1Encoding, Encoding<V2> value2Encoding,
-      Encoding<V3> value3Encoding, Encoding<V4> value4Encoding, Encoding<V5> value5Encoding) {
-        this(null, value1Encoding, value2Encoding, value3Encoding, value4Encoding, value5Encoding);
-    }
-
-    /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
@@ -54,6 +38,13 @@ public class Tuple5Encoding<V1, V2, V3, V4, V5> extends TupleEncoding<Tuple5<V1,
            .where(new TypeParameter<V4>() { }, value4Encoding.getTypeToken().wrap())
            .where(new TypeParameter<V5>() { }, value5Encoding.getTypeToken().wrap()),
           value1Encoding, value2Encoding, value3Encoding, value4Encoding, value5Encoding);
+    }
+
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Tuple5Encoding<V1, V2, V3, V4, V5> withEncodingId(EncodingId encodingId) {
+        return new Tuple5Encoding(encodingId, this.encodings.get(0),
+          this.encodings.get(1), this.encodings.get(2), this.encodings.get(3), this.encodings.get(4));
     }
 
     @Override

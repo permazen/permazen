@@ -20,15 +20,20 @@ import java.time.YearMonth;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, the {@linkplain YearMonth#getYear year}
  * followed by the {@linkplain YearMonth#getMonthValue month value}.
  */
-public class YearMonthEncoding extends BuiltinEncoding<YearMonth> {
+public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
 
     private static final long serialVersionUID = 2773124141026846109L;
 
-    public YearMonthEncoding() {
-        super(YearMonth.class);
+    public YearMonthEncoding(EncodingId encodingId) {
+        super(encodingId, YearMonth.class, YearMonth.of(0, 1));
     }
 
 // Encoding
+
+    @Override
+    public YearMonthEncoding withEncodingId(EncodingId encodingId) {
+        return new YearMonthEncoding(encodingId);
+    }
 
     @Override
     public YearMonth read(ByteReader reader) {

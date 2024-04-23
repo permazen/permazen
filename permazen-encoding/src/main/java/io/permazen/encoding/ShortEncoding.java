@@ -14,8 +14,13 @@ public class ShortEncoding extends IntegralEncoding<Short> {
 
     private static final long serialVersionUID = 3817308228385115418L;
 
-    public ShortEncoding() {
-       super(Primitive.SHORT);
+    public ShortEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.SHORT);
+    }
+
+    @Override
+    public ShortEncoding withEncodingId(EncodingId encodingId) {
+        return new ShortEncoding(encodingId);
     }
 
     @Override

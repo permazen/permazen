@@ -19,15 +19,20 @@ import java.time.Year;
  * <p>
  * Binary encoding is the {@link LongEncoder}-encoded {@linkplain Year#getValue year value}.
  */
-public class YearEncoding extends BuiltinEncoding<Year> {
+public class YearEncoding extends AbstractEncoding<Year> {
 
     private static final long serialVersionUID = 6800527893478605289L;
 
-    public YearEncoding() {
-        super(Year.class);
+    public YearEncoding(EncodingId encodingId) {
+        super(encodingId, Year.class, Year.of(0));
     }
 
 // Encoding
+
+    @Override
+    public YearEncoding withEncodingId(EncodingId encodingId) {
+        return new YearEncoding(encodingId);
+    }
 
     @Override
     public Year read(ByteReader reader) {

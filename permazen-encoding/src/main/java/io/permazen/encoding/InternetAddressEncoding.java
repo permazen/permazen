@@ -24,27 +24,26 @@ public class InternetAddressEncoding extends StringConvertedEncoding<InternetAdd
 
     private static final long serialVersionUID = 289940859247032224L;
 
-    public InternetAddressEncoding() {
-        super(EncodingIds.builtin("InternetAddress"), InternetAddress.class, new InternetAddressConverter());
+    public InternetAddressEncoding(EncodingId encodingId) {
+        super(encodingId, InternetAddress.class, new InternetAddressConverter());
     }
 
-// EmailConverter
+// InternetAddressConverter
 
+    // This is a separate class instead of using Converter.from() to avoid early linkage to optional InternetAddress class
     private static class InternetAddressConverter extends Converter<InternetAddress, String> implements Serializable {
 
         private static final long serialVersionUID = 3837763387234872160L;
 
         @Override
         protected String doForward(InternetAddress address) {
-            if (address == null)
-                return null;
+            assert address != null;
             return address.toString();
         }
 
         @Override
         protected InternetAddress doBackward(String string) {
-            if (string == null)
-                return null;
+            assert string != null;
             try {
                 return new InternetAddress(string);
             } catch (AddressException e) {

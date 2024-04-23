@@ -10,21 +10,21 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
-abstract class Concat2Encoding<T, S1, S2> extends BuiltinEncoding<T> {
+abstract class Concat2Encoding<T, S1, S2> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = -7395218884659436172L;
 
     protected final Encoding<S1> type1;
     protected final Encoding<S2> type2;
 
-    protected Concat2Encoding(Class<T> type, T defaultValue, Encoding<S1> type1, Encoding<S2> type2) {
-       super(type, defaultValue);
+    protected Concat2Encoding(EncodingId encodingId, Class<T> type, T defaultValue, Encoding<S1> type1, Encoding<S2> type2) {
+       super(encodingId, type, defaultValue);
        this.type1 = type1;
        this.type2 = type2;
     }
 
-    protected Concat2Encoding(Class<T> type, Encoding<S1> type1, Encoding<S2> type2) {
-       this(type, null, type1, type2);
+    protected Concat2Encoding(EncodingId encodingId, Class<T> type, Encoding<S1> type1, Encoding<S2> type2) {
+       this(encodingId, type, null, type1, type2);
     }
 
 // Encoding

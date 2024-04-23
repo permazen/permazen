@@ -6,118 +6,45 @@
 package io.permazen.encoding;
 
 import com.google.common.base.Converter;
-import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
-
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
 
 /**
  * {@link Encoding} for any Java type that can be encoded and ordered as a {@link String}.
- * A {@link Converter} is used to convert between native and {@link String} forms.
+ * A Guava {@link Converter} is used to convert between native and {@link String} forms.
  *
  * <p>
- * Null values are not supported by this class; instead, use {@link StringEncodedEncoding}, which is the
- * null-supporting wrapper around this class.
- *
- * <p>
- * The given {@link Converter} must be {@link java.io.Serializable} in order for an instance of this
- * class to also be {@link java.io.Serializable}.
+ * This class provides a convenient way to implement custom {@link Encoding}s.
+ * Null values are supported and null is the default value. This type will sort instances according to
+ * the lexicographical sort order of their {@link String} encodings; null will sort last.
  *
  * @param <T> The associated Java type
+ * @see ConvertedEncoding
  */
-public class StringConvertedEncoding<T> extends AbstractEncoding<T> {
+public class StringConvertedEncoding<T> extends ConvertedEncoding<T, String> {
 
-    private static final long serialVersionUID = -2432755812735736593L;
-
-    private final StringEncoding stringType = new StringEncoding();
-
-    @SuppressWarnings("serial")
-    private final Converter<T, String> converter;
-
-// Constructors
+    private static final long serialVersionUID = -1937834783878909370L;
 
     /**
      * Primary constructor.
      *
-     * @param encodingId the encoding ID for this {@link Encoding}
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type represented Java type
-     * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
+     * @param converter value converter
      * @throws IllegalArgumentException if any parameter is null
      */
     public StringConvertedEncoding(EncodingId encodingId, TypeToken<T> type, Converter<T, String> converter) {
-        super(encodingId, type, null);
-        Preconditions.checkArgument(converter != null, "null converter");
-        Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
-          "invalid converter: does not convert null <-> null");
-        this.converter = converter;
+        super(encodingId, type, new NullSafeEncoding<>(null, new StringEncoding(null)), converter, false);
     }
 
     /**
      * Convenience constructor taking {@link Class} instead of {@link TypeToken}.
      *
-     * @param encodingId the encoding ID for this {@link Encoding}
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type represented Java type
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null
      */
     public StringConvertedEncoding(EncodingId encodingId, Class<T> type, Converter<T, String> converter) {
         this(encodingId, TypeToken.of(type), converter);
-    }
-
-// Encoding
-
-    @Override
-    public T read(ByteReader reader) {
-        final String string;
-        try {
-            string = this.stringType.read(reader);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid encoded value", e);
-        }
-        return this.converter.reverse().convert(string);
-    }
-
-    @Override
-    public void write(ByteWriter writer, T obj) {
-        this.stringType.write(writer, this.converter.convert(obj));
-    }
-
-    @Override
-    public void skip(ByteReader reader) {
-        this.stringType.skip(reader);
-    }
-
-    @Override
-    public String toString(T obj) {
-        Preconditions.checkArgument(obj != null, "null value");
-        return this.converter.convert(obj);
-    }
-
-    @Override
-    public T fromString(String string) {
-        Preconditions.checkArgument(string != null, "null string");
-        try {
-            return this.converter.reverse().convert(string);
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("conversion from String failed", e);
-        }
-    }
-
-    @Override
-    public int compare(T obj1, T obj2) {
-        return this.stringType.compare(this.toString(obj1), this.toString(obj2));
-    }
-
-    @Override
-    public boolean hasPrefix0x00() {
-        return this.stringType.hasPrefix0x00();
-    }
-
-    @Override
-    public boolean hasPrefix0xff() {
-        return this.stringType.hasPrefix0xff();
     }
 }

@@ -20,8 +20,8 @@ public abstract class IntegralEncoding<T extends Number> extends NumberEncoding<
 
     private static final long serialVersionUID = -4654999812179346709L;
 
-    protected IntegralEncoding(Primitive<T> primitive) {
-       super(primitive);
+    protected IntegralEncoding(EncodingId encodingId, Primitive<T> primitive) {
+       super(encodingId, primitive);
     }
 
     @Override

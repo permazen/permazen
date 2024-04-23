@@ -14,8 +14,13 @@ public class LongEncoding extends IntegralEncoding<Long> {
 
     private static final long serialVersionUID = -1090469104525478415L;
 
-    public LongEncoding() {
-       super(Primitive.LONG);
+    public LongEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.LONG);
+    }
+
+    @Override
+    public LongEncoding withEncodingId(EncodingId encodingId) {
+        return new LongEncoding(encodingId);
     }
 
     @Override

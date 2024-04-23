@@ -29,17 +29,6 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
 // Constructors
 
     /**
-     * Create an anonymous instance.
-     *
-     * @param typeToken this encoding's composite value type
-     * @param encodings encodings to concatenate
-     * @throws IllegalArgumentException if {@code typeToken} or {@code encodings} is null
-     */
-    protected TupleEncoding(TypeToken<T> typeToken, Encoding<?>... encodings) {
-        this(null, typeToken, encodings);
-    }
-
-    /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance

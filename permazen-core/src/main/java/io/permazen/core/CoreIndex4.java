@@ -62,7 +62,7 @@ public class CoreIndex4<V1, V2, V3, V4, T> extends AbstractCoreIndex<T> implemen
         final Index4View<V1, V2, V3, V4, T> iv = this.getIndex4View();
 
         // Create encoding for Tuple5<V1, V2, V3, V4, T>
-        final Tuple5Encoding<V1, V2, V3, V4, T> encoding = new Tuple5Encoding<>(
+        final Tuple5Encoding<V1, V2, V3, V4, T> encoding = new Tuple5Encoding<>(null,
           iv.getValue1Encoding(), iv.getValue2Encoding(), iv.getValue3Encoding(), iv.getValue4Encoding(), iv.getTargetEncoding());
 
         // Build set and apply filtering

@@ -18,15 +18,20 @@ import org.dellroad.stuff.string.DateEncoder;
 /**
  * Non-null {@link Date} type. Null values are not supported by this class.
  */
-public class DateEncoding extends BuiltinEncoding<Date> {
+public class DateEncoding extends AbstractEncoding<Date> {
 
     private static final long serialVersionUID = 825120832596893074L;
 
-    public DateEncoding() {
-        super(Date.class);
+    public DateEncoding(EncodingId encodingId) {
+        super(encodingId, Date.class, new Date(0));
     }
 
 // Encoding
+
+    @Override
+    public DateEncoding withEncodingId(EncodingId encodingId) {
+        return new DateEncoding(encodingId);
+    }
 
     @Override
     public Date read(ByteReader reader) {

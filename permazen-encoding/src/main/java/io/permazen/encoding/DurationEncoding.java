@@ -20,15 +20,20 @@ import java.time.Duration;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Duration#getSeconds seconds}
  * followed by {@linkplain Duration#getNano nanoseconds}.
  */
-public class DurationEncoding extends BuiltinEncoding<Duration> {
+public class DurationEncoding extends AbstractEncoding<Duration> {
 
     private static final long serialVersionUID = 969067179729229705L;
 
-    public DurationEncoding() {
-        super(Duration.class, Duration.ZERO);
+    public DurationEncoding(EncodingId encodingId) {
+        super(encodingId, Duration.class, Duration.ZERO);
     }
 
 // Encoding
+
+    @Override
+    public DurationEncoding withEncodingId(EncodingId encodingId) {
+        return new DurationEncoding(encodingId);
+    }
 
     @Override
     public Duration read(ByteReader reader) {

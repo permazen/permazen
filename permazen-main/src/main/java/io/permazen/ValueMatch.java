@@ -62,11 +62,11 @@ final class ValueMatch<T> {
     }
 
     public boolean alwaysMatches() {
-        return this.nonNulls && (this.nulls || !this.encoding.allowsNull());
+        return this.nonNulls && (this.nulls || !this.encoding.supportsNull());
     }
 
     public boolean neverMatches() {
-        return this.values.isEmpty() && !this.nonNulls && (!this.nulls || !this.encoding.allowsNull());
+        return this.values.isEmpty() && !this.nonNulls && (!this.nulls || !this.encoding.supportsNull());
     }
 
     @SuppressWarnings("unchecked")

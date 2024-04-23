@@ -21,15 +21,20 @@ import java.util.BitSet;
  * Instances are ordered as if they were giant unsigned integers, i.e., whichever instance has the highest bit set
  * to one where the other instance has it set to zero is considered bigger. So the empty instance is the smallest possible.
  */
-public class BitSetEncoding extends BuiltinEncoding<BitSet> {
+public class BitSetEncoding extends AbstractEncoding<BitSet> {
 
     private static final long serialVersionUID = -1133774834687234873L;
 
-    public BitSetEncoding() {
-        super(BitSet.class);
+    public BitSetEncoding(EncodingId encodingId) {
+        super(encodingId, BitSet.class, new BitSet());
     }
 
 // Encoding
+
+    @Override
+    public BitSetEncoding withEncodingId(EncodingId encodingId) {
+        return new BitSetEncoding(encodingId);
+    }
 
     @Override
     public boolean hasPrefix0xff() {

@@ -101,8 +101,8 @@ class Index4View<V1, V2, V3, V4, T> extends AbstractIndexView {
 
         // Create new IndexView
         Index1View<Tuple4<V1, V2, V3, V4>, T> indexView = new Index1View<>(this.prefix, this.prefixMode,
-          new Tuple4Encoding<>(this.getValue1Encoding(), this.getValue2Encoding(),
-            this.getValue3Encoding(), this.getValue4Encoding()), this.getTargetEncoding());
+          new Tuple4Encoding<>(null, this.getValue1Encoding(), this.getValue2Encoding(),
+           this.getValue3Encoding(), this.getValue4Encoding()), this.getTargetEncoding());
 
         // Get filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -138,8 +138,8 @@ class Index4View<V1, V2, V3, V4, T> extends AbstractIndexView {
 
         // Create new IndexView
         Index2View<Tuple3<V1, V2, V3>, V4, T> indexView = new Index2View<>(this.prefix, this.prefixMode,
-          new Tuple3Encoding<>(this.getValue1Encoding(), this.getValue2Encoding(), this.getValue3Encoding()),
-          this.getValue4Encoding(), this.getTargetEncoding());
+          new Tuple3Encoding<>(null, this.getValue1Encoding(), this.getValue2Encoding(),
+           this.getValue3Encoding()), this.getValue4Encoding(), this.getTargetEncoding());
 
         // Get filters
         final KeyFilter value1Filter = this.getFilter(0);
@@ -177,8 +177,8 @@ class Index4View<V1, V2, V3, V4, T> extends AbstractIndexView {
 
         // Create new IndexView
         Index3View<Tuple2<V1, V2>, V3, V4, T> indexView = new Index3View<>(this.prefix, this.prefixMode,
-          new Tuple2Encoding<>(this.getValue1Encoding(), this.getValue2Encoding()),
-          this.getValue3Encoding(), this.getValue4Encoding(), this.getTargetEncoding());
+          new Tuple2Encoding<>(null, this.getValue1Encoding(), this.getValue2Encoding()),
+           this.getValue3Encoding(), this.getValue4Encoding(), this.getTargetEncoding());
 
         // Get filters
         final KeyFilter value1Filter = this.getFilter(0);

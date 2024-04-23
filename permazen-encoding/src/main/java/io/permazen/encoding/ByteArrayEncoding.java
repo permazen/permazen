@@ -19,8 +19,13 @@ public class ByteArrayEncoding extends IntegralArrayEncoding<byte[], Byte> {
 
     private static final long serialVersionUID = -5978203098536001843L;
 
-    public ByteArrayEncoding() {
-       super(new ByteEncoding(), byte[].class);
+    public ByteArrayEncoding(EncodingId encodingId) {
+       super(encodingId, new ByteEncoding(null), byte[].class);
+    }
+
+    @Override
+    public ByteArrayEncoding withEncodingId(EncodingId encodingId) {
+        return new ByteArrayEncoding(encodingId);
     }
 
     @Override

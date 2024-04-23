@@ -28,14 +28,11 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
 
     private static final int END = 0x00;
 
-    private final IntegralEncoding<E> integralType;
-
     @SuppressWarnings("serial")
-    protected IntegralArrayEncoding(IntegralEncoding<E> elementType, Class<T> arrayClass) {
-        super(elementType, TypeToken.of(arrayClass));
-        if (this.elementType.hasPrefix0x00())
+    protected IntegralArrayEncoding(EncodingId encodingId, IntegralEncoding<E> elementEncoding, Class<T> arrayClass) {
+        super(encodingId, elementEncoding, TypeToken.of(arrayClass));
+        if (this.elementEncoding.hasPrefix0x00())
             throw new RuntimeException("internal error");
-        this.integralType = elementType;
     }
 
     @Override
@@ -48,7 +45,7 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
                 reader.skip(1);
                 break;
             }
-            list.add(this.integralType.downCast(LongEncoder.read(reader)));
+            list.add(this.getIntegralEncoding().downCast(LongEncoder.read(reader)));
         }
         return this.createArray(list);
     }
@@ -59,7 +56,7 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
         Preconditions.checkArgument(writer != null);
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
-            LongEncoder.write(writer, this.integralType.upCast(this.getArrayElement(array, i)));
+            LongEncoder.write(writer, this.getIntegralEncoding().upCast(this.getArrayElement(array, i)));
         writer.writeByte(END);
     }
 
@@ -78,6 +75,10 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
 
     @Override
     public boolean hasPrefix0xff() {
-        return this.integralType.hasPrefix0xff();
+        return this.elementEncoding.hasPrefix0xff();
+    }
+
+    private IntegralEncoding<E> getIntegralEncoding() {
+        return (IntegralEncoding<E>)this.elementEncoding;
     }
 }

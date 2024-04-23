@@ -21,8 +21,8 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
 
     private static final long serialVersionUID = 2484375470437659420L;
 
-    public ZonedDateTimeEncoding() {
-        super(ZonedDateTime.class, new OffsetDateTimeEncoding(), new ZoneIdEncoding());
+    public ZonedDateTimeEncoding(EncodingId encodingId) {
+        super(encodingId, ZonedDateTime.class, new OffsetDateTimeEncoding(null), new ZoneIdEncoding(null));
     }
 
     @Override
@@ -41,6 +41,11 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
     }
 
 // Encoding
+
+    @Override
+    public ZonedDateTimeEncoding withEncodingId(EncodingId encodingId) {
+        return new ZonedDateTimeEncoding(encodingId);
+    }
 
     @Override
     public ZonedDateTime fromString(String string) {

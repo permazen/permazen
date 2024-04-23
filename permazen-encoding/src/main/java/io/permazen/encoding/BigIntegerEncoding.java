@@ -16,16 +16,21 @@ import java.math.BigInteger;
 /**
  * {@link BigInteger} type. Null values are not supported by this class.
  */
-public class BigIntegerEncoding extends BuiltinEncoding<BigInteger> {
+public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
 
     private static final long serialVersionUID = -2984648309356838144L;
     private static final int MAX_NUM_BYTES = (Integer.MAX_VALUE / Byte.SIZE) + 1;
 
-    public BigIntegerEncoding() {
-        super(BigInteger.class);
+    public BigIntegerEncoding(EncodingId encodingId) {
+        super(encodingId, BigInteger.class, BigInteger.ZERO);
     }
 
 // Encoding
+
+    @Override
+    public BigIntegerEncoding withEncodingId(EncodingId encodingId) {
+        return new BigIntegerEncoding(encodingId);
+    }
 
     @Override
     public boolean hasPrefix0x00() {

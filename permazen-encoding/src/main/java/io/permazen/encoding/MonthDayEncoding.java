@@ -20,15 +20,20 @@ import java.time.MonthDay;
  * Binary encoding is via an {@link UnsignedIntEncoder}-encoded value {@code 32} times the
  * {@linkplain MonthDay#getMonthValue month value}{@code - 1}, plus the {@linkplain MonthDay#getDayOfMonth day of the month}.
  */
-public class MonthDayEncoding extends BuiltinEncoding<MonthDay> {
+public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
 
     private static final long serialVersionUID = -8813919603844250786L;
 
-    public MonthDayEncoding() {
-        super(MonthDay.class);
+    public MonthDayEncoding(EncodingId encodingId) {
+        super(encodingId, MonthDay.class, MonthDay.of(1, 1));
     }
 
 // Encoding
+
+    @Override
+    public MonthDayEncoding withEncodingId(EncodingId encodingId) {
+        return new MonthDayEncoding(encodingId);
+    }
 
     @Override
     public MonthDay read(ByteReader reader) {

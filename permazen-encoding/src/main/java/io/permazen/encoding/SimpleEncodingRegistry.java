@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.dellroad.stuff.java.Primitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A straightforward {@link EncodingRegistry} implementation that creates array types on demand.
+ * A straightforward {@link EncodingRegistry} implementation that creates object array types on demand.
  *
  * <p>
  * The {@link #add add()} method only accepts non-array types and primitive array types. All other
@@ -50,10 +51,10 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
         Preconditions.checkArgument(encoding != null, "null encoding");
         final EncodingId encodingId = encoding.getEncodingId();
         Preconditions.checkArgument(encodingId != null, "encoding is anonymous");
-        final TypeToken<?> elementType = encoding.getTypeToken().getComponentType();
-        Preconditions.checkArgument((elementType == null) == (encodingId.getArrayDimensions() == 0),
+        final TypeToken<?> elementTypeToken = encoding.getTypeToken().getComponentType();
+        Preconditions.checkArgument((elementTypeToken == null) == (encodingId.getArrayDimensions() == 0),
           "inconsistent encoding ID \"" + encodingId + "\" for type " + encoding.getTypeToken());
-        Preconditions.checkArgument(elementType == null || elementType.getRawType().isPrimitive(),
+        Preconditions.checkArgument(elementTypeToken == null || elementTypeToken.getRawType().isPrimitive(),
           "illegal array type \"" + encodingId + "\"");
         final Encoding<?> otherEncoding = this.byId.get(encodingId);
         if (otherEncoding != null) {
@@ -75,7 +76,12 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
      * The element encoding must represent a non-primitive type.
      * This method uses the generic array encoding provided by {@link ObjectArrayEncoding}, wrapped via {@link NullSafeEncoding}.
      *
+     * <p>
+     * If {@code elementEncoding} is anonymous, so will be the returned encoding, otherwise the returned encoding's
+     * {@link EncodingId} will be equal to {@code elementEncoding.}{@link EncodingId#getArrayId getArrayId()}.
+     *
      * @param elementEncoding element encoding
+     * @return corresponding array encoding
      * @throws IllegalArgumentException if {@code elementEncoding} is null
      * @throws IllegalArgumentException if {@code elementEncoding} encodes a primitive type
      * @throws IllegalArgumentException if {@code elementEncoding} encodes an array type with 255 dimensions
@@ -84,7 +90,8 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
     public static <E> Encoding<E[]> buildArrayEncoding(final Encoding<E> elementEncoding) {
         Preconditions.checkArgument(elementEncoding != null, "null elementEncoding");
         Preconditions.checkArgument(Primitive.get(elementEncoding.getTypeToken().getRawType()) == null, "primitive element type");
-        return new NullSafeEncoding<>(new ObjectArrayEncoding<>(elementEncoding));
+        final EncodingId encodingId = Optional.ofNullable(elementEncoding.getEncodingId()).map(EncodingId::getArrayId).orElse(null);
+        return new NullSafeEncoding<>(encodingId, new ObjectArrayEncoding<>(null, elementEncoding));
     }
 
 // EncodingRegistry

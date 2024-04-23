@@ -20,15 +20,20 @@ import java.time.Instant;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
  * followed by {@linkplain Instant#getNano nanoseconds}.
  */
-public class InstantEncoding extends BuiltinEncoding<Instant> {
+public class InstantEncoding extends AbstractEncoding<Instant> {
 
     private static final long serialVersionUID = -3907615112193058091L;
 
-    public InstantEncoding() {
-        super(Instant.class);
+    public InstantEncoding(EncodingId encodingId) {
+        super(encodingId, Instant.class, Instant.ofEpochSecond(0));
     }
 
 // Encoding
+
+    @Override
+    public InstantEncoding withEncodingId(EncodingId encodingId) {
+        return new InstantEncoding(encodingId);
+    }
 
     @Override
     public Instant read(ByteReader reader) {

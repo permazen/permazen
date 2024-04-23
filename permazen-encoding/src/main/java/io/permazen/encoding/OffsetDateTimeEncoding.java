@@ -21,8 +21,13 @@ public class OffsetDateTimeEncoding extends Concat2Encoding<OffsetDateTime, Inst
 
     private static final long serialVersionUID = -1216769026293613698L;
 
-    public OffsetDateTimeEncoding() {
-        super(OffsetDateTime.class, new InstantEncoding(), new ZoneOffsetEncoding());
+    public OffsetDateTimeEncoding(EncodingId encodingId) {
+        super(encodingId, OffsetDateTime.class, new InstantEncoding(null), new ZoneOffsetEncoding(null));
+    }
+
+    @Override
+    public OffsetDateTimeEncoding withEncodingId(EncodingId encodingId) {
+        return new OffsetDateTimeEncoding(encodingId);
     }
 
     @Override

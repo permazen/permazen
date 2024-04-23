@@ -33,11 +33,16 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     private static final int NUM_BYTES = 4;
     private static final byte[] END = new byte[NUM_BYTES];
 
-    private final FloatEncoding floatType = new FloatEncoding();
+    private final FloatEncoding floatType = new FloatEncoding(null);
 
     @SuppressWarnings("serial")
-    public FloatArrayEncoding() {
-        super(new FloatEncoding(), new TypeToken<float[]>() { });
+    public FloatArrayEncoding(EncodingId encodingId) {
+        super(encodingId, new FloatEncoding(null), new TypeToken<float[]>() { });
+    }
+
+    @Override
+    public FloatArrayEncoding withEncodingId(EncodingId encodingId) {
+        return new FloatArrayEncoding(encodingId);
     }
 
     @Override

@@ -12,7 +12,9 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 
 /**
@@ -22,15 +24,20 @@ import java.time.ZoneOffset;
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
  * followed by {@linkplain Instant#getNano nanoseconds} of the date/time in {@link ZoneOffset#UTC UTC}.
  */
-public class LocalDateTimeEncoding extends BuiltinEncoding<LocalDateTime> {
+public class LocalDateTimeEncoding extends AbstractEncoding<LocalDateTime> {
 
     private static final long serialVersionUID = -3302238853808401737L;
 
-    public LocalDateTimeEncoding() {
-        super(LocalDateTime.class);
+    public LocalDateTimeEncoding(EncodingId encodingId) {
+        super(encodingId, LocalDateTime.class, LocalDateTime.of(LocalDate.ofEpochDay(0), LocalTime.ofSecondOfDay(0)));
     }
 
 // Encoding
+
+    @Override
+    public LocalDateTimeEncoding withEncodingId(EncodingId encodingId) {
+        return new LocalDateTimeEncoding(encodingId);
+    }
 
     @Override
     public LocalDateTime read(ByteReader reader) {

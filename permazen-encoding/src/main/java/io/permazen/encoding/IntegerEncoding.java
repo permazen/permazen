@@ -14,8 +14,13 @@ public class IntegerEncoding extends IntegralEncoding<Integer> {
 
     private static final long serialVersionUID = 1978611631822982974L;
 
-    public IntegerEncoding() {
-       super(Primitive.INTEGER);
+    public IntegerEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.INTEGER);
+    }
+
+    @Override
+    public IntegerEncoding withEncodingId(EncodingId encodingId) {
+        return new IntegerEncoding(encodingId);
     }
 
     @Override

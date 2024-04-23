@@ -14,23 +14,29 @@ import io.permazen.util.UnsignedIntEncoder;
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * Non-null {@link String} type. Null values are not supported by this class.
+ * {@link String} encoding. Null values are not supported by this class.
  *
  * <p>
  * Strings are encoded as a sequence of characters followed by {@code 0x00}, where each character is encoded via
  * {@link UnsignedIntEncoder}, with the special exception that the characters {@code 0x0000} and {@code 0x0001}
  * are prefixed with a {@code 0x01} byte to avoid writing a {@code 0x00}. We rely on the fact that {@link UnsignedIntEncoder}
- * encodes {@code 0} and {@code 1} as {@code 0x00} and {@code 0x01}, respectively.
+ * encodes {@code 0} and {@code 1} as {@code 0x00} and {@code 0x01}, respectively. As a result of this encoding,
+ * this encoding {@link #sortsNaturally}.
  */
-public class StringEncoding extends BuiltinEncoding<String> {
+public class StringEncoding extends AbstractEncoding<String> {
 
     private static final long serialVersionUID = -7808183397158645337L;
 
     private static final int END = 0x00;
     private static final int ESCAPE = 0x01;
 
-    public StringEncoding() {
-       super(String.class);
+    public StringEncoding(EncodingId encodingId) {
+       super(encodingId, String.class, "");
+    }
+
+    @Override
+    public StringEncoding withEncodingId(EncodingId encodingId) {
+        return new StringEncoding(encodingId);
     }
 
     @Override

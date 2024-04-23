@@ -56,7 +56,7 @@ public class EnumValueEncoding extends NullSafeEncoding<EnumValue> {
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
     public EnumValueEncoding(List<String> idents) {
-        super(new EnumValueBaseEncoding(idents));
+        super(null, new EnumValueBaseEncoding(idents));
     }
 
     /**

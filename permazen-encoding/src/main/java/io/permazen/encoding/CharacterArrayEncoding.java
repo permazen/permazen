@@ -24,11 +24,16 @@ public class CharacterArrayEncoding extends ArrayEncoding<char[], Character> {
 
     private static final long serialVersionUID = 968583366001367828L;
 
-    private final StringEncoding stringType = new StringEncoding();
+    private final StringEncoding stringType = new StringEncoding(null);
 
     @SuppressWarnings("serial")
-    public CharacterArrayEncoding() {
-        super(new CharacterEncoding(), new TypeToken<char[]>() { });
+    public CharacterArrayEncoding(EncodingId encodingId) {
+        super(encodingId, new CharacterEncoding(null), new TypeToken<char[]>() { });
+    }
+
+    @Override
+    public CharacterArrayEncoding withEncodingId(EncodingId encodingId) {
+        return new CharacterArrayEncoding(encodingId);
     }
 
     @Override

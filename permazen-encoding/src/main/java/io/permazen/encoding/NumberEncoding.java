@@ -14,7 +14,7 @@ public abstract class NumberEncoding<T extends Number> extends PrimitiveEncoding
 
     private static final long serialVersionUID = -2635244612906090817L;
 
-    protected NumberEncoding(Primitive<T> primitive) {
-       super(primitive);
+    protected NumberEncoding(EncodingId encodingId, Primitive<T> primitive) {
+       super(encodingId, primitive);
     }
 }

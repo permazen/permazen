@@ -15,6 +15,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,11 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
     }
 
 // Encoding
+
+    @Override
+    public EnumValueBaseEncoding withEncodingId(EncodingId encodingId) {
+        return new EnumValueBaseEncoding(encodingId, new ArrayList<>(this.identifierMap.keySet()));
+    }
 
     @Override
     public EnumValue read(ByteReader reader) {

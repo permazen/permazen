@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import org.dellroad.stuff.java.Primitive;
 
 /**
- * Support superclass for primitive types.
+ * Support superclass for built-in primitive type encodings.
  */
 public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
 
@@ -18,9 +18,8 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
 
     final Primitive<T> primitive;
 
-    protected PrimitiveEncoding(Primitive<T> primitive) {
-        super(EncodingIds.builtin(primitive.getName()), primitive.getType(),
-          !primitive.equals(Primitive.VOID) ? primitive.getDefaultValue() : null);
+    protected PrimitiveEncoding(EncodingId encodingId, Primitive<T> primitive) {
+        super(encodingId, primitive.getType(), !primitive.equals(Primitive.VOID) ? primitive.getDefaultValue() : null);
         this.primitive = primitive;
     }
 

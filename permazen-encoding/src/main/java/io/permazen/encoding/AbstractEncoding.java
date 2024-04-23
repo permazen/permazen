@@ -37,7 +37,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     /**
      * Constructor.
      *
-     * @param encodingId encoding ID, or null to be anonymous
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param typeToken Java type for the field's values
      * @param defaultValue default value for this encoding
      * @throws IllegalArgumentException if any parameter is null
@@ -53,7 +53,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     /**
      * Constructor.
      *
-     * @param encodingId encoding ID, or null to be anonymous
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type Java type for the field's values
      * @param defaultValue default value for this encoding
      * @throws IllegalArgumentException if any parameter is null
@@ -80,6 +80,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     @Override
     public final T getDefaultValueObject() {
+        Preconditions.checkState(this.supportsNull() || this.defaultValueObject != null, "invalid null default value");
         return this.defaultValueObject;
     }
 
@@ -102,7 +103,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
         return this.getClass().hashCode()
           ^ Objects.hashCode(this.encodingId)
           ^ this.typeToken.hashCode()
-          ^ (Boolean.hashCode(this.allowsNull()) << 1)
+          ^ (Boolean.hashCode(this.supportsNull()) << 1)
           ^ (Boolean.hashCode(this.hasPrefix0x00()) << 2)
           ^ (Boolean.hashCode(this.hasPrefix0xff()) << 3);
     }
@@ -116,7 +117,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
         final AbstractEncoding<?> that = (AbstractEncoding<?>)obj;
         return Objects.equals(this.encodingId, that.encodingId)
           && this.typeToken.equals(that.typeToken)
-          && this.allowsNull() == that.allowsNull()
+          && this.supportsNull() == that.supportsNull()
           && this.hasPrefix0x00() == that.hasPrefix0x00()
           && this.hasPrefix0xff() == that.hasPrefix0xff();
     }

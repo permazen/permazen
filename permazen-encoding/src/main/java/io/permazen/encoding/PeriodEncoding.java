@@ -20,15 +20,20 @@ import java.time.Period;
  * Binary encoding is via three consecutive {@link LongEncoder}-encoded values: the {@linkplain Period#getYears years},
  * the {@linkplain Period#getMonths months}, and the {@linkplain Period#getDays days}.
  */
-public class PeriodEncoding extends BuiltinEncoding<Period> {
+public class PeriodEncoding extends AbstractEncoding<Period> {
 
     private static final long serialVersionUID = -5481674489895732054L;
 
-    public PeriodEncoding() {
-        super(Period.class, Period.ZERO);
+    public PeriodEncoding(EncodingId encodingId) {
+        super(encodingId, Period.class, Period.ZERO);
     }
 
 // Encoding
+
+    @Override
+    public PeriodEncoding withEncodingId(EncodingId encodingId) {
+        return new PeriodEncoding(encodingId);
+    }
 
     @Override
     public Period read(ByteReader reader) {

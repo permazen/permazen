@@ -18,18 +18,6 @@ public class Tuple2Encoding<V1, V2> extends TupleEncoding<Tuple2<V1, V2>> {
     private static final long serialVersionUID = 8336238765491523439L;
 
     /**
-     * Create an anonymous instance.
-     *
-     * @param value1Encoding component value encoding
-     * @param value2Encoding component value encoding
-     * @throws IllegalArgumentException if any component value encoding is null
-     */
-    @SuppressWarnings("serial")
-    public Tuple2Encoding(Encoding<V1> value1Encoding, Encoding<V2> value2Encoding) {
-        this(null, value1Encoding, value2Encoding);
-    }
-
-    /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
@@ -43,6 +31,12 @@ public class Tuple2Encoding<V1, V2> extends TupleEncoding<Tuple2<V1, V2>> {
            .where(new TypeParameter<V1>() { }, value1Encoding.getTypeToken().wrap())
            .where(new TypeParameter<V2>() { }, value2Encoding.getTypeToken().wrap()),
           value1Encoding, value2Encoding);
+    }
+
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Tuple2Encoding<V1, V2> withEncodingId(EncodingId encodingId) {
+        return new Tuple2Encoding(encodingId, this.encodings.get(0), this.encodings.get(1));
     }
 
     @Override

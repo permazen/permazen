@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -178,76 +178,105 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
      */
     protected void addStandardBuiltinEncodings() {
 
-        // Primitive types
-        this.add(new BooleanEncoding());
-        this.add(new ByteEncoding());
-        this.add(new CharacterEncoding());
-        this.add(new DoubleEncoding());
-        this.add(new FloatEncoding());
-        this.add(new IntegerEncoding());
-        this.add(new LongEncoding());
-        this.add(new ShortEncoding());
+        // Get primitive type EncodingId's
+        final EncodingId z = EncodingIds.builtin("boolean");
+        final EncodingId b = EncodingIds.builtin("byte");
+        final EncodingId c = EncodingIds.builtin("char");
+        final EncodingId d = EncodingIds.builtin("double");
+        final EncodingId f = EncodingIds.builtin("float");
+        final EncodingId i = EncodingIds.builtin("int");
+        final EncodingId j = EncodingIds.builtin("long");
+        final EncodingId s = EncodingIds.builtin("short");
 
-        // Primitive wrapper types
-        this.add(new PrimitiveWrapperEncoding<>(new BooleanEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new ByteEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new CharacterEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new DoubleEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new FloatEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new IntegerEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new LongEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new ShortEncoding()));
-        this.add(new PrimitiveWrapperEncoding<>(new VoidEncoding()));
+        // Add primitive types
+        this.add(new BooleanEncoding(z));
+        this.add(new ByteEncoding(b));
+        this.add(new CharacterEncoding(c));
+        this.add(new DoubleEncoding(d));
+        this.add(new FloatEncoding(f));
+        this.add(new IntegerEncoding(i));
+        this.add(new LongEncoding(j));
+        this.add(new ShortEncoding(s));
 
-        // Primitive array types
-        this.addNullSafe((new BooleanArrayEncoding()));
-        this.addNullSafe((new ByteArrayEncoding()));
-        this.addNullSafe((new CharacterArrayEncoding()));
-        this.addNullSafe((new DoubleArrayEncoding()));
-        this.addNullSafe((new FloatArrayEncoding()));
-        this.addNullSafe((new IntegerArrayEncoding()));
-        this.addNullSafe((new LongArrayEncoding()));
-        this.addNullSafe((new ShortArrayEncoding()));
+        // Add primitive wrapper types
+        this.add(new PrimitiveWrapperEncoding<>(new BooleanEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new ByteEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new CharacterEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new DoubleEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new FloatEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new IntegerEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new LongEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new ShortEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new VoidEncoding(null)));
 
-        // Types in java.lang
-        this.addNullSafe((new StringEncoding()));
+        // Add primitive array types
+        this.addWrapped(z.getArrayId(), new BooleanArrayEncoding(null));
+        this.addWrapped(b.getArrayId(), new ByteArrayEncoding(null));
+        this.addWrapped(c.getArrayId(), new CharacterArrayEncoding(null));
+        this.addWrapped(d.getArrayId(), new DoubleArrayEncoding(null));
+        this.addWrapped(f.getArrayId(), new FloatArrayEncoding(null));
+        this.addWrapped(i.getArrayId(), new IntegerArrayEncoding(null));
+        this.addWrapped(j.getArrayId(), new LongArrayEncoding(null));
+        this.addWrapped(s.getArrayId(), new ShortArrayEncoding(null));
 
-        // Types in java.math
-        this.addNullSafe((new BigDecimalEncoding()));
-        this.addNullSafe((new BigIntegerEncoding()));
+        // Built-in types in java.lang
+        this.addWrappedBuiltin(new StringEncoding(null));
 
-        // Types in java.io
-        this.addNullSafe(new FileEncoding());
+        // Built-in types in java.math
+        this.addWrappedBuiltin(new BigDecimalEncoding(null));
+        this.addWrappedBuiltin(new BigIntegerEncoding(null));
 
-        // Types in java.util
-        this.addNullSafe((new BitSetEncoding()));
-        this.addNullSafe((new DateEncoding()));
-        this.addNullSafe((new UUIDEncoding()));
+        // Built-in types in java.io
+        this.addBuiltin(new FileEncoding(null));
 
-        // Types in java.util.regex
-        this.addNullSafe(new PatternEncoding());
+        // Built-in types in java.util
+        this.addWrappedBuiltin(new BitSetEncoding(null));
+        this.addWrappedBuiltin(new DateEncoding(null));
+        this.addWrappedBuiltin(new UUIDEncoding(null));
 
-        // Types in java.net
-        this.addNullSafe((new Inet4AddressEncoding()));
-        this.addNullSafe((new Inet6AddressEncoding()));
-        this.addNullSafe((new InetAddressEncoding()));
-        this.addNullSafe((new URIEncoding()));
+        // Built-in types in java.util.regex
+        this.addBuiltin(new PatternEncoding(null));
 
-        // Types in java.time
-        this.addNullSafe((new DurationEncoding()));
-        this.addNullSafe((new InstantEncoding()));
-        this.addNullSafe((new LocalDateTimeEncoding()));
-        this.addNullSafe((new LocalDateEncoding()));
-        this.addNullSafe((new LocalTimeEncoding()));
-        this.addNullSafe((new MonthDayEncoding()));
-        this.addNullSafe((new OffsetDateTimeEncoding()));
-        this.addNullSafe((new OffsetTimeEncoding()));
-        this.addNullSafe((new PeriodEncoding()));
-        this.addNullSafe((new YearMonthEncoding()));
-        this.addNullSafe((new YearEncoding()));
-        this.addNullSafe((new ZoneOffsetEncoding()));
-        this.addNullSafe((new ZonedDateTimeEncoding()));
-        this.addNullSafe((new ZoneIdEncoding()));
+        // Built-in types in java.net
+        this.addWrappedBuiltin(new Inet4AddressEncoding(null));
+        this.addWrappedBuiltin(new Inet6AddressEncoding(null));
+        this.addWrappedBuiltin(new InetAddressEncoding(null));
+        this.addBuiltin(new URIEncoding(null));
+
+        // Built-in types in java.time
+        this.addWrappedBuiltin(new DurationEncoding(null));
+        this.addWrappedBuiltin(new InstantEncoding(null));
+        this.addWrappedBuiltin(new LocalDateTimeEncoding(null));
+        this.addWrappedBuiltin(new LocalDateEncoding(null));
+        this.addWrappedBuiltin(new LocalTimeEncoding(null));
+        this.addWrappedBuiltin(new MonthDayEncoding(null));
+        this.addWrappedBuiltin(new OffsetDateTimeEncoding(null));
+        this.addWrappedBuiltin(new OffsetTimeEncoding(null));
+        this.addWrappedBuiltin(new PeriodEncoding(null));
+        this.addWrappedBuiltin(new YearMonthEncoding(null));
+        this.addWrappedBuiltin(new YearEncoding(null));
+        this.addWrappedBuiltin(new ZoneOffsetEncoding(null));
+        this.addWrappedBuiltin(new ZonedDateTimeEncoding(null));
+        this.addBuiltin(new ZoneIdEncoding(null));
+    }
+
+    private void addBuiltin(Encoding<?> encoding) {
+        final Class<?> javaType = encoding.getTypeToken().getRawType();
+        final EncodingId encodingId = EncodingIds.builtin(javaType.getSimpleName());
+        encoding = encoding.withEncodingId(encodingId);
+        Preconditions.checkArgument(encoding.supportsNull(), "encoding does not support null");
+        this.add(encoding);
+    }
+
+    private void addWrappedBuiltin(Encoding<?> encoding) {
+        final Class<?> javaType = encoding.getTypeToken().getRawType();
+        final EncodingId encodingId = EncodingIds.builtin(javaType.getSimpleName());
+        this.addWrapped(encodingId, encoding);
+    }
+
+    private <T> void addWrapped(EncodingId encodingId, Encoding<T> encoding) {
+        Preconditions.checkArgument(encoding != null, "null encoding");
+        this.add(new NullSafeEncoding<>(encodingId, encoding));
     }
 
     /**
@@ -258,11 +287,11 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
      * {@link InternetAddressEncoding} which depends on the Jakarta Mail API.
      */
     protected void addOptionalBuiltinEncodings() {
-        this.addOptionalBuiltinEncoding("InternetAddressEncoding", () -> new NullSafeEncoding<>(new InternetAddressEncoding()));
+        this.addOptionalBuiltinEncoding("InternetAddress", InternetAddressEncoding::new);
     }
 
     /**
-     * Register an optional built-in encoding.
+     * Register a built-in encoding, but only if its target class is found on the classpath.
      *
      * <p>
      * The implementation in {@link DefaultEncodingRegistry} invokes the given {@code builder} but will catch
@@ -272,33 +301,23 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
      * No attempt to <a href="https://docs.oracle.com/javase/specs/jls/se9/html/jls-12.html#jls-12.4.1">initialize</a>
      * the encoding class should have occurred prior to invoking this method.
      *
-     * @param description description for logging purposes
+     * @param name builtin encoding ID suffix
      * @param builder builder for encoding
      */
-    protected void addOptionalBuiltinEncoding(String description, Supplier<? extends Encoding<?>> builder) {
-        Preconditions.checkArgument(description != null, "null description");
+    protected void addOptionalBuiltinEncoding(String name, Function<EncodingId, ? extends Encoding<?>> builder) {
+        Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(builder != null, "null builder");
+        final EncodingId encodingId = EncodingIds.builtin(name);
         final Encoding<?> encoding;
         try {
-            encoding = builder.get();
+            encoding = builder.apply(encodingId);
         } catch (NoClassDefFoundError e) {
-            this.log.debug("{}: not adding optional encoding {}: {}", this.getClass().getSimpleName(), description, e.toString());
+            this.log.debug("{}: not adding optional encoding \"{}\": {}",
+              this.getClass().getSimpleName(), encodingId, e.toString());
             return;
         }
         Preconditions.checkArgument(encoding != null, "null encoding returned from builder");
         this.add(encoding);
-    }
-
-    /**
-     * Add a null-safe version of a type which is not null-safe.
-     *
-     * @param encoding non-null encoding
-     * @throws IllegalArgumentException if {@code encoding} is an instance of {@link NullSafeEncoding}
-     */
-    protected <T> void addNullSafe(Encoding<T> encoding) {
-        Preconditions.checkArgument(encoding != null, "null encoding");
-        Preconditions.checkArgument(!(encoding instanceof NullSafeEncoding), "null safe encoding");
-        this.add(new NullSafeEncoding<>(encoding));
     }
 
     /**

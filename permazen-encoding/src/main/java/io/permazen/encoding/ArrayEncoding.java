@@ -13,15 +13,14 @@ import io.permazen.util.ParseContext;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * Support superclass for builtin array {@link Encoding}s.
+ * Support superclass for built-in array {@link Encoding}s.
  *
  * <p>
- * The string form looks like {@code [ elem1, elem2, ..., elemN ]}.
+ * The string form looks like {@code [ "elem1", "elem2", ..., "elemN" ]}.
  *
  * <p>
  * This class does not support null arrays; wrap in {@link NullSafeEncoding} to get that.
@@ -37,21 +36,21 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = 3776218636387986632L;
 
-    final Encoding<E> elementType;
+    final Encoding<E> elementEncoding;
 
     /**
      * Constructor.
      *
-     * @param elementType array element type (possibly also an {@link ArrayEncoding})
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
+     * @param elementEncoding array element type (possibly also an {@link ArrayEncoding})
      * @param typeToken array type token
-     * @throws IllegalArgumentException if {@code elementType} is an {@link ArrayEncoding} with
+     * @throws IllegalArgumentException if {@code elementEncoding} is an {@link ArrayEncoding} with
      *  {@link Encoding#MAX_ARRAY_DIMENSIONS} dimensions
      */
     @SuppressWarnings("unchecked")
-    protected ArrayEncoding(Encoding<E> elementType, TypeToken<T> typeToken) {
-        super(Optional.ofNullable(elementType.getEncodingId()).map(EncodingId::getArrayId).orElse(null),
-          typeToken, (T)Array.newInstance(elementType.getTypeToken().getRawType(), 0));
-        this.elementType = elementType;
+    protected ArrayEncoding(EncodingId encodingId, Encoding<E> elementEncoding, TypeToken<T> typeToken) {
+        super(encodingId, typeToken, (T)Array.newInstance(elementEncoding.getTypeToken().getRawType(), 0));
+        this.elementEncoding = elementEncoding;
     }
 
     /**
@@ -59,8 +58,8 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
      *
      * @return element type
      */
-    public Encoding<E> getElementType() {
-        return this.elementType;
+    public Encoding<E> getElementEncoding() {
+        return this.elementEncoding;
     }
 
     @Override
@@ -71,7 +70,7 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         for (int i = 0; i < length; i++) {
             final E element = this.getArrayElement(array, i);
             if (element != null)
-                elements[i] = this.elementType.toString(element);
+                elements[i] = this.elementEncoding.toString(element);
         }
         return ArrayEncoding.toArrayString(elements, true);
     }
@@ -82,7 +81,7 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         final String[] elements = ArrayEncoding.fromArrayString(string);
         final ArrayList<E> list = new ArrayList<>(elements.length);
         for (String element : elements)
-            list.add(element != null ? this.elementType.fromString(element) : null);
+            list.add(element != null ? this.elementEncoding.fromString(element) : null);
         return this.createArray(list);
     }
 
@@ -92,7 +91,7 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         final int length2 = this.getArrayLength(array2);
         int i = 0;
         while (i < length1 && i < length2) {
-            int diff = this.elementType.compare(this.getArrayElement(array1, i), this.getArrayElement(array2, i));
+            int diff = this.elementEncoding.compare(this.getArrayElement(array1, i), this.getArrayElement(array2, i));
             if (diff != 0)
                 return diff;
             i++;
@@ -106,7 +105,7 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.elementType.hashCode();
+        return super.hashCode() ^ this.elementEncoding.hashCode();
     }
 
     @Override
@@ -116,7 +115,7 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         if (!super.equals(obj))
             return false;
         final ArrayEncoding<?, ?> that = (ArrayEncoding<?, ?>)obj;
-        return this.elementType.equals(that.elementType);
+        return this.elementEncoding.equals(that.elementEncoding);
     }
 
 // Conversion
@@ -144,7 +143,7 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         final int length = that.getArrayLength(value);
         final ArrayList<E> list = new ArrayList<>(length);
         for (int i = 0; i < length; i++)
-            list.add(this.elementType.convert(that.elementType, that.getArrayElement(value, i)));
+            list.add(this.elementEncoding.convert(that.elementEncoding, that.getArrayElement(value, i)));
         return this.createArray(list);
     }
 

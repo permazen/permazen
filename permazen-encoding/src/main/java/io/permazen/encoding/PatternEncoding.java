@@ -7,7 +7,6 @@ package io.permazen.encoding;
 
 import com.google.common.base.Converter;
 
-import java.io.Serializable;
 import java.util.regex.Pattern;
 
 /**
@@ -22,28 +21,7 @@ public class PatternEncoding extends StringConvertedEncoding<Pattern> {
 
     private static final long serialVersionUID = -6406385779194286899L;
 
-    public PatternEncoding() {
-        super(EncodingIds.builtin("Pattern"), Pattern.class, new PatternConverter());
-    }
-
-// PatternConverter
-
-    private static class PatternConverter extends Converter<Pattern, String> implements Serializable {
-
-        private static final long serialVersionUID = -809996726052177917L;
-
-        @Override
-        protected String doForward(Pattern pattern) {
-            if (pattern == null)
-                return null;
-            return pattern.toString();
-        }
-
-        @Override
-        protected Pattern doBackward(String string) {
-            if (string == null)
-                return null;
-            return Pattern.compile(string);
-        }
+    public PatternEncoding(EncodingId encodingId) {
+        super(encodingId, Pattern.class, Converter.from(Pattern::toString, Pattern::compile));
     }
 }

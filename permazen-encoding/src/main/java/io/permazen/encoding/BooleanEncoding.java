@@ -19,8 +19,13 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     private static final byte FALSE_VALUE = (byte)0;
     private static final byte TRUE_VALUE = (byte)1;
 
-    public BooleanEncoding() {
-       super(Primitive.BOOLEAN);
+    public BooleanEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.BOOLEAN);
+    }
+
+    @Override
+    public BooleanEncoding withEncodingId(EncodingId encodingId) {
+        return new BooleanEncoding(encodingId);
     }
 
     @Override

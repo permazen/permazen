@@ -20,8 +20,13 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
 
     private static final long serialVersionUID = -3328818464598650353L;
 
-    public CharacterEncoding() {
-       super(Primitive.CHARACTER);
+    public CharacterEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.CHARACTER);
+    }
+
+    @Override
+    public CharacterEncoding withEncodingId(EncodingId encodingId) {
+        return new CharacterEncoding(encodingId);
     }
 
     @Override

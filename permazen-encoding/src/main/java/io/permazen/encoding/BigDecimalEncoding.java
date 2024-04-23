@@ -27,7 +27,7 @@ import java.util.Arrays;
  * As a result, this class' {@link #compare compare()} method is consistent with {@link BigDecimal#equals BigDecimal.equals()},
  * unlike {@link BigDecimal}'s own {@link BigDecimal#compareTo compareTo()} method, which is not.
  */
-public class BigDecimalEncoding extends BuiltinEncoding<BigDecimal> {
+public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
 
     private static final long serialVersionUID = -6401896548616656153L;
 
@@ -35,11 +35,16 @@ public class BigDecimalEncoding extends BuiltinEncoding<BigDecimal> {
     private static final int FLAG_ZERO = 0x02;
     private static final int FLAG_POSITIVE = 0x03;
 
-    public BigDecimalEncoding() {
-        super(BigDecimal.class);
+    public BigDecimalEncoding(EncodingId encodingId) {
+        super(encodingId, BigDecimal.class, BigDecimal.ZERO);
     }
 
 // Encoding
+
+    @Override
+    public BigDecimalEncoding withEncodingId(EncodingId encodingId) {
+        return new BigDecimalEncoding(encodingId);
+    }
 
     @Override
     public boolean hasPrefix0x00() {

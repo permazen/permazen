@@ -23,8 +23,13 @@ public class Inet4AddressEncoding extends AbstractInetAddressEncoding<Inet4Addre
 
     private static final long serialVersionUID = -1737266234876361236L;
 
-    public Inet4AddressEncoding() {
-        super(Inet4Address.class, PATTERN);
+    public Inet4AddressEncoding(EncodingId encodingId) {
+        super(encodingId, Inet4Address.class, PATTERN);
+    }
+
+    @Override
+    public Inet4AddressEncoding withEncodingId(EncodingId encodingId) {
+        return new Inet4AddressEncoding(encodingId);
     }
 
     @Override

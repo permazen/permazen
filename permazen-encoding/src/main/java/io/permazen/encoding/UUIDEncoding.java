@@ -20,17 +20,22 @@ import java.util.UUID;
  * Binary encoding is 16 bytes, consisting of the {@linkplain UUID#getMostSignificantBits eight high-order bytes} followed by the
  * {@linkplain UUID#getLeastSignificantBits eight low-order bytes}.
  */
-public class UUIDEncoding extends BuiltinEncoding<UUID> {
+public class UUIDEncoding extends AbstractEncoding<UUID> {
 
     private static final long serialVersionUID = -7426558458120883995L;
 
     private static final long MASK = 0x8000000000000000L;
 
-    public UUIDEncoding() {
-        super(UUID.class);
+    public UUIDEncoding(EncodingId encodingId) {
+        super(encodingId, UUID.class, new UUID(0, 0));
     }
 
 // Encoding
+
+    @Override
+    public UUIDEncoding withEncodingId(EncodingId encodingId) {
+        return new UUIDEncoding(encodingId);
+    }
 
     @Override
     public UUID read(ByteReader reader) {

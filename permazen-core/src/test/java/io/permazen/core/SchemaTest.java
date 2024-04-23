@@ -7,10 +7,11 @@ package io.permazen.core;
 
 import com.google.common.base.Converter;
 
+import io.permazen.encoding.ConvertedEncoding;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingId;
 import io.permazen.encoding.EncodingRegistry;
-import io.permazen.encoding.StringEncodedEncoding;
+import io.permazen.encoding.StringEncoding;
 import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
 
@@ -162,23 +163,11 @@ public class SchemaTest extends CoreAPITestSupport {
         }
     }
 
-    public static class BarConverter extends Converter<Bar, String> {
-
-        @Override
-        protected String doForward(Bar value) {
-            return value != null ? value.getValue() : null;
-        }
-
-        @Override
-        protected Bar doBackward(String value) {
-            return value != null ? new Bar(value) : null;
-        }
-    }
-
     @SuppressWarnings("serial")
-    public static class BarEncoding extends StringEncodedEncoding<Bar> {
+    public static class BarEncoding extends ConvertedEncoding<Bar, String> {
         public BarEncoding() {
-            super(new EncodingId("urn:foo:bar"), Bar.class, new BarConverter());
+            super(new EncodingId("urn:foo:bar"), Bar.class, new StringEncoding(null),
+              Converter.from(Bar::getValue, Bar::new), false);
         }
     }
 

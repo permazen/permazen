@@ -19,15 +19,20 @@ import java.time.LocalDate;
  * <p>
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing the {@linkplain LocalDate#toEpochDay epoch day}.
  */
-public class LocalDateEncoding extends BuiltinEncoding<LocalDate> {
+public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
 
     private static final long serialVersionUID = -1245720029314097665L;
 
-    public LocalDateEncoding() {
-        super(LocalDate.class);
+    public LocalDateEncoding(EncodingId encodingId) {
+        super(encodingId, LocalDate.class, LocalDate.ofEpochDay(0));
     }
 
 // Encoding
+
+    @Override
+    public LocalDateEncoding withEncodingId(EncodingId encodingId) {
+        return new LocalDateEncoding(encodingId);
+    }
 
     @Override
     public LocalDate read(ByteReader reader) {

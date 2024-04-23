@@ -21,7 +21,7 @@ public final class Encodings {
     /**
      * Encodes {@link ObjId}s.
      */
-    public static final ObjIdEncoding OBJ_ID = new ObjIdEncoding();
+    public static final ObjIdEncoding OBJ_ID = new ObjIdEncoding(null);
 
     /**
      * Encodes unsigned integers via {@link UnsignedIntEncoder}.
@@ -29,12 +29,12 @@ public final class Encodings {
      * <p>
      * Used (for example) for encoding list indexes.
      */
-    public static final UnsignedIntEncoding UNSIGNED_INT = new UnsignedIntEncoding();
+    public static final UnsignedIntEncoding UNSIGNED_INT = new UnsignedIntEncoding(null);
 
     /**
      * Encodes non-null {@link String}s.
      */
-    public static final StringEncoding STRING = new StringEncoding();
+    public static final StringEncoding STRING = new StringEncoding(null);
 
     private Encodings() {
     }

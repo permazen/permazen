@@ -18,15 +18,15 @@ import java.net.UnknownHostException;
 /**
  * Support superclass for {@link InetAddress} types. Null values are not supported by this class.
  */
-abstract class AbstractInetAddressEncoding<T extends InetAddress> extends BuiltinEncoding<T> {
+abstract class AbstractInetAddressEncoding<T extends InetAddress> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = -3778250973615531382L;
 
     private final Class<T> addrType;
     private final String pattern;
 
-    protected AbstractInetAddressEncoding(Class<T> addrType, String pattern) {
-        super(addrType);
+    protected AbstractInetAddressEncoding(EncodingId encodingId, Class<T> addrType, String pattern) {
+        super(encodingId, addrType, null);
         Preconditions.checkArgument(pattern != null);
         this.addrType = addrType;
         this.pattern = pattern;

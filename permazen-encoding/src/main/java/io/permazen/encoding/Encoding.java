@@ -43,7 +43,7 @@ import java.util.Comparator;
  *  <li>Instances totally order their supported Java values via {@link #compare compare()}. If the associated Java type itself
  *      implements {@link Comparable}, then the two orderings do not necessarily have to agree, but they should if possible;
  *      see also {@link #sortsNaturally}.
- *  <li>{@code null} may or may not be a supported value; see {@link #allowsNull}. If so, it must be fully supported value just
+ *  <li>{@code null} may or may not be a supported value; see {@link #supportsNull}. If so, it must be fully supported value just
  *      like any other; for example, it must be handled by {@link #compare compare()} (typically null values sort last).
  *      Note that this is an additional requirement beyond what {@link Comparator} strictly requires.
  *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.
@@ -87,6 +87,17 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @return this encoding's unique ID, or null if this encoding is anonymous
      */
     EncodingId getEncodingId();
+
+    /**
+     * Build an encoding that has the given {@link EncodingId} but is otherwise equivalent to this encoding.
+     *
+     * <p>
+     * If this encoding already has {@code encodingId}, then this method may (but is not required to) return this same instance.
+     *
+     * @param encodingId new encoding's {@link EncodingId}, or null for an anonymized encoding
+     * @return a version of this encoding with the given {@link EncodingId}
+     */
+    Encoding<T> withEncodingId(EncodingId encodingId);
 
     /**
      * Get the Java type corresponding to this encoding's values.
@@ -139,7 +150,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * Get the default value for this encoding.
      *
      * <p>
-     * If this encoding {@linkplain #allowsNull supports null values}, then this must return null.
+     * If this encoding {@linkplain #supportsNull supports null values}, then this must return null.
      *
      * @return default value
      */
@@ -239,7 +250,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * <p>
      * The implementation in {@link Encoding} first verifies the value is not null if this instance
-     * {@linkplain #allowsNull does not allow null values}, and then attempts to cast the value using
+     * {@linkplain #supportsNull does not allow null values}, and then attempts to cast the value using
      * this instance's raw Java type. Subclasses should override this method to implement any other restrictions.
      *
      * @param obj object to validate
@@ -250,7 +261,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      */
     @SuppressWarnings("unchecked")
     default T validate(Object obj) {
-        Preconditions.checkArgument(obj != null || this.allowsNull(), "invalid null value");
+        Preconditions.checkArgument(obj != null || this.supportsNull(), "invalid null value");
         try {
             return (T)this.getTypeToken().getRawType().cast(obj);
         } catch (ClassCastException e) {
@@ -290,7 +301,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * @return true if null is a valid value, otherwise false
      */
-    default boolean allowsNull() {
+    default boolean supportsNull() {
         return false;
     }
 

@@ -20,15 +20,20 @@ import java.time.LocalTime;
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing
  * {@linkplain LocalTime#toNanoOfDay nanoseconds in the day}.
  */
-public class LocalTimeEncoding extends BuiltinEncoding<LocalTime> {
+public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
 
     private static final long serialVersionUID = -6138317689607411426L;
 
-    public LocalTimeEncoding() {
-        super(LocalTime.class);
+    public LocalTimeEncoding(EncodingId encodingId) {
+        super(encodingId, LocalTime.class, LocalTime.ofSecondOfDay(0));
     }
 
 // Encoding
+
+    @Override
+    public LocalTimeEncoding withEncodingId(EncodingId encodingId) {
+        return new LocalTimeEncoding(encodingId);
+    }
 
     @Override
     public LocalTime read(ByteReader reader) {

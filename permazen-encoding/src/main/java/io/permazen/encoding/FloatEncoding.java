@@ -28,8 +28,13 @@ public class FloatEncoding extends NumberEncoding<Float> {
     private static final int NEG_XOR = 0xffffffff;
     private static final int SIGN_BIT = 0x80000000;
 
-    public FloatEncoding() {
-       super(Primitive.FLOAT);
+    public FloatEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.FLOAT);
+    }
+
+    @Override
+    public FloatEncoding withEncodingId(EncodingId encodingId) {
+        return new FloatEncoding(encodingId);
     }
 
     @Override

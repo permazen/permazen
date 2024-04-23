@@ -26,13 +26,6 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
 // Constructors
 
     /**
-     * Create an anonymous instance.
-     */
-    public UnsignedIntEncoding() {
-        this(null);
-    }
-
-    /**
      * Constructor.
      *
      * @param encodingId encoding ID, or null for an anonymous instance
@@ -42,6 +35,11 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
     }
 
 // Encoding
+
+    @Override
+    public UnsignedIntEncoding withEncodingId(EncodingId encodingId) {
+        return new UnsignedIntEncoding(encodingId);
+    }
 
     @Override
     public Integer read(ByteReader reader) {

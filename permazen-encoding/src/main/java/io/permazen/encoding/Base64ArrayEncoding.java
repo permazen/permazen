@@ -37,9 +37,9 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
 
     private final int size;
 
-    protected Base64ArrayEncoding(PrimitiveEncoding<E> elementType, TypeToken<T> typeToken) {
-        super(elementType, typeToken);
-        this.size = elementType.primitive.getSize();
+    protected Base64ArrayEncoding(EncodingId encodingId, PrimitiveEncoding<E> elementEncoding, TypeToken<T> typeToken) {
+        super(encodingId, elementEncoding, typeToken);
+        this.size = elementEncoding.primitive.getSize();
     }
 
 // Encoding
@@ -122,6 +122,6 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
             throw new IllegalArgumentException(String.format(
               "input has length %d which is not a multiple of %d", numBytes, this.size));
         }
-        return (T)Array.newInstance(this.elementType.getTypeToken().getRawType(), numBytes / this.size);
+        return (T)Array.newInstance(this.elementEncoding.getTypeToken().getRawType(), numBytes / this.size);
     }
 }

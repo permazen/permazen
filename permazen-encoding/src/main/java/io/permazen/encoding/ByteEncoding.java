@@ -14,8 +14,13 @@ public class ByteEncoding extends IntegralEncoding<Byte> {
 
     private static final long serialVersionUID = 7891495286075980831L;
 
-    public ByteEncoding() {
-       super(Primitive.BYTE);
+    public ByteEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.BYTE);
+    }
+
+    @Override
+    public ByteEncoding withEncodingId(EncodingId encodingId) {
+        return new ByteEncoding(encodingId);
     }
 
     @Override

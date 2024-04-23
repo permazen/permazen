@@ -24,8 +24,13 @@ public class DoubleEncoding extends NumberEncoding<Double> {
     private static final long NEG_XOR = 0xffffffffffffffffL;
     private static final long SIGN_BIT = 0x8000000000000000L;
 
-    public DoubleEncoding() {
-       super(Primitive.DOUBLE);
+    public DoubleEncoding(EncodingId encodingId) {
+       super(encodingId, Primitive.DOUBLE);
+    }
+
+    @Override
+    public DoubleEncoding withEncodingId(EncodingId encodingId) {
+        return new DoubleEncoding(encodingId);
     }
 
     @Override

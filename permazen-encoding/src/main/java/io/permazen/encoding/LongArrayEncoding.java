@@ -19,8 +19,13 @@ public class LongArrayEncoding extends IntegralArrayEncoding<long[], Long> {
 
     private static final long serialVersionUID = 7577070533837522681L;
 
-    public LongArrayEncoding() {
-       super(new LongEncoding(), long[].class);
+    public LongArrayEncoding(EncodingId encodingId) {
+       super(encodingId, new LongEncoding(null), long[].class);
+    }
+
+    @Override
+    public LongArrayEncoding withEncodingId(EncodingId encodingId) {
+        return new LongArrayEncoding(encodingId);
     }
 
     @Override

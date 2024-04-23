@@ -21,15 +21,20 @@ import java.time.ZoneOffset;
  * {@linkplain ZoneOffset#getTotalSeconds total seconds value}. The value is negated because higher offsets
  * {@linkplain ZoneOffset#compareTo sort} before lower ones.
  */
-public class ZoneOffsetEncoding extends BuiltinEncoding<ZoneOffset> {
+public class ZoneOffsetEncoding extends AbstractEncoding<ZoneOffset> {
 
     private static final long serialVersionUID = 4606196393878370203L;
 
-    public ZoneOffsetEncoding() {
-        super(ZoneOffset.class);
+    public ZoneOffsetEncoding(EncodingId encodingId) {
+        super(encodingId, ZoneOffset.class, ZoneOffset.UTC);
     }
 
 // Encoding
+
+    @Override
+    public ZoneOffsetEncoding withEncodingId(EncodingId encodingId) {
+        return new ZoneOffsetEncoding(encodingId);
+    }
 
     @Override
     public ZoneOffset read(ByteReader reader) {

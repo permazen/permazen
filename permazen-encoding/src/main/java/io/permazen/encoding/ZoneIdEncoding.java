@@ -7,7 +7,6 @@ package io.permazen.encoding;
 
 import com.google.common.base.Converter;
 
-import java.io.Serializable;
 import java.time.ZoneId;
 
 /**
@@ -17,28 +16,7 @@ public class ZoneIdEncoding extends StringConvertedEncoding<ZoneId> {
 
     private static final long serialVersionUID = -4059733969700779261L;
 
-    public ZoneIdEncoding() {
-        super(EncodingIds.builtin("ZoneId"), ZoneId.class, new ZoneIdConverter());
-    }
-
-// ZoneIdConverter
-
-    private static class ZoneIdConverter extends Converter<ZoneId, String> implements Serializable {
-
-        private static final long serialVersionUID = -4059733969700779261L;
-
-        @Override
-        protected String doForward(ZoneId zoneId) {
-            if (zoneId == null)
-                return null;
-            return zoneId.normalized().getId();
-        }
-
-        @Override
-        protected ZoneId doBackward(String string) {
-            if (string == null)
-                return null;
-            return ZoneId.of(string);
-        }
+    public ZoneIdEncoding(EncodingId encodingId) {
+        super(encodingId, ZoneId.class, Converter.from(zoneId -> zoneId.normalized().getId(), ZoneId::of));
     }
 }

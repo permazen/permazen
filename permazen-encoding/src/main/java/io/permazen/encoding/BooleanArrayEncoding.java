@@ -31,8 +31,13 @@ public class BooleanArrayEncoding extends ArrayEncoding<boolean[], Boolean> {
     private static final int TRUE = 0x02;
 
     @SuppressWarnings("serial")
-    public BooleanArrayEncoding() {
-        super(new BooleanEncoding(), new TypeToken<boolean[]>() { });
+    public BooleanArrayEncoding(EncodingId encodingId) {
+        super(encodingId, new BooleanEncoding(null), new TypeToken<boolean[]>() { });
+    }
+
+    @Override
+    public BooleanArrayEncoding withEncodingId(EncodingId encodingId) {
+        return new BooleanArrayEncoding(encodingId);
     }
 
     @Override
