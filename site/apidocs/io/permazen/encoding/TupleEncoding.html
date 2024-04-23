@@ -123,16 +123,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding...)" class="member-name-link">TupleEncoding</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="TupleEncoding.html" title="type parameter in TupleEncoding">T</a>&gt;&nbsp;typeToken,
- <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;...&nbsp;encodings)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Create an anonymous instance.</div>
-</div>
-<div class="col-first odd-row-color"><code>protected </code></div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding...)" class="member-name-link">TupleEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding...)" class="member-name-link">TupleEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="TupleEncoding.html" title="type parameter in TupleEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;...&nbsp;encodings)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Constructor.</div>
 </div>
 </div>
@@ -213,7 +207,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="Encoding.html#allowsNull()">allowsNull</a>, <a href="Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
+<code><a href="Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#supportsNull()">supportsNull</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a>, <a href="Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">withEncodingId</a></code></div>
 </section>
 </li>
 </ul>
@@ -225,21 +219,6 @@ loadScripts(document, 'script');</script>
 <section class="constructor-details" id="constructor-detail">
 <h2>Constructor Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="&lt;init&gt;(com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding...)">
-<h3>TupleEncoding</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">TupleEncoding</span><wbr><span class="parameters">(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="TupleEncoding.html" title="type parameter in TupleEncoding">T</a>&gt;&nbsp;typeToken,
- <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;...&nbsp;encodings)</span></div>
-<div class="block">Create an anonymous instance.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>typeToken</code> - this encoding's composite value type</dd>
-<dd><code>encodings</code> - encodings to concatenate</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>typeToken</code> or <code>encodings</code> is null</dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding...)">
 <h3>TupleEncoding</h3>

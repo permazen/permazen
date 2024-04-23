@@ -192,7 +192,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.NullSafeEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="../encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a></h3>
-<code><a href="../encoding/NullSafeEncoding.html#allowsNull()">allowsNull</a>, <a href="../encoding/NullSafeEncoding.html#compare(T,T)">compare</a>, <a href="../encoding/NullSafeEncoding.html#fromString(java.lang.String)">fromString</a>, <a href="../encoding/NullSafeEncoding.html#getInnerType()">getInnerType</a>, <a href="../encoding/NullSafeEncoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="../encoding/NullSafeEncoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="../encoding/NullSafeEncoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="../encoding/NullSafeEncoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="../encoding/NullSafeEncoding.html#sortsNaturally()">sortsNaturally</a>, <a href="../encoding/NullSafeEncoding.html#toString(T)">toString</a></code></div>
+<code><a href="../encoding/NullSafeEncoding.html#compare(T,T)">compare</a>, <a href="../encoding/NullSafeEncoding.html#fromString(java.lang.String)">fromString</a>, <a href="../encoding/NullSafeEncoding.html#getInnerEncoding()">getInnerEncoding</a>, <a href="../encoding/NullSafeEncoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="../encoding/NullSafeEncoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="../encoding/NullSafeEncoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="../encoding/NullSafeEncoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="../encoding/NullSafeEncoding.html#sortsNaturally()">sortsNaturally</a>, <a href="../encoding/NullSafeEncoding.html#supportsNull()">supportsNull</a>, <a href="../encoding/NullSafeEncoding.html#toString(T)">toString</a>, <a href="../encoding/NullSafeEncoding.html#withEncodingId(io.permazen.encoding.EncodingId)">withEncodingId</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="../encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
 <code><a href="../encoding/AbstractEncoding.html#getDefaultValueObject()">getDefaultValueObject</a>, <a href="../encoding/AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="../encoding/AbstractEncoding.html#getTypeToken()">getTypeToken</a></code></div>
@@ -296,7 +296,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  The implementation in <a href="../encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> first verifies the value is not null if this instance
- <a href="../encoding/Encoding.html#allowsNull()">does not allow null values</a>, and then attempts to cast the value using
+ <a href="../encoding/Encoding.html#supportsNull()">does not allow null values</a>, and then attempts to cast the value using
  this instance's raw Java type. Subclasses should override this method to implement any other restrictions.</div>
 <dl class="notes">
 <dt>Parameters:</dt>

@@ -88,7 +88,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SimpleEncodingRegistry</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a></span></div>
-<div class="block">A straightforward <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementation that creates array types on demand.
+<div class="block">A straightforward <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementation that creates object array types on demand.
 
  <p>
  The <a href="#add(io.permazen.encoding.Encoding)"><code>add()</code></a> method only accepts non-array types and primitive array types. All other
@@ -238,10 +238,16 @@ implements <a href="EncodingRegistry.html" title="interface in io.permazen.encod
 
  <p>
  The element encoding must represent a non-primitive type.
- This method uses the generic array encoding provided by <a href="ObjectArrayEncoding.html" title="class in io.permazen.encoding"><code>ObjectArrayEncoding</code></a>, wrapped via <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>.</div>
+ This method uses the generic array encoding provided by <a href="ObjectArrayEncoding.html" title="class in io.permazen.encoding"><code>ObjectArrayEncoding</code></a>, wrapped via <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>.
+
+ <p>
+ If <code>elementEncoding</code> is anonymous, so will be the returned encoding, otherwise the returned encoding's
+ <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> will be equal to <code>elementEncoding.</code><a href="EncodingId.html#getArrayId()"><code>getArrayId()</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>elementEncoding</code> - element encoding</dd>
+<dt>Returns:</dt>
+<dd>corresponding array encoding</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>elementEncoding</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>elementEncoding</code> encodes a primitive type</dd>

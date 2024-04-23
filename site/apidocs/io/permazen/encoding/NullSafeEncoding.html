@@ -88,7 +88,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../core/EnumValueEncoding.html" title="class in io.permazen.core">EnumValueEncoding</a></code>, <code><a href="PrimitiveWrapperEncoding.html" title="class in io.permazen.encoding">PrimitiveWrapperEncoding</a></code>, <code><a href="../core/ReferenceEncoding.html" title="class in io.permazen.core">ReferenceEncoding</a></code>, <code><a href="StringEncodedEncoding.html" title="class in io.permazen.encoding">StringEncodedEncoding</a></code></dd>
+<dd><code><a href="../core/EnumValueEncoding.html" title="class in io.permazen.core">EnumValueEncoding</a></code>, <code><a href="PrimitiveWrapperEncoding.html" title="class in io.permazen.encoding">PrimitiveWrapperEncoding</a></code>, <code><a href="../core/ReferenceEncoding.html" title="class in io.permazen.core">ReferenceEncoding</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">NullSafeEncoding&lt;T&gt;</span>
@@ -154,13 +154,9 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.Encoding)" class="member-name-link">NullSafeEncoding</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;&nbsp;inner)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor when wrapping a non-registered inner type.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">NullSafeEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">NullSafeEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;&nbsp;inner)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Constructor.</div>
 </div>
 </div>
@@ -177,73 +173,78 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#allowsNull()" class="member-name-link">allowsNull</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Always returns true.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compare(T,T)" class="member-name-link">compare</a><wbr>(<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&nbsp;value1,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compare(T,T)" class="member-name-link">compare</a><wbr>(<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&nbsp;value1,
  <a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&nbsp;value2)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Order two field values.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;S&gt;&nbsp;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#convert(io.permazen.encoding.Encoding,S)" class="member-name-link">convert</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;S&gt;&nbsp;type,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;S&gt;&nbsp;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#convert(io.permazen.encoding.Encoding,S)" class="member-name-link">convert</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;S&gt;&nbsp;type,
  S&nbsp;value)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Attempt to convert a value from the given <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> into a value of this <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getInnerType()" class="member-name-link">getInnerType</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getInnerEncoding()" class="member-name-link">getInnerEncoding</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the inner <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that this instance wraps.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether any of this encoding's encoded values start with a <code>0x00</code> byte.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Always returns true.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read a value from the given input.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine if this instance sorts Java instances naturally.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#supportsNull()" class="member-name-link">supportsNull</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Always returns true.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&nbsp;value)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
- <a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&nbsp;value)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withEncodingId(io.permazen.encoding.EncodingId)" class="member-name-link">withEncodingId</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Build an encoding that has the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
+ <a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Write a value to the given output.</div>
 </div>
 </div>
@@ -325,22 +326,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>encodingId</code> - encoding ID</dd>
-<dd><code>inner</code> - inner type that is not null safe</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="&lt;init&gt;(io.permazen.encoding.Encoding)">
-<h3>NullSafeEncoding</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">NullSafeEncoding</span><wbr><span class="parameters">(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;&nbsp;inner)</span></div>
-<div class="block">Constructor when wrapping a non-registered inner type.
-
- <p>
- Takes encoding ID from <code>inner</code>; therefore, this instance and <code>inner</code>
- cannot be both registered in an <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
+<dd><code>encodingId</code> - encoding ID for this encoding, or null to be anonymous</dd>
 <dd><code>inner</code> - inner type that is not null safe</dd>
 </dl>
 </section>
@@ -354,13 +340,30 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getInnerType()">
-<h3>getInnerType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">getInnerType</span>()</div>
+<section class="detail" id="getInnerEncoding()">
+<h3>getInnerEncoding</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">getInnerEncoding</span>()</div>
 <div class="block">Get the inner <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that this instance wraps.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>inner type that is not null safe</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="withEncodingId(io.permazen.encoding.EncodingId)">
+<h3>withEncodingId</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a>&lt;<a href="NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">withEncodingId</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">Encoding</a></code></span></div>
+<div class="block">Build an encoding that has the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.
+
+ <p>
+ If this encoding already has <code>encodingId</code>, then this method may (but is not required to) return this same instance.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>encodingId</code> - new encoding's <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, or null for an anonymized encoding</dd>
+<dt>Returns:</dt>
+<dd>a version of this encoding with the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a></dd>
 </dl>
 </section>
 </li>
@@ -528,9 +531,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="allowsNull()">
-<h3>allowsNull</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">allowsNull</span>()</div>
+<section class="detail" id="supportsNull()">
+<h3>supportsNull</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">supportsNull</span>()</div>
 <div class="block">Always returns true.</div>
 <dl class="notes">
 <dt>Returns:</dt>

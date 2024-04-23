@@ -631,8 +631,8 @@ loadScripts(document, 'script');</script>
 <h4>Serialized Fields</h4>
 <ul class="block-list">
 <li class="block-list">
-<h5>elementType</h5>
-<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt; elementType</pre>
+<h5>elementEncoding</h5>
+<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt; elementEncoding</pre>
 </li>
 </ul>
 </section>
@@ -666,7 +666,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.BigDecimalEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/BigDecimalEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.BigDecimalEncoding</a></h3>
-<div class="type-signature">class BigDecimalEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/math/BigDecimal.html" title="class or interface in java.math" class="external-link">BigDecimal</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class BigDecimalEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/math/BigDecimal.html" title="class or interface in java.math" class="external-link">BigDecimal</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-6401896548616656153L</dd>
@@ -676,7 +676,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.BigIntegerEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/BigIntegerEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.BigIntegerEncoding</a></h3>
-<div class="type-signature">class BigIntegerEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/math/BigInteger.html" title="class or interface in java.math" class="external-link">BigInteger</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class BigIntegerEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/math/BigInteger.html" title="class or interface in java.math" class="external-link">BigInteger</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-2984648309356838144L</dd>
@@ -686,7 +686,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.BitSetEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/BitSetEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.BitSetEncoding</a></h3>
-<div class="type-signature">class BitSetEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/BitSet.html" title="class or interface in java.util" class="external-link">BitSet</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class BitSetEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/BitSet.html" title="class or interface in java.util" class="external-link">BitSet</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-1133774834687234873L</dd>
@@ -767,9 +767,40 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="serialized-class-details" id="io.permazen.encoding.ConvertedEncoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.ConvertedEncoding</a></h3>
+<div class="type-signature">class ConvertedEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-1873774754387478399L</dd>
+</dl>
+<ul class="block-list">
+<li>
+<section class="detail">
+<h4>Serialized Fields</h4>
+<ul class="block-list">
+<li class="block-list">
+<h5>converter</h5>
+<pre><a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt; converter</pre>
+</li>
+<li class="block-list">
+<h5>delegate</h5>
+<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt; delegate</pre>
+</li>
+<li class="block-list">
+<h5>sortsNaturally</h5>
+<pre>boolean sortsNaturally</pre>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</section>
+</li>
+<li>
 <section class="serialized-class-details" id="io.permazen.encoding.DateEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.DateEncoding</a></h3>
-<div class="type-signature">class DateEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class DateEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>825120832596893074L</dd>
@@ -812,7 +843,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.DurationEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/DurationEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.DurationEncoding</a></h3>
-<div class="type-signature">class DurationEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class DurationEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>969067179729229705L</dd>
@@ -918,7 +949,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.InstantEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/InstantEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.InstantEncoding</a></h3>
-<div class="type-signature">class InstantEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class InstantEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-3907615112193058091L</dd>
@@ -953,19 +984,6 @@ loadScripts(document, 'script');</script>
 <dt>serialVersionUID:</dt>
 <dd>-5185297639150351646L</dd>
 </dl>
-<ul class="block-list">
-<li>
-<section class="detail">
-<h4>Serialized Fields</h4>
-<ul class="block-list">
-<li class="block-list">
-<h5>integralType</h5>
-<pre><a href="io/permazen/encoding/IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="io/permazen/encoding/IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a> extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Number.html" title="class or interface in java.lang" class="external-link">Number</a>&gt; integralType</pre>
-</li>
-</ul>
-</section>
-</li>
-</ul>
 </section>
 </li>
 <li>
@@ -991,7 +1009,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.LocalDateEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.LocalDateEncoding</a></h3>
-<div class="type-signature">class LocalDateEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDate.html" title="class or interface in java.time" class="external-link">LocalDate</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class LocalDateEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDate.html" title="class or interface in java.time" class="external-link">LocalDate</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-1245720029314097665L</dd>
@@ -1001,7 +1019,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.LocalDateTimeEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.LocalDateTimeEncoding</a></h3>
-<div class="type-signature">class LocalDateTimeEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDateTime.html" title="class or interface in java.time" class="external-link">LocalDateTime</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class LocalDateTimeEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDateTime.html" title="class or interface in java.time" class="external-link">LocalDateTime</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-3302238853808401737L</dd>
@@ -1011,7 +1029,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.LocalTimeEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.LocalTimeEncoding</a></h3>
-<div class="type-signature">class LocalTimeEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalTime.html" title="class or interface in java.time" class="external-link">LocalTime</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class LocalTimeEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalTime.html" title="class or interface in java.time" class="external-link">LocalTime</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-6138317689607411426L</dd>
@@ -1041,7 +1059,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.MonthDayEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/MonthDayEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.MonthDayEncoding</a></h3>
-<div class="type-signature">class MonthDayEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/MonthDay.html" title="class or interface in java.time" class="external-link">MonthDay</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class MonthDayEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/MonthDay.html" title="class or interface in java.time" class="external-link">MonthDay</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-8813919603844250786L</dd>
@@ -1142,7 +1160,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.PeriodEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/PeriodEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.PeriodEncoding</a></h3>
-<div class="type-signature">class PeriodEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Period.html" title="class or interface in java.time" class="external-link">Period</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class PeriodEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Period.html" title="class or interface in java.time" class="external-link">Period</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-5481674489895732054L</dd>
@@ -1205,44 +1223,17 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.StringConvertedEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.StringConvertedEncoding</a></h3>
-<div class="type-signature">class StringConvertedEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="io/permazen/encoding/StringConvertedEncoding.html" title="type parameter in StringConvertedEncoding">T</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class StringConvertedEncoding extends <a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/StringConvertedEncoding.html" title="type parameter in StringConvertedEncoding">T</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
-<dd>-2432755812735736593L</dd>
-</dl>
-<ul class="block-list">
-<li>
-<section class="detail">
-<h4>Serialized Fields</h4>
-<ul class="block-list">
-<li class="block-list">
-<h5>converter</h5>
-<pre><a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="io/permazen/encoding/StringConvertedEncoding.html" title="type parameter in StringConvertedEncoding">T</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt; converter</pre>
-</li>
-<li class="block-list">
-<h5>stringType</h5>
-<pre><a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a> stringType</pre>
-</li>
-</ul>
-</section>
-</li>
-</ul>
-</section>
-</li>
-<li>
-<section class="serialized-class-details" id="io.permazen.encoding.StringEncodedEncoding">
-<h3>Class&nbsp;<a href="io/permazen/encoding/StringEncodedEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.StringEncodedEncoding</a></h3>
-<div class="type-signature">class StringEncodedEncoding extends <a href="io/permazen/encoding/NullSafeEncoding.html" title="class in io.permazen.encoding">NullSafeEncoding</a>&lt;<a href="io/permazen/encoding/StringEncodedEncoding.html" title="type parameter in StringEncodedEncoding">T</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
-<dl class="name-value">
-<dt>serialVersionUID:</dt>
-<dd>6224434959455483181L</dd>
+<dd>-1937834783878909370L</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.StringEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.StringEncoding</a></h3>
-<div class="type-signature">class StringEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class StringEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-7808183397158645337L</dd>
@@ -1339,7 +1330,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.UUIDEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/UUIDEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.UUIDEncoding</a></h3>
-<div class="type-signature">class UUIDEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/UUID.html" title="class or interface in java.util" class="external-link">UUID</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class UUIDEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/UUID.html" title="class or interface in java.util" class="external-link">UUID</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-7426558458120883995L</dd>
@@ -1359,7 +1350,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.YearEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/YearEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.YearEncoding</a></h3>
-<div class="type-signature">class YearEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Year.html" title="class or interface in java.time" class="external-link">Year</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class YearEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Year.html" title="class or interface in java.time" class="external-link">Year</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>6800527893478605289L</dd>
@@ -1369,7 +1360,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.YearMonthEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/YearMonthEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.YearMonthEncoding</a></h3>
-<div class="type-signature">class YearMonthEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/YearMonth.html" title="class or interface in java.time" class="external-link">YearMonth</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class YearMonthEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/YearMonth.html" title="class or interface in java.time" class="external-link">YearMonth</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>2773124141026846109L</dd>
@@ -1399,7 +1390,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.ZoneOffsetEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/ZoneOffsetEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.ZoneOffsetEncoding</a></h3>
-<div class="type-signature">class ZoneOffsetEncoding extends io.permazen.encoding.BuiltinEncoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneOffset.html" title="class or interface in java.time" class="external-link">ZoneOffset</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class ZoneOffsetEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneOffset.html" title="class or interface in java.time" class="external-link">ZoneOffset</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>4606196393878370203L</dd>

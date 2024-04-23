@@ -123,7 +123,7 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">LongEncoding</a>()</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">LongEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -150,6 +150,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Verify the given object is a valid instance of this <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s Java type and cast it to that type.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LongEncoding.html" title="class in io.permazen.encoding">LongEncoding</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withEncodingId(io.permazen.encoding.EncodingId)" class="member-name-link">withEncodingId</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Build an encoding that has the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.</div>
+</div>
 </div>
 </div>
 </div>
@@ -170,7 +175,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="Encoding.html#allowsNull()">allowsNull</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
+<code><a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#supportsNull()">supportsNull</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
 </section>
 </li>
 </ul>
@@ -183,9 +188,9 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;()">
+<section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId)">
 <h3>LongEncoding</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">LongEncoding</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">LongEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</span></div>
 </section>
 </li>
 </ul>
@@ -196,6 +201,23 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="withEncodingId(io.permazen.encoding.EncodingId)">
+<h3>withEncodingId</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="LongEncoding.html" title="class in io.permazen.encoding">LongEncoding</a></span>&nbsp;<span class="element-name">withEncodingId</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">Encoding</a></code></span></div>
+<div class="block">Build an encoding that has the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.
+
+ <p>
+ If this encoding already has <code>encodingId</code>, then this method may (but is not required to) return this same instance.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>encodingId</code> - new encoding's <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, or null for an anonymized encoding</dd>
+<dt>Returns:</dt>
+<dd>a version of this encoding with the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a></dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="convertNumber(java.lang.Number)">
 <h3>convertNumber</h3>
@@ -234,7 +256,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> first verifies the value is not null if this instance
- <a href="Encoding.html#allowsNull()">does not allow null values</a>, and then attempts to cast the value using
+ <a href="Encoding.html#supportsNull()">does not allow null values</a>, and then attempts to cast the value using
  this instance's raw Java type. Subclasses should override this method to implement any other restrictions.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
