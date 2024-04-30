@@ -76,7 +76,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
             final List<?> scannedClasses;
             try {
                 scannedClasses = (List<?>)scannerClass.getMethod("scanForClasses", String[].class)
-                  .invoke(scannerClass.getConstructor().newInstance(), (Object)classNames);
+                  .invoke(scannerClass.getConstructor().newInstance(), (Object)packageNames);
             } catch (ReflectiveOperationException e) {
                 throw new MojoExecutionException(String.format("error scanning for classes using %s", scannerClass), e);
             }
