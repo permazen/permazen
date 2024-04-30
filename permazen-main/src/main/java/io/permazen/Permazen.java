@@ -526,7 +526,7 @@ public class Permazen {
 // Transactions
 
     /**
-     * Create a new transaction.
+     * Open a new transaction.
      *
      * <p>
      * Convenience method; equivalent to:
@@ -542,7 +542,7 @@ public class Permazen {
     }
 
     /**
-     * Create a new transaction.
+     * Open a new transaction using the specified {@link ValidationMode}.
      *
      * <p>
      * Convenience method; equivalent to:
@@ -560,14 +560,11 @@ public class Permazen {
     }
 
     /**
-     * Create a new transaction with key/value transaction options.
+     * Open a new transaction using the specified {@link ValidationMode} and key/value transaction options.
      *
      * <p>
-     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()}: the caller is responsible
-     * for doing that if necessary. However, this method does arrange for
-     * {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent}{@code (null)} to be invoked as soon as the
-     * returned transaction is committed (or rolled back), assuming {@link PermazenTransaction#getCurrent} returns the
-     * {@link PermazenTransaction} returned here at that time.
+     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()};
+     * the caller is responsible for doing that if/when needed.
      *
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @param kvoptions {@link KVDatabase}-specific transaction options, or null for none
@@ -582,7 +579,7 @@ public class Permazen {
     }
 
     /**
-     * Create a new branched transaction.
+     * Open a new branched transaction.
      *
      * <p>
      * Convenience method; equivalent to:
@@ -600,7 +597,7 @@ public class Permazen {
     }
 
     /**
-     * Create a new branched transaction.
+     * Open a new branched transaction using the specified {@link ValidationMode}.
      *
      * <p>
      * Convenience method; equivalent to:
@@ -617,14 +614,11 @@ public class Permazen {
     }
 
     /**
-     * Create a new branched transaction with the given key/value transaction options.
+     * Open a new branched transaction using the specified {@link ValidationMode} and key/value transaction options.
      *
      * <p>
-     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()}: the caller is responsible
-     * for doing that if necessary. However, this method does arrange for
-     * {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent}{@code (null)} to be invoked as soon as the
-     * returned transaction is committed (or rolled back), assuming {@link PermazenTransaction#getCurrent} returns the
-     * {@link PermazenTransaction} returned here at that time.
+     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()};
+     * the caller is responsible for doing that if/when needed.
      *
      * @param validationMode the {@link ValidationMode} to use for the new transaction
      * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
@@ -656,14 +650,11 @@ public class Permazen {
     }
 
     /**
-     * Create a new transaction using an already-opened {@link KVTransaction}.
+     * Create a new {@link PermazenTransaction} using an already-opened {@link KVTransaction}.
      *
      * <p>
-     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()}: the caller is responsible
-     * for doing that if necessary. However, this method does arrange for
-     * {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent}{@code (null)} to be invoked as soon as the
-     * returned transaction is committed (or rolled back), assuming {@link PermazenTransaction#getCurrent} returns the
-     * {@link PermazenTransaction} returned here at that time.
+     * This does not invoke {@link PermazenTransaction#setCurrent PermazenTransaction.setCurrent()};
+     * the caller is responsible for doing that if/when needed.
      *
      * @param kvt already opened key/value store transaction
      * @param validationMode the {@link ValidationMode} to use for the new transaction
@@ -683,9 +674,7 @@ public class Permazen {
         synchronized (this) {
             assert this.initialized;
         }
-        final PermazenTransaction ptx = new PermazenTransaction(this, tx, validationMode);
-        tx.addCallback(new CleanupCurrentCallback(ptx));
-        return ptx;
+        return new PermazenTransaction(this, tx, validationMode);
     }
 
     /**
@@ -1055,45 +1044,6 @@ public class Permazen {
                 }
             }
             return super.findClass(name);
-        }
-    }
-
-// CleanupCurrentCallback
-
-    private static final class CleanupCurrentCallback extends Transaction.CallbackAdapter {
-
-        private final PermazenTransaction ptx;
-
-        CleanupCurrentCallback(PermazenTransaction ptx) {
-            assert ptx != null;
-            this.ptx = ptx;
-        }
-
-        @Override
-        public void afterCompletion(boolean committed) {
-            final PermazenTransaction current;
-            try {
-                current = PermazenTransaction.getCurrent();
-            } catch (IllegalStateException e) {
-                return;
-            }
-            if (current == this.ptx)
-                PermazenTransaction.setCurrent(null);
-        }
-
-        @Override
-        public int hashCode() {
-            return this.getClass().hashCode() ^ this.ptx.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this)
-                return true;
-            if (obj == null || obj.getClass() != this.getClass())
-                return false;
-            final CleanupCurrentCallback that = (CleanupCurrentCallback)obj;
-            return this.ptx.equals(that.ptx);
         }
     }
 }
