@@ -183,10 +183,9 @@ public class SchemaUtilityImpl implements SchemaUtility {
 
         // Compare
         final boolean matched = this.schema.getSchemaId().equals(verifyModel.getSchemaId());
-        if (!matched) {
-            this.log.error("schema verification failed:");
-            this.log.error(this.schema.differencesFrom(verifyModel).toString());
-        } else
+        if (!matched)
+            this.log.error("schema verification failed:\n" + this.schema.differencesFrom(verifyModel));
+        else
             this.log.info("schema verification succeeded");
 
         // Done
