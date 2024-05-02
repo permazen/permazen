@@ -170,26 +170,31 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDefaultValueObject()" class="member-name-link">getDefaultValueObject</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDefaultValue()" class="member-name-link">getDefaultValue</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the default value for this encoding.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodingId()" class="member-name-link">getEncodingId</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>byte[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDefaultValueBytes()" class="member-name-link">getDefaultValueBytes</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodingId()" class="member-name-link">getEncodingId</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the globally unique encoding ID that identifies this encoding, if any.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeToken()" class="member-name-link">getTypeToken</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeToken()" class="member-name-link">getTypeToken</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the Java type corresponding to this encoding's values.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -201,7 +206,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="Encoding.html#compare(T,T)">compare</a>, <a href="Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#fromString(java.lang.String)">fromString</a>, <a href="Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="Encoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="Encoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="Encoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#supportsNull()">supportsNull</a>, <a href="Encoding.html#toString(T)">toString</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a>, <a href="Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">withEncodingId</a>, <a href="Encoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
+<code><a href="Encoding.html#compare(T,T)">compare</a>, <a href="Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#fromString(java.lang.String)">fromString</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="Encoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="Encoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="Encoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#supportsNull()">supportsNull</a>, <a href="Encoding.html#toString(T)">toString</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a>, <a href="Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">withEncodingId</a>, <a href="Encoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
 </section>
 </li>
 </ul>
@@ -244,10 +249,9 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <dt>Parameters:</dt>
 <dd><code>encodingId</code> - encoding ID for this encoding, or null to be anonymous</dd>
 <dd><code>typeToken</code> - Java type for the field's values</dd>
-<dd><code>defaultValue</code> - default value for this encoding</dd>
+<dd><code>defaultValue</code> - default value for this encoding; must be null if this encoding supports nulls</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>name</code> is invalid</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>typeToken</code> is null</dd>
 </dl>
 </section>
 </li>
@@ -262,10 +266,9 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <dt>Parameters:</dt>
 <dd><code>encodingId</code> - encoding ID for this encoding, or null to be anonymous</dd>
 <dd><code>type</code> - Java type for the field's values</dd>
-<dd><code>defaultValue</code> - default value for this encoding</dd>
+<dd><code>defaultValue</code> - default value for this encoding; must be null if this encoding supports nulls</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>name</code> is invalid</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>type</code> is null</dd>
 </dl>
 </section>
 </li>
@@ -312,19 +315,37 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 </section>
 </li>
 <li>
-<section class="detail" id="getDefaultValueObject()">
-<h3>getDefaultValueObject</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a></span>&nbsp;<span class="element-name">getDefaultValueObject</span>()</div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#getDefaultValueObject()">Encoding</a></code></span></div>
+<section class="detail" id="getDefaultValue()">
+<h3>getDefaultValue</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a></span>&nbsp;<span class="element-name">getDefaultValue</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#getDefaultValue()">Encoding</a></code></span></div>
 <div class="block">Get the default value for this encoding.
 
  <p>
  If this encoding <a href="Encoding.html#supportsNull()">supports null values</a>, then this must return null.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="Encoding.html#getDefaultValueObject()">getDefaultValueObject</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></dd>
+<dd><code><a href="Encoding.html#getDefaultValue()">getDefaultValue</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></dd>
 <dt>Returns:</dt>
 <dd>default value</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getDefaultValueBytes()">
+<h3>getDefaultValueBytes</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">getDefaultValueBytes</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#getDefaultValueBytes()">Encoding</a></code></span></div>
+<div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.
+
+ <p>
+ The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns the binary encoding of the value returned by
+ <a href="Encoding.html#getDefaultValue()"><code>Encoding.getDefaultValue()</code></a>.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Encoding.html#getDefaultValueBytes()">getDefaultValueBytes</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></dd>
+<dt>Returns:</dt>
+<dd>encoded default value</dd>
 </dl>
 </section>
 </li>

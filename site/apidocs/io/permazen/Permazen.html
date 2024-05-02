@@ -241,19 +241,19 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createBranchedTransaction()" class="member-name-link">createBranchedTransaction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new branched transaction.</div>
+<div class="block">Open a new branched transaction.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createBranchedTransaction(io.permazen.ValidationMode)" class="member-name-link">createBranchedTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new branched transaction.</div>
+<div class="block">Open a new branched transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createBranchedTransaction(io.permazen.ValidationMode,java.util.Map,java.util.Map)" class="member-name-link">createBranchedTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new branched transaction with the given key/value transaction options.</div>
+<div class="block">Open a new branched transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> and key/value transaction options.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createDetachedTransaction(io.permazen.kv.KVStore,io.permazen.ValidationMode)" class="member-name-link">createDetachedTransaction</a><wbr>(<a href="kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a>&nbsp;kvstore,
@@ -269,24 +269,24 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction()" class="member-name-link">createTransaction</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new transaction.</div>
+<div class="block">Open a new transaction.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(io.permazen.kv.KVTransaction,io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
  <a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new transaction using an already-opened <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.</div>
+<div class="block">Create a new <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> using an already-opened <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(io.permazen.ValidationMode)" class="member-name-link">createTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new transaction.</div>
+<div class="block">Open a new transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTransaction(io.permazen.ValidationMode,java.util.Map)" class="member-name-link">createTransaction</a><wbr>(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a new transaction with key/value transaction options.</div>
+<div class="block">Open a new transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> and key/value transaction options.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="PermazenClass.html" title="class in io.permazen">PermazenClass</a>&lt;? super T&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findPermazenClass(java.lang.Class)" class="member-name-link">findPermazenClass</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
@@ -473,7 +473,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createTransaction()">
 <h3>createTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span>()</div>
-<div class="block">Create a new transaction.
+<div class="block">Open a new transaction.
 
  <p>
  Convenience method; equivalent to:
@@ -492,7 +492,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createTransaction(io.permazen.ValidationMode)">
 <h3>createTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
-<div class="block">Create a new transaction.
+<div class="block">Open a new transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a>.
 
  <p>
  Convenience method; equivalent to:
@@ -515,14 +515,11 @@ loadScripts(document, 'script');</script>
 <h3>createTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</span></div>
-<div class="block">Create a new transaction with key/value transaction options.
+<div class="block">Open a new transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> and key/value transaction options.
 
  <p>
- This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>: the caller is responsible
- for doing that if necessary. However, this method does arrange for
- <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
- returned transaction is committed (or rolled back), assuming <a href="PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> returns the
- <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> returned here at that time.</div>
+ This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>;
+ the caller is responsible for doing that if/when needed.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>validationMode</code> - the <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> to use for the new transaction</dd>
@@ -539,7 +536,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createBranchedTransaction()">
 <h3>createBranchedTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createBranchedTransaction</span>()</div>
-<div class="block">Create a new branched transaction.
+<div class="block">Open a new branched transaction.
 
  <p>
  Convenience method; equivalent to:
@@ -560,7 +557,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createBranchedTransaction(io.permazen.ValidationMode)">
 <h3>createBranchedTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createBranchedTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
-<div class="block">Create a new branched transaction.
+<div class="block">Open a new branched transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a>.
 
  <p>
  Convenience method; equivalent to:
@@ -582,14 +579,11 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createBranchedTransaction</span><wbr><span class="parameters">(<a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</span></div>
-<div class="block">Create a new branched transaction with the given key/value transaction options.
+<div class="block">Open a new branched transaction using the specified <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> and key/value transaction options.
 
  <p>
- This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>: the caller is responsible
- for doing that if necessary. However, this method does arrange for
- <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
- returned transaction is committed (or rolled back), assuming <a href="PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> returns the
- <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> returned here at that time.</div>
+ This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>;
+ the caller is responsible for doing that if/when needed.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>validationMode</code> - the <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> to use for the new transaction</dd>
@@ -609,14 +603,11 @@ loadScripts(document, 'script');</script>
 <h3>createTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">createTransaction</span><wbr><span class="parameters">(<a href="kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a>&nbsp;kvt,
  <a href="ValidationMode.html" title="enum class in io.permazen">ValidationMode</a>&nbsp;validationMode)</span></div>
-<div class="block">Create a new transaction using an already-opened <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.
+<div class="block">Create a new <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> using an already-opened <a href="kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.
 
  <p>
- This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>: the caller is responsible
- for doing that if necessary. However, this method does arrange for
- <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent</code></a><code>(null)</code> to be invoked as soon as the
- returned transaction is committed (or rolled back), assuming <a href="PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> returns the
- <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> returned here at that time.</div>
+ This does not invoke <a href="PermazenTransaction.html#setCurrent(io.permazen.PermazenTransaction)"><code>PermazenTransaction.setCurrent()</code></a>;
+ the caller is responsible for doing that if/when needed.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kvt</code> - already opened key/value store transaction</dd>

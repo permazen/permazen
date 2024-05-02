@@ -114,7 +114,10 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
   <li><code>null</code> may or may not be a supported value; see <a href="#supportsNull()"><code>supportsNull()</code></a>. If so, it must be fully supported value just
       like any other; for example, it must be handled by <a href="#compare(T,T)"><code>compare()</code></a> (typically null values sort last).
       Note that this is an additional requirement beyond what <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> strictly requires.
-  <li>There is a <a href="#getDefaultValue()">default value</a>. For types that support null, the default value must be null.
+  <li>There is a <a href="#getDefaultValue()">default value</a>. For types that support null, the default value must be null,
+      and for types that don't support null, obviously the default value must not be null; however, an exception can be made
+      for encodings that don't support null but don't need default values, e.g., encodings that are always wrapped within a
+      <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>.
   <li>All <i>non-null</i> values can be encoded/decoded into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> without losing information; see
       <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
   <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., <code>byte[]</code>
@@ -198,15 +201,15 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Parse a non-null value previously encoded by <a href="#toString(T)"><code>toString(T)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default byte[]</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getDefaultValue()" class="member-name-link">getDefaultValue</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getDefaultValueObject()" class="member-name-link">getDefaultValueObject</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Encoding.html" title="type parameter in Encoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getDefaultValue()" class="member-name-link">getDefaultValue</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the default value for this encoding.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default byte[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getDefaultValueBytes()" class="member-name-link">getDefaultValueBytes</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getEncodingId()" class="member-name-link">getEncodingId</a>()</code></div>
@@ -398,14 +401,14 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 </section>
 </li>
 <li>
-<section class="detail" id="getDefaultValue()">
-<h3>getDefaultValue</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">getDefaultValue</span>()</div>
+<section class="detail" id="getDefaultValueBytes()">
+<h3>getDefaultValueBytes</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">getDefaultValueBytes</span>()</div>
 <div class="block">Get the default value for this encoding encoded as a <code>byte[]</code> array.
 
  <p>
  The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns the binary encoding of the value returned by
- <a href="#getDefaultValueObject()"><code>getDefaultValueObject()</code></a>.</div>
+ <a href="#getDefaultValue()"><code>getDefaultValue()</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>encoded default value</dd>
@@ -413,9 +416,9 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 </section>
 </li>
 <li>
-<section class="detail" id="getDefaultValueObject()">
-<h3>getDefaultValueObject</h3>
-<div class="member-signature"><span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">getDefaultValueObject</span>()</div>
+<section class="detail" id="getDefaultValue()">
+<h3>getDefaultValue</h3>
+<div class="member-signature"><span class="return-type"><a href="Encoding.html" title="type parameter in Encoding">T</a></span>&nbsp;<span class="element-name">getDefaultValue</span>()</div>
 <div class="block">Get the default value for this encoding.
 
  <p>

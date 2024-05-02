@@ -106,11 +106,13 @@ loadScripts(document, 'script');</script>
  <ul>
   <li>A <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> must be explicitly provided to define the schema in use, whereas when using a
       <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> the schema is derived automatically from annotated Java model classes.</li>
-  <li>Object references are represented by <a href="ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>s instead of Java objects</li>
+  <li>Simple fields are encoded/decoded into <code>byte[]</code> arrays using an <a href="../encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> which defines
+      the field's "type".</li>
+  <li>References from one object to another are represented by <a href="ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>s and encoded/decoded using
+      <a href="ReferenceEncoding.html" title="class in io.permazen.core"><code>ReferenceEncoding</code></a>.</li>
   <li>There is no explicit notion of object sub-types, i.e., the object type hierarchy is completely flat.
       However, object types can share the same field definitions, and reference fields can be restricted
-      to only refer to certain other types.</li>
-  <li>Enum values are represented by <a href="EnumValue.html" title="class in io.permazen.core"><code>EnumValue</code></a> objects.</li>
+      to only refer to certain other object types.</li>
   <li>There is no automatic validation support.</li>
  </ul>
 
@@ -158,11 +160,11 @@ loadScripts(document, 'script');</script>
 
  <p>
  Indexes may be added and removed across different schemas without losing information, however,
- indexes only contain objects whose schema defines the index. In other words, it's not
- possible to find an object using an index that was added after the object was created, at least
- not until the object is migrated to a newer schema. Similarly for other schema-defined behavior,
- for example, the <a href="DeleteAction.html" title="enum class in io.permazen.core"><code>DeleteAction</code></a> taken when a referenced object is deleted depends on the
- <a href="DeleteAction.html" title="enum class in io.permazen.core"><code>DeleteAction</code></a> configured in the schema of the object containing the reference.</div>
+ indexes will only contain those objects whose schema includes the index. In other words, it's not
+ possible to find an object using an index that was added after the object was created until the object
+ is migrated to a newer schema. The same principle applies to other schema-defined behavior, for example,
+ the <a href="DeleteAction.html" title="enum class in io.permazen.core"><code>DeleteAction</code></a> taken when a referenced object is deleted depends on the <a href="DeleteAction.html" title="enum class in io.permazen.core"><code>DeleteAction</code></a>
+ configured in the schema of the object containing the reference.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -255,7 +257,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEncodingRegistry(io.permazen.encoding.EncodingRegistry)" class="member-name-link">setEncodingRegistry</a><wbr>(<a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> associated with this instance.</div>
+<div class="block">Set the <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> associated with this instance.</div>
 </div>
 </div>
 </div>
@@ -319,29 +321,29 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="setEncodingRegistry(io.permazen.encoding.EncodingRegistry)">
-<h3>setEncodingRegistry</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEncodingRegistry</span><wbr><span class="parameters">(<a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</span></div>
+<section class="detail" id="getEncodingRegistry()">
+<h3>getEncodingRegistry</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a></span>&nbsp;<span class="element-name">getEncodingRegistry</span>()</div>
 <div class="block">Get the <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> associated with this instance.
 
  <p>
- By default a <a href="../encoding/DefaultEncodingRegistry.html" title="class in io.permazen.encoding"><code>DefaultEncodingRegistry</code></a> is configured.</div>
+ By default a <a href="../encoding/DefaultEncodingRegistry.html" title="class in io.permazen.encoding"><code>DefaultEncodingRegistry</code></a> is automatically created.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>encoding registry associated with this instance</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setEncodingRegistry(io.permazen.encoding.EncodingRegistry)">
+<h3>setEncodingRegistry</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEncodingRegistry</span><wbr><span class="parameters">(<a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</span></div>
+<div class="block">Set the <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> associated with this instance.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>encodingRegistry</code> - encoding registry to associate with this instance</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>encodingRegistry</code> is null</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getEncodingRegistry()">
-<h3>getEncodingRegistry</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a></span>&nbsp;<span class="element-name">getEncodingRegistry</span>()</div>
-<div class="block">Get the <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> associated with this instance.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>encoding registry associated with this instance</dd>
 </dl>
 </section>
 </li>

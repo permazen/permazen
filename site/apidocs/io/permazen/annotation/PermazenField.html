@@ -684,17 +684,20 @@ loadScripts(document, 'script');</script>
  <code>"1234"</code>).
 
  <p>
- See <a href="../encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)"><code>Encoding.convert()</code></a> for details about conversions between simple encodings.
- In addition, <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> fields can be converted to/from any numeric Java primitive (or primitive wrapper)
- type.
+ See <a href="../encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)"><code>Encoding.convert()</code></a> for details about conversions between field encodings.
+ In addition, <a href="../Counter.html" title="class in io.permazen"><code>Counter</code></a> fields may be automatically converted to/from any numeric Java primitive
+ (or primitive wrapper) type.
 
  <p>
  This property defines the <a href="../UpgradeConversionPolicy.html" title="enum class in io.permazen"><code>UpgradeConversionPolicy</code></a> for the annotated field when upgrading an object from some
- other schema to the current schema. Note custom conversion logic is also possible using
- <a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a> methods.
+ other schema to the current schema.
 
  <p>
- For sub-fields of complex fields, this property is ignored.</div>
+ Automatic upgrade conversion is only supported for plain simple fields. For sub-fields of complex fields,
+ this property is ignored.
+
+ <p>
+ Note that arbitrary conversion logic is always possible using <a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a> methods.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>upgrade conversion policy for this field</dd>

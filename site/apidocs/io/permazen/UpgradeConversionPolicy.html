@@ -98,8 +98,9 @@ loadScripts(document, 'script');</script>
  <code>"1234"</code>.
 
  <p>
+ Automatic upgrade conversion is only supported for simple fields that are not sub-fields of complex fields.
  See <a href="encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)"><code>Encoding.convert(io.permazen.encoding.Encoding&lt;S&gt;, S)</code></a> for details about supported conversions between simple encodings. In addition,
- <a href="Counter.html" title="class in io.permazen"><code>Counter</code></a> fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
+ <a href="Counter.html" title="class in io.permazen"><code>Counter</code></a> fields may be automatically converted to/from any numeric Java primitive (or primitive wrapper) type.
 
  <p>
  This class is used to <a href="annotation/PermazenField.html#upgradeConversion()">specify</a> whether such automatic conversion
@@ -115,8 +116,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Automatic conversion of reference fields works as long as the referenced object's type is assignable to the field's
- new Java type; otherwise, the field is <a href="core/DeleteAction.html#UNREFERENCE">unreferenced</a>,
- i.e., set to null (if a simple field) or removed (if an element in a complex field).
+ new Java type; otherwise, the field is reset to null.
 
  <p>
  <b>Conversion Policies</b>

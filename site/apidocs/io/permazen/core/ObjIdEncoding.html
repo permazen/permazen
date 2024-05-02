@@ -85,7 +85,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">ObjIdEncoding</span>
 <span class="extends-implements">extends <a href="../encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</span></div>
-<div class="block">Non-null encoding for <a href="ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>s. Null values are not supported by this class.
+<div class="block">Non-null encoding for <a href="ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>s.
+
+ <p>
+ Null values are not supported by this class and there is no default value.
 
  <p>
  Binary encoding uses the value from <a href="ObjId.html#getBytes()"><code>ObjId.getBytes()</code></a>.</div>
@@ -120,12 +123,8 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">ObjIdEncoding</a>()</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ObjIdEncoding</a><wbr>(<a href="../encoding/EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Create an anonymous instance.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ObjIdEncoding</a><wbr>(<a href="../encoding/EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
 </div>
 </div>
@@ -199,7 +198,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="../encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
-<code><a href="../encoding/AbstractEncoding.html#equals(java.lang.Object)">equals</a>, <a href="../encoding/AbstractEncoding.html#getDefaultValueObject()">getDefaultValueObject</a>, <a href="../encoding/AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="../encoding/AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="../encoding/AbstractEncoding.html#hashCode()">hashCode</a>, <a href="../encoding/AbstractEncoding.html#toString()">toString</a></code></div>
+<code><a href="../encoding/AbstractEncoding.html#equals(java.lang.Object)">equals</a>, <a href="../encoding/AbstractEncoding.html#getDefaultValue()">getDefaultValue</a>, <a href="../encoding/AbstractEncoding.html#getDefaultValueBytes()">getDefaultValueBytes</a>, <a href="../encoding/AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="../encoding/AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="../encoding/AbstractEncoding.html#hashCode()">hashCode</a>, <a href="../encoding/AbstractEncoding.html#toString()">toString</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -208,7 +207,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="../encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="../encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="../encoding/Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="../encoding/Encoding.html#encode(T)">encode</a>, <a href="../encoding/Encoding.html#getDefaultValue()">getDefaultValue</a>, <a href="../encoding/Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="../encoding/Encoding.html#supportsNull()">supportsNull</a>, <a href="../encoding/Encoding.html#validate(java.lang.Object)">validate</a>, <a href="../encoding/Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
+<code><a href="../encoding/Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="../encoding/Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="../encoding/Encoding.html#encode(T)">encode</a>, <a href="../encoding/Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="../encoding/Encoding.html#supportsNull()">supportsNull</a>, <a href="../encoding/Encoding.html#validate(java.lang.Object)">validate</a>, <a href="../encoding/Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
 </section>
 </li>
 </ul>
@@ -220,13 +219,6 @@ loadScripts(document, 'script');</script>
 <section class="constructor-details" id="constructor-detail">
 <h2>Constructor Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="&lt;init&gt;()">
-<h3>ObjIdEncoding</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ObjIdEncoding</span>()</div>
-<div class="block">Create an anonymous instance.</div>
-</section>
-</li>
 <li>
 <section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId)">
 <h3>ObjIdEncoding</h3>

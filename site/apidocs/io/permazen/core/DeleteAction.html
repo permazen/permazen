@@ -85,7 +85,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public enum </span><span class="element-name type-name-label">DeleteAction</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link">Enum</a>&lt;<a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a>&gt;</span></div>
-<div class="block">Describes what action to take when an object that is still referred to by some other object is deleted.</div>
+<div class="block">Describes what action to take when an object is deleted and a reference to that object from some other object still exists.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -121,16 +121,19 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><code><a href="#EXCEPTION" class="member-name-link">EXCEPTION</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Disallow deleting the object, instead throwing <a href="ReferencedObjectException.html" title="class in io.permazen.core"><code>ReferencedObjectException</code></a>.</div>
+<div class="block">Throw a <a href="ReferencedObjectException.html" title="class in io.permazen.core"><code>ReferencedObjectException</code></a>, thereby preventing the delete operation from happening.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="#IGNORE" class="member-name-link">IGNORE</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Do nothing.</div>
+<div class="block">Do nothing, thereby creating a dangling reference.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="#UNREFERENCE" class="member-name-link">UNREFERENCE</a></code></div>
+<div class="col-first odd-row-color"><code><a href="#NULLIFY" class="member-name-link">NULLIFY</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Remove the reference, either by setting it to null (in the case of a <a href="SimpleField.html" title="class in io.permazen.core"><code>SimpleField</code></a> in an object),
- or by removing the corresponding collection element or map entry (in the case of a <a href="ComplexField.html" title="class in io.permazen.core"><code>ComplexField</code></a> sub-field).</div>
+<div class="block">Set the reference to null.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="#REMOVE" class="member-name-link">REMOVE</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Remove the corresponding list element, set element, or map entry.</div>
 </div>
 </div>
 </section>
@@ -181,33 +184,67 @@ the order they are declared.</div>
 <section class="detail" id="IGNORE">
 <h3>IGNORE</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></span>&nbsp;<span class="element-name">IGNORE</span></div>
-<div class="block">Do nothing. The reference will still exist, but subsequent attempts to access the fields of the deleted object
- will result in <a href="DeletedObjectException.html" title="class in io.permazen.core"><code>DeletedObjectException</code></a>.</div>
+<div class="block">Do nothing, thereby creating a dangling reference.
+
+ <p>
+ The reference will still exist, but subsequent attempts to access any field in the deleted object
+ will result in a <a href="DeletedObjectException.html" title="class in io.permazen.core"><code>DeletedObjectException</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="EXCEPTION">
 <h3>EXCEPTION</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></span>&nbsp;<span class="element-name">EXCEPTION</span></div>
-<div class="block">Disallow deleting the object, instead throwing <a href="ReferencedObjectException.html" title="class in io.permazen.core"><code>ReferencedObjectException</code></a>. This is the default if not specified.
+<div class="block">Throw a <a href="ReferencedObjectException.html" title="class in io.permazen.core"><code>ReferencedObjectException</code></a>, thereby preventing the delete operation from happening.
+
+ <p>
+ This is the default if not specified.
 
  <p>
  Note: deleting an object that is only referred to by itself will not cause any exception to be thrown.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="UNREFERENCE">
-<h3>UNREFERENCE</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></span>&nbsp;<span class="element-name">UNREFERENCE</span></div>
-<div class="block">Remove the reference, either by setting it to null (in the case of a <a href="SimpleField.html" title="class in io.permazen.core"><code>SimpleField</code></a> in an object),
- or by removing the corresponding collection element or map entry (in the case of a <a href="ComplexField.html" title="class in io.permazen.core"><code>ComplexField</code></a> sub-field).</div>
+<section class="detail" id="NULLIFY">
+<h3>NULLIFY</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></span>&nbsp;<span class="element-name">NULLIFY</span></div>
+<div class="block">Set the reference to null.
+
+ <p>
+ When the reference field is a sub-field of a complex field, what that means depends on the type of collection:
+ <ul>
+  <li>If the reference field is a set element field, the reference will be removed from the set and
+      null will be added to the set if not already present.
+  <li>If the reference field is a list element field, the corresponding list entry will be set to null.
+      Note this can happen to multiple entries in the same list.
+  <li>If the reference field is a map key, the entry will be removed from the, map and an entry with null key
+      and the original entry's same value will be inserted into the map, replacing any previous null key entry.
+  <li>If the reference field is a map value, the map entry remains but its value will be set to null.
+      Note this can happen to multiple entries in the same map.
+ </ul>
+
+ <p>
+ To always just remove the entry for complex sub-fields, use <a href="#REMOVE"><code>REMOVE</code></a> instead.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="REMOVE">
+<h3>REMOVE</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></span>&nbsp;<span class="element-name">REMOVE</span></div>
+<div class="block">Remove the corresponding list element, set element, or map entry.
+
+ <p>
+ This setting is only valid for complex sub-fields.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="DELETE">
 <h3>DELETE</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></span>&nbsp;<span class="element-name">DELETE</span></div>
-<div class="block">Also delete the object containing the reference. This action will be repeated recursively, if necessary.</div>
+<div class="block">Also delete the object containing the reference.
+
+ <p>
+ This action will be repeated recursively, if necessary. Any reference loops are properly handled.</div>
 </section>
 </li>
 </ul>
