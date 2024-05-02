@@ -40,7 +40,10 @@ public class SetElementIndex<E> extends CollectionElementIndex<NavigableSet<E>, 
     }
 
     @Override
-    void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        tx.readSetField(referrer, this.getField().parent.name, false).remove(target);
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+        final NavigableSet<?> set = tx.readSetField(referrer, this.getField().parent.name, false);
+        set.remove(target);
+        if (!remove)
+            set.add(null);
     }
 }

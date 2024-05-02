@@ -649,7 +649,7 @@ public class SchemaTest extends CoreAPITestSupport {
 
             "<!-- test 2b -->\n"
           + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
-          + "  <ReferenceField name=\"ref1\" storageId=\"20\" inverseDelete=\"UNREFERENCE\"/>\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\" inverseDelete=\"NULLIFY\"/>\n"
           + "</ObjectType>\n",
           },
 

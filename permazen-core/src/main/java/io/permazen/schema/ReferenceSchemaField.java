@@ -145,9 +145,21 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         super.validate();
         if (this.inverseDelete == null)
             throw new InvalidSchemaException(String.format("invalid %s: no inverse delete action specified", this));
-        if (this.inverseDelete == DeleteAction.IGNORE && !this.allowDeleted) {
-            throw new InvalidSchemaException(String.format(
-              "invalid %s: inverse delete %s is incompatible with disallowing dangling references", this, this.inverseDelete));
+        switch (this.inverseDelete) {
+        case IGNORE:
+            if (!this.allowDeleted) {
+                throw new InvalidSchemaException(String.format(
+                  "invalid %s: inverse delete %s is incompatible with disallowing dangling references", this, this.inverseDelete));
+            }
+            break;
+        case REMOVE:
+            if (this.getParent() == null) {
+                throw new InvalidSchemaException(String.format(
+                  "invalid %s: inverse delete %s is only appropriate for complex sub-fields", this, this.inverseDelete));
+            }
+            break;
+        default:
+            break;
         }
         if (this.objectTypes != null && this.objectTypes.stream().anyMatch(Objects::isNull))
             throw new InvalidSchemaException(String.format("invalid %s: object types contains null", this));

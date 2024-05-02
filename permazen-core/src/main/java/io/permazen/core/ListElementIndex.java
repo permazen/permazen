@@ -62,12 +62,16 @@ public class ListElementIndex<E> extends CollectionElementIndex<List<E>, E> {
     // Note: as we delete list elements, the index of remaining elements will decrease by one each time.
     // However, the KVPairIterator always reflects the current state so we'll see updated list indexes.
     @Override
-    void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
         final List<?> list = tx.readListField(referrer, this.getField().parent.name, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
             final ByteReader reader = new ByteReader(i.next().getKey());
             reader.skip(prefix.length);
-            list.remove(UnsignedIntEncoder.read(reader));
+            final int listIndex = UnsignedIntEncoder.read(reader);
+            if (remove)
+                list.remove(listIndex);
+            else
+                list.set(listIndex, null);
         }
     }
 }

@@ -80,6 +80,7 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
+        assert field.getInverseDelete() != DeleteAction.REMOVE || field.getParent() != null;
         HashSet<ObjType> objTypes = null;
         if (field.getObjectTypes() != null) {
             objTypes = new HashSet<>();

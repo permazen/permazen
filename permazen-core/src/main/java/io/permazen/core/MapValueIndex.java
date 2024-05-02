@@ -66,13 +66,17 @@ public class MapValueIndex<K, V> extends ComplexSubFieldIndex<NavigableMap<K, V>
     }
 
     @Override
-    void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        final EncodingMap<?, ?> fieldMap
-          = (EncodingMap<?, ?>)tx.readMapField(referrer, this.getField().parent.name, false);
+    @SuppressWarnings("unchecked")
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+        final EncodingMap<?, ?> fieldMap = (EncodingMap<?, ?>)tx.readMapField(referrer, this.getField().parent.name, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
             final ByteReader reader = new ByteReader(i.next().getKey());
             reader.skip(prefix.length);
-            fieldMap.remove(fieldMap.keyEncoding.read(reader));
+            final Object key = fieldMap.keyEncoding.read(reader);
+            if (remove)
+                fieldMap.remove(key);
+            else
+                ((EncodingMap<Object, ?>)fieldMap).put(key, null);
         }
     }
 

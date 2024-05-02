@@ -1065,12 +1065,15 @@ public class Transaction {
         this.deleteObjectData(info);
         deletables.remove(id);
 
-        // Find all UNREFERENCE references and unreference them
-        for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.UNREFERENCE).entrySet()) {
-            final int fieldStorageId = entry.getKey();
-            final NavigableSet<ObjId> referrers = entry.getValue();
-            final ReferenceField field = this.schemaBundle.getSchemaItem(fieldStorageId, ReferenceField.class);
-            field.getIndex().unreferenceAll(this, id, referrers);
+        // Find all NULLIFY references and nullify them, and then find all REMOVE references and remove them
+        for (boolean remove : new boolean[] { false, true }) {
+            final DeleteAction deleteAction = remove ? DeleteAction.REMOVE : DeleteAction.NULLIFY;
+            for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, deleteAction).entrySet()) {
+                final int fieldStorageId = entry.getKey();
+                final NavigableSet<ObjId> referrers = entry.getValue();
+                final ReferenceField field = this.schemaBundle.getSchemaItem(fieldStorageId, ReferenceField.class);
+                field.getIndex().unreferenceAll(this, remove, id, referrers);
+            }
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)

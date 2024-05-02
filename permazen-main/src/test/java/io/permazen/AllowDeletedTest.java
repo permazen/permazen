@@ -109,7 +109,7 @@ public class AllowDeletedTest extends MainTestSupport {
     @PermazenType
     public abstract static class Person implements PermazenObject {
 
-        @PermazenField(inverseDelete = DeleteAction.UNREFERENCE, forwardCascades = "definitelyExistsFriend")
+        @PermazenField(inverseDelete = DeleteAction.NULLIFY, forwardCascades = "definitelyExistsFriend")
         public abstract Person getDefinitelyExistsFriend();
         public abstract void setDefinitelyExistsFriend(Person friend);
 

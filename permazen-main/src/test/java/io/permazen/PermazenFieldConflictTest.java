@@ -57,7 +57,7 @@ public class PermazenFieldConflictTest extends MainTestSupport {
     }
 
     public interface InverseDeleteConflict1 {
-        @PermazenField(inverseDelete = DeleteAction.UNREFERENCE)
+        @PermazenField(inverseDelete = DeleteAction.NULLIFY)
         InverseDeleteConflict getRef();
     }
     public interface InverseDeleteConflict2 {

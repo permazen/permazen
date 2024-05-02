@@ -14,11 +14,13 @@ import io.permazen.test.TestSupport;
 import io.permazen.tuple.Tuple3;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.TreeSet;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -29,7 +31,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       + "<Schema>\n"
       + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
-      + "    <ReferenceField name=\"ref\" storageId=\"2\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
+      + "    <ReferenceField name=\"ref\" storageId=\"2\" inverseDelete=\"@INVERSE_DELETE_SIMPLE@\"/>\n"
       + "    <SimpleField name=\"name\" storageId=\"3\" encoding=\"urn:fdc:permazen.io:2020:String\"/>\n"
       + "    <SetField name=\"set\" storageId=\"10\">\n"
       + "        <ReferenceField storageId=\"20\" inverseDelete=\"@INVERSE_DELETE@\"/>\n"
@@ -55,8 +57,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         final Database db = new Database(new MemoryKVDatabase());
 
         for (DeleteAction inverseDelete : DeleteAction.values()) {
-            final String xml = XML_TEMPLATE.replaceAll("@INVERSE_DELETE@", inverseDelete.name());
-            final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+            final SchemaModel schema = this.buildSchemaModel(inverseDelete);
 
             ObjId id1;
             ObjId id2;
@@ -102,7 +103,8 @@ public class InverseDeleteTest extends CoreAPITestSupport {
                 Assert.assertEquals(tx.readSimpleField(id2, "ref", true), id3);
                 Assert.assertEquals(tx.readSimpleField(id3, "ref", true), id1);
                 break;
-            case UNREFERENCE:
+            case NULLIFY:
+            case REMOVE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -133,7 +135,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             set.add(id1);
             set.add(id2);
             set.add(id3);
-            TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+            TestSupport.checkSet(set, this.idSet(id1, id2, id3));
 
             try {
                 tx.delete(id2);
@@ -143,24 +145,35 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             }
             switch (inverseDelete) {
             case IGNORE:
+                Assert.assertFalse(set.contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(set, this.idSet(id1, id2, id3));
                 break;
             case EXCEPTION:
+                Assert.assertFalse(set.contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(set, this.idSet(id1, id2, id3));
                 break;
-            case UNREFERENCE:
+            case NULLIFY:
+                Assert.assertTrue(set.contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id3)));
+                TestSupport.checkSet(set, this.idSet(id1, id3, null));
+                break;
+            case REMOVE:
+                Assert.assertFalse(set.contains(null));
+                Assert.assertTrue(tx.exists(id1));
+                Assert.assertFalse(tx.exists(id2));
+                Assert.assertTrue(tx.exists(id3));
+                TestSupport.checkSet(set, this.idSet(id1, id3));
                 break;
             case DELETE:
+                Assert.assertFalse(set.contains(null));
                 Assert.assertFalse(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -194,24 +207,36 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             }
             switch (inverseDelete) {
             case IGNORE:
+                Assert.assertFalse(list.contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
                 Assert.assertEquals(list, Lists.newArrayList(Arrays.asList(id1, id2, id3)));
                 break;
             case EXCEPTION:
+                Assert.assertFalse(list.contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
                 Assert.assertEquals(list, Lists.newArrayList(Arrays.asList(id1, id2, id3)));
                 break;
-            case UNREFERENCE:
+            case NULLIFY:
+                Assert.assertTrue(list.contains(null));
+                Assert.assertEquals(list.indexOf(null), 1);
+                Assert.assertTrue(tx.exists(id1));
+                Assert.assertFalse(tx.exists(id2));
+                Assert.assertTrue(tx.exists(id3));
+                Assert.assertEquals(list, Lists.newArrayList(Arrays.asList(id1, null, id3)));
+                break;
+            case REMOVE:
+                Assert.assertFalse(list.contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
                 Assert.assertEquals(list, Lists.newArrayList(Arrays.asList(id1, id3)));
                 break;
             case DELETE:
+                Assert.assertFalse(list.contains(null));
                 Assert.assertFalse(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -236,7 +261,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             map1.put(id2, 456);
             map1.put(id3, 789);
             Assert.assertEquals(map1.get(id2), (Integer)456);
-            TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+            TestSupport.checkSet(map1.keySet(), this.idSet(id1, id2, id3));
             TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
 
             try {
@@ -247,27 +272,40 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             }
             switch (inverseDelete) {
             case IGNORE:
+                Assert.assertFalse(map1.containsKey(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(map1.keySet(), this.idSet(id1, id2, id3));
                 TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
                 break;
             case EXCEPTION:
+                Assert.assertFalse(map1.containsKey(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(map1.keySet(), this.idSet(id1, id2, id3));
                 TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
                 break;
-            case UNREFERENCE:
+            case NULLIFY:
+                Assert.assertTrue(map1.containsKey(null));
+                Assert.assertEquals(map1.get(null), 456);
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id3)));
+                TestSupport.checkSet(map1.keySet(), this.idSet(id1, id3, null));
+                TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
+                break;
+            case REMOVE:
+                Assert.assertFalse(map1.containsKey(null));
+                Assert.assertTrue(tx.exists(id1));
+                Assert.assertFalse(tx.exists(id2));
+                Assert.assertTrue(tx.exists(id3));
+                TestSupport.checkSet(map1.keySet(), this.idSet(id1, id3));
                 TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 789)));
                 break;
             case DELETE:
+                Assert.assertFalse(map1.containsKey(null));
                 Assert.assertFalse(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -295,7 +333,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             Assert.assertEquals(map2.get(456), id2);
             Assert.assertEquals(map2.get(333), id2);
             TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
-            TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+            TestSupport.checkSet(this.idSet(map2.values()), this.idSet(id1, id2, id3));
 
             try {
                 tx.delete(id2);
@@ -305,27 +343,43 @@ public class InverseDeleteTest extends CoreAPITestSupport {
             }
             switch (inverseDelete) {
             case IGNORE:
+                Assert.assertFalse(map2.values().contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
                 TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
-                TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(this.idSet(map2.values()), this.idSet(id1, id2, id3));
                 break;
             case EXCEPTION:
+                Assert.assertFalse(map2.values().contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
                 TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
-                TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(this.idSet(map2.values()), this.idSet(id1, id2, id3));
                 break;
-            case UNREFERENCE:
+            case NULLIFY:
+                Assert.assertTrue(map2.values().contains(null));
+                Assert.assertTrue(map2.containsKey(333));
+                Assert.assertTrue(map2.containsKey(456));
+                Assert.assertNull(map2.get(333));
+                Assert.assertNull(map2.get(456));
+                Assert.assertTrue(tx.exists(id1));
+                Assert.assertFalse(tx.exists(id2));
+                Assert.assertTrue(tx.exists(id3));
+                TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 333, 456, 789)));
+                TestSupport.checkSet(this.idSet(map2.values()), this.idSet(id1, id3, null));
+                break;
+            case REMOVE:
+                Assert.assertFalse(map2.values().contains(null));
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
                 TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 789)));
-                TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id3)));
+                TestSupport.checkSet(this.idSet(map2.values()), this.idSet(id1, id3));
                 break;
             case DELETE:
+                Assert.assertFalse(map2.values().contains(null));
                 Assert.assertFalse(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
@@ -339,6 +393,31 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         }
     }
 
+    private SchemaModel buildSchemaModel(DeleteAction inverseDelete) {
+        DeleteAction inverseDeleteSimple = inverseDelete;
+        if (inverseDelete == DeleteAction.REMOVE)
+            inverseDeleteSimple = DeleteAction.NULLIFY;
+        final String xml = XML_TEMPLATE
+          .replaceAll("@INVERSE_DELETE@", inverseDelete.name())
+          .replaceAll("@INVERSE_DELETE_SIMPLE@", inverseDeleteSimple.name());
+        try {
+            return SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected error", e);
+        }
+    }
+
+    private NavigableSet<ObjId> idSet(ObjId... ids) {
+        return this.idSet(Arrays.asList(ids));
+    }
+
+    private NavigableSet<ObjId> idSet(Iterable<ObjId> ids) {
+        final TreeSet<ObjId> set = new TreeSet<ObjId>(new ReferenceEncoding());
+        for (ObjId id : ids)
+            set.add(id);
+        return set;
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     public void testInverseDeleteUpdate() throws Exception {
@@ -347,15 +426,14 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         assert DeleteAction.IGNORE.ordinal() == 0;
         assert DeleteAction.EXCEPTION.ordinal() == 1;
-        assert DeleteAction.UNREFERENCE.ordinal() == 2;
-        assert DeleteAction.DELETE.ordinal() == 3;
+        assert DeleteAction.NULLIFY.ordinal() == 2;
+        assert DeleteAction.REMOVE.ordinal() == 3;
+        assert DeleteAction.DELETE.ordinal() == 4;
+        assert DeleteAction.values().length == 5;
 
-        final SchemaModel[] schemas = new SchemaModel[4];
-        for (DeleteAction inverseDelete : DeleteAction.values()) {
-            schemas[inverseDelete.ordinal()] = SchemaModel.fromXML(
-              new ByteArrayInputStream(XML_TEMPLATE.replaceAll("@INVERSE_DELETE@",
-                inverseDelete.name()).getBytes(StandardCharsets.UTF_8)));
-        }
+        final SchemaModel[] schemas = new SchemaModel[DeleteAction.values().length];
+        for (DeleteAction inverseDelete : DeleteAction.values())
+            schemas[inverseDelete.ordinal()] = this.buildSchemaModel(inverseDelete);
 
         // Create target object and friends, with all references set to inverseDelete=IGNORE
         //  - other1 and other2 have various references to target and each other
@@ -390,7 +468,7 @@ public class InverseDeleteTest extends CoreAPITestSupport {
 
         // Create referring objects and schema versions
         //  - Each referring objects refers to target in every field
-        ObjId[] referrers = new ObjId[4];
+        ObjId[] referrers = new ObjId[DeleteAction.values().length];
         for (DeleteAction inverseDelete : DeleteAction.values()) {
             final int i = inverseDelete.ordinal();
             tx = db.createTransaction(schemas[i]);
@@ -424,13 +502,15 @@ public class InverseDeleteTest extends CoreAPITestSupport {
         // Verify all indexes were updated properly
         TestSupport.checkMap(tx.querySchemaIndex().asMap(), buildMap(
           1, buildSet(other1, other2, referrers[0]),
-          3, buildSet(referrers[2])));
+          3, buildSet(referrers[2]),
+          4, buildSet(referrers[3])));
         TestSupport.checkMap(tx.querySimpleIndex(2).asMap(), buildMap(
           target, buildSet(referrers[0], other1),
-          null, buildSet(other2, referrers[2])));
+          null, buildSet(other2, referrers[2], referrers[3])));
         TestSupport.checkMap(tx.querySimpleIndex(20).asMap(), buildMap(
           target, buildSet(referrers[0], other2),
-          other1, buildSet(other2)));
+          other1, buildSet(other2),
+          null, buildSet(referrers[2])));
         TestSupport.checkSet(tx.queryListElementIndex(21).asSet(), buildSet(
           new Tuple3<>(target, other1, 0),
           new Tuple3<>(target, other1, 2),
@@ -438,9 +518,13 @@ public class InverseDeleteTest extends CoreAPITestSupport {
           new Tuple3<>(target, referrers[0], 2),
           new Tuple3<>(other2, other1, 1),
           new Tuple3<>(referrers[0], referrers[0], 1),
-          new Tuple3<>(referrers[2], referrers[2], 0)));
+          new Tuple3<>(referrers[2], referrers[2], 1),
+          new Tuple3<>(referrers[3], referrers[3], 0),
+          new Tuple3<>(null, referrers[2], 0),
+          new Tuple3<>(null, referrers[2], 2)));
         TestSupport.checkMap(tx.querySimpleIndex(22).asMap(), buildMap(
           target, buildSet(other2, referrers[0]),
+          null, buildSet(referrers[2]),
           other1, buildSet(other2)));
         TestSupport.checkSet(tx.queryMapValueIndex(25).asSet(), buildSet(
           new Tuple3<>(target, other1, 789),
@@ -449,7 +533,10 @@ public class InverseDeleteTest extends CoreAPITestSupport {
           new Tuple3<>(target, referrers[0], 454),
           new Tuple3<>(other2, other1, 123),
           new Tuple3<>(referrers[0], referrers[0], 453),
-          new Tuple3<>(referrers[2], referrers[2], 453)));
+          new Tuple3<>(referrers[2], referrers[2], 453),
+          new Tuple3<>(referrers[3], referrers[3], 453),
+          new Tuple3<>(null, referrers[2], 452),
+          new Tuple3<>(null, referrers[2], 454)));
 
         tx.commit();
     }

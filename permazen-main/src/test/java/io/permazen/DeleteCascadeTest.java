@@ -147,7 +147,7 @@ public class DeleteCascadeTest extends MainTestSupport {
         @PermazenSetField(element = @PermazenField(inverseDelete = DeleteAction.IGNORE, forwardDelete = true, allowDeleted = true))
         public abstract Set<Person> getSet();
 
-        @PermazenListField(element = @PermazenField(inverseDelete = DeleteAction.UNREFERENCE, forwardDelete = true))
+        @PermazenListField(element = @PermazenField(inverseDelete = DeleteAction.REMOVE, forwardDelete = true))
         public abstract List<Person> getList();
 
         @PermazenMapField(

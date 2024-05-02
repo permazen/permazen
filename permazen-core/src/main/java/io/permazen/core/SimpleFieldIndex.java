@@ -45,7 +45,8 @@ public class SimpleFieldIndex<T> extends SimpleIndex<T> {
 // Package Methods
 
     @Override
-    void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers) {
+    void unreferenceAll(Transaction tx, boolean remove, ObjId target, NavigableSet<ObjId> referrers) {
+        assert !remove;
         assert this.getField() instanceof ReferenceField;
         for (ObjId referrer : referrers)
             tx.writeSimpleField(referrer, this.name, null, false);

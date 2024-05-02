@@ -83,17 +83,21 @@ public abstract class SimpleIndex<T> extends Index {
 // Package methods
 
     /**
-     * Remove all references from objects in the specified referrers set to the specified target through
-     * the reference field associated with this instance. Used to implement {@link DeleteAction#UNREFERENCE}.
+     * Nullify or remove all references from objects in the specified referrers set to the specified target through
+     * the reference field associated with this instance.
+     *
+     * <p>
+     * Used to implement {@link DeleteAction#NULLIFY} and {@link DeleteAction#REMOVE}.
      *
      * <p>
      * This method may assume that this instance's {@link Encoding} is reference.
      *
      * @param tx transaction
+     * @param remove true to remove entries in complex sub-fields, false to just nullify references
      * @param target referenced object being deleted
      * @param referrers objects that refer to {@code target} via this reference field
      */
-    abstract void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers);
+    abstract void unreferenceAll(Transaction tx, boolean remove, ObjId target, NavigableSet<ObjId> referrers);
 
     /**
      * Read this field from the given object and add non-null value(s) to the given set.

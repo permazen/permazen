@@ -44,7 +44,7 @@ public abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
     abstract boolean isPrefixModeForIndex();
 
     @Override
-    void unreferenceAll(Transaction tx, ObjId target, NavigableSet<ObjId> referrers) {
+    void unreferenceAll(Transaction tx, boolean remove, ObjId target, NavigableSet<ObjId> referrers) {
 
         // Sanity check
         assert this.getField() instanceof ReferenceField;
@@ -59,18 +59,21 @@ public abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
         for (ObjId referrer : referrers) {
             writer.reset(mark);
             referrer.writeTo(writer);
-            this.unreference(tx, target, referrer, writer.getBytes());
+            this.unreference(tx, remove, target, referrer, writer.getBytes());
         }
     }
 
     /**
-     * Remove references in this sub-field in the specified referrer object to the specified target.
-     * This is used to implement {@link DeleteAction#UNREFERENCE} in complex fields.
+     * Nullify or remove references to the specified target in this sub-field in the specified referrer object.
+     *
+     * <p>
+     * Used to implement {@link DeleteAction#NULLIFY} and {@link DeleteAction#REMOVE} in complex fields.
      *
      * @param tx transaction
+     * @param remove true to remove entries in complex sub-fields, false to just nullify references
      * @param target referenced object being deleted
      * @param referrer object containing this field which refers to {@code target}
      * @param prefix (possibly partial) index entry containing {@code target} and {@code referrer}
      */
-    abstract void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix);
+    abstract void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix);
 }

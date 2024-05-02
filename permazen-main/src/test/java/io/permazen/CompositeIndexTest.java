@@ -571,11 +571,11 @@ public class CompositeIndexTest extends MainTestSupport {
     @PermazenType(storageId = 99)
     public abstract static class Top implements PermazenObject {
 
-        @PermazenField(storageId = 1, inverseDelete = DeleteAction.UNREFERENCE)
+        @PermazenField(storageId = 1, inverseDelete = DeleteAction.NULLIFY)
         public abstract Top getRef1();
         public abstract void setRef1(Top ref1);
 
-        @PermazenField(storageId = 2, inverseDelete = DeleteAction.UNREFERENCE)
+        @PermazenField(storageId = 2, inverseDelete = DeleteAction.NULLIFY)
         public abstract Top getRef2();
         public abstract void setRef2(Top ref2);
 

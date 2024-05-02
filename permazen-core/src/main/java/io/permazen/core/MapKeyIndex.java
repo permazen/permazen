@@ -43,8 +43,12 @@ public class MapKeyIndex<K, V> extends ComplexSubFieldIndex<NavigableMap<K, V>, 
     }
 
     @Override
-    void unreference(Transaction tx, ObjId target, ObjId referrer, byte[] prefix) {
-        tx.readMapField(referrer, this.getField().parent.name, false).remove(target);
+    @SuppressWarnings("unchecked")
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+        final NavigableMap<?, ?> map = tx.readMapField(referrer, this.getField().parent.name, false);
+        final Object value = map.remove(target);
+        if (!remove)
+            ((NavigableMap<?, Object>)map).put(null, value);
     }
 
     @Override
