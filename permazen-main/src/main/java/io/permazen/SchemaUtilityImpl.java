@@ -118,7 +118,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
         }
 
         // Construct database and schema model
-        this.log.info("generating Permazen schema from schema classes using " + encodingRegistry.getClass().getName());
+        this.log.info("generating Permazen schema from schema classes");
         try {
             final Database db = new Database(new MemoryKVDatabase());
             if (encodingRegistry != null)
