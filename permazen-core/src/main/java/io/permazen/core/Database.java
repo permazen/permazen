@@ -63,11 +63,13 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a
  *      {@link io.permazen.Permazen} the schema is derived automatically from annotated Java model classes.</li>
- *  <li>Object references are represented by {@link ObjId}s instead of Java objects</li>
+ *  <li>Simple fields are encoded/decoded into {@code byte[]} arrays using an {@link Encoding} which defines
+ *      the field's "type".</li>
+ *  <li>References from one object to another are represented by {@link ObjId}s and encoded/decoded using
+ *      {@link ReferenceEncoding}.</li>
  *  <li>There is no explicit notion of object sub-types, i.e., the object type hierarchy is completely flat.
  *      However, object types can share the same field definitions, and reference fields can be restricted
- *      to only refer to certain other types.</li>
- *  <li>Enum values are represented by {@link EnumValue} objects.</li>
+ *      to only refer to certain other object types.</li>
  *  <li>There is no automatic validation support.</li>
  * </ul>
  *
@@ -115,11 +117,11 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Indexes may be added and removed across different schemas without losing information, however,
- * indexes only contain objects whose schema defines the index. In other words, it's not
- * possible to find an object using an index that was added after the object was created, at least
- * not until the object is migrated to a newer schema. Similarly for other schema-defined behavior,
- * for example, the {@link DeleteAction} taken when a referenced object is deleted depends on the
- * {@link DeleteAction} configured in the schema of the object containing the reference.
+ * indexes will only contain those objects whose schema includes the index. In other words, it's not
+ * possible to find an object using an index that was added after the object was created until the object
+ * is migrated to a newer schema. The same principle applies to other schema-defined behavior, for example,
+ * the {@link DeleteAction} taken when a referenced object is deleted depends on the {@link DeleteAction}
+ * configured in the schema of the object containing the reference.
  *
  * @see Transaction
  * @see io.permazen

@@ -69,7 +69,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
         if (packageNames != null && packageNames.length > 0) {
 
             // Scan for @PermazenType classes using PermazenClassScanner - if available on the classpath
-            this.log.info("scanning for @PermazenType annotations in packages: "
+            this.log.info("scanning for @PermazenType annotations in package(s): "
               + Stream.of(packageNames).collect(Collectors.joining(", ")));
             final Class<?> scannerClass = this.loadClass(PERMAZEN_CLASS_SCANNER_CLASS_NAME, name -> String.format(
               "failed to load class \"%s\" required to support <packages> - is permazen-spring.jar a dependency?", name));
@@ -106,6 +106,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
         // Instantiate the EncodingRegistry, if any
         EncodingRegistry encodingRegistry = null;
         if (encodingRegistryClass != null) {
+            this.log.info("loading encoding registry " + encodingRegistryClass);
             final Class<? extends EncodingRegistry> cl = this.loadClass(encodingRegistryClass, EncodingRegistry.class,
               name -> String.format("failed to load the configured <encodingRegistryClass> \"%s\"", encodingRegistryClass));
             try {
@@ -117,7 +118,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
         }
 
         // Construct database and schema model
-        this.log.info("generating Permazen schema from schema classes");
+        this.log.info("generating Permazen schema from schema classes using " + encodingRegistry.getClass().getName());
         try {
             final Database db = new Database(new MemoryKVDatabase());
             if (encodingRegistry != null)
