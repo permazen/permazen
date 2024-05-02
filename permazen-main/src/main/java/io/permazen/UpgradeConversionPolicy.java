@@ -7,7 +7,6 @@ package io.permazen;
 
 import io.permazen.annotation.OnSchemaChange;
 import io.permazen.annotation.PermazenField;
-import io.permazen.core.DeleteAction;
 import io.permazen.encoding.Encoding;
 
 /**
@@ -24,8 +23,9 @@ import io.permazen.encoding.Encoding;
  * {@code "1234"}.
  *
  * <p>
+ * Automatic upgrade conversion is only supported for simple fields that are not sub-fields of complex fields.
  * See {@link Encoding#convert} for details about supported conversions between simple encodings. In addition,
- * {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper) type.
+ * {@link Counter} fields may be automatically converted to/from any numeric Java primitive (or primitive wrapper) type.
  *
  * <p>
  * This class is used to {@linkplain PermazenField#upgradeConversion specify} whether such automatic conversion
@@ -41,8 +41,7 @@ import io.permazen.encoding.Encoding;
  *
  * <p>
  * Automatic conversion of reference fields works as long as the referenced object's type is assignable to the field's
- * new Java type; otherwise, the field is {@linkplain DeleteAction#UNREFERENCE unreferenced},
- * i.e., set to null (if a simple field) or removed (if an element in a complex field).
+ * new Java type; otherwise, the field is reset to null.
  *
  * <p>
  * <b>Conversion Policies</b>

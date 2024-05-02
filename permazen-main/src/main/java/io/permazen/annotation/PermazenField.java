@@ -426,17 +426,20 @@ public @interface PermazenField {
      * {@code "1234"}).
      *
      * <p>
-     * See {@link Encoding#convert Encoding.convert()} for details about conversions between simple encodings.
-     * In addition, {@link Counter} fields can be converted to/from any numeric Java primitive (or primitive wrapper)
-     * type.
+     * See {@link Encoding#convert Encoding.convert()} for details about conversions between field encodings.
+     * In addition, {@link Counter} fields may be automatically converted to/from any numeric Java primitive
+     * (or primitive wrapper) type.
      *
      * <p>
      * This property defines the {@link UpgradeConversionPolicy} for the annotated field when upgrading an object from some
-     * other schema to the current schema. Note custom conversion logic is also possible using
-     * {@link OnSchemaChange &#64;OnSchemaChange} methods.
+     * other schema to the current schema.
      *
      * <p>
-     * For sub-fields of complex fields, this property is ignored.
+     * Automatic upgrade conversion is only supported for plain simple fields. For sub-fields of complex fields,
+     * this property is ignored.
+     *
+     * <p>
+     * Note that arbitrary conversion logic is always possible using {@link OnSchemaChange &#64;OnSchemaChange} methods.
      *
      * @return upgrade conversion policy for this field
      * @see UpgradeConversionPolicy
