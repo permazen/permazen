@@ -107,6 +107,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
             this.getLog().info("Recommended actions to take:\n"
               + "  (a) If no schema change was intended, undo whatever Java model class change(s) caused the schema difference.\n"
               + "  (b) Otherwise, move " + this.actualSchemaFile + " to " + this.expectedSchemaFile);
+            throw new MojoFailureException("generated schema does not match expected schema");
         }
 
         // Gather old schema files
