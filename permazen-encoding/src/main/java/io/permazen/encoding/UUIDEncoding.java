@@ -14,7 +14,10 @@ import io.permazen.util.ByteWriter;
 import java.util.UUID;
 
 /**
- * Non-null {@link UUID} type. Null values are not supported by this class.
+ * Non-null {@link UUID} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is 16 bytes, consisting of the {@linkplain UUID#getMostSignificantBits eight high-order bytes} followed by the
@@ -27,7 +30,7 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
     private static final long MASK = 0x8000000000000000L;
 
     public UUIDEncoding(EncodingId encodingId) {
-        super(encodingId, UUID.class, new UUID(0, 0));
+        super(encodingId, UUID.class, null);
     }
 
 // Encoding

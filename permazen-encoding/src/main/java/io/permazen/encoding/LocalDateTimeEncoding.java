@@ -12,13 +12,14 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 
 /**
- * Non-null {@link LocalDateTime} type. Null values are not supported by this class.
+ * Non-null {@link LocalDateTime} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
@@ -29,7 +30,7 @@ public class LocalDateTimeEncoding extends AbstractEncoding<LocalDateTime> {
     private static final long serialVersionUID = -3302238853808401737L;
 
     public LocalDateTimeEncoding(EncodingId encodingId) {
-        super(encodingId, LocalDateTime.class, LocalDateTime.of(LocalDate.ofEpochDay(0), LocalTime.ofSecondOfDay(0)));
+        super(encodingId, LocalDateTime.class, null);
     }
 
 // Encoding

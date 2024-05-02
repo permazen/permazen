@@ -33,7 +33,7 @@ public class StringConvertedEncoding<T> extends ConvertedEncoding<T, String> {
      * @throws IllegalArgumentException if any parameter is null
      */
     public StringConvertedEncoding(EncodingId encodingId, TypeToken<T> type, Converter<T, String> converter) {
-        super(encodingId, type, new NullSafeEncoding<>(null, new StringEncoding(null)), converter, false);
+        super(encodingId, type, null, new NullSafeEncoding<>(null, new StringEncoding(null)), converter, false);
     }
 
     /**

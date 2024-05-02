@@ -11,7 +11,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Non-null {@link URI} type. Null values are not supported by this class.
+ * {@link URI} type.
+ *
+ * <p>
+ * Null values are supported by this class.
  *
  * <p>
  * <b>Note:</b> sort order is not consistent with {@link URI#compareTo URI.compareTo()}.

@@ -50,16 +50,17 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param typeToken represented Java type
+     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
      * @param delegate delegate encoder
      * @param converter value converter
      * @param sortsNaturally true if this encoding {@linkplain Encoding#sortsNaturally sorts naturally}, otherwise false
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if any parameter other than {@code defaultValue} is null
      */
-    public ConvertedEncoding(EncodingId encodingId, TypeToken<T> typeToken,
+    public ConvertedEncoding(EncodingId encodingId, TypeToken<T> typeToken, T defaultValue,
       Encoding<S> delegate, Converter<T, S> converter, boolean sortsNaturally) {
-        super(encodingId, typeToken,
-          ConvertedEncoding.noNull(converter, "converter").reverse().convert(
-           ConvertedEncoding.noNull(delegate, "delegate").getDefaultValueObject()));
+        super(encodingId, typeToken, defaultValue);
+        Preconditions.checkArgument(delegate != null, "null delegate");
+        Preconditions.checkArgument(converter != null, "null converter");
         Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
           "converter does not convert null to null");
         this.delegate = delegate;
@@ -72,27 +73,23 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type represented Java type
+     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
      * @param delegate delegate encoder
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @param sortsNaturally true if this encoding {@linkplain Encoding#sortsNaturally sorts naturally}, otherwise false
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if any parameter other than {@code defaultValue} is null
      */
-    public ConvertedEncoding(EncodingId encodingId, Class<T> type,
+    public ConvertedEncoding(EncodingId encodingId, Class<T> type, T defaultValue,
       Encoding<S> delegate, Converter<T, S> converter, boolean sortsNaturally) {
-        this(encodingId, TypeToken.of(type), delegate, converter, sortsNaturally);
-    }
-
-    private static <T> T noNull(T value, String name) {
-        if (value == null)
-            throw new IllegalArgumentException("null " + name);
-        return value;
+        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")), defaultValue, delegate, converter, sortsNaturally);
     }
 
 // Encoding
 
     @Override
     public ConvertedEncoding<T, S> withEncodingId(EncodingId encodingId) {
-        return new ConvertedEncoding<>(encodingId, this.typeToken, this.delegate, this.converter, this.sortsNaturally);
+        return new ConvertedEncoding<>(encodingId, this.typeToken,
+          this.getDefaultValue(), this.delegate, this.converter, this.sortsNaturally);
     }
 
     @Override

@@ -10,7 +10,10 @@ import com.google.common.base.Converter;
 import java.util.regex.Pattern;
 
 /**
- * Non-null {@link Pattern} type. Null values are not supported by this class.
+ * {@link Pattern} type.
+ *
+ * <p>
+ * Null values are supported by this class.
  *
  * <p>
  * <b>Note:</b> equality is defined by equal pattern strings, which is not consistent with

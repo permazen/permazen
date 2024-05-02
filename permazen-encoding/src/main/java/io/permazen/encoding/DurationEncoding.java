@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.Duration;
 
 /**
- * Non-null {@link Duration} type. Null values are not supported by this class.
+ * Non-null {@link Duration} type.
+ *
+ * <p>
+ * Null values are not supported by this class and the default value is {@link Duration#ZERO}.
  *
  * <p>
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Duration#getSeconds seconds}

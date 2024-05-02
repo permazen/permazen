@@ -10,7 +10,10 @@ import io.permazen.util.ByteReader;
 import java.net.Inet4Address;
 
 /**
- * Non-null {@link Inet4Address} type. Null values are not supported by this class.
+ * Non-null {@link Inet4Address} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding uses the binary value from {@link java.net.InetAddress#getAddress}.

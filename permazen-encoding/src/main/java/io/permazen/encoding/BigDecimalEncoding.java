@@ -17,7 +17,10 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 /**
- * {@link BigDecimal} type. Null values are not supported by this class.
+ * Non-null {@link BigDecimal} type.
+ *
+ * <p>
+ * Null values are not supported by this class and the default value is {@link BigDecimal#ZERO}.
  *
  * <p>
  * This class' encoding preserves precision information, and therefore treats as distinct instances that differ only in

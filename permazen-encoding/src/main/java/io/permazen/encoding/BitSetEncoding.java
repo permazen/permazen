@@ -15,7 +15,10 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.util.BitSet;
 
 /**
- * {@link BitSet} type. Null values are not supported by this class.
+ * Non-null {@link BitSet} type.
+ *
+ * <p>
+ * Null values are not supported by this class. The default value is an empty {@link BitSet}.
  *
  * <p>
  * Instances are ordered as if they were giant unsigned integers, i.e., whichever instance has the highest bit set

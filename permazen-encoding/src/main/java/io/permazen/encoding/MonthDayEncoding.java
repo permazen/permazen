@@ -14,7 +14,10 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.time.MonthDay;
 
 /**
- * Non-null {@link MonthDay} type. Null values are not supported by this class.
+ * Non-null {@link MonthDay} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via an {@link UnsignedIntEncoder}-encoded value {@code 32} times the
@@ -25,7 +28,7 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
     private static final long serialVersionUID = -8813919603844250786L;
 
     public MonthDayEncoding(EncodingId encodingId) {
-        super(encodingId, MonthDay.class, MonthDay.of(1, 1));
+        super(encodingId, MonthDay.class, null);
     }
 
 // Encoding

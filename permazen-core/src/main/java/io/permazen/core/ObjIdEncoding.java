@@ -13,7 +13,10 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
 /**
- * Non-null encoding for {@link ObjId}s. Null values are not supported by this class.
+ * Non-null encoding for {@link ObjId}s.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding uses the value from {@link ObjId#getBytes}.
@@ -23,13 +26,6 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
     private static final long serialVersionUID = 6921359865864012847L;
 
 // Constructors
-
-    /**
-     * Create an anonymous instance.
-     */
-    public ObjIdEncoding() {
-        this(null);
-    }
 
     /**
      * Constructor.

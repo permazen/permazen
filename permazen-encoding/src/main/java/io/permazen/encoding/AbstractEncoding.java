@@ -26,11 +26,10 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     protected final EncodingId encodingId;
     protected final TypeToken<T> typeToken;
-
     @SuppressWarnings("serial")
-    private final T defaultValueObject;
+    private final T defaultValue;
 
-    private transient byte[] defaultValue;
+    private transient byte[] defaultValueBytes;
 
 // Constructors
 
@@ -39,15 +38,14 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param typeToken Java type for the field's values
-     * @param defaultValue default value for this encoding
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
+     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
+     * @throws IllegalArgumentException if {@code typeToken} is null
      */
     protected AbstractEncoding(EncodingId encodingId, TypeToken<T> typeToken, T defaultValue) {
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.encodingId = encodingId;
         this.typeToken = typeToken;
-        this.defaultValueObject = defaultValue;
+        this.defaultValue = defaultValue;
     }
 
     /**
@@ -55,15 +53,17 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type Java type for the field's values
-     * @param defaultValue default value for this encoding
-     * @throws IllegalArgumentException if any parameter is null
-     * @throws IllegalArgumentException if {@code name} is invalid
+     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
+     * @throws IllegalArgumentException if {@code type} is null
      */
     protected AbstractEncoding(EncodingId encodingId, Class<T> type, T defaultValue) {
-        Preconditions.checkArgument(type != null, "null type");
-        this.encodingId = encodingId;
-        this.typeToken = TypeToken.of(type);
-        this.defaultValueObject = defaultValue;
+        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")), defaultValue);
+    }
+
+    static <T> T noNull(T value, String name) {
+        if (value == null)
+            throw new IllegalArgumentException("null " + name);
+        return value;
     }
 
 // Public methods
@@ -79,9 +79,16 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     }
 
     @Override
-    public final T getDefaultValueObject() {
-        Preconditions.checkState(this.supportsNull() || this.defaultValueObject != null, "invalid null default value");
-        return this.defaultValueObject;
+    public final T getDefaultValue() {
+        Preconditions.checkState(this.supportsNull() || this.defaultValue != null, "invalid null default value");
+        return this.defaultValue;
+    }
+
+    @Override
+    public byte[] getDefaultValueBytes() {
+        if (this.defaultValueBytes == null)
+            this.defaultValueBytes = Encoding.super.getDefaultValueBytes();
+        return this.defaultValueBytes.clone();
     }
 
 // Object

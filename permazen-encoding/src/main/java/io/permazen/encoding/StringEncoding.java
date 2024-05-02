@@ -14,7 +14,10 @@ import io.permazen.util.UnsignedIntEncoder;
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * {@link String} encoding. Null values are not supported by this class.
+ * Non-null {@link String} encoding.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Strings are encoded as a sequence of characters followed by {@code 0x00}, where each character is encoded via
@@ -31,7 +34,7 @@ public class StringEncoding extends AbstractEncoding<String> {
     private static final int ESCAPE = 0x01;
 
     public StringEncoding(EncodingId encodingId) {
-       super(encodingId, String.class, "");
+       super(encodingId, String.class, null);
     }
 
     @Override

@@ -23,10 +23,6 @@ abstract class Concat2Encoding<T, S1, S2> extends AbstractEncoding<T> {
        this.type2 = type2;
     }
 
-    protected Concat2Encoding(EncodingId encodingId, Class<T> type, Encoding<S1> type1, Encoding<S2> type2) {
-       this(encodingId, type, null, type1, type2);
-    }
-
 // Encoding
 
     @Override

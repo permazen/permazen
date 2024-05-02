@@ -47,7 +47,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
         // If we are repairing, the key/value store will contain any corrections by this point, so it's safe to read the field
         if (info.getConfig().isRepair()) {
             final byte[] actualValue = info.getKVStore().get(this.buildFieldKey(id, storageId).getBytes());
-            if (!Arrays.equals(expectedValue, actualValue != null ? actualValue : encoding.getDefaultValue()))
+            if (!Arrays.equals(expectedValue, actualValue != null ? actualValue : encoding.getDefaultValueBytes()))
                 throw new IllegalArgumentException("field value != " + Jsck.ds(expectedValue));
         }
     }

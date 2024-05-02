@@ -12,7 +12,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 /**
- * Non-null {@link OffsetDateTime} type. Null values are not supported by this class.
+ * Non-null {@link OffsetDateTime} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via the concatenation of the encodings of {@link Instant} and {@link ZoneOffset}.
@@ -22,7 +25,7 @@ public class OffsetDateTimeEncoding extends Concat2Encoding<OffsetDateTime, Inst
     private static final long serialVersionUID = -1216769026293613698L;
 
     public OffsetDateTimeEncoding(EncodingId encodingId) {
-        super(encodingId, OffsetDateTime.class, new InstantEncoding(null), new ZoneOffsetEncoding(null));
+        super(encodingId, OffsetDateTime.class, null, new InstantEncoding(null), new ZoneOffsetEncoding(null));
     }
 
     @Override

@@ -13,7 +13,10 @@ import jakarta.mail.internet.InternetAddress;
 import java.io.Serializable;
 
 /**
- * Non-null {@link InternetAddress} encoding.  Null values are not supported by this class.
+ * {@link InternetAddress} email address encoding.
+ *
+ * <p>
+ * Null values are supported by this class.
  *
  * <p>
  * <b>Note:</b> the method {@link InternetAddress#equals InternetAddress.equals()} performs a case-insensitive

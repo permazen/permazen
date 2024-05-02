@@ -10,7 +10,10 @@ import com.google.common.base.Converter;
 import java.io.File;
 
 /**
- * Non-null {@link File} type. Null values are not supported by this class.
+ * {@link File} type.
+ *
+ * <p>
+ * Null values are supported by this class.
  */
 public class FileEncoding extends StringConvertedEncoding<File> {
 

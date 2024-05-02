@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.Year;
 
 /**
- * Non-null {@link Year} type. Null values are not supported by this class.
+ * Non-null {@link Year} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is the {@link LongEncoder}-encoded {@linkplain Year#getValue year value}.
@@ -24,7 +27,7 @@ public class YearEncoding extends AbstractEncoding<Year> {
     private static final long serialVersionUID = 6800527893478605289L;
 
     public YearEncoding(EncodingId encodingId) {
-        super(encodingId, Year.class, Year.of(0));
+        super(encodingId, Year.class, null);
     }
 
 // Encoding

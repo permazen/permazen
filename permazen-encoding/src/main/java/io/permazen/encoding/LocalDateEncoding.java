@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.LocalDate;
 
 /**
- * Non-null {@link LocalDate} type. Null values are not supported by this class.
+ * Non-null {@link LocalDate} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing the {@linkplain LocalDate#toEpochDay epoch day}.
@@ -24,7 +27,7 @@ public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
     private static final long serialVersionUID = -1245720029314097665L;
 
     public LocalDateEncoding(EncodingId encodingId) {
-        super(encodingId, LocalDate.class, LocalDate.ofEpochDay(0));
+        super(encodingId, LocalDate.class, null);
     }
 
 // Encoding

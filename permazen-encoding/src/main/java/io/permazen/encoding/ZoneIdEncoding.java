@@ -10,7 +10,10 @@ import com.google.common.base.Converter;
 import java.time.ZoneId;
 
 /**
- * Non-null {@link ZoneId} type. Null values are not supported by this class.
+ * {@link ZoneId} type.
+ *
+ * <p>
+ * Null values are supported by this class.
  */
 public class ZoneIdEncoding extends StringConvertedEncoding<ZoneId> {
 

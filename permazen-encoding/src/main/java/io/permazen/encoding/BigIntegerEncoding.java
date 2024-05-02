@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.math.BigInteger;
 
 /**
- * {@link BigInteger} type. Null values are not supported by this class.
+ * Non-null {@link BigInteger} type.
+ *
+ * <p>
+ * Null values are not supported by this class. The default value is {@link BigInteger#ZERO}.
  */
 public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
 

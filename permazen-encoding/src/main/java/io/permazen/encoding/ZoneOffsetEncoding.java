@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.ZoneOffset;
 
 /**
- * Non-null {@link ZoneOffset} type. Null values are not supported by this class.
+ * Non-null {@link ZoneOffset} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via the {@link LongEncoder}-encoded negative of the
@@ -26,7 +29,7 @@ public class ZoneOffsetEncoding extends AbstractEncoding<ZoneOffset> {
     private static final long serialVersionUID = 4606196393878370203L;
 
     public ZoneOffsetEncoding(EncodingId encodingId) {
-        super(encodingId, ZoneOffset.class, ZoneOffset.UTC);
+        super(encodingId, ZoneOffset.class, null);
     }
 
 // Encoding

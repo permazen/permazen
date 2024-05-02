@@ -46,7 +46,10 @@ import java.util.Comparator;
  *  <li>{@code null} may or may not be a supported value; see {@link #supportsNull}. If so, it must be fully supported value just
  *      like any other; for example, it must be handled by {@link #compare compare()} (typically null values sort last).
  *      Note that this is an additional requirement beyond what {@link Comparator} strictly requires.
- *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.
+ *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null,
+ *      and for types that don't support null, obviously the default value must not be null; however, an exception can be made
+ *      for encodings that don't support null but don't need default values, e.g., encodings that are always wrapped within a
+ *      {@link NullSafeEncoding}.
  *  <li>All <i>non-null</i> values can be encoded/decoded into a {@link String} without losing information; see
  *      {@link #toString(Object) toString()} and {@link #fromString fromString()}.
  *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]}
@@ -132,14 +135,14 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * <p>
      * The implementation in {@link Encoding} returns the binary encoding of the value returned by
-     * {@link #getDefaultValueObject}.
+     * {@link #getDefaultValue}.
      *
      * @return encoded default value
      */
-    default byte[] getDefaultValue() {
+    default byte[] getDefaultValueBytes() {
         final ByteWriter writer = new ByteWriter();
         try {
-            this.write(writer, this.getDefaultValueObject());
+            this.write(writer, this.getDefaultValue());
         } catch (IllegalArgumentException e) {
             throw new UnsupportedOperationException(this + " does not have a default value");
         }
@@ -154,7 +157,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * @return default value
      */
-    T getDefaultValueObject();
+    T getDefaultValue();
 
     /**
      * Read and discard a {@code byte[]} encoded value from the given input.

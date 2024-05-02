@@ -16,7 +16,10 @@ import java.util.Date;
 import org.dellroad.stuff.string.DateEncoder;
 
 /**
- * Non-null {@link Date} type. Null values are not supported by this class.
+ * Non-null {@link Date} type.
+ *
+ * <p>
+ * Null values are not supported by this class.
  */
 public class DateEncoding extends AbstractEncoding<Date> {
 

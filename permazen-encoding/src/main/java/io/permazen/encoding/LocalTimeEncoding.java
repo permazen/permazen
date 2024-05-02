@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.LocalTime;
 
 /**
- * Non-null {@link LocalTime} type. Null values are not supported by this class.
+ * Non-null {@link LocalTime} type.
+ *
+ * <p>
+ * Null values are not supported by this class.
  *
  * <p>
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing

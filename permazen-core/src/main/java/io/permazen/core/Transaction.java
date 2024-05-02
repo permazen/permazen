@@ -1593,7 +1593,7 @@ public class Transaction {
                         final byte[] key = Field.buildKey(id, oldField.storageId);
                         final byte[] oldValue = Transaction.this.kvt.get(key);
                         oldValueMap.put(oldField.name, oldValue != null ?
-                          oldField.encoding.read(new ByteReader(oldValue)) : oldField.encoding.getDefaultValueObject());
+                          oldField.encoding.read(new ByteReader(oldValue)) : oldField.encoding.getDefaultValue());
                         return null;
                     }
 
@@ -1951,7 +1951,7 @@ public class Transaction {
         final byte[] value = this.kvt.get(key);
 
         // Decode value
-        return value != null ? field.encoding.read(new ByteReader(value)) : field.encoding.getDefaultValueObject();
+        return value != null ? field.encoding.read(new ByteReader(value)) : field.encoding.getDefaultValue();
     }
 
     /**
@@ -2041,7 +2041,7 @@ public class Transaction {
                         otherValue = oldValue;
                     } else
                         otherValue = this.kvt.get(otherField.buildKey(id));         // can be null (if field has default value)
-                    oldWriter.write(otherValue != null ? otherValue : otherField.encoding.getDefaultValue());
+                    oldWriter.write(otherValue != null ? otherValue : otherField.encoding.getDefaultValueBytes());
                     if (otherField == field)
                         fieldEnd = oldWriter.getLength();
                 }
@@ -2056,7 +2056,7 @@ public class Transaction {
                 // Patch in new field value to create new composite index entry
                 final ByteWriter newWriter = new ByteWriter(oldIndexEntry.length);
                 newWriter.write(oldIndexEntry, 0, fieldStart);
-                newWriter.write(newValue != null ? newValue : field.encoding.getDefaultValue());
+                newWriter.write(newValue != null ? newValue : field.encoding.getDefaultValueBytes());
                 newWriter.write(oldIndexEntry, fieldEnd, oldIndexEntry.length - fieldEnd);
 
                 // Add new composite index entry
@@ -2067,7 +2067,7 @@ public class Transaction {
         // Notify monitors
         if (!this.disableListenerNotifications) {
             final Object oldObj = oldValue != null ?
-              field.encoding.read(new ByteReader(oldValue)) : field.encoding.getDefaultValueObject();
+              field.encoding.read(new ByteReader(oldValue)) : field.encoding.getDefaultValue();
             this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
                 @Override
                 @SuppressWarnings("unchecked")
@@ -2127,7 +2127,7 @@ public class Transaction {
      */
     private static byte[] buildSimpleIndexEntry(SimpleField<?> field, ObjId id, byte[] value) {
         if (value == null)
-            value = field.encoding.getDefaultValue();
+            value = field.encoding.getDefaultValueBytes();
         final int storageId = field.storageId;
         final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(storageId) + value.length + ObjId.NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
@@ -3463,7 +3463,7 @@ public class Transaction {
         UnsignedIntEncoder.write(writer, index.storageId);
         for (SimpleField<?> field : index.fields) {
             final byte[] value = tx != null ? tx.kvt.get(field.buildKey(id)) : null;
-            writer.write(value != null ? value : field.encoding.getDefaultValue());
+            writer.write(value != null ? value : field.encoding.getDefaultValueBytes());
         }
         id.writeTo(writer);
         return writer.getBytes();

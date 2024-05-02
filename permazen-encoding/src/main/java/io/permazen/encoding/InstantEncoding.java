@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.Instant;
 
 /**
- * Non-null {@link Instant} type. Null values are not supported by this class.
+ * Non-null {@link Instant} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Instant#getEpochSecond epoch seconds}
@@ -25,7 +28,7 @@ public class InstantEncoding extends AbstractEncoding<Instant> {
     private static final long serialVersionUID = -3907615112193058091L;
 
     public InstantEncoding(EncodingId encodingId) {
-        super(encodingId, Instant.class, Instant.ofEpochSecond(0));
+        super(encodingId, Instant.class, null);
     }
 
 // Encoding

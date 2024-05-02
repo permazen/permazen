@@ -186,6 +186,6 @@ public class SimpleField<T> extends Field<T> {
             throw new IllegalArgumentException(String.format("can't set %s to value %s: %s", this, obj, e.getMessage()), e);
         }
         final byte[] result = writer.getBytes();
-        return Arrays.equals(result, this.encoding.getDefaultValue()) ? null : result;
+        return Arrays.equals(result, this.encoding.getDefaultValueBytes()) ? null : result;
     }
 }

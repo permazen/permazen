@@ -13,7 +13,10 @@ import io.permazen.util.ByteWriter;
 import java.net.InetAddress;
 
 /**
- * Non-null {@link InetAddress} type. Null values are not supported by this class.
+ * Non-null {@link InetAddress} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding uses the binary value from {@link java.net.InetAddress#getAddress}, preceded by

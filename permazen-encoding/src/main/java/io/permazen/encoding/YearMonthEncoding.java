@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.YearMonth;
 
 /**
- * Non-null {@link YearMonth} type. Null values are not supported by this class.
+ * Non-null {@link YearMonth} type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, the {@linkplain YearMonth#getYear year}
@@ -25,7 +28,7 @@ public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
     private static final long serialVersionUID = 2773124141026846109L;
 
     public YearMonthEncoding(EncodingId encodingId) {
-        super(encodingId, YearMonth.class, YearMonth.of(0, 1));
+        super(encodingId, YearMonth.class, null);
     }
 
 // Encoding

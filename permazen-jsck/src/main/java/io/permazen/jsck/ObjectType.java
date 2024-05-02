@@ -146,7 +146,7 @@ class ObjectType extends Storage<ObjType> {
         // Verify index entries for indexed simple fields that had default values (which we would not have encountered)
         for (SimpleField<?> field : indexedSimpleFieldsWithDefaultValues) {
             final Encoding<?> encoding = field.getEncoding();
-            final byte[] defaultValue = encoding.getDefaultValue();
+            final byte[] defaultValue = encoding.getDefaultValueBytes();
             this.verifySimpleIndexEntry(info, id, field, defaultValue);
         }
 
@@ -184,14 +184,14 @@ class ObjectType extends Storage<ObjType> {
             value = null;
 
         // We should not see default values in simple fields that are not sub-fields of complex fields
-        if (value != null && ByteUtil.compare(value, encoding.getDefaultValue()) == 0) {
+        if (value != null && ByteUtil.compare(value, encoding.getDefaultValueBytes()) == 0) {
             info.handle(new InvalidValue(pair).setDetail("default value; should not be present"));
             value = null;
         }
 
         // Verify index entry
         if (field.isIndexed())
-            this.verifySimpleIndexEntry(info, id, field, value != null ? value : encoding.getDefaultValue());
+            this.verifySimpleIndexEntry(info, id, field, value != null ? value : encoding.getDefaultValueBytes());
 
         // Done
         return value;
@@ -391,7 +391,7 @@ class ObjectType extends Storage<ObjType> {
             // Get the field's value
             byte[] value = simpleFieldValues.get(field.getName());
             if (value == null)
-                value = field.getEncoding().getDefaultValue();
+                value = field.getEncoding().getDefaultValueBytes();
 
             // Append to index entry
             writer.write(value);

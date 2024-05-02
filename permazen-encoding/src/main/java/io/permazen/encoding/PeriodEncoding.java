@@ -14,7 +14,10 @@ import io.permazen.util.LongEncoder;
 import java.time.Period;
 
 /**
- * Non-null {@link Period} type. Null values are not supported by this class.
+ * Non-null {@link Period} type.
+ *
+ * <p>
+ * Null values are not supported by this class.
  *
  * <p>
  * Binary encoding is via three consecutive {@link LongEncoder}-encoded values: the {@linkplain Period#getYears years},
