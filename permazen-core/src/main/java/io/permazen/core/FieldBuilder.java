@@ -75,7 +75,7 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
         }
 
         // Build field
-        return this.buildSimpleField(field, encoding, field.isIndexed());
+        return this.addSimpleField(field, encoding, field.isIndexed());
     }
 
     @Override
@@ -112,7 +112,7 @@ class FieldBuilder implements SchemaFieldSwitch<Field<?>> {
 // Internal methods
 
     // This method exists solely to bind the generic type parameters
-    private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
+    private <T> SimpleField<T> addSimpleField(SimpleSchemaField field, Encoding<T> encoding, boolean indexed) {
         return this.add(field, new SimpleField<>(this.objType, field, encoding, indexed));
     }
 
