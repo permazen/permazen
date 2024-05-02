@@ -149,29 +149,30 @@ public class Database {
     public Database(KVDatabase kvdb) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
-        this.encodingRegistry = new DefaultEncodingRegistry();
     }
 
     /**
      * Get the {@link EncodingRegistry} associated with this instance.
      *
      * <p>
-     * By default a {@link DefaultEncodingRegistry} is configured.
+     * By default a {@link DefaultEncodingRegistry} is automatically created.
+     *
+     * @return encoding registry associated with this instance
+     */
+    public synchronized EncodingRegistry getEncodingRegistry() {
+        if (this.encodingRegistry == null)
+            this.encodingRegistry = new DefaultEncodingRegistry();
+        return this.encodingRegistry;
+    }
+
+    /**
+     * Set the {@link EncodingRegistry} associated with this instance.
      *
      * @param encodingRegistry encoding registry to associate with this instance
      * @throws IllegalArgumentException if {@code encodingRegistry} is null
      */
     public synchronized void setEncodingRegistry(EncodingRegistry encodingRegistry) {
         this.encodingRegistry = encodingRegistry;
-    }
-
-    /**
-     * Get the {@link EncodingRegistry} associated with this instance.
-     *
-     * @return encoding registry associated with this instance
-     */
-    public synchronized EncodingRegistry getEncodingRegistry() {
-        return this.encodingRegistry;
     }
 
     /**
@@ -456,7 +457,7 @@ public class Database {
         synchronized (this) {
 
             // Snapshot EncodingRegistry
-            txEncodingRegistry = this.encodingRegistry;
+            txEncodingRegistry = this.getEncodingRegistry();
 
             // Optimization: if everything is the same as last time, re-use the previous schema bundle
             if (this.schemaCache != null && this.schemaCache.matches(txConfig, txEncodingRegistry, encodedBundle))
@@ -543,8 +544,7 @@ public class Database {
         private final EncodingRegistry encodingRegistry;
         private final SchemaBundle.Encoded encoded;
 
-        SchemaCache(Schema schema, TransactionConfig txConfig, EncodingRegistry encodingRegistry,
-          SchemaBundle.Encoded encoded) {
+        SchemaCache(Schema schema, TransactionConfig txConfig, EncodingRegistry encodingRegistry, SchemaBundle.Encoded encoded) {
             this.schema = schema;
             this.txConfig = txConfig;
             this.encodingRegistry = encodingRegistry;
