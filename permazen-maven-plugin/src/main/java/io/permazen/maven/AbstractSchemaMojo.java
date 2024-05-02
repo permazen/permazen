@@ -118,19 +118,19 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         try {
             urls.add(this.getClassOutputDirectory().toURI().toURL());
         } catch (MalformedURLException e) {
-            throw new MojoExecutionException("error creating URL from directory \"" + this.getClassOutputDirectory() + "\"", e);
+            throw new MojoExecutionException("Error creating URL from directory \"" + this.getClassOutputDirectory() + "\"", e);
         }
         final ArrayList<String> dependencies = new ArrayList<>();
         try {
             this.addDependencyClasspathElements(dependencies);
         } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException("error gathering dependency classpath elements", e);
+            throw new MojoExecutionException("Error gathering dependency classpath elements", e);
         }
         for (String dependency : dependencies) {
             try {
                 urls.add(new File(dependency).toURI().toURL());
             } catch (MalformedURLException e) {
-                throw new MojoExecutionException("error creating URL from classpath element \"" + dependency + "\"", e);
+                throw new MojoExecutionException("Error creating URL from classpath element \"" + dependency + "\"", e);
             }
         }
 
@@ -158,16 +158,20 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                     }
                 });
             } catch (IOException e) {
-                throw new MojoExecutionException("error walking output directory hierarchy", e);
+                throw new MojoExecutionException("Error walking output directory hierarchy", e);
             }
             this.classes = classNames.toArray(new String[classNames.size()]);
-            this.getLog().debug(this.getClass().getSimpleName() + " auto-generated class list: "
-              + classNames.toString().replaceAll("(^\\[|, )", "\n  "));
+            if (this.getLog().isDebugEnabled()) {
+                this.getLog().debug(String.format("%s auto-generated class list:\n%s",
+                  this.getClass().getSimpleName(), this.listOfStrings(classNames)));
+            }
         }
 
         // Gather model and encoding classes
-        this.getLog().debug(this.getClass().getSimpleName() + " classloader setup: "
-          + urls.toString().replaceAll("(^\\[|, )", "\n  "));
+        if (this.getLog().isDebugEnabled()) {
+            this.getLog().debug(String.format("%s classloader setup:\n%s",
+              this.getClass().getSimpleName(), this.listOfStrings(urls)));
+        }
         final ClassLoader parentLoader = Thread.currentThread().getContextClassLoader();
         final ClassLoader loader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]), parentLoader);
         Thread.currentThread().setContextClassLoader(loader);
@@ -191,5 +195,15 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         } finally {
             Thread.currentThread().setContextClassLoader(parentLoader);
         }
+    }
+
+    private String listOfStrings(Iterable<?> items) {
+        final StringBuilder buf = new StringBuilder();
+        for (Object item : items) {
+            if (buf.length() > 0)
+                buf.append("\n");
+            buf.append("  ").append(item);
+        }
+        return buf.toString();
     }
 }

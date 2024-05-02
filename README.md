@@ -80,11 +80,16 @@ Permazen redefines the "line of demarcation" between a Java application and its 
   * [`KVTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
   * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/).
 
+*Core API Layer*
+
+  * [`Database`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/Database.html) - A Permazen core API database instance
+  * [`Transaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/Transaction.html) - A Permazen core API database transaction
+  * [`Encoding`](http://permazen.github.io/permazen/site/apidocs/io/permazen/encoding/Encoding.html) - Defines how simple database types are encoded/decoded
+
 *Java Layer*
 
   * [`Permazen`](http://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html) - A Permazen database instance
   * [`PermazenTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenTransaction.html) - A Permazen database transaction
-  * [`FieldType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/FieldType.html) - How all simple database types are defined
   * [`PermazenObject`](http://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenObject.html) - Interface implemented by runtime-generated concrete model classes
   * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
   * [`@PermazenField`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenField.html) - Annotation configuring your database fields
@@ -93,7 +98,7 @@ Permazen redefines the "line of demarcation" between a Java application and its 
 
   * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnChange.html) - How change notifications are delivered
   * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
-  * [`@OnVersionChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnVersionChange.html) - How schema update "fixups" are defined
+  * [`@OnSchemaChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) - How schema update "fixups" are defined
   * [`PermazenObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/io/permazen/spring/PermazenObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
 
 ### How are Java object, data structures, and indexes mapped into key/value pairs?
@@ -137,6 +142,57 @@ You should also add the key/value store module(s) for whatever key/value store(s
         <artifactId>permazen-kv-sqlite</artifactId>
     </dependency>
 ```
+
+There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line and GUI, using a simple database of the solar system.
+
+### Maven Plugin
+
+The Permazen Maven plugin includes a `verify-schema` goal. This goal compares the Permazen schema generated from your Java model classes to an expected reference schema, and fails the build if there are any differences.
+
+A change in your schema is not a bad thing, but it does mean you should double-check that (a) the schema change was actually intended, and (b) that you've added any new [`@OnSchemaChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) logic that may be needed.
+
+The plugin will run using its default configuration. To avoid scanning every class in `${project.build.directory`, tell it what package(s) contain your model classes:
+```xml
+    <!-- Permazen schema verification -->
+    <plugin>
+        <groupId>io.permazen</groupId>
+        <artifactId>permazen-maven-plugin</artifactId>
+        <version>${permazen.version}</version>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>verify-schema</goal>
+                </goals>
+                <configuration>
+
+                    <!-- Where to find my model classes -->
+                    <packages>
+                        <package>com.example.myapp.model</package>
+                    </packages>
+
+                    <!-- Or specify individual class names -->
+                    <classes>
+                        <class>com.example.myapp.model.ModelClassA</class>
+                        <class>com.example.myapp.model.ModelClassB</class>
+                    </classes>
+
+                    <!-- If you have custom data types, specify where to find them -->
+                    <encodingRegistryClass>com.example.myapp.encoding.MyEncodingRegistry</encodingRegistryClass>
+
+                    <!-- Expected and actual schema XML files (default value shown) -->
+                    <expectedSchemaFile>${basedir}/src/main/permazen/expected-schema.xml</expectedSchemaFile>
+                    <actualSchemaFile>${project.build.directory}/schema.xml</actualSchemaFile>
+
+                    <!-- Rarely used settings (default value shown) -->
+                    <oldSchemasDirectory>${basedir}/src/main/permazen/old</oldSchemasDirectory>
+                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                    <schemaIdProperty></schemaIdProperty>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+```
+To generate your initial expected schema file, just run the plugin and follow the instructions.
 
 There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line and GUI, using a simple database of the solar system.
 

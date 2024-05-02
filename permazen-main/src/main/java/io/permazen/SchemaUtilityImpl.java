@@ -69,21 +69,21 @@ public class SchemaUtilityImpl implements SchemaUtility {
         if (packageNames != null && packageNames.length > 0) {
 
             // Scan for @PermazenType classes using PermazenClassScanner - if available on the classpath
-            this.log.info("scanning for @PermazenType annotations in package(s): "
-              + Stream.of(packageNames).collect(Collectors.joining(", ")));
+            this.log.info(String.format("Scanning for @%s annotations in package(s): %s",
+              PermazenType.class.getSimpleName(), Stream.of(packageNames).collect(Collectors.joining(", "))));
             final Class<?> scannerClass = this.loadClass(PERMAZEN_CLASS_SCANNER_CLASS_NAME, name -> String.format(
-              "failed to load class \"%s\" required to support <packages> - is permazen-spring.jar a dependency?", name));
+              "Failed to load class \"%s\" required to support <packages> - is permazen-spring.jar a dependency?", name));
             final List<?> scannedClasses;
             try {
                 scannedClasses = (List<?>)scannerClass.getMethod("scanForClasses", String[].class)
                   .invoke(scannerClass.getConstructor().newInstance(), (Object)packageNames);
             } catch (ReflectiveOperationException e) {
-                throw new MojoExecutionException(String.format("error scanning for classes using %s", scannerClass), e);
+                throw new MojoExecutionException(String.format("Error scanning for classes using %s", scannerClass), e);
             }
             for (Object obj : scannedClasses) {
                 final String className = (String)obj;
-                this.log.info("adding Permazen model class " + className);
-                final Class<?> cl = this.loadClass(className, name -> String.format("failed to load model class \"%s\"", name));
+                this.log.info("Adding Permazen model class " + className);
+                final Class<?> cl = this.loadClass(className, name -> String.format("Failed to load model class \"%s\"", name));
                 modelClasses.add(cl);
             }
         }
@@ -93,11 +93,11 @@ public class SchemaUtilityImpl implements SchemaUtility {
             for (String className : classNames) {
 
                 // Load class
-                final Class<?> cl = this.loadClass(className, name -> String.format("failed to load class \"%s\"", name));
+                final Class<?> cl = this.loadClass(className, name -> String.format("Failed to load class \"%s\"", name));
 
                 // Add model classes
                 if (cl.isAnnotationPresent(PermazenType.class)) {
-                    this.log.info("adding Permazen model " + cl);
+                    this.log.info("Adding Permazen model " + cl);
                     modelClasses.add(cl);
                 }
             }
@@ -106,19 +106,19 @@ public class SchemaUtilityImpl implements SchemaUtility {
         // Instantiate the EncodingRegistry, if any
         EncodingRegistry encodingRegistry = null;
         if (encodingRegistryClass != null) {
-            this.log.info("loading encoding registry " + encodingRegistryClass);
+            this.log.info("Loading custom encoding registry " + encodingRegistryClass);
             final Class<? extends EncodingRegistry> cl = this.loadClass(encodingRegistryClass, EncodingRegistry.class,
-              name -> String.format("failed to load the configured <encodingRegistryClass> \"%s\"", encodingRegistryClass));
+              name -> String.format("Failed to load the configured <encodingRegistryClass> \"%s\"", encodingRegistryClass));
             try {
                 encodingRegistry = cl.getConstructor().newInstance();
             } catch (ReflectiveOperationException e) {
                 throw new MojoExecutionException(String.format(
-                  "failed to instantiate the configured <encodingRegistryClass> \"%s\"", encodingRegistryClass), e);
+                  "Failed to instantiate the configured <encodingRegistryClass> \"%s\"", encodingRegistryClass), e);
             }
         }
 
         // Construct database and schema model
-        this.log.info("generating Permazen schema from schema classes");
+        this.log.info("Generating Permazen schema from schema classes");
         try {
             final Database db = new Database(new MemoryKVDatabase());
             if (encodingRegistry != null)
@@ -132,12 +132,12 @@ public class SchemaUtilityImpl implements SchemaUtility {
             this.schema = this.pdb.getSchemaModel(false);
             this.schema.lockDown(true);
         } catch (Exception e) {
-            throw new MojoFailureException(String.format("schema generation failed: %s", e.getMessage()), e);
+            throw new MojoFailureException(String.format("Schema generation failed: %s", e.getMessage()), e);
         }
 
         // Return schema ID
         final SchemaId schemaId = this.schema.getSchemaId();
-        this.log.info("schema ID is \"" + schemaId + "\"");
+        this.log.info("Schema ID is \"" + schemaId + "\"");
         return schemaId.toString();
     }
 
@@ -149,20 +149,21 @@ public class SchemaUtilityImpl implements SchemaUtility {
         // Create directory
         final File dir = file.getParentFile();
         if (!dir.exists()) {
-            this.log.info("creating directory \"" + dir + "\"");
+            if (this.log.isDebugEnabled())
+                this.log.debug("Creating directory " + dir);
             try {
                 Files.createDirectories(dir.toPath());
             } catch (IOException e) {
-                throw new MojoExecutionException(String.format("error creating directory \"%s\": %s", dir, e.getMessage()), e);
+                throw new MojoExecutionException(String.format("Error creating directory \"%s\": %s", dir, e.getMessage()), e);
             }
         }
 
         // Write schema model to file
-        this.log.info("writing Permazen schema to \"" + file + "\"");
+        this.log.info("Writing Permazen schema to " + file);
         try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
             this.schema.toXML(output, true);
         } catch (IOException e) {
-            throw new MojoExecutionException(String.format("error writing schema to \"%s\": %s", file, e.getMessage()), e);
+            throw new MojoExecutionException(String.format("Error writing schema to \"%s\": %s", file, e.getMessage()), e);
         }
     }
 
@@ -172,21 +173,21 @@ public class SchemaUtilityImpl implements SchemaUtility {
         Preconditions.checkArgument(file != null, "null file");
 
         // Read file
-        this.log.info("verifying Permazen schema matches \"" + file + "\"");
+        this.log.info("Verifying Permazen schema matches " + file);
         final SchemaModel verifyModel;
         try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
             verifyModel = SchemaModel.fromXML(input);
         } catch (IOException | InvalidSchemaException e) {
-            throw new MojoExecutionException(String.format("error reading schema from \"%s\": %s", file, e), e);
+            throw new MojoExecutionException(String.format("Error reading schema from \"%s\": %s", file, e), e);
         }
         verifyModel.lockDown(true);
 
         // Compare
         final boolean matched = this.schema.getSchemaId().equals(verifyModel.getSchemaId());
         if (!matched)
-            this.log.error("schema verification failed:\n" + this.schema.differencesFrom(verifyModel));
+            this.log.error("Schema verification failed:\n" + this.schema.differencesFrom(verifyModel));
         else
-            this.log.info("schema verification succeeded");
+            this.log.info("Schema verification succeeded");
 
         // Done
         return matched;
@@ -203,12 +204,12 @@ public class SchemaUtilityImpl implements SchemaUtility {
             final File file = files.next();
 
             // Read next file
-            this.log.info("checking schema for conflicts with " + file);
+            this.log.info("Checking schema for conflicts with " + file);
             final SchemaModel otherSchema;
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
                 otherSchema = SchemaModel.fromXML(input);
             } catch (IOException | InvalidSchemaException e) {
-                throw new MojoExecutionException(String.format("error reading schema from \"%s\": %s", file, e), e);
+                throw new MojoExecutionException(String.format("Error reading schema from \"%s\": %s", file, e), e);
             }
 
             // Check compatible
@@ -219,7 +220,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
                   .newTransaction(this.pdb.getDatabase())
                   .rollback();
             } catch (Exception e) {
-                this.log.error("schema conflicts with " + file + ": " + e);
+                this.log.error("Schema conflict found with " + file + ": " + e);
                 success = false;
             }
         }
@@ -236,7 +237,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
             return cl.asSubclass(type);
         } catch (ClassCastException e) {
             throw new MojoExecutionException(String.format(
-              "error loading class \"%s\" - expected a subtype of \"%s\"", className, type.getName()), e);
+              "Error loading class \"%s\" - expected a subtype of \"%s\"", className, type.getName()), e);
         }
     }
 
