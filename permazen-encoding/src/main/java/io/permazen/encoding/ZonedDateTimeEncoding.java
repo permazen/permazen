@@ -57,10 +57,10 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
         final ZoneId zoneId;
         final int bracket = string.indexOf('[');
         if (bracket != -1 && string.charAt(string.length() - 1) == ']') {
-            offsetDateTime = this.type1.fromString(string.substring(0, bracket));
-            zoneId = this.type2.fromString(string.substring(bracket + 1, string.length() - 1));
+            offsetDateTime = this.encoding1.fromString(string.substring(0, bracket));
+            zoneId = this.encoding2.fromString(string.substring(bracket + 1, string.length() - 1));
         } else {
-            offsetDateTime = this.type1.fromString(string);
+            offsetDateTime = this.encoding1.fromString(string);
             zoneId = offsetDateTime.getOffset();
         }
         return ZonedDateTime.ofInstant(offsetDateTime.toInstant(), zoneId);
