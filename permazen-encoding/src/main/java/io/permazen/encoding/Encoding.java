@@ -113,7 +113,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * Read a value from the given input.
      *
      * @param reader byte input
-     * @return field value (possibly null)
+     * @return decoded value (possibly null)
      * @throws IllegalArgumentException if invalid input is encountered
      * @throws IndexOutOfBoundsException if input is truncated
      * @throws IllegalArgumentException if {@code reader} is null
@@ -273,11 +273,11 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     }
 
     /**
-     * Order two field values.
+     * Order two values.
      *
      * <p>
      * This method must provide a total ordering of all supported Java values that is consistent with the database ordering,
-     * i.e., the unsigned lexicographical ordering of the corresponding {@code byte[]} encoded field values.
+     * i.e., the unsigned lexicographical ordering of the corresponding {@code byte[]} encoded values.
      *
      * <p>
      * If null is a supported Java value, then the this method must accept null parameters without throwing an exception

@@ -11,7 +11,7 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.tuple.Tuple5;
 
 /**
- * Composite encoding constructed from the concatenation of five component encodings.
+ * {@link Encoding} for a {@link Tuple5} created by concatenating the component {@link Encoding}s.
  */
 public class Tuple5Encoding<V1, V2, V3, V4, V5> extends TupleEncoding<Tuple5<V1, V2, V3, V4, V5>> {
 

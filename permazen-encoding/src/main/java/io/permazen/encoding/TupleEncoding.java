@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Superclass for {@link Encoding}s created from the concatenation of other {@link Encoding}s.
+ * Support superclass for {@link Encoding}s of {@link Tuple} classes created by concatenating the component {@link Encoding}s.
  */
 public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T> {
 

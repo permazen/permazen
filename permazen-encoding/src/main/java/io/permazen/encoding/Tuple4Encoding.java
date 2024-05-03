@@ -11,7 +11,7 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.tuple.Tuple4;
 
 /**
- * Composite encoding constructed from the concatenation of four component encodings.
+ * {@link Encoding} for a {@link Tuple4} created by concatenating the component {@link Encoding}s.
  */
 public class Tuple4Encoding<V1, V2, V3, V4> extends TupleEncoding<Tuple4<V1, V2, V3, V4>> {
 

@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import java.io.Serializable;
 
 /**
- * A globally unique identifier for a simple field encoding scheme.
+ * A globally unique identifier that identifies an {@link Encoding}'s encoding scheme.
  *
  * <p>
  * Encoding ID's are Uniform Resource Names (URNs), with these differences:

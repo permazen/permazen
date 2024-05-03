@@ -37,7 +37,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      * Constructor.
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
-     * @param typeToken Java type for the field's values
+     * @param typeToken Java type for this encoding's values
      * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
      * @throws IllegalArgumentException if {@code typeToken} is null
      */
@@ -52,7 +52,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      * Constructor.
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
-     * @param type Java type for the field's values
+     * @param type Java type for this encoding's values
      * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
      * @throws IllegalArgumentException if {@code type} is null
      */

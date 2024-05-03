@@ -110,8 +110,8 @@ public interface EncodingRegistry {
      * <p>
      * The Java type must exactly match the {@link Encoding}'s {@linkplain Encoding#getTypeToken supported Java type}.
      *
-     * @param typeToken field value type
-     * @param <T> field value type
+     * @param typeToken encoding value type
+     * @param <T> encoding value type
      * @return unmodifiable list of {@link Encoding}s supporting Java values of type {@code typeToken}, possibly empty
      * @throws IllegalArgumentException if {@code typeToken} is null
      */
@@ -124,8 +124,8 @@ public interface EncodingRegistry {
      * The Java type must exactly match the {@link Encoding}'s {@linkplain Encoding#getTypeToken supported Java type}
      * and there must be exactly one such {@link Encoding}, otherwise an {@link IllegalArgumentException} is thrown.
      *
-     * @param typeToken field value type
-     * @param <T> field value type
+     * @param typeToken encoding value type
+     * @param <T> encoding value type
      * @return {@link Encoding} supporting Java values of type {@code typeToken}
      * @throws IllegalArgumentException if {@code typeToken} is null
      * @throws IllegalArgumentException if no {@link Encoding}s supports {@code typeToken}
