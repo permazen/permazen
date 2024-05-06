@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.cli.PermazenShell;
 import io.permazen.cli.PermazenShellSession;
-import io.permazen.cli.Session;
 import io.permazen.cli.config.PermazenCliConfig;
 import io.permazen.cli.jshell.PermazenJShellCommand;
 
@@ -41,7 +40,6 @@ public class CliMain {
     private static CliMain instance;
 
     private boolean showErrorStackTraces;
-    private Session cliSession;
 
 // Constructor
 
