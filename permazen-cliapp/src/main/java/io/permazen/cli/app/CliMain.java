@@ -7,16 +7,10 @@ package io.permazen.cli.app;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.cli.PermazenShell;
-import io.permazen.cli.PermazenShellSession;
 import io.permazen.cli.config.PermazenCliConfig;
-import io.permazen.cli.jshell.PermazenJShellCommand;
+import io.permazen.cli.main.BasicCliMain;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,108 +20,22 @@ import joptsimple.OptionSpec;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.dellroad.jct.core.ShellSession;
-import org.dellroad.jct.core.simple.CommandBundle;
-import org.dellroad.jct.core.simple.SimpleShellRequest;
-import org.dellroad.jct.core.util.ConsoleUtil;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
 
-public class CliMain {
+public class CliMain extends BasicCliMain {
 
     public static final Level DEFAULT_LOG_LEVEL = Level.INFO;       // Note: keep this consistent with log4j2.xml
 
-    private boolean showErrorStackTraces;
+// BasicCliMain
 
-// Public Methods
-
-    public String getErrorPrefix() {
-        return "Error";
-    }
-
-    public int run(String[] args) {
-
-        // Try to detect "--verbose" flag early
-        this.showErrorStackTraces |= Stream.of(args).anyMatch(s -> s.matches("-v|--verbose"));
-
-        // Build CLI config
-        final CliMainConfig config = new CliMainConfig();
-        try {
-            if (!config.startup(System.out, System.err, -1, args))
-                return 0;
-        } catch (IllegalArgumentException e) {
-            final String description = Optional.ofNullable(e.getMessage()).orElseGet(e::toString);
-            System.err.println(String.format("%s: %s", this.getErrorPrefix(), description));
-            if (this.showErrorStackTraces)
-                e.printStackTrace(System.err);
-            return 1;
-        }
-
-        // Create Permazen shell
-        final PermazenShell shell = config.newPermazenShell();
-
-        // Find CLI command bundles on the classpath
-        final List<CommandBundle> commandBundles = CommandBundle.scanAndGenerate().collect(Collectors.toList());
-
-        // Replace standard "jshell" command (if present) with our custom version
-        commandBundles.forEach(bundle -> bundle.computeIfPresent("jshell", (name, value) -> new PermazenJShellCommand()));
-
-        // Register CLI command bundles with the shell
-        shell.getCommandBundles().addAll(commandBundles);
-
-        // Create system terminal
-        final AtomicReference<ShellSession> shellSessionRef = new AtomicReference<>();
-        final Terminal terminal;
-        try {
-            terminal = TerminalBuilder.builder()
-              .name("JCT")
-              .system(true)
-              .nativeSignals(true)
-              .signalHandler(ConsoleUtil.interrruptHandler(shellSessionRef::get, Terminal.SignalHandler.SIG_DFL))
-              .build();
-        } catch (IOException e) {
-            System.err.println(String.format("%s: error creating system terminal: %s", this.getErrorPrefix(), e));
-            if (this.showErrorStackTraces)
-                e.printStackTrace(System.err);
-            return 1;
-        }
-
-        // Create shell session
-        final PermazenShellSession shellSession;
-        try {
-            shellSession = shell.newShellSession(new SimpleShellRequest(terminal, Collections.emptyList(), System.getenv()));
-        } catch (IOException e) {
-            System.err.println(String.format("%s: error creating %s session: %s", this.getErrorPrefix(), "shell", e));
-            if (this.showErrorStackTraces)
-                e.printStackTrace(System.err);
-            return 1;
-        }
-        shellSessionRef.set(shellSession);
-
-        // Execute shell session
-        try {
-            return shellSession.execute();
-        } catch (InterruptedException e) {
-            System.err.println(String.format("%s: ", this.getErrorPrefix(), "interrupted"));
-            return 1;
-        }
+    @Override
+    protected CliMainConfig buildCliConfig() {
+        return new CliMainConfig();
     }
 
 // Main Entry Point
 
     public static void main(String[] args) {
-
-        // Create and execute program
-        int exitValue;
-        try {
-            exitValue = new CliMain().run(args);
-        } catch (Throwable t) {
-            t.printStackTrace(System.err);
-            exitValue = 1;
-        }
-
-        // Exit with exit value
-        System.exit(exitValue);
+        BasicCliMain.main(new CliMain(), args);
     }
 
 // Log Level
