@@ -27,9 +27,11 @@ import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
 
 public class PermazenJShellShellSession extends JShellShellSession implements HasPermazenSession {
 
-    private static final String STARTUP_FILE_RESOURCE = "META-INF/permazen/jshell-startup.jsh";
-    private static final String TEMP_FILE_PREFIX = "PermazenJShell-";
+    public static final String RESOURCE_TEMPORARY_FILE_PREFIX = "PermazenJShell-";
 
+    private static final String STARTUP_FILE_RESOURCE = "META-INF/permazen/jshell-startup.jsh";
+
+    private volatile boolean runStandardStartup = true;
     private File startupFile;
 
 // Constructor
@@ -40,6 +42,13 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 
         // Configure local execution
         this.setLocalContextClassLoader(ApplicationClassLoader.getInstance());
+    }
+
+    /**
+     * Set whether to run the standard Permazen jshell startup script.
+     */
+    public void setRunStandardStartup(boolean runStandardStartup) {
+        this.runStandardStartup = runStandardStartup;
     }
 
 // PermazenJShellShellSession
@@ -71,9 +80,11 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
             LocalContextExecutionControlProvider.setExecutionFlag(params, PermazenExecutionControlProvider.NAME);
 
         // Add our custom startup script
-        this.startupFile = this.resourceToFile(STARTUP_FILE_RESOURCE);
-        params.add("--startup");
-        params.add(this.startupFile.toString());
+        if (this.runStandardStartup) {
+            this.startupFile = PermazenJShellShellSession.resourceToFile(STARTUP_FILE_RESOURCE);
+            params.add("--startup");
+            params.add(this.startupFile.toString());
+        }
 
         // Done
         return params;
@@ -98,7 +109,19 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 
 // Internal Methods
 
-    private File resourceToFile(String resource) {
+    /**
+     * Make a classpath available as a {@link File}.
+     *
+     * <p>
+     * If the resource is already a file, that file is returned. Otherwise, a temporary
+     * file is created and the file's name will begin with {@link #RESOURCE_TEMPORARY_FILE_PREFIX}.
+     *
+     * @param resource classpath resource
+     * @return {@link File} containing the resource
+     * @throws RuntimeException if {@code resource} is not found or inaccessible
+     * @throws IllegalArgumentException if {@code resource} is null
+     */
+    public static File resourceToFile(String resource) {
 
         // Sanity check
         Preconditions.checkArgument(resource != null, "null resource");
@@ -115,7 +138,9 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 
         // Read resource into a temporary file
         try (InputStream in = loader.getResourceAsStream(resource)) {
-            final File file = File.createTempFile(TEMP_FILE_PREFIX, "tmp");
+            if (in == null)
+                throw new RuntimeException(String.format("resource \"%s\" not found", resource));
+            final File file = File.createTempFile(RESOURCE_TEMPORARY_FILE_PREFIX, "tmp");
             try (OutputStream out = new FileOutputStream(file)) {
                 in.transferTo(out);
             }
@@ -126,7 +151,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     }
 
     private void removeIfTemporary(File file) {
-        if (file.getName().startsWith(TEMP_FILE_PREFIX))
+        if (file.getName().startsWith(RESOURCE_TEMPORARY_FILE_PREFIX))
             file.delete();
     }
 }

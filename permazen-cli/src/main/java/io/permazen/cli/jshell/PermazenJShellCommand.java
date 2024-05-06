@@ -17,8 +17,20 @@ import org.dellroad.jct.jshell.command.JShellCommand;
 
 public class PermazenJShellCommand extends JShellCommand {
 
+    /**
+     * Constructor.
+     */
     public PermazenJShellCommand() {
-        super(new PermazenJShellShell());
+        this(new PermazenJShellShell());
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param shell command shell
+     */
+    public PermazenJShellCommand(PermazenJShellShell shell) {
+        super(shell);
     }
 
     @Override
