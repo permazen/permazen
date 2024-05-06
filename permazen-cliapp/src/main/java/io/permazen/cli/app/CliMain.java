@@ -37,26 +37,7 @@ public class CliMain {
 
     public static final Level DEFAULT_LOG_LEVEL = Level.INFO;       // Note: keep this consistent with log4j2.xml
 
-    private static CliMain instance;
-
     private boolean showErrorStackTraces;
-
-// Constructor
-
-    public CliMain() {
-
-        // Disallow more than one instance
-        synchronized (CliMain.class) {
-            Preconditions.checkState(CliMain.instance == null, "duplicate singleton");
-            CliMain.instance = this;
-        }
-    }
-
-// Singleton Accessor
-
-    public static CliMain getInstance() {
-        return CliMain.instance;
-    }
 
 // Public Methods
 
