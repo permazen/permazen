@@ -508,13 +508,18 @@ public class SchemaBundle {
 
     /**
      * Get <b>a random representative</b> {@link SchemaItem} corresponding to the given {@link SchemaId}.
+     *
+     * <p>
      * Because the representative is randomly chosen from all schemas, {@link SchemaItem#getSchema} should be ignored.
      *
      * @param schemaId schema ID
      * @param expectedType expected schema item type
      * @return {@link SchemaItem} representative
-     * @throws IllegalArgumentException if {@code schemaId} is not known
-     * @throws IllegalArgumentException if {@code schemaId} is not known
+     * @throws UnknownFieldException if a {@link Field} schema ID is not found
+     * @throws UnknownTypeException if an {@link ObjType} schema ID is not found
+     * @throws UnknownIndexException if an {@link Index} schema ID is not found
+     * @throws IllegalArgumentException if {@code schemaId} or {@code expectedType} is invalid
+     * @throws IllegalArgumentException if {@code schemaId} is null
      */
     <T extends SchemaItem> T getSchemaItem(SchemaId schemaId, Class<T> expectedType) {
 
