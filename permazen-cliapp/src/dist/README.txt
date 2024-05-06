@@ -3,8 +3,8 @@ Permaze CLI Console Application
 
 To start the console:
 
-    $ java -jar permazen-cliapp.jar [ options ... ]
+    $ java -jar permazen-cli.jar [ options ... ]
 
 To view available options:
 
-    $ java -jar permazen-cliapp.jar --help
+    $ java -jar permazen-cli.jar --help
