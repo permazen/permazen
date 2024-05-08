@@ -9,6 +9,7 @@ import io.permazen.test.TestSupport;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -140,4 +141,76 @@ public class BoundsTest extends TestSupport {
         }
         return list.toArray(new Object[list.size()][]);
     }
+
+    // CHECKSTYLE OFF: ParenPad
+    @Test
+    public void testBoundsUnion() {
+
+        final Comparator<Integer> c = Comparator.nullsLast(Integer::compare);
+
+        final Bounds<Integer> b1 = new Bounds<>();
+
+        final Bounds<Integer> b2  = new Bounds<>(-10, BoundType.EXCLUSIVE,  0, BoundType.INCLUSIVE);
+        final Bounds<Integer> b3  = new Bounds<>(  0, BoundType.INCLUSIVE, 10, BoundType.INCLUSIVE);
+        final Bounds<Integer> b4  = new Bounds<>(-10, BoundType.INCLUSIVE,  0, BoundType.EXCLUSIVE);
+        final Bounds<Integer> b5  = new Bounds<>(  0, BoundType.EXCLUSIVE, 10, BoundType.EXCLUSIVE);
+
+        final Bounds<Integer> b6  = new Bounds<>( -5, BoundType.EXCLUSIVE,  5, BoundType.EXCLUSIVE);
+        final Bounds<Integer> b7  = new Bounds<>(-50, BoundType.EXCLUSIVE, 50, BoundType.EXCLUSIVE);
+
+        final Bounds<Integer> b8  = new Bounds<>(  0, BoundType.EXCLUSIVE,  0, BoundType.EXCLUSIVE);     // empty instance
+        final Bounds<Integer> b9  = new Bounds<>(  0, BoundType.INCLUSIVE,  0, BoundType.EXCLUSIVE);     // empty instance
+        final Bounds<Integer> b10 = new Bounds<>(  0, BoundType.INCLUSIVE,  0, BoundType.INCLUSIVE);
+
+        final Bounds<Integer> b11 = new Bounds<>(-50, BoundType.INCLUSIVE, -50, BoundType.INCLUSIVE);
+        final Bounds<Integer> b12 = new Bounds<>( 50, BoundType.INCLUSIVE,  50, BoundType.INCLUSIVE);
+
+        Assert.assertFalse(b7.isEmpty(c));
+        Assert.assertTrue(b8.isEmpty(c));
+        Assert.assertTrue(b9.isEmpty(c));
+        Assert.assertFalse(b10.isEmpty(c));
+
+        Assert.assertEquals(b1.union(c, b1), b1);
+        Assert.assertEquals(b2.union(c, b2), b2);
+        Assert.assertEquals(b3.union(c, b3), b3);
+        Assert.assertEquals(b4.union(c, b4), b4);
+        Assert.assertEquals(b5.union(c, b5), b5);
+        Assert.assertEquals(b6.union(c, b6), b6);
+        Assert.assertEquals(b7.union(c, b7), b7);
+        Assert.assertEquals(b8.union(c, b8), b8);
+        Assert.assertEquals(b9.union(c, b9), b9);
+
+        Assert.assertEquals(b1.union(c, b1), b1);
+        Assert.assertEquals(b1.union(c, b2), b1);
+        Assert.assertEquals(b1.union(c, b3), b1);
+        Assert.assertEquals(b1.union(c, b4), b1);
+        Assert.assertEquals(b1.union(c, b5), b1);
+
+        Assert.assertEquals(b2.union(c, b3), new Bounds<>(-10, BoundType.EXCLUSIVE, 10, BoundType.INCLUSIVE));
+        Assert.assertEquals(b2.union(c, b4), new Bounds<>(-10, BoundType.INCLUSIVE,  0, BoundType.INCLUSIVE));
+        Assert.assertEquals(b3.union(c, b4), new Bounds<>(-10, BoundType.INCLUSIVE, 10, BoundType.INCLUSIVE));
+        Assert.assertEquals(b5.union(c, b2), new Bounds<>(-10, BoundType.EXCLUSIVE, 10, BoundType.EXCLUSIVE));
+
+        Assert.assertEquals(b2.union(c, b6), new Bounds<>(-10, BoundType.EXCLUSIVE,  5, BoundType.EXCLUSIVE));
+        Assert.assertEquals(b2.union(c, b7), new Bounds<>(-50, BoundType.EXCLUSIVE, 50, BoundType.EXCLUSIVE));
+
+        Assert.assertNull(b4.union(c, b5));
+
+        Assert.assertEquals(b4.union(c, b8), b4);
+        Assert.assertEquals(b5.union(c, b8), b5);
+
+        Assert.assertEquals(b4.union(c, b9), b4);
+        Assert.assertEquals(b5.union(c, b9), b5);
+
+        Assert.assertEquals(b4.union(c, b10), new Bounds<>(-10, BoundType.INCLUSIVE,  0, BoundType.INCLUSIVE));
+        Assert.assertEquals(b5.union(c, b10), new Bounds<>(  0, BoundType.INCLUSIVE, 10, BoundType.EXCLUSIVE));
+
+        Assert.assertEquals(b7.union(c, b11).union(c, b12), new Bounds<>(-50, BoundType.INCLUSIVE, 50, BoundType.INCLUSIVE));
+
+        Assert.assertEquals(b4.union(c, b7), b7);
+        Assert.assertEquals(b8.union(c, b6), b6);
+        Assert.assertEquals(b9.union(c, b6), b6);
+        Assert.assertEquals(b10.union(c, b6), b6);
+    }
+    // CHECKSTYLE ON: ParenPad
 }

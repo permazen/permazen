@@ -259,11 +259,93 @@ public class Bounds<T> {
     }
 
     /**
+     * Consolidate the ranges of values implied by this instance and the given instance, if possible.
+     *
+     * <p>
+     * If the value ranges implied by the two bounds are not overlapping or adjacent, then null is returned.
+     * Otherwise an instance is returned that corresponds to the union of the two implied value ranges.
+     *
+     * <p>
+     * Some cases not handled, e.g., when one bound has an inclusive upper bound with value <i>x</i> and the
+     * other has an inclusive lower bound with value <i>x + 1</i>, because this method can't detect adjacent values.
+     *
+     * @param comparator comparator used to compare values, or null for natural ordering
+     * @param other instance to attempt consolidation with this one
+     * @return consolidated bounds, or null if none is possible
+     * @throws IllegalArgumentException if {@code other} is null
+     */
+    public Bounds<T> union(Comparator<? super T> comparator, Bounds<T> other) {
+
+        // Sanity check
+        Preconditions.checkArgument(other != null, "null other");
+
+        // Allow an instance to consolidate with itself or any empty instance
+        comparator = this.comparatorOrNatural(comparator);
+        if (this.equals(other) || other.isEmpty(comparator))
+            return this;
+        if (this.isEmpty(comparator))
+            return other;
+
+        // Compare min's to max's
+        int diff;
+        Bounds<T> a = this;
+        Bounds<T> b = other;
+        final boolean leAMinBMax = !b.hasUpperBound()
+          || !a.hasLowerBound()
+          || (diff = comparator.compare(a.lowerBound, b.upperBound)) < 0
+          || (diff == 0 && !(a.lowerBoundType == BoundType.EXCLUSIVE && b.upperBoundType == BoundType.EXCLUSIVE));
+        final boolean leBMinAMax = !a.hasUpperBound()
+          || !b.hasLowerBound()
+          || (diff = comparator.compare(b.lowerBound, a.upperBound)) < 0
+          || (diff == 0 && !(b.lowerBoundType == BoundType.EXCLUSIVE && a.upperBoundType == BoundType.EXCLUSIVE));
+
+        // Two ranges abut/overlap if and only if min_a <= max_b and min_b <= max_a
+        if (!(leAMinBMax && leBMinAMax))
+            return null;
+
+        // Determine the lower of the two lower bounds, and the higher of the two upper bounds
+        final boolean leAMinBMin = !a.hasLowerBound()
+          || (b.hasLowerBound()
+            && ((diff = comparator.compare(a.lowerBound, b.lowerBound)) < 0
+              || (diff == 0 && !(a.lowerBoundType == BoundType.EXCLUSIVE && b.lowerBoundType == BoundType.INCLUSIVE))));
+        final boolean geAMaxBMax = !a.hasUpperBound()
+          || (b.hasUpperBound()
+            && ((diff = comparator.compare(a.upperBound, b.upperBound)) > 0
+              || (diff == 0 && !(a.upperBoundType == BoundType.EXCLUSIVE && b.upperBoundType == BoundType.INCLUSIVE))));
+
+        // Build new bounds
+        final Bounds<T> lower = leAMinBMin ? a : b;
+        final Bounds<T> upper = geAMaxBMax ? a : b;
+        return new Bounds<>(lower.lowerBound, lower.lowerBoundType, upper.upperBound, upper.upperBoundType);
+    }
+
+    /**
+     * Determine if this instance is provably empty, i.e., no values can possibly be within the bounds.
+     *
+     * @param comparator comparator used to compare values, or null for natural ordering
+     * @return true if this instance is backwards
+     */
+    public boolean isEmpty(Comparator<? super T> comparator) {
+        if (!this.hasLowerBound() || !this.hasUpperBound())
+            return false;
+        final int diff = this.comparatorOrNatural(comparator).compare(this.lowerBound, this.upperBound);
+        if (diff > 0)
+            return true;
+        if (diff < 0)
+            return false;
+        return !(this.lowerBoundType == BoundType.INCLUSIVE && this.upperBoundType == BoundType.INCLUSIVE);
+    }
+
+    /**
      * Determine if this instance has bounds that are "inverted" with respect to the given {@link Comparator}.
      *
+     * <p>
      * This instance is "inverted" if it has both lower and upper bounds and
      * the lower bound's value is strictly greater than the upper bound's value.
      * The bounds' types (i.e., whether {@link BoundType#INCLUSIVE} or {@link BoundType#EXCLUSIVE}) is not considered.
+     *
+     * <p>
+     * An inverted instance is always {@linkplain #isEmpty empty}, but the reverse is not necessarily true.
      *
      * @param comparator comparator used to compare values, or null for natural ordering
      * @return true if this instance is backwards
