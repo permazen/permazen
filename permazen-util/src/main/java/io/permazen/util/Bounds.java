@@ -268,13 +268,10 @@ public class Bounds<T> {
      * @param comparator comparator used to compare values, or null for natural ordering
      * @return true if this instance is backwards
      */
-    @SuppressWarnings("unchecked")
     public boolean isInverted(Comparator<? super T> comparator) {
         if (!this.hasLowerBound() || !this.hasUpperBound())
             return false;
-        final int diff = comparator != null ?
-          comparator.compare(this.lowerBound, this.upperBound) : ((Comparable<T>)this.lowerBound).compareTo(this.upperBound);
-        return diff > 0;
+        return this.comparatorOrNatural(comparator).compare(this.lowerBound, this.upperBound) > 0;
     }
 
     /**
@@ -285,7 +282,6 @@ public class Bounds<T> {
      * @param requireInclusive whether value should not be considered included when it is exactly equal to an exclusive bound
      * @param upper true to check against upper bound, false to check against lower bound
      */
-    @SuppressWarnings("unchecked")
     private boolean isWithinBound(Comparator<? super T> comparator, T value, boolean requireInclusive, boolean upper) {
 
         // Check bound type
@@ -295,7 +291,7 @@ public class Bounds<T> {
 
         // Compare value to bound
         final T bound = upper ? this.upperBound : this.lowerBound;
-        final int diff = comparator != null ? comparator.compare(value, bound) : ((Comparable<T>)value).compareTo(bound);
+        final int diff = this.comparatorOrNatural(comparator).compare(value, bound);
 
         // Handle value equal to bound
         if (diff == 0)
@@ -303,6 +299,11 @@ public class Bounds<T> {
 
         // Value is either inside or outside bound
         return upper ? diff < 0 : diff > 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Comparator<? super T> comparatorOrNatural(Comparator<? super T> comparator) {
+        return comparator != null ? comparator : (x, y) -> ((Comparable<T>)x).compareTo(y);
     }
 
 // Static Methods
