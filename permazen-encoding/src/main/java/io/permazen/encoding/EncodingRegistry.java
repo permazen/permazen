@@ -142,4 +142,22 @@ public interface EncodingRegistry {
             throw new IllegalArgumentException("multiple encodings support values of type " + typeToken + ": " + encodings);
         }
     }
+
+    /**
+     * Get the unique {@link Encoding} in this registry that supports values of the given Java type.
+     *
+     * <p>
+     * This is a convenience method, equivalent to: {@code getEncoding(TypeToken.of(type))}.
+     *
+     * @param type encoding value type
+     * @param <T> encoding value type
+     * @return {@link Encoding} supporting Java values of type {@code type}
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if no {@link Encoding}s supports {@code type}
+     * @throws IllegalArgumentException if more than one {@link Encoding} supports {@code type}
+     */
+    default <T> Encoding<T> getEncoding(Class<T> type) {
+        Preconditions.checkArgument(type != null, "null type");
+        return this.getEncoding(TypeToken.of(type));
+    }
 }
