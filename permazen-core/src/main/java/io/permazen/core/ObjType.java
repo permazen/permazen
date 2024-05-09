@@ -7,6 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.schema.SchemaCompositeIndex;
 import io.permazen.schema.SchemaField;
@@ -69,7 +70,23 @@ public class ObjType extends SchemaItem {
             // Populate maps from simple fields
             if (field instanceof SimpleField) {
                 final SimpleField<?> simpleField = (SimpleField<?>)field;
-                this.simpleFields.put(field.name, simpleField);
+                final Encoding<?> encoding = simpleField.encoding;
+
+                // Verify simple field encodings have default values
+                Object obj;
+                try {
+                    obj = encoding.getDefaultValue();
+                } catch (UnsupportedOperationException e) {
+                    obj = null;
+                }
+                if (obj == null && !encoding.supportsNull()) {
+                    throw new InvalidSchemaException(
+                      String.format("encoding \"%s\" for field \"%s\" in type \"%s\" has no default value",
+                        encoding.getEncodingId(), simpleField.name, this.name));
+                }
+
+                // Add to maps
+                this.simpleFields.put(simpleField.name, simpleField);
                 if (simpleField.indexed)
                     this.indexedSimpleFields.add(simpleField);
             }
