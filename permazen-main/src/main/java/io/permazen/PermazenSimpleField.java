@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.annotation.Values;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
@@ -56,19 +57,22 @@ public class PermazenSimpleField extends PermazenField {
         this.unique = annotation.unique();
         this.setter = setter;
         this.upgradeConversion = annotation.upgradeConversion();
+        this.uniqueExcludes = this.parseValues(annotation.uniqueExcludes(), "uniqueExcludes");
+    }
 
-        // Parse uniqueExcludes(), if any
-        if (!ValueMatch.isEmpty(annotation.uniqueExcludes())) {
-            assert this.unique;
-            try {
-                this.uniqueExcludes = ValueMatch.create(this.encoding, annotation.uniqueExcludes());
-                this.uniqueExcludes.validate(false);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(String.format(
-                  "invalid uniqueExcludes() for field \"%s\": %s", name, e.getMessage()), e);
-            }
-        } else
-            this.uniqueExcludes = null;
+    // Parse @Values annotation, if not empty
+    private ValueMatch<?> parseValues(Values values, String annotationName) {
+        if (ValueMatch.isEmpty(values))
+            return null;
+        final ValueMatch<?> valueMatch;
+        try {
+            valueMatch = ValueMatch.create(this.encoding, values);
+            valueMatch.validate(false);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s() for field \"%s\": %s", annotationName, this.name, e.getMessage()), e);
+        }
+        return valueMatch;
     }
 
 // Public Methods

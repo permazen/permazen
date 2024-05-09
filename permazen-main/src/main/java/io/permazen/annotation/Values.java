@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>
  * To match all field values, combine {@link #nulls} with {@link #nonNulls}. For primitive field types,
- * {@link #nulls} is irrelevant and ignored, so {@link #nonNulls} matches all values.
+ * {@link #nulls} is irrelevant and ignored, so {@link #nonNulls} by itself matches all values.
  *
  * <p>
  * It is an error to combine {@link #nonNulls} with {@link #value}, as that would be redundant.

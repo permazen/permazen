@@ -1790,8 +1790,8 @@ public class PermazenTransaction {
                     }
                 }
 
-            compositeIndexUniqueLoop:
                 // Check composite index uniqueness constraints
+            compositeIndexUniqueLoop:
                 for (PermazenCompositeIndex pindex : pclass.uniqueConstraintCompositeIndexes) {
                     assert pindex.unique;
 
@@ -1802,18 +1802,16 @@ public class PermazenTransaction {
                         values.add(this.tx.readSimpleField(id, pfield.name, false));
 
                     // Is this combination of values excluded from the uniqueness constraint?
-                    if (pindex.uniqueExcludes != null) {
-                        for (List<ValueMatch<?>> fieldMatches : pindex.uniqueExcludes) {
-                            boolean allFieldsMatched = true;
-                            for (int i = 0; i < numFields; i++) {
-                                if (!fieldMatches.get(i).matches(values.get(i))) {
-                                    allFieldsMatched = false;
-                                    break;
-                                }
+                    for (List<ValueMatch<?>> fieldMatches : pindex.uniqueExcludes) {
+                        boolean allFieldsMatched = true;
+                        for (int i = 0; i < numFields; i++) {
+                            if (!fieldMatches.get(i).matches(values.get(i))) {
+                                allFieldsMatched = false;
+                                break;
                             }
-                            if (allFieldsMatched)
-                                continue compositeIndexUniqueLoop;
                         }
+                        if (allFieldsMatched)
+                            continue compositeIndexUniqueLoop;
                     }
 
                     // Query core API index to find all objects with the same values in the fields

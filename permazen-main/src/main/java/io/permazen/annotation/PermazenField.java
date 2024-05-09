@@ -366,7 +366,7 @@ public @interface PermazenField {
     boolean unique() default false;
 
     /**
-     * Specify field value(s) which should be excluded from the uniqueness constraint.
+     * Specify field value(s) that should be excluded from the uniqueness constraint.
      *
      * <p>
      * Examples:

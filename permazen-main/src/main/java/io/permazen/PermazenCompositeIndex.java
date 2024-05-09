@@ -19,6 +19,7 @@ import io.permazen.schema.SchemaCompositeIndex;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,63 +45,59 @@ public class PermazenCompositeIndex extends PermazenSchemaItem {
         this.declaringType = declaringType;
         this.pfields = Collections.unmodifiableList(Arrays.asList(pfields));
         this.unique = annotation.unique();
+        this.uniqueExcludes = this.parseValuesList(annotation.uniqueExcludes(), "uniqueExcludes");
+    }
 
-        // Parse uniqueExcludes
-        final int numUniqueExcludes = annotation.uniqueExcludes().length;
-        if (numUniqueExcludes > 0) {
-            assert this.unique;
+    // Parse @ValuesList annotations, if any
+    private List<List<ValueMatch<?>>> parseValuesList(ValuesList[] valuesListAnnotations, String annotationName) {
+        final HashSet<List<ValueMatch<?>>> valueMatches = new HashSet<>();
+        final String valuesName = Values.class.getSimpleName();
+        final String valuesListName = ValuesList.class.getSimpleName();
+        try {
+            for (ValuesList valuesListAnnotation : valuesListAnnotations) {
 
-            // Parse @ValuesList annotations
-            this.uniqueExcludes = new ArrayList<>(numUniqueExcludes);
-            final String valuesName = Values.class.getSimpleName();
-            final String valuesListName = ValuesList.class.getSimpleName();
-            int valuesListIndex = 1;
-            for (ValuesList valuesListAnnot : annotation.uniqueExcludes()) {
-
-                // Parse @ValuesList annotation
-                final Values[] valuesList = valuesListAnnot.value();
-                try {
-
-                    // Verify the correct number of values
-                    if (valuesList.length != this.pfields.size()) {
-                        throw new IllegalArgumentException(String.format(
-                          "annotation contains %d != %d @%s annotations", valuesList.length, this.pfields.size(), valuesName));
-                    }
-
-                    // Parse each @Values annotation in the list
-                    final ArrayList<ValueMatch<?>> valueMatchList = new ArrayList<>(valuesList.length);
-                    for (int i = 0; i < valuesList.length; i++) {
-                        final PermazenSimpleField pfield = this.pfields.get(i);
-                        final Values values = valuesList[i];
-
-                        // Parse @Values annotation
-                        final ValueMatch<?> valueMatch;
-                        try {
-                            valueMatch = ValueMatch.create(pfield.encoding, values);
-                            valueMatch.validate(true);
-                        } catch (IllegalArgumentException e) {
-                            throw new IllegalArgumentException(String.format(
-                              "invalid @%s annotation for field \"%s\": %s", valuesName, pfield.name, e.getMessage()), e);
-                        }
-
-                        // Add value matcher
-                        valueMatchList.add(valueMatch);
-                    }
-
-                    // Verify the overall @ValuesList doesn't always match
-                    if (valueMatchList.stream().allMatch(ValueMatch::alwaysMatches))
-                        throw new IllegalArgumentException("annotation will always match");
-
-                    // Add value matcher list
-                    this.uniqueExcludes.add(valueMatchList);
-                } catch (IllegalArgumentException e) {
+                // Verify the correct number of values
+                final Values[] valuesList = valuesListAnnotation.value();
+                if (valuesList.length != this.pfields.size()) {
                     throw new IllegalArgumentException(String.format(
-                      "invalid uniqueExcludes() @%s annotation (#%d): %s", valuesListName, valuesListIndex, e.getMessage()), e);
+                      "annotation contains %d != %d @%s annotations", valuesList.length, this.pfields.size(), valuesName));
                 }
-                valuesListIndex++;
+
+                // Parse each @Values annotation in the list
+                final ArrayList<ValueMatch<?>> valueMatchList = new ArrayList<>(valuesList.length);
+                for (int i = 0; i < valuesList.length; i++) {
+                    final PermazenSimpleField pfield = this.pfields.get(i);
+                    final Values values = valuesList[i];
+
+                    // Parse @Values annotation
+                    final ValueMatch<?> valueMatch;
+                    try {
+                        valueMatch = ValueMatch.create(pfield.encoding, values);
+                        valueMatch.validate(true);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException(String.format(
+                          "invalid @%s annotation for field \"%s\": %s", valuesName, pfield.name, e.getMessage()), e);
+                    }
+
+                    // Add value matcher
+                    valueMatchList.add(valueMatch);
+                }
+
+                // Verify the overall @ValuesList doesn't always match
+                if (valueMatchList.stream().allMatch(ValueMatch::alwaysMatches))
+                    throw new IllegalArgumentException("annotation will always match");
+
+                // Add value matcher list
+                valueMatches.add(valueMatchList);
             }
-        } else
-            this.uniqueExcludes = null;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s() @%s annotation (#%d): %s", annotationName,
+              valuesListName, valueMatches.size() + 1, e.getMessage()), e);
+        }
+
+        // Done
+        return new ArrayList<>(valueMatches);
     }
 
 // Public API

@@ -607,7 +607,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         }
         if (!ValueMatch.isEmpty(annotation.uniqueExcludes()) && !annotation.unique()) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: use of uniqueExcludes() requires unique() = true", description));
+              "invalid %s: use of %s() requires %s() = true", description, "uniqueExcludes", "unique"));
         }
 
         // See if encoding encompasses one or more PermazenClass types and is therefore a reference type
@@ -730,23 +730,23 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         // Sanity check annotation some more
         if (!isReferenceType && annotation.inverseDelete() != DeleteAction.EXCEPTION) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: inverseDelete() only allowed on reference fields", description));
+              "invalid %s: %s() only allowed on reference fields", description, "inverseDelete"));
         }
         if (!isReferenceType && annotation.forwardDelete()) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: forwardDelete() only allowed on reference fields", description));
+              "invalid %s: %s() only allowed on reference fields", description, "forwardDelete"));
         }
         if (!isReferenceType && annotation.unique() && !annotation.indexed()) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: unique() constraint requires field to be indexed", description));
+              "invalid %s: use of %s() requires %s() = true", description, "unique", "indexed"));
         }
         if (!isReferenceType && annotation.forwardCascades().length != 0) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: forwardCascades() only allowed on reference fields", description));
+              "invalid %s: %s() only allowed on reference fields", description, "forwardCascades"));
         }
         if (!isReferenceType && annotation.inverseCascades().length != 0) {
             throw new IllegalArgumentException(String.format(
-              "invalid %s: inverseCascades() only allowed on reference fields", description));
+              "invalid %s: %s() only allowed on reference fields", description, "inverseCascades"));
         }
 
         // Create simple, enum, enum array, or reference field

@@ -106,9 +106,10 @@ public @interface PermazenCompositeIndex {
      * combination of field values that should grant the containing object exclusion from the uniqueness constraint.
      *
      * <p>
-     * Each {@link ValuesList &#64;ValuesList} is a list of {@link Values &#64;Values} annotations, one for each field
-     * in the index. For an object to be excluded from the uniqueness constraint, <b>all</b> of the indexed fields' values
-     * must match the correpsonding {@link Values &#64;Values} annotation.
+     * Each {@link ValuesList &#64;ValuesList} contains a list of {@link Values &#64;Values} annotations, one for each field
+     * in the index. For an object to be excluded from the uniqueness constraint, the object's fields' values must <b>all</b>
+     * match their corresponding {@link Values &#64;Values} annotation in <b>at least one</b> of the
+     * {@link ValuesList &#64;ValuesList} annotations.
      *
      * <p>
      * For example, consider this class:
@@ -158,7 +159,7 @@ public @interface PermazenCompositeIndex {
      * <p>
      * Notes:
      * <ul>
-     *  <li>To match all possible values, use {@link Values &#64;Values}{@code (nulls = true, nonNulls = true)}
+     *  <li>To match all possible values for a field, use {@link Values &#64;Values}{@code (nulls = true, nonNulls = true)}
      *  <li>For primitive fields, {@link Values#nulls &#64;Values.nulls()} is not relevant.
      * </ul>
      *
