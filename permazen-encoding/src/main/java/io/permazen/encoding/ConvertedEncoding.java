@@ -150,4 +150,26 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
     public boolean hasPrefix0xff() {
         return this.delegate.hasPrefix0xff();
     }
+
+// Object
+
+    @Override
+    public int hashCode() {
+        return super.hashCode()
+          ^ this.delegate.hashCode()
+          ^ this.converter.hashCode()
+          ^ Boolean.hashCode(this.sortsNaturally);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        final ConvertedEncoding<?, ?> that = (ConvertedEncoding<?, ?>)obj;
+        return this.delegate.equals(that.delegate)
+          && this.converter.equals(that.converter)
+          && this.sortsNaturally == that.sortsNaturally;
+    }
 }
