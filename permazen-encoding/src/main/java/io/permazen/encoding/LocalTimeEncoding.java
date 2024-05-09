@@ -34,11 +34,6 @@ public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
 // Encoding
 
     @Override
-    public LocalTimeEncoding withEncodingId(EncodingId encodingId) {
-        return new LocalTimeEncoding(encodingId);
-    }
-
-    @Override
     public LocalTime read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return LocalTime.ofNanoOfDay(LongEncoder.read(reader));

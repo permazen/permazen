@@ -29,11 +29,6 @@ public class DoubleEncoding extends NumberEncoding<Double> {
     }
 
     @Override
-    public DoubleEncoding withEncodingId(EncodingId encodingId) {
-        return new DoubleEncoding(encodingId);
-    }
-
-    @Override
     public Double read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         long bits = ByteUtil.readLong(reader);

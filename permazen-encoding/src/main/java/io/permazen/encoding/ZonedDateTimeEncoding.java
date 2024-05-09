@@ -46,11 +46,6 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
 // Encoding
 
     @Override
-    public ZonedDateTimeEncoding withEncodingId(EncodingId encodingId) {
-        return new ZonedDateTimeEncoding(encodingId);
-    }
-
-    @Override
     public ZonedDateTime fromString(String string) {
         Preconditions.checkArgument(string != null, "null string");
         final OffsetDateTime offsetDateTime;

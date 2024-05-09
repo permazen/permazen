@@ -39,11 +39,6 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
 // Encoding
 
     @Override
-    public ObjIdEncoding withEncodingId(EncodingId encodingId) {
-        return new ObjIdEncoding(encodingId);
-    }
-
-    @Override
     public ObjId read(ByteReader reader) {
         return new ObjId(reader);
     }

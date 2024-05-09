@@ -33,11 +33,6 @@ public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
 // Encoding
 
     @Override
-    public LocalDateEncoding withEncodingId(EncodingId encodingId) {
-        return new LocalDateEncoding(encodingId);
-    }
-
-    @Override
     public LocalDate read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return LocalDate.ofEpochDay(LongEncoder.read(reader));

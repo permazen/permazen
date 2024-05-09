@@ -34,11 +34,6 @@ public class InstantEncoding extends AbstractEncoding<Instant> {
 // Encoding
 
     @Override
-    public InstantEncoding withEncodingId(EncodingId encodingId) {
-        return new InstantEncoding(encodingId);
-    }
-
-    @Override
     public Instant read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return Instant.ofEpochSecond(LongEncoder.read(reader), (int)LongEncoder.read(reader));

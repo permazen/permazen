@@ -36,11 +36,6 @@ public class BooleanArrayEncoding extends ArrayEncoding<boolean[], Boolean> {
     }
 
     @Override
-    public BooleanArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new BooleanArrayEncoding(encodingId);
-    }
-
-    @Override
     public boolean[] read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final BitSet bits = new BitSet();

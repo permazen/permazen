@@ -8,12 +8,16 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import java.io.File;
+import java.net.URI;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -227,7 +231,7 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.addWrappedBuiltin(new BigIntegerEncoding(null));
 
         // Built-in types in java.io
-        this.addBuiltin(new FileEncoding(null));
+        this.addBuiltin(File.class, FileEncoding::new);
 
         // Built-in types in java.util
         this.addWrappedBuiltin(new BitSetEncoding(null));
@@ -235,13 +239,13 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.addWrappedBuiltin(new UUIDEncoding(null));
 
         // Built-in types in java.util.regex
-        this.addBuiltin(new PatternEncoding(null));
+        this.addBuiltin(Pattern.class, PatternEncoding::new);
 
         // Built-in types in java.net
         this.addWrappedBuiltin(new Inet4AddressEncoding(null));
         this.addWrappedBuiltin(new Inet6AddressEncoding(null));
         this.addWrappedBuiltin(new InetAddressEncoding(null));
-        this.addBuiltin(new URIEncoding(null));
+        this.addBuiltin(URI.class, URIEncoding::new);
 
         // Built-in types in java.time
         this.addWrappedBuiltin(new DurationEncoding(null));
@@ -257,13 +261,11 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.addWrappedBuiltin(new YearEncoding(null));
         this.addWrappedBuiltin(new ZoneOffsetEncoding(null));
         this.addWrappedBuiltin(new ZonedDateTimeEncoding(null));
-        this.addBuiltin(new ZoneIdEncoding(null));
+        this.addBuiltin(ZoneId.class, ZoneIdEncoding::new);
     }
 
-    private void addBuiltin(Encoding<?> encoding) {
-        final Class<?> javaType = encoding.getTypeToken().getRawType();
-        final EncodingId encodingId = EncodingIds.builtin(javaType.getSimpleName());
-        encoding = encoding.withEncodingId(encodingId);
+    private <T> void addBuiltin(Class<T> type, Function<EncodingId, ? extends Encoding<T>> ctor) {
+        final Encoding<T> encoding = ctor.apply(EncodingIds.builtin(type.getSimpleName()));
         Preconditions.checkArgument(encoding.supportsNull(), "encoding does not support null");
         this.add(encoding);
     }

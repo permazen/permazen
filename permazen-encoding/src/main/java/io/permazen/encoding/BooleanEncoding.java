@@ -24,11 +24,6 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     }
 
     @Override
-    public BooleanEncoding withEncodingId(EncodingId encodingId) {
-        return new BooleanEncoding(encodingId);
-    }
-
-    @Override
     public Boolean read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final int value = reader.readByte();

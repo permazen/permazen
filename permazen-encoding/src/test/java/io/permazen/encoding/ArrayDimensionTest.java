@@ -48,11 +48,15 @@ public class ArrayDimensionTest extends TestSupport {
                     assert elementEncoding instanceof PrimitiveEncoding && dims == 1;
                     nonNullElementEncoding = elementEncoding;
                 }
+                assert !nonNullElementEncoding.supportsNull();
 
-                // The element encoding should equal the previous dimension's array encoding (sans EncodingId)
-                assert elementEncoding.withEncodingId(null).equals(previousDimensionEncoding.withEncodingId(null)) :
-                  String.format("dims=%d elementEncoding=%s previousDimensionEncoding=%s",
-                    dims, elementEncoding, previousDimensionEncoding);
+                // The element encoding should equal the previous dimension's array encoding
+                // We skip dimension 1 here because the EncodingId's are different.
+                if (dims > 1) {
+                    assert elementEncoding.equals(previousDimensionEncoding) :
+                      String.format("dims=%d elementEncoding=%s previousDimensionEncoding=%s",
+                        dims, elementEncoding, previousDimensionEncoding);
+                }
 
                 // Proceed into the next dimension
                 previousDimensionEncodingId = arrayEncodingId;

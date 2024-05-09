@@ -45,11 +45,6 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
 // Encoding
 
     @Override
-    public BigDecimalEncoding withEncodingId(EncodingId encodingId) {
-        return new BigDecimalEncoding(encodingId);
-    }
-
-    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

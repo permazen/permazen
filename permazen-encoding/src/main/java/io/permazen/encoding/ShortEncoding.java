@@ -19,11 +19,6 @@ public class ShortEncoding extends IntegralEncoding<Short> {
     }
 
     @Override
-    public ShortEncoding withEncodingId(EncodingId encodingId) {
-        return new ShortEncoding(encodingId);
-    }
-
-    @Override
     protected Short convertNumber(Number value) {
         return value.shortValue();
     }

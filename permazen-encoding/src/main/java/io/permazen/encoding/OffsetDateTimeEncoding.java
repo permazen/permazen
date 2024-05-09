@@ -29,11 +29,6 @@ public class OffsetDateTimeEncoding extends Concat2Encoding<OffsetDateTime, Inst
     }
 
     @Override
-    public OffsetDateTimeEncoding withEncodingId(EncodingId encodingId) {
-        return new OffsetDateTimeEncoding(encodingId);
-    }
-
-    @Override
     protected OffsetDateTime join(Instant value1, ZoneOffset value2) {
         return OffsetDateTime.ofInstant(value1, value2);
     }

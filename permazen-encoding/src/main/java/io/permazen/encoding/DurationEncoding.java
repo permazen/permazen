@@ -34,11 +34,6 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
 // Encoding
 
     @Override
-    public DurationEncoding withEncodingId(EncodingId encodingId) {
-        return new DurationEncoding(encodingId);
-    }
-
-    @Override
     public Duration read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return Duration.ofSeconds(LongEncoder.read(reader), (int)LongEncoder.read(reader));

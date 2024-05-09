@@ -38,11 +38,6 @@ public class StringEncoding extends AbstractEncoding<String> {
     }
 
     @Override
-    public StringEncoding withEncodingId(EncodingId encodingId) {
-        return new StringEncoding(encodingId);
-    }
-
-    @Override
     public String read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final StringBuilder buf = new StringBuilder();

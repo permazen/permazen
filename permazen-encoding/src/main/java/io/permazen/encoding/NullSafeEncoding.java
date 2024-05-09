@@ -69,11 +69,6 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
 // Encoding
 
     @Override
-    public NullSafeEncoding<T> withEncodingId(EncodingId encodingId) {
-        return new NullSafeEncoding<>(encodingId, this.inner);
-    }
-
-    @Override
     public T read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         if (this.inline) {

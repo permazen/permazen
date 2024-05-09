@@ -19,11 +19,6 @@ public class LongEncoding extends IntegralEncoding<Long> {
     }
 
     @Override
-    public LongEncoding withEncodingId(EncodingId encodingId) {
-        return new LongEncoding(encodingId);
-    }
-
-    @Override
     protected Long convertNumber(Number value) {
         return value.longValue();
     }

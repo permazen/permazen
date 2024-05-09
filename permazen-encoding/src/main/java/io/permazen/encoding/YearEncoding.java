@@ -33,11 +33,6 @@ public class YearEncoding extends AbstractEncoding<Year> {
 // Encoding
 
     @Override
-    public YearEncoding withEncodingId(EncodingId encodingId) {
-        return new YearEncoding(encodingId);
-    }
-
-    @Override
     public Year read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return Year.of((int)LongEncoder.read(reader));

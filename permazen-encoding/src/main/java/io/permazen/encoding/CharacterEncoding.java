@@ -25,11 +25,6 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
     }
 
     @Override
-    public CharacterEncoding withEncodingId(EncodingId encodingId) {
-        return new CharacterEncoding(encodingId);
-    }
-
-    @Override
     public Character read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final int hi = reader.readByte();

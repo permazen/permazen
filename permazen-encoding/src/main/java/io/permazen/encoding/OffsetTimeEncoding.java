@@ -35,11 +35,6 @@ public class OffsetTimeEncoding extends Concat2Encoding<OffsetTime, Long, ZoneOf
     }
 
     @Override
-    public OffsetTimeEncoding withEncodingId(EncodingId encodingId) {
-        return new OffsetTimeEncoding(encodingId);
-    }
-
-    @Override
     protected OffsetTime join(Long value1, ZoneOffset value2) {
         return OffsetTime.of(LocalTime.ofNanoOfDay(value1 + value2.getTotalSeconds() * NANOS_PER_SECOND), value2);
     }

@@ -34,11 +34,6 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
 // Encoding
 
     @Override
-    public MonthDayEncoding withEncodingId(EncodingId encodingId) {
-        return new MonthDayEncoding(encodingId);
-    }
-
-    @Override
     public MonthDay read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final int value = UnsignedIntEncoder.read(reader);

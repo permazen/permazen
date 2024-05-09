@@ -24,11 +24,6 @@ public class IntegerArrayEncoding extends IntegralArrayEncoding<int[], Integer> 
     }
 
     @Override
-    public IntegerArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new IntegerArrayEncoding(encodingId);
-    }
-
-    @Override
     protected int getArrayLength(int[] array) {
         return array.length;
     }

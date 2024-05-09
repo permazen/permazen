@@ -37,11 +37,6 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
 // Encoding
 
     @Override
-    public UnsignedIntEncoding withEncodingId(EncodingId encodingId) {
-        return new UnsignedIntEncoding(encodingId);
-    }
-
-    @Override
     public Integer read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return UnsignedIntEncoder.read(reader);

@@ -35,11 +35,6 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
 // Encoding
 
     @Override
-    public BitSetEncoding withEncodingId(EncodingId encodingId) {
-        return new BitSetEncoding(encodingId);
-    }
-
-    @Override
     public boolean hasPrefix0xff() {
         return false;
     }

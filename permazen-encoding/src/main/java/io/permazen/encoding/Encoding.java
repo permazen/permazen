@@ -92,17 +92,6 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     EncodingId getEncodingId();
 
     /**
-     * Build an encoding that has the given {@link EncodingId} but is otherwise equivalent to this encoding.
-     *
-     * <p>
-     * If this encoding already has {@code encodingId}, then this method may (but is not required to) return this same instance.
-     *
-     * @param encodingId new encoding's {@link EncodingId}, or null for an anonymized encoding
-     * @return a version of this encoding with the given {@link EncodingId}
-     */
-    Encoding<T> withEncodingId(EncodingId encodingId);
-
-    /**
      * Get the Java type corresponding to this encoding's values.
      *
      * @return the Java type used to represent this encoding's values

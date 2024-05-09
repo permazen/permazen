@@ -36,11 +36,6 @@ public class InetAddressEncoding extends AbstractInetAddressEncoding<InetAddress
 // Encoding
 
     @Override
-    public InetAddressEncoding withEncodingId(EncodingId encodingId) {
-        return new InetAddressEncoding(encodingId);
-    }
-
-    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

@@ -41,11 +41,6 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     }
 
     @Override
-    public FloatArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new FloatArrayEncoding(encodingId);
-    }
-
-    @Override
     public float[] read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<Float> list = new ArrayList<>();

@@ -87,12 +87,6 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
 // Encoding
 
     @Override
-    public ConvertedEncoding<T, S> withEncodingId(EncodingId encodingId) {
-        return new ConvertedEncoding<>(encodingId, this.typeToken,
-          this.getDefaultValue(), this.delegate, this.converter, this.sortsNaturally);
-    }
-
-    @Override
     public T read(ByteReader reader) {
         return this.converter.reverse().convert(this.delegate.read(reader));
     }

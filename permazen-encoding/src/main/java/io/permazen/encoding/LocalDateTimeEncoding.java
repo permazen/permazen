@@ -36,11 +36,6 @@ public class LocalDateTimeEncoding extends AbstractEncoding<LocalDateTime> {
 // Encoding
 
     @Override
-    public LocalDateTimeEncoding withEncodingId(EncodingId encodingId) {
-        return new LocalDateTimeEncoding(encodingId);
-    }
-
-    @Override
     public LocalDateTime read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return LocalDateTime.ofEpochSecond(LongEncoder.read(reader), (int)LongEncoder.read(reader), ZoneOffset.UTC);

@@ -31,11 +31,6 @@ public class Inet4AddressEncoding extends AbstractInetAddressEncoding<Inet4Addre
     }
 
     @Override
-    public Inet4AddressEncoding withEncodingId(EncodingId encodingId) {
-        return new Inet4AddressEncoding(encodingId);
-    }
-
-    @Override
     protected int getLength(ByteReader reader) {
         return LENGTH;
     }

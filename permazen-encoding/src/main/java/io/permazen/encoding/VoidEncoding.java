@@ -25,11 +25,6 @@ public class VoidEncoding extends PrimitiveEncoding<Void> {
     }
 
     @Override
-    public VoidEncoding withEncodingId(EncodingId encodingId) {
-        return new VoidEncoding(encodingId);
-    }
-
-    @Override
     public Void read(ByteReader reader) {
         throw new UnsupportedOperationException();
     }

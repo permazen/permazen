@@ -32,11 +32,6 @@ public class CharacterArrayEncoding extends ArrayEncoding<char[], Character> {
     }
 
     @Override
-    public CharacterArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new CharacterArrayEncoding(encodingId);
-    }
-
-    @Override
     public char[] read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return this.stringType.read(reader).toCharArray();

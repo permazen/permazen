@@ -64,11 +64,6 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
 // Encoding
 
     @Override
-    public EnumValueBaseEncoding withEncodingId(EncodingId encodingId) {
-        return new EnumValueBaseEncoding(encodingId, new ArrayList<>(this.identifierMap.keySet()));
-    }
-
-    @Override
     public EnumValue read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final int ordinal = UnsignedIntEncoder.read(reader);

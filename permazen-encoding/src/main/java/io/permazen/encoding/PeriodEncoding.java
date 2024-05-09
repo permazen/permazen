@@ -34,11 +34,6 @@ public class PeriodEncoding extends AbstractEncoding<Period> {
 // Encoding
 
     @Override
-    public PeriodEncoding withEncodingId(EncodingId encodingId) {
-        return new PeriodEncoding(encodingId);
-    }
-
-    @Override
     public Period read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return Period.of((int)LongEncoder.read(reader), (int)LongEncoder.read(reader), (int)LongEncoder.read(reader));

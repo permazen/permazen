@@ -35,11 +35,6 @@ public class ZoneOffsetEncoding extends AbstractEncoding<ZoneOffset> {
 // Encoding
 
     @Override
-    public ZoneOffsetEncoding withEncodingId(EncodingId encodingId) {
-        return new ZoneOffsetEncoding(encodingId);
-    }
-
-    @Override
     public ZoneOffset read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return ZoneOffset.ofTotalSeconds(-(int)LongEncoder.read(reader));

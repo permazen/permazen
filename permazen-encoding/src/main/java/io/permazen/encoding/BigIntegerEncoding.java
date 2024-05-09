@@ -31,11 +31,6 @@ public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
 // Encoding
 
     @Override
-    public BigIntegerEncoding withEncodingId(EncodingId encodingId) {
-        return new BigIntegerEncoding(encodingId);
-    }
-
-    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

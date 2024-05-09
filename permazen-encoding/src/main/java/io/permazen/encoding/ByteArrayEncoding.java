@@ -24,11 +24,6 @@ public class ByteArrayEncoding extends IntegralArrayEncoding<byte[], Byte> {
     }
 
     @Override
-    public ByteArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new ByteArrayEncoding(encodingId);
-    }
-
-    @Override
     protected int getArrayLength(byte[] array) {
         return array.length;
     }

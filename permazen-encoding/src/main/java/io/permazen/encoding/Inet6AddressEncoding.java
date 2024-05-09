@@ -31,11 +31,6 @@ public class Inet6AddressEncoding extends AbstractInetAddressEncoding<Inet6Addre
     }
 
     @Override
-    public Inet6AddressEncoding withEncodingId(EncodingId encodingId) {
-        return new Inet6AddressEncoding(encodingId);
-    }
-
-    @Override
     protected int getLength(ByteReader reader) {
         return LENGTH;
     }

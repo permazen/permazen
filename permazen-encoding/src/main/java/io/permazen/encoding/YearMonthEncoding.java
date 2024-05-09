@@ -34,11 +34,6 @@ public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
 // Encoding
 
     @Override
-    public YearMonthEncoding withEncodingId(EncodingId encodingId) {
-        return new YearMonthEncoding(encodingId);
-    }
-
-    @Override
     public YearMonth read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return YearMonth.of((int)LongEncoder.read(reader), (int)LongEncoder.read(reader));

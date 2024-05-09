@@ -36,11 +36,6 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
 // Encoding
 
     @Override
-    public UUIDEncoding withEncodingId(EncodingId encodingId) {
-        return new UUIDEncoding(encodingId);
-    }
-
-    @Override
     public UUID read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return new UUID(ByteUtil.readLong(reader) ^ MASK, ByteUtil.readLong(reader) ^ MASK);

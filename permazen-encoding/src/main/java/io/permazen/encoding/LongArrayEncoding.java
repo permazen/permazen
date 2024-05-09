@@ -24,11 +24,6 @@ public class LongArrayEncoding extends IntegralArrayEncoding<long[], Long> {
     }
 
     @Override
-    public LongArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new LongArrayEncoding(encodingId);
-    }
-
-    @Override
     protected int getArrayLength(long[] array) {
         return array.length;
     }

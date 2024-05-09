@@ -32,11 +32,6 @@ public class DateEncoding extends AbstractEncoding<Date> {
 // Encoding
 
     @Override
-    public DateEncoding withEncodingId(EncodingId encodingId) {
-        return new DateEncoding(encodingId);
-    }
-
-    @Override
     public Date read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         return new Date(LongEncoder.read(reader));

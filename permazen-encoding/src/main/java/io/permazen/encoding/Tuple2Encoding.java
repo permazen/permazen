@@ -34,12 +34,6 @@ public class Tuple2Encoding<V1, V2> extends TupleEncoding<Tuple2<V1, V2>> {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Tuple2Encoding<V1, V2> withEncodingId(EncodingId encodingId) {
-        return new Tuple2Encoding(encodingId, this.encodings.get(0), this.encodings.get(1));
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     protected Tuple2<V1, V2> createTuple(Object[] values) {
         assert values.length == 2;

@@ -24,11 +24,6 @@ public class ShortArrayEncoding extends IntegralArrayEncoding<short[], Short> {
     }
 
     @Override
-    public ShortArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new ShortArrayEncoding(encodingId);
-    }
-
-    @Override
     protected int getArrayLength(short[] array) {
         return array.length;
     }

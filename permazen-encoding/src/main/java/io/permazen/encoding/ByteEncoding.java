@@ -19,11 +19,6 @@ public class ByteEncoding extends IntegralEncoding<Byte> {
     }
 
     @Override
-    public ByteEncoding withEncodingId(EncodingId encodingId) {
-        return new ByteEncoding(encodingId);
-    }
-
-    @Override
     protected Byte convertNumber(Number value) {
         return value.byteValue();
     }

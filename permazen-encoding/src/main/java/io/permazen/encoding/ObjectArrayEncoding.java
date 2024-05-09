@@ -43,11 +43,6 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
     }
 
     @Override
-    public ObjectArrayEncoding<E> withEncodingId(EncodingId encodingId) {
-        return new ObjectArrayEncoding<>(encodingId, this.elementEncoding);
-    }
-
-    @Override
     public E[] read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<E> list = new ArrayList<>();

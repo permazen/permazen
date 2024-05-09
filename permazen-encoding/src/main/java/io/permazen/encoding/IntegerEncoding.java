@@ -19,11 +19,6 @@ public class IntegerEncoding extends IntegralEncoding<Integer> {
     }
 
     @Override
-    public IntegerEncoding withEncodingId(EncodingId encodingId) {
-        return new IntegerEncoding(encodingId);
-    }
-
-    @Override
     protected Integer convertNumber(Number value) {
         return value.intValue();
     }

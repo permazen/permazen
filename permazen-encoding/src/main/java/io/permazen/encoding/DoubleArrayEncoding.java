@@ -41,11 +41,6 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     }
 
     @Override
-    public DoubleArrayEncoding withEncodingId(EncodingId encodingId) {
-        return new DoubleArrayEncoding(encodingId);
-    }
-
-    @Override
     public double[] read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<Double> list = new ArrayList<>();

@@ -33,11 +33,6 @@ public class FloatEncoding extends NumberEncoding<Float> {
     }
 
     @Override
-    public FloatEncoding withEncodingId(EncodingId encodingId) {
-        return new FloatEncoding(encodingId);
-    }
-
-    @Override
     public Float read(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
         int bits = ByteUtil.readInt(reader);
