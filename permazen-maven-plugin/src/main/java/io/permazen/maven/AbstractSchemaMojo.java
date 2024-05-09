@@ -162,14 +162,14 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             }
             this.classes = classNames.toArray(new String[classNames.size()]);
             if (this.getLog().isDebugEnabled()) {
-                this.getLog().debug(String.format("%s auto-generated class list:\n%s",
+                this.getLog().debug(String.format("%s auto-generated class list:%n%s",
                   this.getClass().getSimpleName(), this.listOfStrings(classNames)));
             }
         }
 
         // Gather model and encoding classes
         if (this.getLog().isDebugEnabled()) {
-            this.getLog().debug(String.format("%s classloader setup:\n%s",
+            this.getLog().debug(String.format("%s classloader setup:%n%s",
               this.getClass().getSimpleName(), this.listOfStrings(urls)));
         }
         final ClassLoader parentLoader = Thread.currentThread().getContextClassLoader();
