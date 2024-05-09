@@ -166,7 +166,7 @@ public class SchemaTest extends CoreAPITestSupport {
     @SuppressWarnings("serial")
     public static class BarEncoding extends ConvertedEncoding<Bar, String> {
         public BarEncoding() {
-            super(new EncodingId("urn:foo:bar"), Bar.class, null,
+            super(new EncodingId("urn:foo:bar"), Bar.class, new Bar(""),
               new StringEncoding(null), Converter.from(Bar::getValue, Bar::new), false);
         }
     }
