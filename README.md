@@ -143,7 +143,7 @@ You should also add the key/value store module(s) for whatever key/value store(s
     </dependency>
 ```
 
-There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line and GUI, using a simple database of the solar system.
+There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line.
 
 ### Maven Plugin
 
@@ -151,7 +151,10 @@ The Permazen Maven plugin includes a `verify-schema` goal. This goal compares th
 
 A change in your schema is not a bad thing, but it does mean you should double-check that (a) the schema change was actually intended, and (b) that you've added any new [`@OnSchemaChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) logic that may be needed.
 
-The plugin will run using its default configuration. To avoid scanning every class in `${project.build.directory`, tell it what package(s) contain your model classes:
+All plugin configuration settings are optional; i.e., the plugin will run just fine using its default configuration.
+
+By default, it scans every class in `${project.build.directory}` looking for [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) classes. Or you can tell it where to find your model classes via `<packages>` and/or `<classes>`. This will be required if you have multiple executions for multiple schemas, e.g., one for the database and another for serialized network messaging.
+
 ```xml
     <!-- Permazen schema verification -->
     <plugin>
@@ -176,25 +179,25 @@ The plugin will run using its default configuration. To avoid scanning every cla
                         <class>com.example.myapp.model.ModelClassB</class>
                     </classes>
 
-                    <!-- If you have custom data types, specify where to find them -->
+                    <!-- If you have any custom field encodings, specify your EncodingRegistry -->
                     <encodingRegistryClass>com.example.myapp.encoding.MyEncodingRegistry</encodingRegistryClass>
 
-                    <!-- Expected and actual schema XML files (default value shown) -->
+                    <!-- Optionally store the generated schema's unique schema ID in a property -->
+                    <schemaIdProperty>my.schema.id</schemaIdProperty>
+
+                    <!-- Configuration for expected and actual schema XML files (default value shown) -->
                     <expectedSchemaFile>${basedir}/src/main/permazen/expected-schema.xml</expectedSchemaFile>
                     <actualSchemaFile>${project.build.directory}/schema.xml</actualSchemaFile>
 
-                    <!-- Rarely used settings (default value shown) -->
+                    <!-- Other rarely used settings (default value shown) -->
                     <oldSchemasDirectory>${basedir}/src/main/permazen/old</oldSchemasDirectory>
                     <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                    <schemaIdProperty></schemaIdProperty>
                 </configuration>
             </execution>
         </executions>
     </plugin>
 ```
 To generate your initial expected schema file, just run the plugin and follow the instructions.
-
-There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line and GUI, using a simple database of the solar system.
 
 ### Documentation
 
