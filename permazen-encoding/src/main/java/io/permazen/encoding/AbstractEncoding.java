@@ -80,7 +80,8 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     @Override
     public final T getDefaultValue() {
-        Preconditions.checkState(this.supportsNull() || this.defaultValue != null, "invalid null default value");
+        if (this.defaultValue == null && !this.supportsNull())
+            throw new UnsupportedOperationException("encoding has no default value");
         return this.defaultValue;
     }
 

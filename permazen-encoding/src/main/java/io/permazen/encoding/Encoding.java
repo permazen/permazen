@@ -127,6 +127,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * {@link #getDefaultValue}.
      *
      * @return encoded default value
+     * @throws UnsupportedOperationException if this encoding does not have a default value
      */
     default byte[] getDefaultValueBytes() {
         final ByteWriter writer = new ByteWriter();
@@ -145,6 +146,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * If this encoding {@linkplain #supportsNull supports null values}, then this must return null.
      *
      * @return default value
+     * @throws UnsupportedOperationException if this encoding does not have a default value
      */
     T getDefaultValue();
 
