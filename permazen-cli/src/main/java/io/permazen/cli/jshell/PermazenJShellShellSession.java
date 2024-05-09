@@ -25,6 +25,12 @@ import java.util.List;
 import org.dellroad.jct.jshell.JShellShellSession;
 import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
 
+/**
+ * A version of the JCT {@link JShellShellSession} that is Permazen aware.
+ *
+ * <p>
+ * Instances are created by {@link PermazenJShellShell}.
+ */
 public class PermazenJShellShellSession extends JShellShellSession implements HasPermazenSession {
 
     public static final String RESOURCE_TEMPORARY_FILE_PREFIX = "PermazenJShell-";

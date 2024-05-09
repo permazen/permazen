@@ -15,6 +15,9 @@ import java.util.List;
 import org.dellroad.jct.core.ShellSession;
 import org.dellroad.jct.jshell.command.JShellCommand;
 
+/**
+ * A version of the JCT {@link JShellCommand} that is Permazen aware.
+ */
 public class PermazenJShellCommand extends JShellCommand {
 
     /**

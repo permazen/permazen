@@ -8,6 +8,9 @@ package io.permazen.cli.jshell;
 import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
 import org.dellroad.jct.jshell.MemoryLoaderDelegate;
 
+/**
+ * A {@link LocalContextExecutionControlProvider} that creates {@link PermazenExecutionControl}'s.
+ */
 public class PermazenExecutionControlProvider extends LocalContextExecutionControlProvider {
 
     public static final String NAME = "permazen";

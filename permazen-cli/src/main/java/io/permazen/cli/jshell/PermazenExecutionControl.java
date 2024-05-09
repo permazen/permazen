@@ -17,6 +17,15 @@ import java.util.HashMap;
 import jdk.jshell.execution.LoaderDelegate;
 import jdk.jshell.execution.LocalExecutionControl;
 
+/**
+ * Permazen-aware {@link LocalExecutionControl}.
+ *
+ * <p>
+ * When snippets are evaluated, the Permazen {@link Session} obtained from {@link PermazenJShellShellSession#getPermazenSession}
+ * is used to create a transaction that stays open for the duration of the snippet execution and the subsequent formatting
+ * of the returned result. In effect each JShell command executes within its own transaction, and the evaluated expressions
+ * may directly access and manipulate database objects.
+ */
 public class PermazenExecutionControl extends LocalExecutionControl {
 
     private static final HashMap<ThreadGroup, Tuple2<Session, Method>> INVOCATION_MAP = new HashMap<>();
