@@ -145,7 +145,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compare(io.permazen.core.ObjId,io.permazen.core.ObjId)" class="member-name-link">compare</a><wbr>(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id1,
  <a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id2)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Order two field values.</div>
+<div class="block">Order two values.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ObjId.html" title="class in io.permazen.core">ObjId</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</code></div>
@@ -182,15 +182,10 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="../encoding/Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withEncodingId(io.permazen.encoding.EncodingId)" class="member-name-link">withEncodingId</a><wbr>(<a href="../encoding/EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Build an encoding that has the given <a href="../encoding/EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,io.permazen.core.ObjId)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,io.permazen.core.ObjId)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
  <a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Write a value to the given output.</div>
 </div>
 </div>
@@ -239,23 +234,6 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="withEncodingId(io.permazen.encoding.EncodingId)">
-<h3>withEncodingId</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></span>&nbsp;<span class="element-name">withEncodingId</span><wbr><span class="parameters">(<a href="../encoding/EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="../encoding/Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">Encoding</a></code></span></div>
-<div class="block">Build an encoding that has the given <a href="../encoding/EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.
-
- <p>
- If this encoding already has <code>encodingId</code>, then this method may (but is not required to) return this same instance.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>encodingId</code> - new encoding's <a href="../encoding/EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, or null for an anonymized encoding</dd>
-<dt>Returns:</dt>
-<dd>a version of this encoding with the given <a href="../encoding/EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="read(io.permazen.util.ByteReader)">
 <h3>read</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ObjId.html" title="class in io.permazen.core">ObjId</a></span>&nbsp;<span class="element-name">read</span><wbr><span class="parameters">(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</span></div>
@@ -265,7 +243,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>reader</code> - byte input</dd>
 <dt>Returns:</dt>
-<dd>field value (possibly null)</dd>
+<dd>decoded value (possibly null)</dd>
 </dl>
 </section>
 </li>
@@ -339,11 +317,11 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">compare</span><wbr><span class="parameters">(<a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id1,
  <a href="ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;id2)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="../encoding/Encoding.html#compare(T,T)">Encoding</a></code></span></div>
-<div class="block">Order two field values.
+<div class="block">Order two values.
 
  <p>
  This method must provide a total ordering of all supported Java values that is consistent with the database ordering,
- i.e., the unsigned lexicographical ordering of the corresponding <code>byte[]</code> encoded field values.
+ i.e., the unsigned lexicographical ordering of the corresponding <code>byte[]</code> encoded values.
 
  <p>
  If null is a supported Java value, then the this method must accept null parameters without throwing an exception

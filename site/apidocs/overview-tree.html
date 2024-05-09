@@ -62,6 +62,7 @@ loadScripts(document, 'script');</script>
 <li><a href="io/permazen/cli/cmd/package-tree.html">io.permazen.cli.cmd</a>, </li>
 <li><a href="io/permazen/cli/config/package-tree.html">io.permazen.cli.config</a>, </li>
 <li><a href="io/permazen/cli/jshell/package-tree.html">io.permazen.cli.jshell</a>, </li>
+<li><a href="io/permazen/cli/main/package-tree.html">io.permazen.cli.main</a>, </li>
 <li><a href="io/permazen/cli/parse/package-tree.html">io.permazen.cli.parse</a>, </li>
 <li><a href="io/permazen/cli/parse/util/package-tree.html">io.permazen.cli.parse.util</a>, </li>
 <li><a href="io/permazen/core/package-tree.html">io.permazen.core</a>, </li>
@@ -258,6 +259,13 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/BigDecimalEncoding.html" class="type-name-link" title="class in io.permazen.encoding">BigDecimalEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/BigIntegerEncoding.html" class="type-name-link" title="class in io.permazen.encoding">BigIntegerEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/BitSetEncoding.html" class="type-name-link" title="class in io.permazen.encoding">BitSetEncoding</a></li>
+<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/Concat2Encoding.html" class="type-name-link" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;T,<wbr>S1,<wbr>S2&gt;
+<ul>
+<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">OffsetDateTimeEncoding</a></li>
+<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/OffsetTimeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">OffsetTimeEncoding</a></li>
+<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">ZonedDateTimeEncoding</a></li>
+</ul>
+</li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/ConvertedEncoding.html" class="type-name-link" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;T,<wbr>S&gt;
 <ul>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/StringConvertedEncoding.html" class="type-name-link" title="class in io.permazen.encoding">StringConvertedEncoding</a>&lt;T&gt;
@@ -289,8 +297,6 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">io.permazen.core.<a href="io/permazen/core/ObjIdEncoding.html" class="type-name-link" title="class in io.permazen.core">ObjIdEncoding</a></li>
-<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">OffsetDateTimeEncoding</a></li>
-<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/OffsetTimeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">OffsetTimeEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/PeriodEncoding.html" class="type-name-link" title="class in io.permazen.encoding">PeriodEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/PrimitiveEncoding.html" class="type-name-link" title="class in io.permazen.encoding">PrimitiveEncoding</a>&lt;T&gt;
 <ul>
@@ -326,7 +332,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/UUIDEncoding.html" class="type-name-link" title="class in io.permazen.encoding">UUIDEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/YearEncoding.html" class="type-name-link" title="class in io.permazen.encoding">YearEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/YearMonthEncoding.html" class="type-name-link" title="class in io.permazen.encoding">YearMonthEncoding</a></li>
-<li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" class="type-name-link" title="class in io.permazen.encoding">ZonedDateTimeEncoding</a></li>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/ZoneOffsetEncoding.html" class="type-name-link" title="class in io.permazen.encoding">ZoneOffsetEncoding</a></li>
 </ul>
 </li>
@@ -486,6 +491,11 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">io.permazen.kv.array.<a href="io/permazen/kv/array/ArrayKVImplementation.html" class="type-name-link" title="class in io.permazen.kv.array">ArrayKVImplementation</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv">KVImplementation</a>&lt;C&gt;)</li>
 <li class="circle">io.permazen.kv.array.<a href="io/permazen/kv/array/ArrayKVWriter.html" class="type-name-link" title="class in io.permazen.kv.array">ArrayKVWriter</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
+<li class="circle">io.permazen.cli.main.<a href="io/permazen/cli/main/BasicCliMain.html" class="type-name-link" title="class in io.permazen.cli.main">BasicCliMain</a>
+<ul>
+<li class="circle">io.permazen.cli.app.<a href="io/permazen/cli/app/CliMain.html" class="type-name-link" title="class in io.permazen.cli.app">CliMain</a></li>
+</ul>
+</li>
 <li class="circle">io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVDatabase.html" class="type-name-link" title="class in io.permazen.kv.bdb">BerkeleyKVDatabase</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>)</li>
 <li class="circle">io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVImplementation.html" class="type-name-link" title="class in io.permazen.kv.bdb">BerkeleyKVImplementation</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv">KVImplementation</a>&lt;C&gt;)</li>
 <li class="circle">io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVImplementation.Config.html" class="type-name-link" title="class in io.permazen.kv.bdb">BerkeleyKVImplementation.Config</a></li>
@@ -565,7 +575,6 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-<li class="circle">io.permazen.cli.app.<a href="io/permazen/cli/app/CliMain.html" class="type-name-link" title="class in io.permazen.cli.app">CliMain</a></li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/CloseableRefs.html" class="type-name-link" title="class in io.permazen.util">CloseableRefs</a>&lt;C&gt;</li>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/CloseableTracker.html" class="type-name-link" title="class in io.permazen.util">CloseableTracker</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
 <li class="circle">io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/Conflict.html" class="type-name-link" title="class in io.permazen.kv.mvcc">Conflict</a>
@@ -1184,6 +1193,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenTransient.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenTransient</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/PermazenType.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenType</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/ReferencePath.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ReferencePath</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/ValueRange.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ValueRange</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/Values.html" class="type-name-link" title="annotation interface in io.permazen.annotation">Values</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.permazen.annotation.<a href="io/permazen/annotation/ValuesList.html" class="type-name-link" title="annotation interface in io.permazen.annotation">ValuesList</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 </ul>

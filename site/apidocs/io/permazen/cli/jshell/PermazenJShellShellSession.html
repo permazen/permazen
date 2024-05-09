@@ -52,7 +52,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -97,6 +97,15 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <li>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#RESOURCE_TEMPORARY_FILE_PREFIX" class="member-name-link">RESOURCE_TEMPORARY_FILE_PREFIX</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-org.dellroad.jct.jshell.JShellShellSession">Fields inherited from class&nbsp;org.dellroad.jct.jshell.JShellShellSession</h3>
 <code>localContextClassLoader</code></div>
@@ -149,6 +158,16 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#modifyJShellParams(java.util.List)" class="member-name-link">modifyJShellParams</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;params)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link">File</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resourceToFile(java.lang.String)" class="member-name-link">resourceToFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;resource)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Make a classpath available as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRunStandardStartup(boolean)" class="member-name-link">setRunStandardStartup</a><wbr>(boolean&nbsp;runStandardStartup)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Set whether to run the standard Permazen jshell startup script.</div>
+</div>
 </div>
 </div>
 </div>
@@ -176,6 +195,28 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="RESOURCE_TEMPORARY_FILE_PREFIX">
+<h3>RESOURCE_TEMPORARY_FILE_PREFIX</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RESOURCE_TEMPORARY_FILE_PREFIX</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="../../../../constant-values.html#io.permazen.cli.jshell.PermazenJShellShellSession.RESOURCE_TEMPORARY_FILE_PREFIX">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -196,6 +237,13 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="setRunStandardStartup(boolean)">
+<h3>setRunStandardStartup</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRunStandardStartup</span><wbr><span class="parameters">(boolean&nbsp;runStandardStartup)</span></div>
+<div class="block">Set whether to run the standard Permazen jshell startup script.</div>
+</section>
+</li>
 <li>
 <section class="detail" id="getCurrent()">
 <h3>getCurrent</h3>
@@ -239,6 +287,26 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../HasPermazenSession.html#getPermazenSession()">getPermazenSession</a></code>&nbsp;in interface&nbsp;<code><a href="../HasPermazenSession.html" title="interface in io.permazen.cli">HasPermazenSession</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="resourceToFile(java.lang.String)">
+<h3>resourceToFile</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link">File</a></span>&nbsp;<span class="element-name">resourceToFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;resource)</span></div>
+<div class="block">Make a classpath available as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a>.
+
+ <p>
+ If the resource is already a file, that file is returned. Otherwise, a temporary
+ file is created and the file's name will begin with <a href="#RESOURCE_TEMPORARY_FILE_PREFIX"><code>RESOURCE_TEMPORARY_FILE_PREFIX</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>resource</code> - classpath resource</dd>
+<dt>Returns:</dt>
+<dd><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a> containing the resource</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/RuntimeException.html" title="class or interface in java.lang" class="external-link">RuntimeException</a></code> - if <code>resource</code> is not found or inaccessible</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>resource</code> is null</dd>
 </dl>
 </section>
 </li>

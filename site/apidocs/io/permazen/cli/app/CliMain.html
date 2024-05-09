@@ -73,12 +73,14 @@ loadScripts(document, 'script');</script>
 <h1 title="Class CliMain" class="title">Class CliMain</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
+<div class="inheritance"><a href="../main/BasicCliMain.html" title="class in io.permazen.cli.main">io.permazen.cli.main.BasicCliMain</a>
 <div class="inheritance">io.permazen.cli.app.CliMain</div>
+</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CliMain</span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<span class="extends-implements">extends <a href="../main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -95,6 +97,9 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="#DEFAULT_LOG_LEVEL" class="member-name-link">DEFAULT_LOG_LEVEL</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-io.permazen.cli.main.BasicCliMain">Fields inherited from class&nbsp;io.permazen.cli.main.<a href="../main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></h3>
+<code><a href="../main/BasicCliMain.html#showErrorStackTraces">showErrorStackTraces</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -121,24 +126,23 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getErrorPrefix()" class="member-name-link">getErrorPrefix</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CliMain.html" title="class in io.permazen.cli.app">CliMain</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getInstance()" class="member-name-link">getInstance</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected io.permazen.cli.app.CliMain.CliMainConfig</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buildCliConfig()" class="member-name-link">buildCliConfig</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Build a <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a> to use.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#main(java.lang.String%5B%5D)" class="member-name-link">main</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#main(java.lang.String%5B%5D)" class="member-name-link">main</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run(java.lang.String%5B%5D)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLogLevel(java.lang.String)" class="member-name-link">setLogLevel</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;levelName)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-io.permazen.cli.main.BasicCliMain">Methods inherited from class&nbsp;io.permazen.cli.main.<a href="../main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></h3>
+<code><a href="../main/BasicCliMain.html#buildJShellCommand()">buildJShellCommand</a>, <a href="../main/BasicCliMain.html#getErrorPrefix()">getErrorPrefix</a>, <a href="../main/BasicCliMain.html#main(io.permazen.cli.main.BasicCliMain,java.lang.String%5B%5D)">main</a>, <a href="../main/BasicCliMain.html#run(java.lang.String%5B%5D)">run</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -182,21 +186,21 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getInstance()">
-<h3>getInstance</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CliMain.html" title="class in io.permazen.cli.app">CliMain</a></span>&nbsp;<span class="element-name">getInstance</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="getErrorPrefix()">
-<h3>getErrorPrefix</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getErrorPrefix</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="run(java.lang.String[])">
-<h3>run</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">run</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</span></div>
+<section class="detail" id="buildCliConfig()">
+<h3>buildCliConfig</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">io.permazen.cli.app.CliMain.CliMainConfig</span>&nbsp;<span class="element-name">buildCliConfig</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../main/BasicCliMain.html#buildCliConfig()">BasicCliMain</a></code></span></div>
+<div class="block">Build a <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a> to use.
+
+ <p>
+ The implementation in <a href="../main/BasicCliMain.html" title="class in io.permazen.cli.main"><code>BasicCliMain</code></a> returns a new <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a>.
+ Subclasses can override this method to add additional command-line flags, etc.</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="../main/BasicCliMain.html#buildCliConfig()">buildCliConfig</a></code>&nbsp;in class&nbsp;<code><a href="../main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></code></dd>
+<dt>Returns:</dt>
+<dd>CLI configuration</dd>
+</dl>
 </section>
 </li>
 <li>

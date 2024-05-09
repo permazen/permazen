@@ -767,6 +767,33 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="serialized-class-details" id="io.permazen.encoding.Concat2Encoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">io.permazen.encoding.Concat2Encoding</a></h3>
+<div class="type-signature">class Concat2Encoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-7395218884659436172L</dd>
+</dl>
+<ul class="block-list">
+<li>
+<section class="detail">
+<h4>Serialized Fields</h4>
+<ul class="block-list">
+<li class="block-list">
+<h5>encoding1</h5>
+<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">S1</a>&gt; encoding1</pre>
+</li>
+<li class="block-list">
+<h5>encoding2</h5>
+<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">S2</a>&gt; encoding2</pre>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</section>
+</li>
+<li>
 <section class="serialized-class-details" id="io.permazen.encoding.ConvertedEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.ConvertedEncoding</a></h3>
 <div class="type-signature">class ConvertedEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
@@ -1130,7 +1157,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.OffsetDateTimeEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/OffsetDateTimeEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.OffsetDateTimeEncoding</a></h3>
-<div class="type-signature">class OffsetDateTimeEncoding extends io.permazen.encoding.Concat2Encoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneOffset.html" title="class or interface in java.time" class="external-link">ZoneOffset</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class OffsetDateTimeEncoding extends <a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneOffset.html" title="class or interface in java.time" class="external-link">ZoneOffset</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-1216769026293613698L</dd>
@@ -1140,7 +1167,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.OffsetTimeEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/OffsetTimeEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.OffsetTimeEncoding</a></h3>
-<div class="type-signature">class OffsetTimeEncoding extends io.permazen.encoding.Concat2Encoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetTime.html" title="class or interface in java.time" class="external-link">OffsetTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneOffset.html" title="class or interface in java.time" class="external-link">ZoneOffset</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class OffsetTimeEncoding extends <a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetTime.html" title="class or interface in java.time" class="external-link">OffsetTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneOffset.html" title="class or interface in java.time" class="external-link">ZoneOffset</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-42507926581583354L</dd>
@@ -1370,7 +1397,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.ZonedDateTimeEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/ZonedDateTimeEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.ZonedDateTimeEncoding</a></h3>
-<div class="type-signature">class ZonedDateTimeEncoding extends io.permazen.encoding.Concat2Encoding&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class ZonedDateTimeEncoding extends <a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>2484375470437659420L</dd>

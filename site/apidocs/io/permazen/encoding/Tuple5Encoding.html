@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Tuple5Encoding&lt;V1,<wbr>V2,<wbr>V3,<wbr>V4,<wbr>V5&gt;</span>
 <span class="extends-implements">extends <a href="TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a>&lt;<a href="../tuple/Tuple5.html" title="class in io.permazen.tuple">Tuple5</a>&lt;V1,<wbr>V2,<wbr>V3,<wbr>V4,<wbr>V5&gt;&gt;</span></div>
-<div class="block">Composite encoding constructed from the concatenation of five component encodings.</div>
+<div class="block"><a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple5.html" title="class in io.permazen.tuple"><code>Tuple5</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -145,11 +145,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../tuple/Tuple5.html" title="class in io.permazen.tuple">Tuple5</a>&lt;<a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V1</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V2</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V3</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V4</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V5</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTuple(java.lang.Object%5B%5D)" class="member-name-link">createTuple</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>[]&nbsp;values)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Tuple5Encoding.html" title="class in io.permazen.encoding">Tuple5Encoding</a>&lt;<a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V1</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V2</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V3</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V4</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V5</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withEncodingId(io.permazen.encoding.EncodingId)" class="member-name-link">withEncodingId</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Build an encoding that has the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.</div>
-</div>
 </div>
 </div>
 </div>
@@ -210,23 +205,6 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="withEncodingId(io.permazen.encoding.EncodingId)">
-<h3>withEncodingId</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Tuple5Encoding.html" title="class in io.permazen.encoding">Tuple5Encoding</a>&lt;<a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V1</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V2</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V3</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V4</a>,<wbr><a href="Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V5</a>&gt;</span>&nbsp;<span class="element-name">withEncodingId</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#withEncodingId(io.permazen.encoding.EncodingId)">Encoding</a></code></span></div>
-<div class="block">Build an encoding that has the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> but is otherwise equivalent to this encoding.
-
- <p>
- If this encoding already has <code>encodingId</code>, then this method may (but is not required to) return this same instance.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>encodingId</code> - new encoding's <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a>, or null for an anonymized encoding</dd>
-<dt>Returns:</dt>
-<dd>a version of this encoding with the given <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a></dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="createTuple(java.lang.Object[])">
 <h3>createTuple</h3>

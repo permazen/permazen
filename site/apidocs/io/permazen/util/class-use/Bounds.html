@@ -368,25 +368,31 @@ loadScripts(document, 'script');</script>
 <div class="block">Create an instance like this instance but with the upper and lower bounds reversed.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withLowerBound(T,io.permazen.util.BoundType)" class="member-name-link">withLowerBound</a><wbr>(<a href="../Bounds.html" title="type parameter in Bounds">T</a>&nbsp;newLowerBound,
- <a href="../BoundType.html" title="enum class in io.permazen.util">BoundType</a>&nbsp;newLowerBoundType)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#union(java.util.Comparator,io.permazen.util.Bounds)" class="member-name-link">union</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+ <a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;other)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Consolidate the ranges of values implied by this instance and the given instance, if possible.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withLowerBound(T,io.permazen.util.BoundType)" class="member-name-link">withLowerBound</a><wbr>(<a href="../Bounds.html" title="type parameter in Bounds">T</a>&nbsp;newLowerBound,
+ <a href="../BoundType.html" title="enum class in io.permazen.util">BoundType</a>&nbsp;newLowerBoundType)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Create an instance like this instance but with a different lower bound.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withoutLowerBound()" class="member-name-link">withoutLowerBound</a>()</code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withoutLowerBound()" class="member-name-link">withoutLowerBound</a>()</code></div>
+<div class="col-last even-row-color">
 <div class="block">Create an instance like this instance but with the lower bound removed.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withoutUpperBound()" class="member-name-link">withoutUpperBound</a>()</code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withoutUpperBound()" class="member-name-link">withoutUpperBound</a>()</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Create an instance like this instance but with the upper bound removed.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withUpperBound(T,io.permazen.util.BoundType)" class="member-name-link">withUpperBound</a><wbr>(<a href="../Bounds.html" title="type parameter in Bounds">T</a>&nbsp;newUpperBound,
+<div class="col-first even-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#withUpperBound(T,io.permazen.util.BoundType)" class="member-name-link">withUpperBound</a><wbr>(<a href="../Bounds.html" title="type parameter in Bounds">T</a>&nbsp;newUpperBound,
  <a href="../BoundType.html" title="enum class in io.permazen.util">BoundType</a>&nbsp;newUpperBoundType)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Create an instance like this instance but with a different upper bound.</div>
 </div>
 </div>
@@ -428,6 +434,12 @@ loadScripts(document, 'script');</script>
  <a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;? extends <a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;other)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Determine whether the given <a href="../Bounds.html" title="class in io.permazen.util"><code>Bounds</code></a> are within of the bounds of this instance.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Bounds.</span><code><a href="../Bounds.html#union(java.util.Comparator,io.permazen.util.Bounds)" class="member-name-link">union</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+ <a href="../Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="../Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;other)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Consolidate the ranges of values implied by this instance and the given instance, if possible.</div>
 </div>
 </div>
 <div class="caption"><span>Constructors in <a href="../package-summary.html">io.permazen.util</a> with parameters of type <a href="../Bounds.html" title="class in io.permazen.util">Bounds</a></span></div>

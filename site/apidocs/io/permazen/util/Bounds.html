@@ -194,52 +194,63 @@ loadScripts(document, 'script');</script>
 <div class="block">Determine whether this instance has an upper bound.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isInverted(java.util.Comparator)" class="member-name-link">isInverted</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty(java.util.Comparator)" class="member-name-link">isEmpty</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Determine if this instance is provably empty, i.e., no values can possibly be within the bounds.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isInverted(java.util.Comparator)" class="member-name-link">isInverted</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine if this instance has bounds that are "inverted" with respect to the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinBounds(java.util.Comparator,io.permazen.util.Bounds)" class="member-name-link">isWithinBounds</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinBounds(java.util.Comparator,io.permazen.util.Bounds)" class="member-name-link">isWithinBounds</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
  <a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;? extends <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;other)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether the given <a href="Bounds.html" title="class in io.permazen.util"><code>Bounds</code></a> are within of the bounds of this instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinBounds(java.util.Comparator,T)" class="member-name-link">isWithinBounds</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinBounds(java.util.Comparator,T)" class="member-name-link">isWithinBounds</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
  <a href="Bounds.html" title="type parameter in Bounds">T</a>&nbsp;value)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Check whether the given value is within the bounds of this instance.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinLowerBound(java.util.Comparator,T)" class="member-name-link">isWithinLowerBound</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
- <a href="Bounds.html" title="type parameter in Bounds">T</a>&nbsp;value)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Check whether the given value is within the lower bound of this instance.</div>
-</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinUpperBound(java.util.Comparator,T)" class="member-name-link">isWithinUpperBound</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinLowerBound(java.util.Comparator,T)" class="member-name-link">isWithinLowerBound</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
  <a href="Bounds.html" title="type parameter in Bounds">T</a>&nbsp;value)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Check whether the given value is within the lower bound of this instance.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWithinUpperBound(java.util.Comparator,T)" class="member-name-link">isWithinUpperBound</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+ <a href="Bounds.html" title="type parameter in Bounds">T</a>&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Check whether the given value is within the upper bound of this instance.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;T&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#le(T)" class="member-name-link">le</a><wbr>(T&nbsp;upperBound)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#le(T)" class="member-name-link">le</a><wbr>(T&nbsp;upperBound)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Create an instance with an inclusive upper bound.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lt(T)" class="member-name-link">lt</a><wbr>(T&nbsp;upperBound)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lt(T)" class="member-name-link">lt</a><wbr>(T&nbsp;upperBound)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Create an instance with an exclusive upper bound.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reverse()" class="member-name-link">reverse</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reverse()" class="member-name-link">reverse</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create an instance like this instance but with the upper and lower bounds reversed.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#union(java.util.Comparator,io.permazen.util.Bounds)" class="member-name-link">union</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+ <a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;other)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Consolidate the ranges of values implied by this instance and the given instance, if possible.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withLowerBound(T,io.permazen.util.BoundType)" class="member-name-link">withLowerBound</a><wbr>(<a href="Bounds.html" title="type parameter in Bounds">T</a>&nbsp;newLowerBound,
  <a href="BoundType.html" title="enum class in io.permazen.util">BoundType</a>&nbsp;newLowerBoundType)</code></div>
@@ -565,14 +576,56 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="union(java.util.Comparator,io.permazen.util.Bounds)">
+<h3>union</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;</span>&nbsp;<span class="element-name">union</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator,
+ <a href="Bounds.html" title="class in io.permazen.util">Bounds</a>&lt;<a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;other)</span></div>
+<div class="block">Consolidate the ranges of values implied by this instance and the given instance, if possible.
+
+ <p>
+ If the value ranges implied by the two bounds are not overlapping or adjacent, then null is returned.
+ Otherwise an instance is returned that corresponds to the union of the two implied value ranges.
+
+ <p>
+ Some cases not handled, e.g., when one bound has an inclusive upper bound with value <i>x</i> and the
+ other has an inclusive lower bound with value <i>x + 1</i>, because this method can't detect adjacent values.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>comparator</code> - comparator used to compare values, or null for natural ordering</dd>
+<dd><code>other</code> - instance to attempt consolidation with this one</dd>
+<dt>Returns:</dt>
+<dd>consolidated bounds, or null if none is possible</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>other</code> is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isEmpty(java.util.Comparator)">
+<h3>isEmpty</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isEmpty</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator)</span></div>
+<div class="block">Determine if this instance is provably empty, i.e., no values can possibly be within the bounds.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>comparator</code> - comparator used to compare values, or null for natural ordering</dd>
+<dt>Returns:</dt>
+<dd>true if this instance is backwards</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="isInverted(java.util.Comparator)">
 <h3>isInverted</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isInverted</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link">Comparator</a>&lt;? super <a href="Bounds.html" title="type parameter in Bounds">T</a>&gt;&nbsp;comparator)</span></div>
 <div class="block">Determine if this instance has bounds that are "inverted" with respect to the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a>.
 
+ <p>
  This instance is "inverted" if it has both lower and upper bounds and
  the lower bound's value is strictly greater than the upper bound's value.
- The bounds' types (i.e., whether <a href="BoundType.html#INCLUSIVE"><code>BoundType.INCLUSIVE</code></a> or <a href="BoundType.html#EXCLUSIVE"><code>BoundType.EXCLUSIVE</code></a>) is not considered.</div>
+ The bounds' types (i.e., whether <a href="BoundType.html#INCLUSIVE"><code>BoundType.INCLUSIVE</code></a> or <a href="BoundType.html#EXCLUSIVE"><code>BoundType.EXCLUSIVE</code></a>) is not considered.
+
+ <p>
+ An inverted instance is always <a href="#isEmpty(java.util.Comparator)">empty</a>, but the reverse is not necessarily true.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>comparator</code> - comparator used to compare values, or null for natural ordering</dd>

@@ -74,11 +74,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Defines a predicate that matches certain values of a simple field.
 
  <p>
- A field value matches if it matches any of <a href="#nulls()"><code>nulls()</code></a>, <a href="#nonNulls()"><code>nonNulls()</code></a>, or <a href="#value()"><code>value()</code></a> match the value.
+ A field value matches if it matches any of <a href="#nulls()"><code>nulls()</code></a>, <a href="#nonNulls()"><code>nonNulls()</code></a>, <a href="#ranges()"><code>ranges()</code></a> or <a href="#value()"><code>value()</code></a>
+ properties match the value.
 
  <p>
  To match all field values, combine <a href="#nulls()"><code>nulls()</code></a> with <a href="#nonNulls()"><code>nonNulls()</code></a>. For primitive field types,
- <a href="#nulls()"><code>nulls()</code></a> is irrelevant and ignored, so <a href="#nonNulls()"><code>nonNulls()</code></a> matches all values.
+ <a href="#nulls()"><code>nulls()</code></a> is irrelevant and ignored, so <a href="#nonNulls()"><code>nonNulls()</code></a> by itself matches all values.
 
  <p>
  It is an error to combine <a href="#nonNulls()"><code>nonNulls()</code></a> with <a href="#value()"><code>value()</code></a>, as that would be redundant.</div>
@@ -113,9 +114,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Specify whether the null value should match.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
-<div class="col-second even-row-color"><code><a href="#value()" class="member-name-link">value</a></code></div>
+<div class="col-first even-row-color"><code><a href="ValueRange.html" title="annotation interface in io.permazen.annotation">ValueRange</a>[]</code></div>
+<div class="col-second even-row-color"><code><a href="#ranges()" class="member-name-link">ranges</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Specify range(s) of field values that should match.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
+<div class="col-second odd-row-color"><code><a href="#value()" class="member-name-link">value</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Enumerate specific field value(s) that should match.</div>
 </div>
 </div>
@@ -164,6 +170,21 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>specific matching field values</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>{}</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="ranges()">
+<h3>ranges</h3>
+<div class="member-signature"><span class="return-type"><a href="ValueRange.html" title="annotation interface in io.permazen.annotation">ValueRange</a>[]</span>&nbsp;<span class="element-name">ranges</span></div>
+<div class="block">Specify range(s) of field values that should match.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>specific matching field value ranges</dd>
 </dl>
 <dl class="notes">
 <dt>Default:</dt>

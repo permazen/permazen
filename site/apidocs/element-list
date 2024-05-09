@@ -8,6 +8,7 @@ io.permazen.cli.app.cmd
 io.permazen.cli.cmd
 io.permazen.cli.config
 io.permazen.cli.jshell
+io.permazen.cli.main
 io.permazen.cli.parse
 io.permazen.cli.parse.util
 io.permazen.core

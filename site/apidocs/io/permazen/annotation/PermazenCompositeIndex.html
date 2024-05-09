@@ -260,9 +260,10 @@ loadScripts(document, 'script');</script>
  combination of field values that should grant the containing object exclusion from the uniqueness constraint.
 
  <p>
- Each <a href="ValuesList.html" title="annotation interface in io.permazen.annotation"><code>&#64;ValuesList</code></a> is a list of <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a> annotations, one for each field
- in the index. For an object to be excluded from the uniqueness constraint, <b>all</b> of the indexed fields' values
- must match the correpsonding <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a> annotation.
+ Each <a href="ValuesList.html" title="annotation interface in io.permazen.annotation"><code>&#64;ValuesList</code></a> contains a list of <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a> annotations, one for each field
+ in the index. For an object to be excluded from the uniqueness constraint, the object's fields' values must <b>all</b>
+ match their corresponding <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a> annotation in <b>at least one</b> of the
+ <a href="ValuesList.html" title="annotation interface in io.permazen.annotation"><code>&#64;ValuesList</code></a> annotations.
 
  <p>
  For example, consider this class:
@@ -312,7 +313,7 @@ loadScripts(document, 'script');</script>
  <p>
  Notes:
  <ul>
-  <li>To match all possible values, use <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a><code>(nulls = true, nonNulls = true)</code>
+  <li>To match all possible values for a field, use <a href="Values.html" title="annotation interface in io.permazen.annotation"><code>&#64;Values</code></a><code>(nulls = true, nonNulls = true)</code>
   <li>For primitive fields, <a href="Values.html#nulls()"><code>&#64;Values.nulls()</code></a> is not relevant.
  </ul>
 
