@@ -102,32 +102,13 @@ public class PermazenExecutionControl extends LocalExecutionControl {
         try {
             Object result = method.invoke(null);
             if (result != null)
-                result = new HiddenString(valueString(result));
+                result = new StringString(valueString(result));
             success = true;
             return result;
         } catch (InvocationTargetException e) {
             throw e.getCause();
         } finally {
             session.closeTransaction(success);
-        }
-    }
-
-// HiddenString
-
-    // The reason we need this class is because we want to execute DirectExecutionControl.valueString() inside the transaction.
-    // In order to neutralize its redundant execution in DirectExecutionControl.invoke(), we "hide" the already-decoded string.
-    private static final class HiddenString {
-
-        private final String string;
-
-        HiddenString(String string) {
-            Preconditions.checkState(string != null, "null string");
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return this.string;
         }
     }
 }
