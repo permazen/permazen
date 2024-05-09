@@ -40,7 +40,7 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
      * <p>
      * The type's encoding ID must not contain any array dimensions except for single dimension primitive array types.
      *
-     * @param encoding the {@link Encoding} to registre
+     * @param encoding the {@link Encoding} to register
      * @return true if it was added, false if it was already registered
      * @throws IllegalArgumentException if {@code encoding} is null
      * @throws IllegalArgumentException if {@code encoding}'s encoding ID is null (i.e., {@code encoding} is anonymous)
@@ -67,6 +67,24 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
         }
         this.register(encodingId, encoding);
         return true;
+    }
+
+    /**
+     * Add a null-safe version of the given non-null supporting {@link Encoding} to this registry.
+     *
+     * <p>
+     * The {@code encoding} is wrapped in a {@link NullSafeEncoding} to add null value support.
+     *
+     * @param encodingId the ID for the newly added encoding
+     * @param inner the inner non-null supporting {@link Encoding}
+     * @return true if it was added, false if it was already registered
+     * @throws IllegalArgumentException if {@code inner} or {@code encodingId} is null
+     * @throws IllegalArgumentException if {@code inner}'s encoding ID conflicts with an existing, but different, encoding
+     * @throws IllegalArgumentException if {@code inner}'s encoding ID has one or more array dimensions
+     * @throws IllegalArgumentException if {@code inner} already supports null values
+     */
+    public <T> boolean addNullSafe(EncodingId encodingId, Encoding<T> inner) {
+        return this.add(new NullSafeEncoding<>(encodingId, inner));
     }
 
     /**

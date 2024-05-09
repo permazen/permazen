@@ -51,7 +51,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
      * @param inner inner type that is not null safe
      */
     public NullSafeEncoding(EncodingId encodingId, Encoding<T> inner) {
-        super(encodingId, inner.getTypeToken().wrap(), null);
+        super(encodingId, AbstractEncoding.noNull(inner, "inner").getTypeToken().wrap(), null);
         Preconditions.checkArgument(!inner.supportsNull(), "inner type is already null-safe");
         this.inner = inner;
         this.inline = !inner.hasPrefix0xff();

@@ -214,14 +214,14 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.add(new PrimitiveWrapperEncoding<>(new VoidEncoding(null)));
 
         // Add primitive array types
-        this.addWrapped(z.getArrayId(), new BooleanArrayEncoding(null));
-        this.addWrapped(b.getArrayId(), new ByteArrayEncoding(null));
-        this.addWrapped(c.getArrayId(), new CharacterArrayEncoding(null));
-        this.addWrapped(d.getArrayId(), new DoubleArrayEncoding(null));
-        this.addWrapped(f.getArrayId(), new FloatArrayEncoding(null));
-        this.addWrapped(i.getArrayId(), new IntegerArrayEncoding(null));
-        this.addWrapped(j.getArrayId(), new LongArrayEncoding(null));
-        this.addWrapped(s.getArrayId(), new ShortArrayEncoding(null));
+        this.addNullSafe(z.getArrayId(), new BooleanArrayEncoding(null));
+        this.addNullSafe(b.getArrayId(), new ByteArrayEncoding(null));
+        this.addNullSafe(c.getArrayId(), new CharacterArrayEncoding(null));
+        this.addNullSafe(d.getArrayId(), new DoubleArrayEncoding(null));
+        this.addNullSafe(f.getArrayId(), new FloatArrayEncoding(null));
+        this.addNullSafe(i.getArrayId(), new IntegerArrayEncoding(null));
+        this.addNullSafe(j.getArrayId(), new LongArrayEncoding(null));
+        this.addNullSafe(s.getArrayId(), new ShortArrayEncoding(null));
 
         // Built-in types in java.lang
         this.addWrappedBuiltin(new StringEncoding(null));
@@ -273,12 +273,7 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
     private void addWrappedBuiltin(Encoding<?> encoding) {
         final Class<?> javaType = encoding.getTypeToken().getRawType();
         final EncodingId encodingId = EncodingIds.builtin(javaType.getSimpleName());
-        this.addWrapped(encodingId, encoding);
-    }
-
-    private <T> void addWrapped(EncodingId encodingId, Encoding<T> encoding) {
-        Preconditions.checkArgument(encoding != null, "null encoding");
-        this.add(new NullSafeEncoding<>(encodingId, encoding));
+        this.addNullSafe(encodingId, encoding);
     }
 
     /**
