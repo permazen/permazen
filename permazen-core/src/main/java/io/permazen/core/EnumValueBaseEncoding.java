@@ -15,7 +15,6 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
