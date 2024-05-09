@@ -7,6 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.ValueRange;
 import io.permazen.annotation.Values;
 import io.permazen.core.ObjId;
 
@@ -19,7 +20,12 @@ public class UniqueConstraintTest extends MainTestSupport {
     @Test
     public void testUniqueConstraint() throws Exception {
 
-        Permazen pdb = BasicTest.newPermazen(UniqueName.class, UniqueValue.class, UniqueNull.class, UniqueEnum.class);
+        Permazen pdb = BasicTest.newPermazen(
+          UniqueName.class,
+          UniqueValue.class,
+          UniqueValueRange.class,
+          UniqueNull.class,
+          UniqueEnum.class);
         PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
 
         PermazenTransaction.setCurrent(ptx);
@@ -115,6 +121,45 @@ public class UniqueConstraintTest extends MainTestSupport {
             bar2.setValue(15.4f);
 
             ptx.validate();
+
+        // Test uniqueExcludes() with ranges
+
+            final UniqueValueRange uvr = ptx.create(UniqueValueRange.class);
+
+            final UniqueValueRange uvr10 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr11 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr19 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr20 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr30 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr31 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr39 = ptx.create(UniqueValueRange.class);
+            final UniqueValueRange uvr40 = ptx.create(UniqueValueRange.class);
+
+            uvr10.setValue(10);
+            uvr11.setValue(11);
+            uvr19.setValue(19);
+            uvr20.setValue(20);
+            uvr30.setValue(30);
+            uvr31.setValue(31);
+            uvr39.setValue(39);
+            uvr40.setValue(40);
+
+            ptx.validate();
+
+            for (int v : new int[] { 5, 9, 10, 11, 15, 19, 21, 25, 29, 31, 35, 40, 41, 45 }) {
+                uvr.setValue(v);
+                ptx.validate();
+            }
+
+            for (int v : new int[] { 20, 30 }) {
+                uvr.setValue(v);
+                try {
+                    ptx.validate();
+                    assert false;
+                } catch (ValidationException e) {
+                    this.log.debug("got expected {}", e.toString());
+                }
+            }
 
         // Check uniqueExcludes() of null
 
@@ -495,6 +540,20 @@ public class UniqueConstraintTest extends MainTestSupport {
         @PermazenField(indexed = true, unique = true, uniqueExcludes = @Values({ "NaN", "123.45", "Infinity" }))
         public abstract float getValue();
         public abstract void setValue(float value);
+    }
+
+    @PermazenType
+    public abstract static class UniqueValueRange implements PermazenObject {
+
+        @PermazenField(
+          indexed = true,
+          unique = true,
+          uniqueExcludes = @Values(ranges = {
+            @ValueRange(min = "10", max = "20"),    // defaults: inclusiveMin = true, exclusiveMax = false
+            @ValueRange(min = "30", max = "40", inclusiveMin = false, inclusiveMax = true)
+          }))
+        public abstract int getValue();
+        public abstract void setValue(int value);
     }
 
     @PermazenType

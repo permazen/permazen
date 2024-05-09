@@ -7,6 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
+import io.permazen.annotation.ValueRange;
 import io.permazen.annotation.Values;
 import io.permazen.core.DeleteAction;
 
@@ -113,6 +114,10 @@ class PermazenFieldScanner<T> extends AbstractPermazenFieldScanner<T, PermazenFi
                 @Override
                 public String[] value() {
                     return new String[0];
+                }
+                @Override
+                public ValueRange[] ranges() {
+                    return new ValueRange[0];
                 }
                 @Override
                 public Class<Values> annotationType() {

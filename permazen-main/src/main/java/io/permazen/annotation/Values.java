@@ -15,7 +15,8 @@ import java.lang.annotation.RetentionPolicy;
  * Defines a predicate that matches certain values of a simple field.
  *
  * <p>
- * A field value matches if it matches any of {@link #nulls}, {@link #nonNulls}, or {@link #value} match the value.
+ * A field value matches if it matches any of {@link #nulls}, {@link #nonNulls}, {@link #ranges} or {@link #value}
+ * properties match the value.
  *
  * <p>
  * To match all field values, combine {@link #nulls} with {@link #nonNulls}. For primitive field types,
@@ -51,4 +52,11 @@ public @interface Values {
      * @return specific matching field values
      */
     String[] value() default {};
+
+    /**
+     * Specify range(s) of field values that should match.
+     *
+     * @return specific matching field value ranges
+     */
+    ValueRange[] ranges() default {};
 }
