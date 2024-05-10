@@ -5,6 +5,8 @@
 
 package io.permazen.cli.cmd;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.kv.KVPair;
@@ -14,6 +16,7 @@ import io.permazen.util.CloseableIterator;
 
 import java.io.PrintStream;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
 
 public class KVGetCommand extends AbstractKVCommand {
@@ -87,26 +90,60 @@ public class KVGetCommand extends AbstractKVCommand {
             }
 
             // Handle range of keys
-            long count = 0;
+            final long count;
             try (CloseableIterator<KVPair> i = kvt.getRange(this.key, this.maxKey)) {
-                while (i.hasNext()) {
-                    final KVPair pair = i.next();
-                    if (this.limit != null && count >= this.limit)
-                        break;
-                    if (this.cstrings) {
-                        writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
-                        if (!this.novals)
-                            writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
-                    } else {
-                        KVGetCommand.decode(writer, "K ", pair.getKey());
-                        if (!this.novals)
-                            KVGetCommand.decode(writer, "V ", pair.getValue());
-                    }
-                    count++;
-                }
+                count = KVGetCommand.dumpRange(writer, i, this.cstrings, this.novals,
+                  this.limit != null ? this.limit : Long.MAX_VALUE);
             }
             writer.println("Displayed " + count + " key/value pairs");
         }
+    }
+
+    /**
+     * Print a hex and ASCII decode of the given key/value pairs.
+     *
+     * @param writer print output
+     * @param iter key/value pair iteration
+     * @return the number of key/value pairs printed
+     * @throws IllegalArgumentException if {@code writer} or {@code iter} is null
+     */
+    public static long dumpRange(PrintStream writer, Iterator<KVPair> iter) {
+        return KVGetCommand.dumpRange(writer, iter, false, false, Long.MAX_VALUE);
+    }
+
+    /**
+     * Print a hex and ASCII decode of the given key/value pairs.
+     *
+     * @param writer print output
+     * @param iter key/value pair iteration
+     * @param cstrings decode keys and values as strings
+     * @param novalues only print the keys, omitting the values
+     * @param limit stop after this many key/value pairs
+     * @return the number of key/value pairs printed
+     * @throws IllegalArgumentException if {@code limit} is negative
+     * @throws IllegalArgumentException if {@code writer} or {@code iter} is null
+     */
+    public static long dumpRange(PrintStream writer, Iterator<KVPair> iter, boolean cstrings, boolean novalues, long limit) {
+        Preconditions.checkArgument(writer != null, "null writer");
+        Preconditions.checkArgument(iter != null, "null iter");
+        Preconditions.checkArgument(limit >= 0, "negative limit");
+        long count = 0;
+        while (iter.hasNext()) {
+            final KVPair pair = iter.next();
+            if (count >= limit)
+                break;
+            if (cstrings) {
+                writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
+                if (!novalues)
+                    writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
+            } else {
+                KVGetCommand.decode(writer, "K ", pair.getKey());
+                if (!novalues)
+                    KVGetCommand.decode(writer, "V ", pair.getValue());
+            }
+            count++;
+        }
+        return count;
     }
 
     private static void decode(PrintStream writer, String prefix, byte[] value) {
