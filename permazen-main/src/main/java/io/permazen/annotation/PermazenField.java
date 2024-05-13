@@ -287,6 +287,9 @@ public @interface PermazenField {
      * field will will be traversed in the forward direction.
      *
      * <p>
+     * Cascade names must be non-empty.
+     *
+     * <p>
      * For non-reference fields this property must be equal to its default value.
      *
      * @return forward cascade names for the annotated reference field
@@ -302,6 +305,9 @@ public @interface PermazenField {
      * When following a cascade of references, if the cascade name is one of the names listed here,
      * and an object with the annotated reference field is encountered, then the annotated reference
      * field will will be traversed in the inverse direction.
+     *
+     * <p>
+     * Cascade names must be non-empty.
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.

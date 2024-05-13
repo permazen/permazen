@@ -40,6 +40,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -747,6 +748,14 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         if (!isReferenceType && annotation.inverseCascades().length != 0) {
             throw new IllegalArgumentException(String.format(
               "invalid %s: %s() only allowed on reference fields", description, "inverseCascades"));
+        }
+        if (isReferenceType && Stream.of(annotation.forwardCascades()).anyMatch(String::isEmpty)) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: %s() may not contain an empty string", description, "forwardCascades"));
+        }
+        if (isReferenceType && Stream.of(annotation.inverseCascades()).anyMatch(String::isEmpty)) {
+            throw new IllegalArgumentException(String.format(
+              "invalid %s: %s() may not contain an empty string", description, "inverseCascades"));
         }
 
         // Create simple, enum, enum array, or reference field
