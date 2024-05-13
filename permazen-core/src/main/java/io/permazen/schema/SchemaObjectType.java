@@ -242,8 +242,10 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
         return ITEM_TYPE;
     }
 
-    // When computing our own schema ID, we don't include fields or indexes, meaning the schema ID of a SchemaObjectType
-    // depends only on the type name. When compuing a schema ID as part of a SchemaModel, we include fields and indexes.
+    // When computing an object type schema ID, we only include the type name, meaning the "encoding" of an object type
+    // depends only on the type name (i.e., its basic identity). Otherwise two object types can share a storage ID because
+    // once you factor out the encodings of the fields (which are tracked separately using their own storage ID's) all
+    // objects are encoded the same way. Contrast with fields, where differently encoded fields can't share storage ID's.
     @Override
     void writeSchemaIdHashData(DataOutputStream output, boolean forSchemaModel) throws IOException {
         super.writeSchemaIdHashData(output, forSchemaModel);
@@ -265,6 +267,10 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
     @Override
     public Diffs differencesFrom(SchemaObjectType that) {
         final Diffs diffs = new Diffs(super.differencesFrom(that));
+
+        // Check schema epoch
+        if (this.schemaEpoch != that.schemaEpoch)
+            diffs.add(String.format("changed %s from %s to %s", "schema epoch", that.schemaEpoch, this.schemaEpoch));
 
         // Check fields
         final NavigableSet<String> allFieldNames = NavigableSets.union(
@@ -352,12 +358,16 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
             return false;
         final SchemaObjectType that = (SchemaObjectType)obj;
         return this.fields.equals(that.fields)
-          && this.indexes.equals(that.indexes);
+          && this.indexes.equals(that.indexes)
+          && this.schemaEpoch == that.schemaEpoch;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.fields.hashCode() ^ this.indexes.hashCode();
+        return super.hashCode()
+          ^ this.fields.hashCode()
+          ^ this.indexes.hashCode()
+          ^ Integer.hashCode(this.schemaEpoch);
     }
 
 // Cloneable
