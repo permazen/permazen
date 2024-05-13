@@ -462,6 +462,9 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
 
 // Object
 
+    /**
+     * Returns this schema model in XML form.
+     */
     @Override
     public String toString() {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();

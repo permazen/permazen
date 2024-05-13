@@ -17,6 +17,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 /**
  * Java annotation for Java classes that represent Permazen database object types.
@@ -24,16 +27,16 @@ import java.lang.annotation.Target;
  * <p>
  * Model classes may be POJO's, {@code abstract} classes, or interfaces, and the Java bean getter methods therein define database
  * fields; Permazen generates concrete subclasses of each model class at runtime.
- * Model classes must have a zero-arg constructor with at least {@code protected} access.
+ * Non-interface model classes must have a zero-arg constructor with at least {@code protected} access.
  *
  * <p>
  * The following annotations on the getter methods of a {@link PermazenType &#64;PermazenType}-annotated class
  * configure database fields:
  * <ul>
  *  <li>{@link PermazenField &#64;PermazenField} - defines a simple value, reference, or {@link Counter} field
- *  <li>{@link PermazenSetField &#64;PermazenSetField} - defines a {@link java.util.NavigableSet} field
- *  <li>{@link PermazenListField &#64;PermazenListField} - defines a {@link java.util.List} field
- *  <li>{@link PermazenMapField &#64;PermazenMapField} - defines a {@link java.util.NavigableMap} field
+ *  <li>{@link PermazenSetField &#64;PermazenSetField} - defines a {@link NavigableSet} field
+ *  <li>{@link PermazenListField &#64;PermazenListField} - defines a {@link List} field
+ *  <li>{@link PermazenMapField &#64;PermazenMapField} - defines a {@link NavigableMap} field
  * </ul>
  *
  * <p>
@@ -122,7 +125,7 @@ public @interface PermazenType {
      * {@code protected}. In the case of simple fields, there must also be a corresponding setter method.
      *
      * <p>
-     * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}
+     * Getter methods with return type assignable to {@link Set}, {@link List}, and {@link Map}
      * will cause the corresponding collection fields to be created; other getter/setter method pairs will cause
      * the corresponding simple fields to be generated.
      *

@@ -71,7 +71,8 @@ import java.lang.annotation.Target;
  * See {@link DefaultEncodingRegistry} for a list of built-in (pre-defined) encodings.
  *
  * <p>
- * To use user-defined encodings, configure a custom {@link EncodingRegistry} and specify them via {@link #encoding}.
+ * To use a user-defined encoding, configure a custom {@link EncodingRegistry} that knows about the encoding and
+ * then refer to it by its unique {@link EncodingId} via {@link #encoding}.
  *
  * <p><b>Referential Integrity</b></p>
  *
@@ -81,7 +82,7 @@ import java.lang.annotation.Target;
  * The {@link #allowDeleted} and {@link #inverseDelete} properties, respectively, control whether (a) or (b) is permitted.
  *
  * <p>
- * By default, neither (a) nor (b) is allowed; if attempted, a {@link DeletedObjectException} is thrown.
+ * By default, neither (a) nor (b) is allowed; if either is attempted, a {@link DeletedObjectException} is thrown.
  * This ensures references are always valid.
  *
  * <p><b>Indexing</b></p>
@@ -100,15 +101,20 @@ import java.lang.annotation.Target;
  * Two or more simple fields may be indexed together in a composite index; see
  * {@link PermazenCompositeIndex &#64;PermazenCompositeIndex}.
  *
- * <p><b>Cascades</b></p>
+ * <p><b>Reference Cascades</b></p>
  *
  * <p>
- * The {@link PermazenObject} methods {@link PermazenObject#copyIn copyIn()},
+ * Reference cascades allow you to define an arbitrary graph of objects by specifying the reference fields that constitute
+ * the edges of the graph. Reference cascades are identified by name, and a reference field is included in a reference cascade
+ * when that name appears in {@link #forwardCascades} and/or {@link #inverseCascades}. Reference fields in reference cascades
+ * can be traversed in either the forward or reverse directions.
+ *
+ * <p>
+ * For example, the {@link PermazenObject} methods {@link PermazenObject#copyIn copyIn()},
  * {@link PermazenObject#copyOut copyOut()}, and {@link PermazenObject#copyTo copyTo()}
- * copy a graph of related objects between transactions by first copying a starting object, then cascading through matching
- * reference fields and repeating recursively. This cascade operation is capable of traversing references in both the
- * forward and inverse directions. There is also {@link PermazenTransaction#cascade} which performs a general purpose
- * cascade exploration.
+ * copy a graph of related objects between transactions by first copying a starting object and then cascading through matching
+ * reference fields, repeating recursively. There is also {@link PermazenTransaction#cascade PermazenTransaction.cascade()} which
+ * performs a general purpose cascade exploration and returns the corresponding set of objects.
  *
  * <p>
  * Which reference fields are traversed in a particular find or copy operation is determined by the supplied <i>cascade name</i>.
@@ -157,11 +163,11 @@ import java.lang.annotation.Target;
  *  }
  * </pre>
  *
- * <p><b>Delete Cascades</b></p>
+ * <p><b>References and Deletion</b></p>
  *
  * <p>
  * Reference fields have configurable behavior when the referring object or the referred-to object is deleted;
- * see {@link #inverseDelete} and {@link #forwardDelete}.
+ * see {@link #forwardDelete} and {@link #inverseDelete}.
  *
  * <p><b>Uniqueness Constraints</b></p>
  *

@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A unique identifier that corresponds to the structure and encoding of an individual {@link SchemaItem} component
+ * A unique identifier that corresponds to the structure and encoding of an individual {@link SchemaItem} component,
  * or an entire {@link SchemaModel}.
  *
  * <p>

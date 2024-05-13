@@ -667,8 +667,11 @@ public class PermazenTransaction {
      * This method finds all objects reachable from the given starting object through
      * {@linkplain io.permazen.annotation.PermazenField#forwardCascades forward} and
      * {@linkplain io.permazen.annotation.PermazenField#inverseCascades inverse} reference field cascades with the specified names.
-     * In other words, a reference field is traversed in the forward or inverse direction if any cascade name is
-     * specified in the corresponding {@linkplain io.permazen.annotation.PermazenField &#64;PermazenField} annotation property.
+     * In other words, a reference field is traversed in the forward or inverse direction if any of the given {@code cascades}
+     * are found in the field's
+     * {@linkplain io.permazen.annotation.PermazenField#forwardCascades() &#64;PermazenField.forwardCascades()} or
+     * {@linkplain io.permazen.annotation.PermazenField#inverseCascades() &#64;PermazenField.inverseCascades()} annotation
+     * property, respectively.
      *
      * <p>
      * The {@code visited} set contains the ID's of objects already visited (or is empty if none); these objects will not
@@ -679,10 +682,10 @@ public class PermazenTransaction {
      * All new objects found will be {@linkplain #migrateSchema migrated} to the this transaction's schema if necessary.
      *
      * <p>
-     * The {@code maxDistance} parameter can be used to limit the maximum distance of any reachable object,
-     * measured in the number of reference field "hops" from the given starting object. If a value other than -1 is given,
-     * objects will be visited in breadth-first manner (i.e., ordered by distance) and the search will end after that
-     * many hops. If -1 is given, there is no limit and also no implied ordering of reachable objects in the iteration.
+     * The {@code maxDistance} parameter can be used to limit the maximum distance of any reachable object, measured
+     * in the number of reference field hops from the starting object. If a value other than -1 is given, objects will
+     * be visited in breadth-first manner (i.e., ordered by distance) and the search is truncated at {@code maxDistance}
+     * hops. If -1 is given, there is no limit and also no implied ordering of the objects in the iteration.
      *
      * @param id starting object ID
      * @param maxDistance the maximum number of reference fields to hop through, or -1 for no limit
