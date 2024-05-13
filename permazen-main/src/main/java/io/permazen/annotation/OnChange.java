@@ -131,6 +131,70 @@ import java.lang.annotation.Target;
  *   }
  * </pre>
  *
+ * <p><b>Depenedent Objects</b></p>
+ *
+ * <p>
+ * {@link OnChange &#64;OnChange} annotations can be used to automatically garbage collect dependent objects.
+ * A dependent object is one that is only useful or meaningful in the context of some other object(s) that reference it.
+ * You can combine {@link OnChange &#64;OnChange} with {@link OnDelete &#64;OnDelete} and {@link ReferencePath &#64;ReferencePath}
+ * to keep track of incoming references.
+ *
+ * <p>
+ * For example, suppose multiple {@code Person}'s can share a common {@link Address}. You only want {@link Address} objects
+ * in your database when they are referred to by at least one {@code Person}. As soon as an {@link Address} is no longer
+ * referenced, you want it to be automaticaly garbage collected.
+ *
+ * <p>
+ * Then you could do something like this:
+ *
+ * <pre>
+ *   &#64;PermazenType
+ *   public abstract class Person implements PermazenObject {
+ *
+ *       &#64;NotNull
+ *       public abstract String getName();
+ *       public abstract void setName(String name);
+ *
+ *       &#64;NotNull
+ *       public abstract Address getAddress();
+ *       public abstract void setAddress(Address address);
+ *
+ *       &#64;OnDelete
+ *       private void onDelete() {
+ *           this.setAddress(null); // ensure we notify Address.referenceChange()
+ *       }
+ *   }
+ *
+ *   &#64;PermazenType
+ *   public abstract class Address implements PermazenObject {
+ *
+ *       &#64;NotNull
+ *       public abstract String getAddress();
+ *       public abstract void setAddress(String adddress);
+ *
+ *       &#64;NotNull
+ *       public abstract String getCity();
+ *       public abstract void setCity(String city);
+ *
+ *       &#64;NotNull
+ *       public abstract String getZip();
+ *       public abstract void setZip(String zip);
+ *
+ *   // Index queries
+ *
+ *       &#64;ReferencePath("&lt;-Person.address")
+ *       public abstract NavigableSet&lt;Person&gt; getOccupants();
+ *
+ *   // &#64;OnChange methods
+ *
+ *       &#64;OnChange(path = "&lt;-Person.address", value = "address")
+ *       private void referenceChange(SimpleFieldChange&lt;Person, Address&gt; change) {
+ *           if (this.getOccupants().isEmpty())
+ *               this.delete();
+ *       }
+ *   }
+ * </pre>
+ *
  * <p><b>Method Parameter Types</b></p>
  *
  * <p>
