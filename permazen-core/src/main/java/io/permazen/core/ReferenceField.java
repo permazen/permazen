@@ -77,7 +77,8 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @return names of allowed object types, or null if there is no restriction
      */
     public Set<String> getObjectTypes() {
-        return Collections.unmodifiableSet(((ReferenceEncoding)this.encoding).getObjectTypeNames());
+        final Set<String> objectTypeNames = ((ReferenceEncoding)this.encoding).getObjectTypeNames();
+        return objectTypeNames != null ? Collections.unmodifiableSet(objectTypeNames) : null;
     }
 
     @Override
