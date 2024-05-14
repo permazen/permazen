@@ -80,6 +80,7 @@ public class Session {
 
     private KVTransaction kvt;
     private Transaction tx;
+    private SessionMode txMode;             // the SessionMode when the transaction was started
     private boolean rollbackOnly;
 
     private boolean verbose;
@@ -661,7 +662,8 @@ public class Session {
         try {
 
             // Sanity check
-            Preconditions.checkState(this.tx == null && this.kvt == null, "a transaction is already open in this session");
+            Preconditions.checkState(this.txMode == null
+              && this.tx == null && this.kvt == null, "a transaction is already open in this session");
 
             // Open transaction at the appropriate level
             switch (currentMode) {
@@ -704,6 +706,9 @@ public class Session {
             if (this.kvt != null && this.readOnly)
                 this.kvt.setReadOnly(true);
 
+            // Remember the session mode for this transaction
+            this.txMode = currentMode;
+
             // OK
             success = true;
         } finally {
@@ -722,10 +727,10 @@ public class Session {
      * For experts only.
      */
     public void closeTransaction(boolean commit) throws Exception {
-        final SessionMode currentMode = this.mode;
         try {
-            Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");
-            switch (currentMode) {
+            Preconditions.checkState(this.txMode != null && (this.tx != null || this.kvt != null),
+              "there is no transaction open in this session");
+            switch (this.txMode) {
             case PERMAZEN:
                 if (commit && !this.tx.isRollbackOnly())
                     PermazenTransaction.getCurrent().commit();
@@ -749,7 +754,7 @@ public class Session {
                 break;
             }
         } finally {
-            this.cleanupTx(currentMode);
+            this.cleanupTx(this.txMode);
         }
     }
 
@@ -772,6 +777,7 @@ public class Session {
                 this.kvt.rollback();
             this.kvt = null;
         }
+        this.txMode = null;
     }
 
     private static boolean isCurrentJTransaction() {
