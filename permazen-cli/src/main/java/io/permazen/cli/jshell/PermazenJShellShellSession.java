@@ -116,7 +116,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 // Internal Methods
 
     /**
-     * Make a classpath available as a {@link File}.
+     * Make a classpath resource available as a {@link File}.
      *
      * <p>
      * If the resource is already a file, that file is returned. Otherwise, a temporary
