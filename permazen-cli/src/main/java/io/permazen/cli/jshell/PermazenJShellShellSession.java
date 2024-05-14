@@ -62,7 +62,12 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     /**
      * Get the instance associated with the current thread.
      *
-     * @return session associated with the current thread, or null if not found
+     * <p>
+     * This method just returns the result from {@link JShellShellSession#getCurrent} cast to a
+     * {@link PermazenJShellShellSession}.
+     *
+     * @return the instance of this class associated with the current thread, or null if none found
+     * @see JShellShellSession#getCurrent
      */
     public static PermazenJShellShellSession getCurrent() {
         try {
