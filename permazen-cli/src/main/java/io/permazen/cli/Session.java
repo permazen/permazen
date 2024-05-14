@@ -651,12 +651,15 @@ public class Session {
     }
 
     /**
-     * Open a transaction.
+     * Open a transaction and associate it with this instance.
      *
      * <p>
      * For experts only.
+     *
+     * @param options transaction options
+     * @throws IllegalStateException if there is already a transaction associated with this instance
      */
-    public boolean openTransaction(Map<String, ?> options) throws Exception {
+    public boolean openTransaction(Map<String, ?> options) {
         final SessionMode currentMode = this.mode;
         boolean success = false;
         try {
@@ -721,12 +724,15 @@ public class Session {
     }
 
     /**
-     * Close a transaction.
+     * Closed the transaction associated it with this instance by {@link #openTransaction}.
      *
      * <p>
      * For experts only.
+     *
+     * @param commit true to commit the transaction, false to roll it back
+     * @throws IllegalStateException if there is no transaction associated with this instance
      */
-    public void closeTransaction(boolean commit) throws Exception {
+    public void closeTransaction(boolean commit) {
         try {
             Preconditions.checkState(this.txMode != null && (this.tx != null || this.kvt != null),
               "there is no transaction open in this session");
