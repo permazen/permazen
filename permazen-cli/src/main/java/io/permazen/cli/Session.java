@@ -11,7 +11,6 @@ import io.permazen.Permazen;
 import io.permazen.PermazenTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.Database;
-import io.permazen.core.Schema;
 import io.permazen.core.Transaction;
 import io.permazen.core.TransactionConfig;
 import io.permazen.kv.KVDatabase;
@@ -30,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Holds {@link Permazen}-specific state during a CLI session.
+ * Holds {@link Permazen}-specific state during a CLI session, include the current open transaction, if any.
  *
  * <p>
  * Instances operate in one of three modes; see {@link SessionMode}.
@@ -78,13 +77,11 @@ public class Session {
     private boolean garbageCollectSchemas;
     private boolean readOnly;
 
-    private KVTransaction kvt;
-    private Transaction tx;
-    private SessionMode txMode;             // the SessionMode when the transaction was started
-    private boolean rollbackOnly;
-
     private boolean verbose;
     private String errorMessagePrefix = DEFAULT_ERROR_MESSAGE_PREFIX;
+
+    // The currently associated transaction, if any
+    private volatile TxInfo txInfo;
 
     // Retry settings
     private int maxRetries = DEFAULT_MAX_RETRIES;
@@ -218,42 +215,59 @@ public class Session {
     }
 
     /**
-     * Get the open {@link KVTransaction} currently associated with this instance.
+     * Get information about the transaction currently associated with this instance.
      *
-     * @return the open {@link KVTransaction} in which to do work
-     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
+     * @return info for the transaction associated with this instance
+     * @throws IllegalStateException if there is no transaction associated with this instance
      */
-    public KVTransaction getKVTransaction() {
-        Preconditions.checkState(this.kvt != null, "no transaction is currently associated with this session");
-        return this.kvt;
+    public TxInfo getTxInfo() {
+        Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
+        return this.txInfo;
     }
 
     /**
-     * Get the open {@link Transaction} currently associated with this instance.
-     *
-     * @return the open {@link Transaction} in which to do work
-     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
-     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#CORE_API} or {@link SessionMode#PERMAZEN}
-     */
-    public Transaction getTransaction() {
-        Preconditions.checkState(this.mode.hasCoreAPI(), "core API not available in " + this.mode + " mode");
-        Preconditions.checkState(this.tx != null, "no transaction is currently associated with this session");
-        return this.tx;
-    }
-
-    /**
-     * Get the open {@link PermazenTransaction} currently associated with this instance.
+     * Get the {@link KVTransaction} currently associated with this instance.
      *
      * <p>
-     * This method just invokes {@link PermazenTransaction#getCurrent} and returns the result.
+     * Equivalent to {@link #getTxInfo getTxInfo}{@code ().}{@link TxInfo#getKVTransaction getKVTransaction}{@code ()}.
      *
-     * @return the open {@link PermazenTransaction} in which to do work
-     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
-     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#PERMAZEN}
+     * @return {@link KVTransaction} associated with this instance
+     * @throws IllegalStateException if there is no transaction associated with this session
+     */
+    public KVTransaction getKVTransaction() {
+        Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
+        return this.txInfo.getKVTransaction();
+    }
+
+    /**
+     * Get the {@link Transaction} currently associated with this instance.
+     *
+     * <p>
+     * Equivalent to {@link #getTxInfo getTxInfo}{@code ().}{@link TxInfo#getTransaction getTransaction}{@code ()}.
+     *
+     * @return {@link Transaction} associated with this instance
+     * @throws IllegalStateException if there is no transaction associated with this instance
+     * @throws IllegalStateException if this instance was not in mode {@link SessionMode#CORE_API} or {@link SessionMode#PERMAZEN}
+     *  when the transaction was opened
+     */
+    public Transaction getTransaction() {
+        Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
+        return this.txInfo.getTransaction();
+    }
+
+    /**
+     * Get the {@link PermazenTransaction} currently associated with this instance.
+     *
+     * <p>
+     * Equivalent to {@link #getTxInfo getTxInfo}{@code ().}{@link TxInfo#getPermazenTransaction getPermazenTransaction}{@code ()}.
+     *
+     * @return {@link PermazenTransaction} associated with this instance
+     * @throws IllegalStateException if there is no transaction associated with this instance
+     * @throws IllegalStateException if this instance was not in mode {@link SessionMode#PERMAZEN} when the transaction was opened
      */
     public PermazenTransaction getPermazenTransaction() {
-        Preconditions.checkState(this.mode.hasPermazen(), "Permazen not available in " + this.mode + " mode");
-        return PermazenTransaction.getCurrent();
+        Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
+        return this.txInfo.getPermazenTransaction();
     }
 
     /**
@@ -477,70 +491,6 @@ public class Session {
 // Transactions
 
     /**
-     * Associate the current {@link PermazenTransaction} with this instance, if not already associated,
-     * while performing the given action.
-     *
-     * <p>
-     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
-     * and then false returned.
-     *
-     * <p>
-     * This instance must be in {@link SessionMode#PERMAZEN}, there must be a {@link PermazenTransaction} open and
-     * {@linkplain PermazenTransaction#getCurrent associated with the current thread}, and this instance must not already
-     * have a different {@link PermazenTransaction} associated with it (it may already have the same {@link PermazenTransaction}
-     * associated with it). The {@link PermazenTransaction} will be left open when this method returns.
-     *
-     * <p>
-     * This method safely handles re-entrant invocation.
-     *
-     * @param action action to perform
-     * @return true if {@code action} completed successfully, false if {@code action} threw an exception
-     * @throws IllegalStateException if there is a different open transaction already associated with this instance
-     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#PERMAZEN}
-     * @throws InterruptedException if the current thread is interrupted
-     * @throws IllegalArgumentException if {@code action} is null
-     */
-    public boolean performSessionActionWithCurrentTransaction(Action action) throws InterruptedException {
-
-        // Sanity check
-        Preconditions.checkArgument(action != null, "null action");
-        Preconditions.checkArgument(SessionMode.PERMAZEN.equals(this.mode), "session is not in Permazen mode");
-
-        // Check for re-entrant invocation, otherwise verify no other transaction is associated
-        final Transaction currentTx = PermazenTransaction.getCurrent().getTransaction();
-        final KVTransaction currentKVT = currentTx.getKVTransaction();
-
-        // Determine whether to join existing or create new
-        final boolean associate;
-        if (this.tx == null && this.kvt == null)
-            associate = true;
-        else if (this.tx == currentTx && this.kvt == currentKVT)
-            associate = false;
-        else
-            throw new IllegalStateException("a different transaction is already open in this session");
-
-        // Perform action
-        if (associate) {
-            this.tx = currentTx;
-            this.kvt = currentKVT;
-        }
-        try {
-            action.run(this);
-            return true;
-        } catch (InterruptedException e) {
-            throw e;
-        } catch (Exception e) {
-            this.reportException(e);
-            return false;
-        } finally {
-            if (associate) {
-                this.tx = null;
-                this.kvt = null;
-            }
-        }
-    }
-
-    /**
      * Perform the given action in the context of this session.
      *
      * <p>
@@ -577,7 +527,7 @@ public class Session {
         Preconditions.checkArgument(action != null, "null action");
 
         // Transaction already open or non-transactional action? If so, just use it.
-        if (this.kvt != null || !(action instanceof TransactionalAction)) {
+        if (this.txInfo != null || !(action instanceof TransactionalAction)) {
             try {
                 action.run(this);
                 return true;
@@ -605,19 +555,17 @@ public class Session {
             // Perform transactional action within a newly created transaction
             boolean shouldRetry = false;
             try {
-                if (!this.openTransaction(options))
-                    return false;
+                this.openTransaction(options);
                 boolean success = false;
-                this.rollbackOnly = false;
                 try {
                     shouldRetry = action instanceof RetryableTransactionalAction;
                     action.run(this);
                     shouldRetry = false;
                     success = true;
                 } finally {
-                    this.closeTransaction(success && !this.rollbackOnly);
+                    this.closeTransaction(success);
                 }
-                return success;
+                return true;
             } catch (InterruptedException e) {
                 throw e;
             } catch (Exception e) {
@@ -625,173 +573,132 @@ public class Session {
                     continue;
                 this.reportException(e);
                 return false;
-            } finally {
-                this.tx = null;
             }
         }
     }
 
     /**
-     * Determine whether there is a transaction already associated with this instance.
-     *
-     * @return true if a transaction is already open
-     */
-    public boolean isTransactionOpen() {
-        return this.kvt != null;
-    }
-
-    /**
-     * Mark the current transaction to be rolled back.
-     *
-     * @throws IllegalStateException if there is no transaction associated with this instance
-     */
-    public void setRollbackOnly() {
-        Preconditions.checkState(this.kvt != null, "no transaction is open in this session");
-        this.rollbackOnly = true;
-    }
-
-    /**
-     * Open a transaction and associate it with this instance.
+     * Determine whether there is a transaction associated with this instance.
      *
      * <p>
-     * For experts only.
+     * Equivalent to {@link #getTxInfo getTxInfo() }{@code != null}.
      *
-     * @param options transaction options
-     * @throws IllegalStateException if there is already a transaction associated with this instance
+     * @return true if there is an associated transaction
      */
-    public boolean openTransaction(Map<String, ?> options) {
-        final SessionMode currentMode = this.mode;
+    public boolean isTransactionOpen() {
+        return this.txInfo != null;
+    }
+
+    /**
+     * Open a new transaction and associate it with this instance.
+     *
+     * <p>
+     * If this instance is in {@link SessionMode#PERMAZEN}, then the new {@link PermazenTransaction} will
+     * also be associated with the current thread.
+     *
+     * @param options transaction options, or null for none
+     * @throws IllegalStateException if there is already a transaction associated with this instance
+     * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
+     */
+    public void openTransaction(Map<String, ?> options) {
+        Preconditions.checkState(this.txInfo == null, "a transaction is already associated with this session");
         boolean success = false;
         try {
 
-            // Sanity check
-            Preconditions.checkState(this.txMode == null
-              && this.tx == null && this.kvt == null, "a transaction is already open in this session");
-
             // Open transaction at the appropriate level
-            switch (currentMode) {
+            switch (this.mode) {
             case KEY_VALUE:
-                this.kvt = this.kvdb.createTransaction(options);
+                this.txInfo = new TxInfo(this.kvdb.createTransaction(options));
                 break;
             case CORE_API:
-                this.tx = TransactionConfig.builder()
+                final Transaction tx = TransactionConfig.builder()
                   .schemaModel(this.schemaModel)
                   .allowNewSchema(this.allowNewSchema)
                   .garbageCollectSchemas(this.garbageCollectSchemas)
                   .kvOptions(options)
                   .build()
                   .newTransaction(this.db);
-                this.kvt = this.tx.getKVTransaction();
+                this.txInfo = new TxInfo(tx);
                 break;
             case PERMAZEN:
-                Preconditions.checkState(!Session.isCurrentJTransaction(),
-                  "a Permazen transaction is already open in the current thread");
-                final PermazenTransaction jtx = this.pdb.createTransaction(
-                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options);
-                PermazenTransaction.setCurrent(jtx);
-                this.tx = jtx.getTransaction();
-                this.kvt = this.tx.getKVTransaction();
+                PermazenTransaction currentTx = null;
+                try {
+                    currentTx = PermazenTransaction.getCurrent();
+                } catch (IllegalStateException e) {
+                    // ok good
+                }
+                Preconditions.checkState(currentTx == null, "a Permazen transaction is already associated with the current thread");
+                this.txInfo = new TxInfo(this.pdb.createTransaction(
+                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options));
                 break;
             default:
-                assert false;
-                break;
+                throw new RuntimeException("internal error");
             }
 
-            // Update schema model and version (if appropriate)
-            if (this.tx != null) {
-                final Schema schema = this.tx.getSchema();
-                this.setSchemaModel(schema.getSchemaModel());
+            // Infer some settings and apply some settings
+            if (this.mode.compareTo(SessionMode.CORE_API) >= 0) {
+                final Transaction tx = this.txInfo.getTransaction();
+                this.setSchemaModel(tx.getSchema().getSchemaModel());
+                if (this.readOnly)
+                    tx.setReadOnly(true);
             }
-
-            // Set transaction read/only if appropriate
-            if (this.tx != null && this.readOnly)
-                this.tx.setReadOnly(true);
-            if (this.kvt != null && this.readOnly)
-                this.kvt.setReadOnly(true);
-
-            // Remember the session mode for this transaction
-            this.txMode = currentMode;
+            if (this.readOnly)
+                this.txInfo.getKVTransaction().setReadOnly(true);
 
             // OK
             success = true;
         } finally {
-            if (!success)
-                this.cleanupTx(currentMode);
+            if (!success) {
+                this.txInfo.cleanup();
+                this.txInfo = null;
+            }
         }
-
-        // Done
-        return success;
     }
 
     /**
-     * Closed the transaction associated it with this instance by {@link #openTransaction}.
+     * Closed the transaction previously opened and associated with this instance by {@link #openTransaction openTransaction()}.
      *
      * <p>
-     * For experts only.
+     * This essentially does the reverse of {@link #openTransaction openTransaction()}.
      *
      * @param commit true to commit the transaction, false to roll it back
      * @throws IllegalStateException if there is no transaction associated with this instance
      */
     public void closeTransaction(boolean commit) {
+        Preconditions.checkState(this.txInfo != null, "there is no transaction associated with this session");
         try {
-            Preconditions.checkState(this.txMode != null && (this.tx != null || this.kvt != null),
-              "there is no transaction open in this session");
-            switch (this.txMode) {
+            switch (this.txInfo.getMode()) {
             case PERMAZEN:
-                if (commit && !this.tx.isRollbackOnly())
+            {
+                final Transaction tx = this.txInfo.getTransaction();
+                if (commit && tx.isRollbackOnly())
                     PermazenTransaction.getCurrent().commit();
                 else
                     PermazenTransaction.getCurrent().rollback();
                 break;
+            }
             case CORE_API:
-                if (commit && !this.tx.isRollbackOnly())
-                    this.tx.commit();
+            {
+                final Transaction tx = this.txInfo.getTransaction();
+                if (commit && !tx.isRollbackOnly())
+                    tx.commit();
                 else
-                    this.tx.rollback();
+                    tx.rollback();
                 break;
+            }
             case KEY_VALUE:
+                final KVTransaction kvt = this.txInfo.getKVTransaction();
                 if (commit)
-                    this.kvt.commit();
+                    kvt.commit();
                 else
-                    this.kvt.rollback();
+                    kvt.rollback();
                 break;
             default:
-                assert false;
-                break;
+                throw new RuntimeException("internal error");
             }
         } finally {
-            this.cleanupTx(this.txMode);
-        }
-    }
-
-    private void cleanupTx(SessionMode mode) {
-        if (mode.compareTo(SessionMode.PERMAZEN) >= 0) {
-            try {
-                PermazenTransaction.getCurrent().rollback();
-            } catch (IllegalStateException e) {
-                // ignore
-            }
-            PermazenTransaction.setCurrent(null);
-        }
-        if (mode.compareTo(SessionMode.CORE_API) >= 0) {
-            if (this.tx != null)
-                this.tx.rollback();
-            this.tx = null;
-        }
-        if (mode.compareTo(SessionMode.KEY_VALUE) >= 0) {
-            if (this.kvt != null)
-                this.kvt.rollback();
-            this.kvt = null;
-        }
-        this.txMode = null;
-    }
-
-    private static boolean isCurrentJTransaction() {
-        try {
-            PermazenTransaction.getCurrent();
-            return true;
-        } catch (IllegalStateException e) {
-            return false;
+            this.txInfo.cleanup();
+            this.txInfo = null;
         }
     }
 
@@ -799,8 +706,6 @@ public class Session {
 
     /**
      * Callback interface used by {@link Session#performSessionAction Session.performSessionAction()}
-     * and {@link Session#performSessionActionWithCurrentTransaction
-     * Session.performSessionActionWithCurrentTransaction()}.
      */
     @FunctionalInterface
     public interface Action {
@@ -844,5 +749,101 @@ public class Session {
          * @return {@link KVDatabase}-specific transaction options, or null for none
          */
         Map<String, ?> getTransactionOptions();
+    }
+
+// TxInfo
+
+    /**
+     * Information about the a transaction associated with a {@link Session}.
+     */
+    public static final class TxInfo {
+
+        private final SessionMode mode;
+        private final KVTransaction kvt;
+        private final Transaction tx;
+        private final PermazenTransaction ptx;
+
+        private TxInfo(KVTransaction kvt) {
+            this(SessionMode.KEY_VALUE, kvt, null, null);
+        }
+
+        private TxInfo(Transaction tx) {
+            this(SessionMode.CORE_API, tx.getKVTransaction(), tx, null);
+        }
+
+        private TxInfo(PermazenTransaction ptx) {
+            this(SessionMode.PERMAZEN, ptx.getTransaction().getKVTransaction(), ptx.getTransaction(), ptx);
+        }
+
+        private TxInfo(SessionMode mode, KVTransaction kvt, Transaction tx, PermazenTransaction ptx) {
+            this.mode = mode;
+            this.kvt = kvt;
+            this.tx = tx;
+            this.ptx = ptx;
+            if (this.ptx != null) {
+                try {
+                    PermazenTransaction.getCurrent();
+                } catch (IllegalStateException e) {
+                    PermazenTransaction.setCurrent(this.ptx);
+                }
+            }
+        }
+
+        /**
+         * Get the {@link SessionMode} that the {@link Session} was in when the transaction was opened.
+         *
+         * @return associated session mode
+         */
+        public SessionMode getMode() {
+            return this.mode;
+        }
+
+        /**
+         * Get the associated {@link KVTransaction}.
+         *
+         * @return {@link KVTransaction} associated with this instance, never null
+         */
+        public KVTransaction getKVTransaction() {
+            return this.kvt;
+        }
+
+        /**
+         * Get the associated {@link Transaction}, if any.
+         *
+         * @return {@link Transaction} associated with this instance, never null
+         * @throws IllegalStateException if the {@link Session} was in {@link SessionMode#KEY_VALUE} mode
+         *  when the transaction was opened
+         */
+        public Transaction getTransaction() {
+            Preconditions.checkState(this.tx != null, "Core API Transaction not available in " + this.mode + " mode");
+            return this.tx;
+        }
+
+        /**
+         * Get the associated {@link PermazenTransaction}, if any.
+         *
+         * @return {@link PermazenTransaction} associated with this instance, never null
+         * @throws IllegalStateException if the {@link Session} was in {@link SessionMode#KEY_VALUE} or {@link SessionMode#CORE_API}
+         *  mode when the transaction was opened
+         */
+        public PermazenTransaction getPermazenTransaction() {
+            Preconditions.checkState(this.ptx != null, "PermazenTransaction not available in " + this.mode + " mode");
+            return this.ptx;
+        }
+
+        void cleanup() {
+            if (this.ptx != null) {
+                this.ptx.rollback();
+                try {
+                    if (PermazenTransaction.getCurrent() == this.ptx)
+                        PermazenTransaction.setCurrent(null);
+                } catch (IllegalStateException e) {
+                    // ignore
+                }
+            }
+            if (this.tx != null)
+                this.tx.rollback();
+            this.kvt.rollback();
+        }
     }
 }
