@@ -15,7 +15,10 @@ import io.permazen.util.ByteWriter;
 import java.util.List;
 
 /**
- * {@code char[]} array type. Does not support null arrays.
+ * Non-null {@code char[]} array type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * We use the same encoding as {@link StringEncoding}.
@@ -24,11 +27,11 @@ public class CharacterArrayEncoding extends ArrayEncoding<char[], Character> {
 
     private static final long serialVersionUID = 968583366001367828L;
 
-    private final StringEncoding stringType = new StringEncoding(null);
+    private final StringEncoding stringType = new StringEncoding();
 
     @SuppressWarnings("serial")
-    public CharacterArrayEncoding(EncodingId encodingId) {
-        super(encodingId, new CharacterEncoding(null), new TypeToken<char[]>() { });
+    public CharacterArrayEncoding() {
+        super(new CharacterEncoding(null), new TypeToken<char[]>() { });
     }
 
     @Override

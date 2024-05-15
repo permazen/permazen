@@ -17,7 +17,7 @@ import java.time.Period;
  * Non-null {@link Period} type.
  *
  * <p>
- * Null values are not supported by this class.
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via three consecutive {@link LongEncoder}-encoded values: the {@linkplain Period#getYears years},
@@ -27,8 +27,8 @@ public class PeriodEncoding extends AbstractEncoding<Period> {
 
     private static final long serialVersionUID = -5481674489895732054L;
 
-    public PeriodEncoding(EncodingId encodingId) {
-        super(encodingId, Period.class, Period.ZERO);
+    public PeriodEncoding() {
+        super(Period.class);
     }
 
 // Encoding

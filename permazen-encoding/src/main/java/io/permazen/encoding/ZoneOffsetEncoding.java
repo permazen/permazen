@@ -28,8 +28,8 @@ public class ZoneOffsetEncoding extends AbstractEncoding<ZoneOffset> {
 
     private static final long serialVersionUID = 4606196393878370203L;
 
-    public ZoneOffsetEncoding(EncodingId encodingId) {
-        super(encodingId, ZoneOffset.class, null);
+    public ZoneOffsetEncoding() {
+        super(ZoneOffset.class);
     }
 
 // Encoding

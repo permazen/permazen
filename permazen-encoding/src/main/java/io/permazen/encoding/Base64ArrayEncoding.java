@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.regex.Pattern;
 
 /**
- * Adds support for an alternate Base-64 {@link String} encoding for primitive array types.
- * Does not support null arrays.
+ * Adds support for an alternate Base-64 {@link String} encoding for non-null primitive array types.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * @param <T> array type
  * @param <E> array element type
@@ -37,8 +39,8 @@ public abstract class Base64ArrayEncoding<T, E> extends ArrayEncoding<T, E> {
 
     private final int size;
 
-    protected Base64ArrayEncoding(EncodingId encodingId, PrimitiveEncoding<E> elementEncoding, TypeToken<T> typeToken) {
-        super(encodingId, elementEncoding, typeToken);
+    protected Base64ArrayEncoding(PrimitiveEncoding<E> elementEncoding, TypeToken<T> typeToken) {
+        super(elementEncoding, typeToken);
         this.size = elementEncoding.primitive.getSize();
     }
 

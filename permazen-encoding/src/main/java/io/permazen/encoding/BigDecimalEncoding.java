@@ -20,7 +20,7 @@ import java.util.Arrays;
  * Non-null {@link BigDecimal} type.
  *
  * <p>
- * Null values are not supported by this class and the default value is {@link BigDecimal#ZERO}.
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * This class' encoding preserves precision information, and therefore treats as distinct instances that differ only in
@@ -38,8 +38,8 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
     private static final int FLAG_ZERO = 0x02;
     private static final int FLAG_POSITIVE = 0x03;
 
-    public BigDecimalEncoding(EncodingId encodingId) {
-        super(encodingId, BigDecimal.class, BigDecimal.ZERO);
+    public BigDecimalEncoding() {
+        super(BigDecimal.class);
     }
 
 // Encoding

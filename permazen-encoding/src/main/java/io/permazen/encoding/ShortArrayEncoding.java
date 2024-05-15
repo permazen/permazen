@@ -19,8 +19,8 @@ public class ShortArrayEncoding extends IntegralArrayEncoding<short[], Short> {
 
     private static final long serialVersionUID = 2001467018347663363L;
 
-    public ShortArrayEncoding(EncodingId encodingId) {
-       super(encodingId, new ShortEncoding(null), short[].class);
+    public ShortArrayEncoding() {
+       super(new ShortEncoding(null), short[].class);
     }
 
     @Override

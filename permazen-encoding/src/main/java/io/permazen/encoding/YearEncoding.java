@@ -26,8 +26,8 @@ public class YearEncoding extends AbstractEncoding<Year> {
 
     private static final long serialVersionUID = 6800527893478605289L;
 
-    public YearEncoding(EncodingId encodingId) {
-        super(encodingId, Year.class, null);
+    public YearEncoding() {
+        super(Year.class);
     }
 
 // Encoding

@@ -16,7 +16,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * Support superclass for {@link InetAddress} types.
+ * Support superclass for non-null {@link InetAddress} types.
  *
  * <p>
  * Null values are not supported by this class and there is no default value.
@@ -28,8 +28,8 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Abstra
     private final Class<T> addrType;
     private final String pattern;
 
-    protected AbstractInetAddressEncoding(EncodingId encodingId, Class<T> addrType, String pattern) {
-        super(encodingId, addrType, null);
+    protected AbstractInetAddressEncoding(Class<T> addrType, String pattern) {
+        super(addrType);
         Preconditions.checkArgument(pattern != null);
         this.addrType = addrType;
         this.pattern = pattern;

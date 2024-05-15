@@ -17,7 +17,7 @@ import java.time.Duration;
  * Non-null {@link Duration} type.
  *
  * <p>
- * Null values are not supported by this class and the default value is {@link Duration#ZERO}.
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via two consecutive {@link LongEncoder}-encoded values, {@linkplain Duration#getSeconds seconds}
@@ -27,8 +27,8 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
 
     private static final long serialVersionUID = 969067179729229705L;
 
-    public DurationEncoding(EncodingId encodingId) {
-        super(encodingId, Duration.class, Duration.ZERO);
+    public DurationEncoding() {
+        super(Duration.class);
     }
 
 // Encoding

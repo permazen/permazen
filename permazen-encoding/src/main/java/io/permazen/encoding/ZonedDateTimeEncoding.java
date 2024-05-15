@@ -24,23 +24,10 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
 
     private static final long serialVersionUID = 2484375470437659420L;
 
-    public ZonedDateTimeEncoding(EncodingId encodingId) {
-        super(encodingId, ZonedDateTime.class, null, new OffsetDateTimeEncoding(null), new ZoneIdEncoding(null));
-    }
-
-    @Override
-    protected ZonedDateTime join(OffsetDateTime value1, ZoneId value2) {
-        return ZonedDateTime.ofInstant(value1.toInstant(), value2);
-    }
-
-    @Override
-    protected OffsetDateTime split1(ZonedDateTime value) {
-        return value.toOffsetDateTime();
-    }
-
-    @Override
-    protected ZoneId split2(ZonedDateTime value) {
-        return value.getZone();
+    public ZonedDateTimeEncoding() {
+        super(ZonedDateTime.class, new OffsetDateTimeEncoding(), new ZoneIdEncoding(null),
+          ZonedDateTime::toOffsetDateTime, ZonedDateTime::getZone,
+          (value1, value2) ->  ZonedDateTime.ofInstant(value1.toInstant(), value2));
     }
 
 // Encoding
@@ -52,10 +39,10 @@ public class ZonedDateTimeEncoding extends Concat2Encoding<ZonedDateTime, Offset
         final ZoneId zoneId;
         final int bracket = string.indexOf('[');
         if (bracket != -1 && string.charAt(string.length() - 1) == ']') {
-            offsetDateTime = this.encoding1.fromString(string.substring(0, bracket));
-            zoneId = this.encoding2.fromString(string.substring(bracket + 1, string.length() - 1));
+            offsetDateTime = this.getTuple2Encoding().getEncoding1().fromString(string.substring(0, bracket));
+            zoneId = this.getTuple2Encoding().getEncoding2().fromString(string.substring(bracket + 1, string.length() - 1));
         } else {
-            offsetDateTime = this.encoding1.fromString(string);
+            offsetDateTime = this.getTuple2Encoding().getEncoding1().fromString(string);
             zoneId = offsetDateTime.getOffset();
         }
         return ZonedDateTime.ofInstant(offsetDateTime.toInstant(), zoneId);

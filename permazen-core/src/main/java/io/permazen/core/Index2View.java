@@ -81,7 +81,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
         // Create new IndexView
         Index1View<Tuple2<V1, V2>, T> indexView = new Index1View<>(this.prefix, this.prefixMode,
-          new Tuple2Encoding<>(null, this.getValue1Encoding(), this.getValue2Encoding()), this.getTargetEncoding());
+          new Tuple2Encoding<>(this.getValue1Encoding(), this.getValue2Encoding()), this.getTargetEncoding());
 
         // Apply filters
         final KeyFilter value1Filter = this.getFilter(0);

@@ -109,7 +109,7 @@ public class SimpleEncodingRegistry implements EncodingRegistry {
         Preconditions.checkArgument(elementEncoding != null, "null elementEncoding");
         Preconditions.checkArgument(Primitive.get(elementEncoding.getTypeToken().getRawType()) == null, "primitive element type");
         final EncodingId encodingId = Optional.ofNullable(elementEncoding.getEncodingId()).map(EncodingId::getArrayId).orElse(null);
-        return new NullSafeEncoding<>(encodingId, new ObjectArrayEncoding<>(null, elementEncoding));
+        return new NullSafeEncoding<>(encodingId, new ObjectArrayEncoding<>(elementEncoding));
     }
 
 // EncodingRegistry

@@ -20,7 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * {@code double[]} array type. Does not support null arrays.
+ * Non-null {@code double[]} array type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Array elements are encoded using {@link DoubleEncoding}, and the array is terminated by {@code 0x0000000000000000L},
@@ -36,8 +39,8 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     private final DoubleEncoding doubleType = new DoubleEncoding(null);
 
     @SuppressWarnings("serial")
-    public DoubleArrayEncoding(EncodingId encodingId) {
-        super(encodingId, new DoubleEncoding(null), new TypeToken<double[]>() { });
+    public DoubleArrayEncoding() {
+        super(new DoubleEncoding(null), new TypeToken<double[]>() { });
     }
 
     @Override

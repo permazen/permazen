@@ -10,21 +10,19 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.util.ParseContext;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
- * Support superclass for built-in array {@link Encoding}s.
+ * Support superclass for non-null built-in array {@link Encoding}s.
  *
  * <p>
  * The string form looks like {@code [ "elem1", "elem2", ..., "elemN" ]}.
  *
  * <p>
- * This class does not support null arrays; wrap in {@link NullSafeEncoding} to get that.
- * The default value is the empty array.
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Arrays sort lexicographically.
@@ -41,15 +39,14 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
     /**
      * Constructor.
      *
-     * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param elementEncoding array element type (possibly also an {@link ArrayEncoding})
      * @param typeToken array type token
      * @throws IllegalArgumentException if {@code elementEncoding} is an {@link ArrayEncoding} with
      *  {@link Encoding#MAX_ARRAY_DIMENSIONS} dimensions
      */
     @SuppressWarnings("unchecked")
-    protected ArrayEncoding(EncodingId encodingId, Encoding<E> elementEncoding, TypeToken<T> typeToken) {
-        super(encodingId, typeToken, (T)Array.newInstance(elementEncoding.getTypeToken().getRawType(), 0));
+    protected ArrayEncoding(Encoding<E> elementEncoding, TypeToken<T> typeToken) {
+        super(typeToken);
         this.elementEncoding = elementEncoding;
     }
 

@@ -12,6 +12,8 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.function.Supplier;
+
 /**
  * An {@link Encoding} that relies on some other {@link Encoding}, converting values to/from
  * the other {@link Encoding}'s Java type.
@@ -38,9 +40,10 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
 
     private static final long serialVersionUID = -1873774754387478399L;
 
-    private final Encoding<S> delegate;
+    protected final Encoding<S> delegate;
     @SuppressWarnings("serial")
-    private final Converter<T, S> converter;
+    protected final Converter<T, S> converter;
+
     private final boolean sortsNaturally;
 
 // Constructors
@@ -50,15 +53,16 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param typeToken represented Java type
-     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
+     * @param defaultValueSupplier supplies the default value for this encoding; must supply null if this encoding supports nulls;
+     *  may be null if this encoding has no default value
      * @param delegate delegate encoder
      * @param converter value converter
      * @param sortsNaturally true if this encoding {@linkplain Encoding#sortsNaturally sorts naturally}, otherwise false
-     * @throws IllegalArgumentException if any parameter other than {@code defaultValue} is null
+     * @throws IllegalArgumentException if any parameter other than {@code defaultValueSupplier} is null
      */
-    public ConvertedEncoding(EncodingId encodingId, TypeToken<T> typeToken, T defaultValue,
+    public ConvertedEncoding(EncodingId encodingId, TypeToken<T> typeToken, Supplier<? extends T> defaultValueSupplier,
       Encoding<S> delegate, Converter<T, S> converter, boolean sortsNaturally) {
-        super(encodingId, typeToken, defaultValue);
+        super(encodingId, typeToken, defaultValueSupplier);
         Preconditions.checkArgument(delegate != null, "null delegate");
         Preconditions.checkArgument(converter != null, "null converter");
         Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
@@ -73,15 +77,17 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type represented Java type
-     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
+     * @param defaultValueSupplier supplies the default value for this encoding; must supply null if this encoding supports nulls;
+     *  may be null if this encoding has no default value
      * @param delegate delegate encoder
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @param sortsNaturally true if this encoding {@linkplain Encoding#sortsNaturally sorts naturally}, otherwise false
-     * @throws IllegalArgumentException if any parameter other than {@code defaultValue} is null
+     * @throws IllegalArgumentException if any parameter other than {@code defaultValueSupplier} is null
      */
-    public ConvertedEncoding(EncodingId encodingId, Class<T> type, T defaultValue,
+    public ConvertedEncoding(EncodingId encodingId, Class<T> type, Supplier<? extends T> defaultValueSupplier,
       Encoding<S> delegate, Converter<T, S> converter, boolean sortsNaturally) {
-        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")), defaultValue, delegate, converter, sortsNaturally);
+        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")),
+          defaultValueSupplier, delegate, converter, sortsNaturally);
     }
 
 // Encoding

@@ -16,7 +16,10 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * {@code boolean[]} array type. Does not support null arrays.
+ * Non-null {@code boolean[]} array type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Each boolean value is encoded in two bits: end of array ({@code 00}), false ({@code 01}), or true ({@code 10}).
@@ -31,8 +34,8 @@ public class BooleanArrayEncoding extends ArrayEncoding<boolean[], Boolean> {
     private static final int TRUE = 0x02;
 
     @SuppressWarnings("serial")
-    public BooleanArrayEncoding(EncodingId encodingId) {
-        super(encodingId, new BooleanEncoding(null), new TypeToken<boolean[]>() { });
+    public BooleanArrayEncoding() {
+        super(new BooleanEncoding(null), new TypeToken<boolean[]>() { });
     }
 
     @Override

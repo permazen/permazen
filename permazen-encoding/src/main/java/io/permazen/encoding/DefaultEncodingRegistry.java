@@ -211,56 +211,56 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.add(new PrimitiveWrapperEncoding<>(new IntegerEncoding(null)));
         this.add(new PrimitiveWrapperEncoding<>(new LongEncoding(null)));
         this.add(new PrimitiveWrapperEncoding<>(new ShortEncoding(null)));
-        this.add(new PrimitiveWrapperEncoding<>(new VoidEncoding(null)));
+        this.add(new PrimitiveWrapperEncoding<>(new VoidEncoding()));
 
         // Add primitive array types
-        this.addNullSafe(z.getArrayId(), new BooleanArrayEncoding(null));
-        this.addNullSafe(b.getArrayId(), new ByteArrayEncoding(null));
-        this.addNullSafe(c.getArrayId(), new CharacterArrayEncoding(null));
-        this.addNullSafe(d.getArrayId(), new DoubleArrayEncoding(null));
-        this.addNullSafe(f.getArrayId(), new FloatArrayEncoding(null));
-        this.addNullSafe(i.getArrayId(), new IntegerArrayEncoding(null));
-        this.addNullSafe(j.getArrayId(), new LongArrayEncoding(null));
-        this.addNullSafe(s.getArrayId(), new ShortArrayEncoding(null));
+        this.addNullSafe(z.getArrayId(), new BooleanArrayEncoding());
+        this.addNullSafe(b.getArrayId(), new ByteArrayEncoding());
+        this.addNullSafe(c.getArrayId(), new CharacterArrayEncoding());
+        this.addNullSafe(d.getArrayId(), new DoubleArrayEncoding());
+        this.addNullSafe(f.getArrayId(), new FloatArrayEncoding());
+        this.addNullSafe(i.getArrayId(), new IntegerArrayEncoding());
+        this.addNullSafe(j.getArrayId(), new LongArrayEncoding());
+        this.addNullSafe(s.getArrayId(), new ShortArrayEncoding());
 
         // Built-in types in java.lang
-        this.addWrappedBuiltin(new StringEncoding(null));
+        this.addWrappedBuiltin(new StringEncoding());
 
         // Built-in types in java.math
-        this.addWrappedBuiltin(new BigDecimalEncoding(null));
-        this.addWrappedBuiltin(new BigIntegerEncoding(null));
+        this.addWrappedBuiltin(new BigDecimalEncoding());
+        this.addWrappedBuiltin(new BigIntegerEncoding());
 
         // Built-in types in java.io
         this.addBuiltin(File.class, FileEncoding::new);
 
         // Built-in types in java.util
-        this.addWrappedBuiltin(new BitSetEncoding(null));
-        this.addWrappedBuiltin(new DateEncoding(null));
-        this.addWrappedBuiltin(new UUIDEncoding(null));
+        this.addWrappedBuiltin(new BitSetEncoding());
+        this.addWrappedBuiltin(new DateEncoding());
+        this.addWrappedBuiltin(new UUIDEncoding());
 
         // Built-in types in java.util.regex
         this.addBuiltin(Pattern.class, PatternEncoding::new);
 
         // Built-in types in java.net
-        this.addWrappedBuiltin(new Inet4AddressEncoding(null));
-        this.addWrappedBuiltin(new Inet6AddressEncoding(null));
-        this.addWrappedBuiltin(new InetAddressEncoding(null));
+        this.addWrappedBuiltin(new Inet4AddressEncoding());
+        this.addWrappedBuiltin(new Inet6AddressEncoding());
+        this.addWrappedBuiltin(new InetAddressEncoding());
         this.addBuiltin(URI.class, URIEncoding::new);
 
         // Built-in types in java.time
-        this.addWrappedBuiltin(new DurationEncoding(null));
-        this.addWrappedBuiltin(new InstantEncoding(null));
-        this.addWrappedBuiltin(new LocalDateTimeEncoding(null));
-        this.addWrappedBuiltin(new LocalDateEncoding(null));
-        this.addWrappedBuiltin(new LocalTimeEncoding(null));
-        this.addWrappedBuiltin(new MonthDayEncoding(null));
-        this.addWrappedBuiltin(new OffsetDateTimeEncoding(null));
-        this.addWrappedBuiltin(new OffsetTimeEncoding(null));
-        this.addWrappedBuiltin(new PeriodEncoding(null));
-        this.addWrappedBuiltin(new YearMonthEncoding(null));
-        this.addWrappedBuiltin(new YearEncoding(null));
-        this.addWrappedBuiltin(new ZoneOffsetEncoding(null));
-        this.addWrappedBuiltin(new ZonedDateTimeEncoding(null));
+        this.addWrappedBuiltin(new DurationEncoding());
+        this.addWrappedBuiltin(new InstantEncoding());
+        this.addWrappedBuiltin(new LocalDateTimeEncoding());
+        this.addWrappedBuiltin(new LocalDateEncoding());
+        this.addWrappedBuiltin(new LocalTimeEncoding());
+        this.addWrappedBuiltin(new MonthDayEncoding());
+        this.addWrappedBuiltin(new OffsetDateTimeEncoding());
+        this.addWrappedBuiltin(new OffsetTimeEncoding());
+        this.addWrappedBuiltin(new PeriodEncoding());
+        this.addWrappedBuiltin(new YearMonthEncoding());
+        this.addWrappedBuiltin(new YearEncoding());
+        this.addWrappedBuiltin(new ZoneOffsetEncoding());
+        this.addWrappedBuiltin(new ZonedDateTimeEncoding());
         this.addBuiltin(ZoneId.class, ZoneIdEncoding::new);
     }
 

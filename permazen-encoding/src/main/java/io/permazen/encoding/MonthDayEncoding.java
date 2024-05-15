@@ -27,8 +27,8 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
 
     private static final long serialVersionUID = -8813919603844250786L;
 
-    public MonthDayEncoding(EncodingId encodingId) {
-        super(encodingId, MonthDay.class, null);
+    public MonthDayEncoding() {
+        super(MonthDay.class);
     }
 
 // Encoding

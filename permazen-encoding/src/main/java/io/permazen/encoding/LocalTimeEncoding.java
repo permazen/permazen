@@ -17,7 +17,7 @@ import java.time.LocalTime;
  * Non-null {@link LocalTime} type.
  *
  * <p>
- * Null values are not supported by this class.
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Binary encoding is via a single {@link LongEncoder}-encoded value representing
@@ -27,8 +27,8 @@ public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
 
     private static final long serialVersionUID = -6138317689607411426L;
 
-    public LocalTimeEncoding(EncodingId encodingId) {
-        super(encodingId, LocalTime.class, LocalTime.ofSecondOfDay(0));
+    public LocalTimeEncoding() {
+        super(LocalTime.class);
     }
 
 // Encoding

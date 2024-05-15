@@ -29,8 +29,8 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
 
     private static final long MASK = 0x8000000000000000L;
 
-    public UUIDEncoding(EncodingId encodingId) {
-        super(encodingId, UUID.class, null);
+    public UUIDEncoding() {
+        super(UUID.class);
     }
 
 // Encoding

@@ -20,8 +20,8 @@ public class VoidEncoding extends PrimitiveEncoding<Void> {
 
     private static final long serialVersionUID = -1158051649344218848L;
 
-    public VoidEncoding(EncodingId encodingId) {
-       super(encodingId, Primitive.VOID);
+    public VoidEncoding() {
+       super(Primitive.VOID);
     }
 
     @Override

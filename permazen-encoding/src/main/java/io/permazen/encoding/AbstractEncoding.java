@@ -10,6 +10,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Support superclass for {@link Encoding} implementations.
@@ -26,8 +27,8 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     protected final EncodingId encodingId;
     protected final TypeToken<T> typeToken;
-    @SuppressWarnings("serial")
-    private final T defaultValue;
+
+    private final Supplier<? extends T> defaultValueSupplier;
 
     private transient byte[] defaultValueBytes;
 
@@ -38,14 +39,15 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param typeToken Java type for this encoding's values
-     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
+     * @param defaultValueSupplier supplies the default value for this encoding; must supply null if this encoding supports nulls;
+     *  may be null if this encoding has no default value
      * @throws IllegalArgumentException if {@code typeToken} is null
      */
-    protected AbstractEncoding(EncodingId encodingId, TypeToken<T> typeToken, T defaultValue) {
+    protected AbstractEncoding(EncodingId encodingId, TypeToken<T> typeToken, Supplier<? extends T> defaultValueSupplier) {
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.encodingId = encodingId;
         this.typeToken = typeToken;
-        this.defaultValue = defaultValue;
+        this.defaultValueSupplier = defaultValueSupplier;
     }
 
     /**
@@ -53,11 +55,32 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type Java type for this encoding's values
-     * @param defaultValue default value for this encoding; must be null if this encoding supports nulls
+     * @param defaultValueSupplier supplies the default value for this encoding; must supply null if this encoding supports nulls;
+     *  may be null if this encoding has no default value
      * @throws IllegalArgumentException if {@code type} is null
      */
-    protected AbstractEncoding(EncodingId encodingId, Class<T> type, T defaultValue) {
-        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")), defaultValue);
+    protected AbstractEncoding(EncodingId encodingId, Class<T> type, Supplier<? extends T> defaultValueSupplier) {
+        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")), defaultValueSupplier);
+    }
+
+    /**
+     * Constructor for anonymous encodings with no default value.
+     *
+     * @param type Java type for this encoding's values
+     * @throws IllegalArgumentException if {@code type} is null
+     */
+    protected AbstractEncoding(TypeToken<T> type) {
+        this(null, type, null);
+    }
+
+    /**
+     * Constructor for anonymous encodings with no default value.
+     *
+     * @param type Java type for this encoding's values
+     * @throws IllegalArgumentException if {@code type} is null
+     */
+    protected AbstractEncoding(Class<T> type) {
+        this(null, type, null);
     }
 
     static <T> T noNull(T value, String name) {
@@ -80,9 +103,9 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     @Override
     public final T getDefaultValue() {
-        if (this.defaultValue == null && !this.supportsNull())
+        if (this.defaultValueSupplier == null)
             throw new UnsupportedOperationException("encoding has no default value");
-        return this.defaultValue;
+        return this.defaultValueSupplier.get();
     }
 
     @Override

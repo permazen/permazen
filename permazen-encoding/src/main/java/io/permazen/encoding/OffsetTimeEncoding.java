@@ -7,7 +7,6 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
@@ -26,27 +25,14 @@ import java.time.ZoneOffset;
 public class OffsetTimeEncoding extends Concat2Encoding<OffsetTime, Long, ZoneOffset> {
 
     private static final long NANOS_PER_SECOND = 1_000_000_000L;
-    private static final LocalDate EPOCH = LocalDate.ofEpochDay(0);
 
     private static final long serialVersionUID = -42507926581583354L;
 
-    public OffsetTimeEncoding(EncodingId encodingId) {
-        super(encodingId, OffsetTime.class, null, new LongEncoding(null), new ZoneOffsetEncoding(null));
-    }
-
-    @Override
-    protected OffsetTime join(Long value1, ZoneOffset value2) {
-        return OffsetTime.of(LocalTime.ofNanoOfDay(value1 + value2.getTotalSeconds() * NANOS_PER_SECOND), value2);
-    }
-
-    @Override
-    protected Long split1(OffsetTime value) {
-        return value.toLocalTime().toNanoOfDay() - value.getOffset().getTotalSeconds() * NANOS_PER_SECOND;
-    }
-
-    @Override
-    protected ZoneOffset split2(OffsetTime value) {
-        return value.getOffset();
+    public OffsetTimeEncoding() {
+        super(OffsetTime.class, new LongEncoding(null), new ZoneOffsetEncoding(),
+          value -> value.toLocalTime().toNanoOfDay() - value.getOffset().getTotalSeconds() * NANOS_PER_SECOND,
+          OffsetTime::getOffset,
+          (value1, value2) -> OffsetTime.of(LocalTime.ofNanoOfDay(value1 + value2.getTotalSeconds() * NANOS_PER_SECOND), value2));
     }
 
 // Encoding

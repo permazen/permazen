@@ -91,7 +91,7 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
 
         // Create new IndexView
         Index1View<Tuple3<V1, V2, V3>, T> indexView = new Index1View<>(this.prefix, this.prefixMode,
-          new Tuple3Encoding<>(null, this.getValue1Encoding(), this.getValue2Encoding(), this.getValue3Encoding()),
+          new Tuple3Encoding<>(this.getValue1Encoding(), this.getValue2Encoding(), this.getValue3Encoding()),
           this.getTargetEncoding());
 
         // Get filters
@@ -125,7 +125,7 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
 
         // Create new IndexView
         Index2View<Tuple2<V1, V2>, V3, T> indexView = new Index2View<>(this.prefix, this.prefixMode,
-          new Tuple2Encoding<>(null, this.getValue1Encoding(),
+          new Tuple2Encoding<>(this.getValue1Encoding(),
            this.getValue2Encoding()), this.getValue3Encoding(), this.getTargetEncoding());
 
         // Get filters

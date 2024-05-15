@@ -19,7 +19,13 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
     final Primitive<T> primitive;
 
     protected PrimitiveEncoding(EncodingId encodingId, Primitive<T> primitive) {
-        super(encodingId, primitive.getType(), !primitive.equals(Primitive.VOID) ? primitive.getDefaultValue() : null);
+        super(encodingId, primitive.getType(), primitive::getDefaultValue);
+        this.primitive = primitive;
+    }
+
+    // For VoidEncoding only
+    protected PrimitiveEncoding(Primitive<T> primitive) {
+        super(primitive.getType());
         this.primitive = primitive;
     }
 

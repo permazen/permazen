@@ -17,15 +17,15 @@ import java.math.BigInteger;
  * Non-null {@link BigInteger} type.
  *
  * <p>
- * Null values are not supported by this class. The default value is {@link BigInteger#ZERO}.
+ * Null values are not supported by this class and there is no default value.
  */
 public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
 
     private static final long serialVersionUID = -2984648309356838144L;
     private static final int MAX_NUM_BYTES = (Integer.MAX_VALUE / Byte.SIZE) + 1;
 
-    public BigIntegerEncoding(EncodingId encodingId) {
-        super(encodingId, BigInteger.class, BigInteger.ZERO);
+    public BigIntegerEncoding() {
+        super(BigInteger.class);
     }
 
 // Encoding

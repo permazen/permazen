@@ -15,7 +15,10 @@ import io.permazen.util.LongEncoder;
 import java.util.ArrayList;
 
 /**
- * Array type for integral primitive element types. Does not support null arrays.
+ * Support superclass for non-null integral primitive array encodings.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Arrays are encoded as a sequence of numerical values followed by {@code 0x00}, where each value is encoded via
@@ -29,8 +32,8 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
     private static final int END = 0x00;
 
     @SuppressWarnings("serial")
-    protected IntegralArrayEncoding(EncodingId encodingId, IntegralEncoding<E> elementEncoding, Class<T> arrayClass) {
-        super(encodingId, elementEncoding, TypeToken.of(arrayClass));
+    protected IntegralArrayEncoding(IntegralEncoding<E> elementEncoding, Class<T> arrayClass) {
+        super(elementEncoding, TypeToken.of(arrayClass));
         if (this.elementEncoding.hasPrefix0x00())
             throw new RuntimeException("internal error");
     }

@@ -15,9 +15,14 @@ import io.permazen.util.ByteWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
- * Support superclass for {@link Encoding}s of {@link Tuple} classes created by concatenating the component {@link Encoding}s.
+ * Support superclass for non-null {@link Encoding}s of {@link Tuple} classes created by concatenating
+ * the component {@link Encoding}s.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  */
 public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T> {
 
@@ -31,14 +36,14 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     /**
      * Constructor.
      *
-     * @param encodingId encoding ID, or null for an anonymous instance
      * @param typeToken this encoding's composite value type
      * @param encodings encodings to concatenate
      * @throws IllegalArgumentException if {@code typeToken} or {@code encodings} is null
      */
-    protected TupleEncoding(EncodingId encodingId, TypeToken<T> typeToken, Encoding<?>... encodings) {
-        super(encodingId, typeToken, null);
+    protected TupleEncoding(TypeToken<T> typeToken, Encoding<?>... encodings) {
+        super(typeToken);
         Preconditions.checkArgument(encodings != null, "null encodings");
+        Stream.of(encodings).forEach(encoding -> Preconditions.checkArgument(encoding != null, "null encoding"));
         this.encodings = new ArrayList<>(Arrays.<Encoding<?>>asList(encodings));
         this.size = this.encodings.size();
     }

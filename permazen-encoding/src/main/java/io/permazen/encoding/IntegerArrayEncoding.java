@@ -19,8 +19,8 @@ public class IntegerArrayEncoding extends IntegralArrayEncoding<int[], Integer> 
 
     private static final long serialVersionUID = 2097437088172327725L;
 
-    public IntegerArrayEncoding(EncodingId encodingId) {
-       super(encodingId, new IntegerEncoding(null), int[].class);
+    public IntegerArrayEncoding() {
+       super(new IntegerEncoding(null), int[].class);
     }
 
     @Override

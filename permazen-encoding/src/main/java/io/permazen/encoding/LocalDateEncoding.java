@@ -26,8 +26,8 @@ public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
 
     private static final long serialVersionUID = -1245720029314097665L;
 
-    public LocalDateEncoding(EncodingId encodingId) {
-        super(encodingId, LocalDate.class, null);
+    public LocalDateEncoding() {
+        super(LocalDate.class);
     }
 
 // Encoding

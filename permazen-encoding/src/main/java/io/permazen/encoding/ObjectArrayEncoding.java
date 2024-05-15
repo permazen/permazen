@@ -17,11 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Array type for object arrays having non-primitive element types. Does not support null arrays.
+ * Support superclass for non-null object array encodings.
  *
  * <p>
- * In the binary encoding, array elements are simply concatenated, with each element preceded by a {@code 0x01} byte.
- * After the last element, a final {@code 0x00} byte follows. This encoding ensures lexicographic ordering.
+ * Null values are not supported by this class and there is no default value.
+ * However the array elements can be null.
+ *
+ * <p>
+ * In the binary encoding, array elements are simply concatenated, with each element preceded by a {@code 0x01} byte
+ * unless encoded array elements never start with {@code 0x00}. After the last array element, a final {@code 0x00}
+ * is then appended. This encoding ensures lexicographic ordering (though there is a subtlety here, which is that when
+ * omitting the {@code 0x01} bytes, we are relying on the fact that for any {@link Encoding} no encoded value can be a
+ * prefix of a another value, because that violates the self-delimiting requirement; as a result, it's not possible
+ * for two concatenated values [B,C] to sort before a single value [A] if A &lt; B).
  *
  * @param <E> array element type
  */
@@ -32,14 +40,13 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
     private static final int END = 0x00;
     private static final int VALUE = 0x01;
 
-    private final boolean inline;
+    private final boolean inlineValue;
 
     @SuppressWarnings("serial")
-    public ObjectArrayEncoding(EncodingId encodingId, Encoding<E> elementEncoding) {
-        super(encodingId, elementEncoding,
-          new TypeToken<E[]>() { }.where(new TypeParameter<E>() { }, elementEncoding.getTypeToken()));
+    public ObjectArrayEncoding(Encoding<E> elementEncoding) {
+        super(elementEncoding, new TypeToken<E[]>() { }.where(new TypeParameter<E>() { }, elementEncoding.getTypeToken()));
         Preconditions.checkArgument(!elementEncoding.getTypeToken().isPrimitive(), "illegal primitive element type");
-        this.inline = !elementEncoding.hasPrefix0x00();
+        this.inlineValue = !elementEncoding.hasPrefix0x00();
     }
 
     @Override
@@ -50,7 +57,7 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
             final int first = reader.readByte();
             if (first == END)
                 break;
-            if (this.inline)
+            if (this.inlineValue)
                 reader.unread();
             else if (first != VALUE)
                 throw new IllegalArgumentException("invalid encoding of " + this);
@@ -63,7 +70,7 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
     public void write(ByteWriter writer, E[] array) {
         Preconditions.checkArgument(writer != null);
         for (E obj : array) {
-            if (!this.inline)
+            if (!this.inlineValue)
                 writer.writeByte(VALUE);
             this.elementEncoding.write(writer, obj);
         }
@@ -77,13 +84,20 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
             final int first = reader.readByte();
             if (first == END)
                 break;
-            if (this.inline)
+            if (this.inlineValue)
                 reader.unread();
             else if (first != VALUE)
                 throw new IllegalArgumentException("invalid encoding of " + this);
             this.elementEncoding.skip(reader);
         }
     }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return this.inlineValue && this.elementEncoding.hasPrefix0xff();
+    }
+
+// ArrayEncoding
 
     @Override
     protected int getArrayLength(E[] array) {

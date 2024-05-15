@@ -29,8 +29,8 @@ public class InetAddressEncoding extends AbstractInetAddressEncoding<InetAddress
     private static final byte PREFIX_IPV4 = 4;
     private static final byte PREFIX_IPV6 = 6;
 
-    public InetAddressEncoding(EncodingId encodingId) {
-        super(encodingId, InetAddress.class, "(" + Inet4AddressEncoding.PATTERN + "|" + Inet6AddressEncoding.PATTERN + ")");
+    public InetAddressEncoding() {
+        super(InetAddress.class, "(" + Inet4AddressEncoding.PATTERN + "|" + Inet6AddressEncoding.PATTERN + ")");
     }
 
 // Encoding

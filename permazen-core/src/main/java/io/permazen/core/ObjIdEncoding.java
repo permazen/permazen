@@ -8,7 +8,6 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.encoding.AbstractEncoding;
-import io.permazen.encoding.EncodingId;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
@@ -29,11 +28,9 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
 
     /**
      * Constructor.
-     *
-     * @param encodingId encoding ID, or null for an anonymous instance
      */
-    public ObjIdEncoding(EncodingId encodingId) {
-        super(encodingId, ObjId.class, null);
+    public ObjIdEncoding() {
+        super(ObjId.class);
     }
 
 // Encoding

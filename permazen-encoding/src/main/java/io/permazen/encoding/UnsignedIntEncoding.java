@@ -14,7 +14,7 @@ import io.permazen.util.UnsignedIntEncoder;
 import org.dellroad.stuff.java.Primitive;
 
 /**
- * Encoding for unsigned {@code int} values in the manner of {@link UnsignedIntEncoder}.
+ * Non-null encoding for unsigned {@code int} values in the manner of {@link UnsignedIntEncoder}.
  *
  * <p>
  * This type is internally for encoding various non-negative integer values.
@@ -27,11 +27,9 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
 
     /**
      * Constructor.
-     *
-     * @param encodingId encoding ID, or null for an anonymous instance
      */
-    public UnsignedIntEncoding(EncodingId encodingId) {
-        super(encodingId, Integer.class, 0);
+    public UnsignedIntEncoding() {
+        super(Integer.class);
     }
 
 // Encoding

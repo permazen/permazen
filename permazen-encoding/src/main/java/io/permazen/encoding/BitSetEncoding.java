@@ -18,7 +18,7 @@ import java.util.BitSet;
  * Non-null {@link BitSet} type.
  *
  * <p>
- * Null values are not supported by this class. The default value is an empty {@link BitSet}.
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Instances are ordered as if they were giant unsigned integers, i.e., whichever instance has the highest bit set
@@ -28,8 +28,8 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
 
     private static final long serialVersionUID = -1133774834687234873L;
 
-    public BitSetEncoding(EncodingId encodingId) {
-        super(encodingId, BitSet.class, new BitSet());
+    public BitSetEncoding() {
+        super(BitSet.class);
     }
 
 // Encoding
@@ -69,10 +69,8 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
     @Override
     public BitSet fromString(String string) {
         Preconditions.checkArgument(string != null, "null string");
-        final int length = string.length();
-        Preconditions.checkArgument(length > 0 && string.charAt(0) == '[' && string.charAt(length - 1) == ']',
-          "invalid BitSet string \"" + string + "\"");
-        return BitSet.valueOf(this.reverse(ByteUtil.parse(string.substring(1, length - 1))));
+        Preconditions.checkArgument(string.matches("\\[([0-9a-f][0-9a-f])*\\]"), "invalid BitSet string");
+        return BitSet.valueOf(this.reverse(ByteUtil.parse(string.substring(1, string.length() - 1))));
     }
 
     @Override

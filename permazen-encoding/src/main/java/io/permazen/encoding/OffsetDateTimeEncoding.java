@@ -24,23 +24,9 @@ public class OffsetDateTimeEncoding extends Concat2Encoding<OffsetDateTime, Inst
 
     private static final long serialVersionUID = -1216769026293613698L;
 
-    public OffsetDateTimeEncoding(EncodingId encodingId) {
-        super(encodingId, OffsetDateTime.class, null, new InstantEncoding(null), new ZoneOffsetEncoding(null));
-    }
-
-    @Override
-    protected OffsetDateTime join(Instant value1, ZoneOffset value2) {
-        return OffsetDateTime.ofInstant(value1, value2);
-    }
-
-    @Override
-    protected Instant split1(OffsetDateTime value) {
-        return value.toInstant();
-    }
-
-    @Override
-    protected ZoneOffset split2(OffsetDateTime value) {
-        return value.getOffset();
+    public OffsetDateTimeEncoding() {
+        super(OffsetDateTime.class, new InstantEncoding(), new ZoneOffsetEncoding(),
+          OffsetDateTime::toInstant, OffsetDateTime::getOffset, OffsetDateTime::ofInstant);
     }
 
 // Encoding

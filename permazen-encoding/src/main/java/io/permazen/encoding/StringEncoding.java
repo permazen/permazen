@@ -33,8 +33,8 @@ public class StringEncoding extends AbstractEncoding<String> {
     private static final int END = 0x00;
     private static final int ESCAPE = 0x01;
 
-    public StringEncoding(EncodingId encodingId) {
-       super(encodingId, String.class, null);
+    public StringEncoding() {
+       super(String.class);
     }
 
     @Override

@@ -20,7 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * {@code float[]} array type. Does not support null arrays.
+ * Non-null {@code float[]} array type.
+ *
+ * <p>
+ * Null values are not supported by this class and there is no default value.
  *
  * <p>
  * Array elements are encoded using {@link FloatEncoding}, and the array is terminated by {@code 0x00000000},
@@ -36,8 +39,8 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     private final FloatEncoding floatType = new FloatEncoding(null);
 
     @SuppressWarnings("serial")
-    public FloatArrayEncoding(EncodingId encodingId) {
-        super(encodingId, new FloatEncoding(null), new TypeToken<float[]>() { });
+    public FloatArrayEncoding() {
+        super(new FloatEncoding(null), new TypeToken<float[]>() { });
     }
 
     @Override
