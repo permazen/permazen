@@ -69,6 +69,9 @@ import java.util.stream.Collectors;
  *  <li>{@link java.util.BitSet}</li>
  *  <li>{@link java.util.Date}</li>
  *  <li>{@link java.util.UUID}</li>
+ *  <li>{@link java.util.IntSummaryStatistics}</li>
+ *  <li>{@link java.util.LongSummaryStatistics}</li>
+ *  <li>{@link java.util.DoubleSummaryStatistics}</li>
  *  <li>{@link java.net.URI}</li>
  *  <li>{@link java.io.File}</li>
  *  <li>{@link java.net.InetAddress}</li>
@@ -237,6 +240,9 @@ public class DefaultEncodingRegistry extends SimpleEncodingRegistry {
         this.addWrappedBuiltin(new BitSetEncoding());
         this.addWrappedBuiltin(new DateEncoding());
         this.addWrappedBuiltin(new UUIDEncoding());
+        this.addWrappedBuiltin(new IntSummaryStatisticsEncoding());
+        this.addWrappedBuiltin(new LongSummaryStatisticsEncoding());
+        this.addWrappedBuiltin(new DoubleSummaryStatisticsEncoding());
 
         // Built-in types in java.util.regex
         this.addBuiltin(Pattern.class, PatternEncoding::new);
