@@ -287,6 +287,20 @@ public class SchemaBundle {
         return storageId;
     }
 
+    /**
+     * Get the object type name corresponding to the given storage ID.
+     *
+     * @param storageId object type storage ID
+     * @return associated object type name
+     * @throws IllegalArgumentException if {@code storageId} is invalid or unknown
+     */
+    public String getObjectTypeName(int storageId) {
+        final String name = this.typeNamesByStorageId.get(storageId);
+        if (name == null)
+            throw new IllegalArgumentException(String.format("no objec type is assigned to storage ID %d", storageId));
+        return name;
+    }
+
 // Modifications
 
     /**
