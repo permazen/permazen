@@ -80,6 +80,14 @@ import java.util.Set;
  * Composite indexes are declared by annotating any supertype of a {@link PermazenType &#64;PermazenType}-annotated class
  * with one or more {@link PermazenCompositeIndex &#64;PermazenCompositeIndex} annotations.
  *
+ * <p><b>Singletons</b></p>
+ *
+ * <p>
+ * A database type intended to be a singleton can be marked with {@link #singleton} {@code = true}, which means that
+ * at most one instance of the type may exist. Similar to {@link PermazenField#unique}, {@link #singleton} functions
+ * as an implicit validation constraint: the requirement is verified when the validation queue is processed, and it is
+ * affected by the transaction's configured {@link ValidationMode}.
+ *
  * <p><b>Meta-Annotations</b></p>
  *
  * <p>
@@ -184,6 +192,16 @@ public @interface PermazenType {
      * @see PermazenField#upgradeConversion
      */
     UpgradeConversionPolicy autogenUpgradeConversion() default UpgradeConversionPolicy.ATTEMPT;
+
+    /**
+     * Determine if there should only be one instance of this type.
+     *
+     * <p>
+     * If this is true, then an implicit validation constraint is added requiring that at most one instance exist.
+     *
+     * @return true if this is a singleton type
+     */
+    boolean singleton() default false;
 
     /**
      * {@link SchemaModel} schema ID hash epoch.

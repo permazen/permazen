@@ -1737,6 +1737,21 @@ public class PermazenTransaction {
             if (pclass == null)
                 return;
 
+            // Do singleton validation
+            if (pclass.singleton) {
+                final AbstractKVNavigableSet<ObjId> ids = (AbstractKVNavigableSet<ObjId>)this.tx.getAll(pclass.name);
+                try (CloseableIterator<ObjId> i = ids.iterator()) {
+                    while (i.hasNext()) {
+                        final ObjId id2 = i.next();
+                        if (id2.equals(id))
+                            continue;
+                        throw new ValidationException(pobj, String.format(
+                          "singleton constraint on type \"%s\" failed for object %s: object %s also exists",
+                          pclass.name, id, id2));
+                    }
+                }
+            }
+
             // Do JSR 303 validation if needed
             if (validator != null) {
                 final Set<ConstraintViolation<PermazenObject>> violations;

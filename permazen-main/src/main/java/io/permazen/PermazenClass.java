@@ -56,6 +56,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
 
     final Permazen pdb;
     final Class<T> type;
+    final boolean singleton;
     final PermazenType permazenType;
     final ClassGenerator<T> classGenerator;
     final TreeMap<String, PermazenField> fieldsByName = new TreeMap<>();                      // does not include sub-fields
@@ -99,6 +100,7 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         this.type = type;
         this.classGenerator = new ClassGenerator<>(pdb, this);
         this.permazenType = Util.getAnnotation(this.type, PermazenType.class);
+        this.singleton = this.permazenType.singleton();
     }
 
     // Get class generator
@@ -488,6 +490,12 @@ public class PermazenClass<T> extends PermazenSchemaItem {
 
         // Check for any composite index uniqueness constraints
         if (!this.uniqueConstraintCompositeIndexes.isEmpty()) {
+            this.requiresDefaultValidation = true;
+            return;
+        }
+
+        // Check for singleton constraint
+        if (this.singleton) {
             this.requiresDefaultValidation = true;
             return;
         }
