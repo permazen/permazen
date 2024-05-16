@@ -94,7 +94,8 @@ public class PermazenObjectHttpMessageConverter extends AbstractHttpMessageConve
 
     @Override
     protected Long getContentLength(PermazenObject jobj, MediaType contentType) {
-        return KVStoreHttpMessageConverter.getKVStoreContentLength(jobj.getTransaction().getTransaction().getKVTransaction());
+        return KVStoreHttpMessageConverter.getKVStoreContentLength(
+          jobj.getPermazenTransaction().getTransaction().getKVTransaction());
     }
 
     @Override
@@ -152,6 +153,6 @@ public class PermazenObjectHttpMessageConverter extends AbstractHttpMessageConve
     @Override
     protected void writeInternal(PermazenObject jobj, HttpOutputMessage output) throws IOException {
         output.getHeaders().setContentType(this.getDefaultContentType(jobj));
-        KVStoreHttpMessageConverter.writeKVStore(jobj.getTransaction().getTransaction().getKVTransaction(), output);
+        KVStoreHttpMessageConverter.writeKVStore(jobj.getPermazenTransaction().getTransaction().getKVTransaction(), output);
     }
 }
