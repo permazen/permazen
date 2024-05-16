@@ -85,7 +85,7 @@ public class ImportExportTest extends MainTestSupport {
             final ExportContext exportContext = new ExportContext(ptx);
             dad3 = (Person)exportContext.exportPlain((PermazenObject)dad2);
             mom3 = (Person)exportContext.exportPlain((PermazenObject)mom2);
-            margo3 = (Person)exportContext.getJObjectMap().get(margoId);
+            margo3 = (Person)exportContext.getPermazenObjectMap().get(margoId);
 
             ptx.commit();
 

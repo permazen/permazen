@@ -1102,7 +1102,7 @@ public class PermazenTransaction {
      * @throws IllegalArgumentException if {@code pobj} is null
      */
     public static void registerPermazenObject(PermazenObject pobj) {
-        pobj.getTransaction().pobjectCache.register(pobj);
+        pobj.getPermazenTransaction().pobjectCache.register(pobj);
     }
 
     /**

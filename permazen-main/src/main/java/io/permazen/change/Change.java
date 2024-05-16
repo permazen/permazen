@@ -54,7 +54,7 @@ public abstract class Change<T> {
      *
      * @return the changed object as a {@link PermazenObject}
      */
-    public PermazenObject getJObject() {
+    public PermazenObject getPermazenObject() {
         return (PermazenObject)this.jobj;
     }
 
@@ -88,14 +88,14 @@ public abstract class Change<T> {
      * <p>
      * This is a convenience method, equivalent to:
      * <blockquote><pre>
-     * apply(jtx, this.getJObject());
+     * apply(jtx, this.getPermazenObject());
      * </pre></blockquote>
      *
      * @param jtx transaction in which to apply this change
      * @throws IllegalArgumentException if {@code jtx} is null
      */
     public void apply(PermazenTransaction jtx) {
-        this.apply(jtx, this.getJObject());
+        this.apply(jtx, this.getPermazenObject());
     }
 
     /**
@@ -119,7 +119,7 @@ public abstract class Change<T> {
      * <p>
      * This is a convenience method, equivalent to:
      * <blockquote><pre>
-     * apply(obj.getTransaction(), jobj);
+     * apply(obj.getPermazenTransaction(), jobj);
      * </pre></blockquote>
      *
      * @param jobj object to which to apply this change
@@ -128,7 +128,7 @@ public abstract class Change<T> {
      */
     public void apply(PermazenObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        this.apply(jobj.getTransaction(), jobj);
+        this.apply(jobj.getPermazenTransaction(), jobj);
     }
 
 // Object

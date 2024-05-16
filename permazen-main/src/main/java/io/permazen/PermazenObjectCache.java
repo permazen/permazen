@@ -173,7 +173,7 @@ class PermazenObjectCache {
 
         // Sanity check
         Preconditions.checkArgument(pobj != null, "null pobj");
-        Preconditions.checkArgument(pobj.getTransaction() == this.ptx, "wrong tx");
+        Preconditions.checkArgument(pobj.getPermazenTransaction() == this.ptx, "wrong tx");
 
         // Get object ID
         final ObjId id = pobj.getObjId();

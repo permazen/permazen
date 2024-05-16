@@ -136,7 +136,7 @@ public class ValidationGroupTest extends MainTestSupport {
     private void check(Foobar f, boolean valid, Class<?>... groups) {
         f.revalidate(groups);
         try {
-            f.getTransaction().validate();
+            f.getPermazenTransaction().validate();
             assert valid;
         } catch (ValidationException e) {
             assert !valid;

@@ -244,7 +244,7 @@ public class PermazenReferenceField extends PermazenSimpleField {
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
         mv.visitInsn(Opcodes.SWAP);
-        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.PERMAZEN_TRANSACTION_GET_METHOD);
         mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
@@ -272,7 +272,7 @@ public class PermazenReferenceField extends PermazenSimpleField {
         mv.visitLabel(label2);
         mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
-        generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_OBJ_ID_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.PERMAZEN_OBJECT_GET_OBJ_ID_METHOD);
         mv.visitLabel(label3);
         mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(ObjId.class) });
         //mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(ObjId.class));

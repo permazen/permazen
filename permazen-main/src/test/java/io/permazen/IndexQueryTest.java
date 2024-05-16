@@ -296,7 +296,10 @@ public class IndexQueryTest extends MainTestSupport {
         }
 
         public <R> NavigableSet<R> findReferring(Class<R> type, String fieldName) {
-            final NavigableSet<R> set = this.getTransaction().querySimpleIndex(type, fieldName, Object.class).asMap().get(this);
+            final NavigableSet<R> set = this.getPermazenTransaction()
+              .querySimpleIndex(type, fieldName, Object.class)
+              .asMap()
+              .get(this);
             return set != null ? set : NavigableSets.empty();
         }
     }

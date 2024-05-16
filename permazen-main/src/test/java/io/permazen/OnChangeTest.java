@@ -342,7 +342,7 @@ public class OnChangeTest extends MainTestSupport {
     }
 
     private static void recordChange(FieldChange<?> change) {
-        if (change.getJObject().getTransaction() != PermazenTransaction.getCurrent())      // ignore detached changes
+        if (change.getPermazenObject().getPermazenTransaction() != PermazenTransaction.getCurrent()) // ignore detached changes
             return;
         EVENTS.get().add(change);
     }

@@ -167,7 +167,7 @@ public class OnChangeWildcardTest extends MainTestSupport {
     public static class Pair extends Tuple2<PermazenObject, String> {
 
         public Pair(FieldChange<?> change) {
-            this(change.getJObject(), change.getFieldName());
+            this(change.getPermazenObject(), change.getFieldName());
         }
 
         public Pair(PermazenObject pobj, String fieldName) {

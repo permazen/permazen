@@ -39,7 +39,7 @@ import java.util.Iterator;
  *
  * <p>
  * Every {@link PermazenObject} has a unique 64-bit object identifier, represented as an {@link ObjId}.
- * All {@link PermazenObject} instances are permanently {@linkplain #getTransaction associated} with a specific
+ * All {@link PermazenObject} instances are permanently {@linkplain #getPermazenTransaction associated} with a specific
  * {@linkplain PermazenTransaction transaction}, and are the unique representatives for their corresponding {@link ObjId}
  * in that transaction. All field state derives from the associated transaction.
  *
@@ -76,7 +76,7 @@ public interface PermazenObject {
      *
      * @return the {@link PermazenTransaction} that contains this instance's field state
      */
-    PermazenTransaction getTransaction();
+    PermazenTransaction getPermazenTransaction();
 
     /**
      * Get the {@link SchemaId} that identifies this instance's current schema.
@@ -85,10 +85,10 @@ public interface PermazenObject {
      * @throws DeletedObjectException
      *  if this object does not exist in the {@link PermazenTransaction} associated with this instance
      * @throws StaleTransactionException
-     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     *  if the transaction {@linkplain #getPermazenTransaction associated with this instance} is no longer usable
      */
     default SchemaId getSchemaId() {
-        return this.getTransaction().getTransaction().getObjType(this.getObjId()).getSchema().getSchemaId();
+        return this.getPermazenTransaction().getTransaction().getObjType(this.getObjId()).getSchema().getSchemaId();
     }
 
     /**
@@ -105,7 +105,7 @@ public interface PermazenObject {
      *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      */
     default boolean delete() {
-        return this.getTransaction().delete(this);
+        return this.getPermazenTransaction().delete(this);
     }
 
     /**
@@ -113,10 +113,10 @@ public interface PermazenObject {
      *
      * @return true if instance exists, otherwise false
      * @throws StaleTransactionException
-     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     *  if the transaction {@linkplain #getPermazenTransaction associated with this instance} is no longer usable
      */
     default boolean exists() {
-        return this.getTransaction().exists(this.getObjId());
+        return this.getPermazenTransaction().exists(this.getObjId());
     }
 
     /**
@@ -124,12 +124,12 @@ public interface PermazenObject {
      * with a {@link DetachedPermazenTransaction}.
      *
      * <p>
-     * Equivalent to {@code getTransaction().isDetached()}.
+     * Equivalent to {@code getPermazenTransaction().isDetached()}.
      *
      * @return true if instance lives in a detached transaction
      */
     default boolean isDetached() {
-        return this.getTransaction().isDetached();
+        return this.getPermazenTransaction().isDetached();
     }
 
     /**
@@ -138,10 +138,10 @@ public interface PermazenObject {
      *
      * @return true if instance was recreated, false if it already existed
      * @throws StaleTransactionException
-     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     *  if the transaction {@linkplain #getPermazenTransaction associated with this instance} is no longer usable
      */
     default boolean recreate() {
-        return this.getTransaction().recreate(this);
+        return this.getPermazenTransaction().recreate(this);
     }
 
     /**
@@ -160,11 +160,11 @@ public interface PermazenObject {
      *  if this object does not exist in the {@link PermazenTransaction} associated with this instance
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws StaleTransactionException
-     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     *  if the transaction {@linkplain #getPermazenTransaction associated with this instance} is no longer usable
      * @throws IllegalArgumentException if {@code groups} is or any group in {@code groups} null
      */
     default void revalidate(Class<?>... groups) {
-        this.getTransaction().revalidate(this.getObjId(), groups);
+        this.getPermazenTransaction().revalidate(this.getObjId(), groups);
     }
 
     /**
@@ -178,10 +178,10 @@ public interface PermazenObject {
      * @throws DeletedObjectException
      *  if this object does not exist in the {@link PermazenTransaction} associated with this instance
      * @throws StaleTransactionException
-     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     *  if the transaction {@linkplain #getPermazenTransaction associated with this instance} is no longer usable
      */
     default boolean migrateSchema() {
-        return this.getTransaction().migrateSchema(this);
+        return this.getPermazenTransaction().migrateSchema(this);
     }
 
     /**
@@ -214,7 +214,8 @@ public interface PermazenObject {
      */
     default ObjIdSet cascade(int recursionLimit, String... cascades) {
         final ObjIdSet ids = new ObjIdSet();
-        for (Iterator<ObjId> i = this.getTransaction().cascade(this.getObjId(), recursionLimit, ids, cascades); i.hasNext(); )
+        final Iterator<ObjId> i = this.getPermazenTransaction().cascade(this.getObjId(), recursionLimit, ids, cascades);
+        while (i.hasNext())
             i.next();
         return ids;
     }
@@ -230,7 +231,7 @@ public interface PermazenObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><pre>
-     * this.copyTo(this.getTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+     * this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
      * </pre></blockquote>
      *
      * @param cascades zero or more reference cascades that identify additional objects to copy
@@ -241,7 +242,7 @@ public interface PermazenObject {
      * @see #copyIn copyIn()
      */
     default PermazenObject copyOut(String... cascades) {
-        return this.copyTo(this.getTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+        return this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
     }
 
     /**
@@ -331,7 +332,7 @@ public interface PermazenObject {
         final ObjIdSet ids = this.cascade(recursionLimit, cascades);
 
         // Copy objects
-        this.getTransaction().copyTo(dest, copyState, ids);
+        this.getPermazenTransaction().copyTo(dest, copyState, ids);
 
         // Return the copy of this object in dest
         return dest.get(copyState.getDestId(this.getObjId()));
@@ -360,7 +361,7 @@ public interface PermazenObject {
     default PermazenClass<?> getPermazenClass() {
         final ObjId id = this.getObjId();
         try {
-            return this.getTransaction().getPermazen().getPermazenClass(id);
+            return this.getPermazenTransaction().getPermazen().getPermazenClass(id);
         } catch (UnknownTypeException e) {
             throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, "storage ID " + id.getStorageId(), null).initCause(e);
         }

@@ -46,7 +46,7 @@ public class PermazenCounterField extends PermazenField {
     @Override
     public Counter getValue(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
-        return pobj.getTransaction().readCounterField(pobj.getObjId(), this.name, false);
+        return pobj.getPermazenTransaction().readCounterField(pobj.getObjId(), this.name, false);
     }
 
     @Override
@@ -172,6 +172,6 @@ public class PermazenCounterField extends PermazenField {
 
     @Override
     void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputCachedNonSimpleValueGetterMethod(generator, cw, ClassGenerator.JTRANSACTION_READ_COUNTER_FIELD_METHOD);
+        this.outputCachedNonSimpleValueGetterMethod(generator, cw, ClassGenerator.PERMAZEN_TRANSACTION_READ_COUNTER_FIELD_METHOD);
     }
 }

@@ -338,7 +338,7 @@ public class DetachedTest extends MainTestSupport {
         }
 
         public Index1<Foo, Foo> queryFoo() {
-            return this.getTransaction().querySimpleIndex(Foo.class, "ref", Foo.class);
+            return this.getPermazenTransaction().querySimpleIndex(Foo.class, "ref", Foo.class);
         }
 
         public Stream<Foo> getWithRelatedObjects() {

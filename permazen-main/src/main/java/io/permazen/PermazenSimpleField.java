@@ -164,7 +164,7 @@ public class PermazenSimpleField extends PermazenField {
     public Object getValue(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
         Preconditions.checkArgument(!this.isSubField(), "field is a complex sub-field");
-        return pobj.getTransaction().readSimpleField(pobj.getObjId(), this.name, false);
+        return pobj.getPermazenTransaction().readSimpleField(pobj.getObjId(), this.name, false);
     }
 
     @Override
@@ -194,7 +194,7 @@ public class PermazenSimpleField extends PermazenField {
     public void setValue(PermazenObject pobj, Object value) {
         Preconditions.checkArgument(pobj != null, "null pobj");
         Preconditions.checkArgument(!this.isSubField(), "field is a complex sub-field");
-        pobj.getTransaction().writeSimpleField(pobj, this.name, value, false);
+        pobj.getPermazenTransaction().writeSimpleField(pobj, this.name, value, false);
     }
 
     @Override
@@ -461,7 +461,7 @@ public class PermazenSimpleField extends PermazenField {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
-        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_TRANSACTION_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.PERMAZEN_TRANSACTION_GET_TRANSACTION_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
@@ -474,13 +474,13 @@ public class PermazenSimpleField extends PermazenField {
 
         // PermazenTransaction.registerPermazenObject(this);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.PERMAZEN_TRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD);
 
         // this.$tx.getTransaction().writeSimpleField(this.id, NAME, STACK[0], true)
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
-        generator.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_TRANSACTION_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.PERMAZEN_TRANSACTION_GET_TRANSACTION_METHOD);
         mv.visitInsn(Opcodes.SWAP);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),

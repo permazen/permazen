@@ -56,21 +56,21 @@ class ClassGenerator<T> {
     static final String REFERENCE_PATH_FIELD_PREFIX = "$referencePath";
 
     // PermazenObject method handles
-    static final Method JOBJECT_GET_OBJ_ID_METHOD;
-    static final Method JOBJECT_GET_TRANSACTION;
-    static final Method JOBJECT_GET_MODEL_CLASS;
-    static final Method JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
+    static final Method PERMAZEN_OBJECT_GET_OBJ_ID_METHOD;
+    static final Method PERMAZEN_OBJECT_GET_PERMAZEN_TRANSACTION_METHOD;
+    static final Method PERMAZEN_OBJECT_GET_MODEL_CLASS_METHOD;
+    static final Method PERMAZEN_OBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
 
     // PermazenTransaction method handles
-    static final Method JTRANSACTION_READ_COUNTER_FIELD_METHOD;
-    static final Method JTRANSACTION_READ_SET_FIELD_METHOD;
-    static final Method JTRANSACTION_READ_LIST_FIELD_METHOD;
-    static final Method JTRANSACTION_READ_MAP_FIELD_METHOD;
-    static final Method JTRANSACTION_GET_TRANSACTION_METHOD;
-    static final Method JTRANSACTION_GET_METHOD;
-    static final Method JTRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD;
-    static final Method JTRANSACTION_GET_PERMAZEN_METHOD;
-    static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
+    static final Method PERMAZEN_TRANSACTION_READ_COUNTER_FIELD_METHOD;
+    static final Method PERMAZEN_TRANSACTION_READ_SET_FIELD_METHOD;
+    static final Method PERMAZEN_TRANSACTION_READ_LIST_FIELD_METHOD;
+    static final Method PERMAZEN_TRANSACTION_READ_MAP_FIELD_METHOD;
+    static final Method PERMAZEN_TRANSACTION_GET_TRANSACTION_METHOD;
+    static final Method PERMAZEN_TRANSACTION_GET_METHOD;
+    static final Method PERMAZEN_TRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD;
+    static final Method PERMAZEN_TRANSACTION_GET_PERMAZEN_METHOD;
+    static final Method PERMAZEN_TRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
 
     // Permazen method handles
     static final Method PERMAZEN_PARSE_REFERENCE_PATH_METHOD;
@@ -115,26 +115,26 @@ class ClassGenerator<T> {
         try {
 
             // PermazenObject methods
-            JOBJECT_GET_OBJ_ID_METHOD = PermazenObject.class.getMethod("getObjId");
-            JOBJECT_GET_TRANSACTION = PermazenObject.class.getMethod("getTransaction");
-            JOBJECT_GET_MODEL_CLASS = PermazenObject.class.getMethod("getModelClass");
-            JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = PermazenObject.class.getMethod("resetCachedFieldValues");
+            PERMAZEN_OBJECT_GET_OBJ_ID_METHOD = PermazenObject.class.getMethod("getObjId");
+            PERMAZEN_OBJECT_GET_PERMAZEN_TRANSACTION_METHOD = PermazenObject.class.getMethod("getPermazenTransaction");
+            PERMAZEN_OBJECT_GET_MODEL_CLASS_METHOD = PermazenObject.class.getMethod("getModelClass");
+            PERMAZEN_OBJECT_RESET_CACHED_FIELD_VALUES_METHOD = PermazenObject.class.getMethod("resetCachedFieldValues");
 
             // PermazenTransaction methods
-            JTRANSACTION_READ_COUNTER_FIELD_METHOD = PermazenTransaction.class.getMethod("readCounterField",
+            PERMAZEN_TRANSACTION_READ_COUNTER_FIELD_METHOD = PermazenTransaction.class.getMethod("readCounterField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_READ_SET_FIELD_METHOD = PermazenTransaction.class.getMethod("readSetField",
+            PERMAZEN_TRANSACTION_READ_SET_FIELD_METHOD = PermazenTransaction.class.getMethod("readSetField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_READ_LIST_FIELD_METHOD = PermazenTransaction.class.getMethod("readListField",
+            PERMAZEN_TRANSACTION_READ_LIST_FIELD_METHOD = PermazenTransaction.class.getMethod("readListField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_READ_MAP_FIELD_METHOD = PermazenTransaction.class.getMethod("readMapField",
+            PERMAZEN_TRANSACTION_READ_MAP_FIELD_METHOD = PermazenTransaction.class.getMethod("readMapField",
               ObjId.class, String.class, boolean.class);
-            JTRANSACTION_GET_TRANSACTION_METHOD = PermazenTransaction.class.getMethod("getTransaction");
-            JTRANSACTION_GET_METHOD = PermazenTransaction.class.getMethod("get", ObjId.class);
-            JTRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD = PermazenTransaction.class.getMethod("registerPermazenObject",
+            PERMAZEN_TRANSACTION_GET_TRANSACTION_METHOD = PermazenTransaction.class.getMethod("getTransaction");
+            PERMAZEN_TRANSACTION_GET_METHOD = PermazenTransaction.class.getMethod("get", ObjId.class);
+            PERMAZEN_TRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD = PermazenTransaction.class.getMethod("registerPermazenObject",
               PermazenObject.class);
-            JTRANSACTION_GET_PERMAZEN_METHOD = PermazenTransaction.class.getMethod("getPermazen");
-            JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = PermazenTransaction.class.getMethod("followReferencePath",
+            PERMAZEN_TRANSACTION_GET_PERMAZEN_METHOD = PermazenTransaction.class.getMethod("getPermazen");
+            PERMAZEN_TRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = PermazenTransaction.class.getMethod("followReferencePath",
               ReferencePath.class, Stream.class);
 
             // Permazen methods
@@ -420,7 +420,7 @@ class ClassGenerator<T> {
         }
 
         // Output PermazenObject.getTransaction()
-        MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
+        MethodVisitor mv = this.startMethod(cw, PERMAZEN_OBJECT_GET_PERMAZEN_TRANSACTION_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
@@ -429,7 +429,7 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Output PermazenObject.getModelClass()
-        mv = this.startMethod(cw, JOBJECT_GET_MODEL_CLASS);
+        mv = this.startMethod(cw, PERMAZEN_OBJECT_GET_MODEL_CLASS_METHOD);
         mv.visitCode();
         mv.visitLdcInsn(Type.getObjectType(Type.getInternalName(this.modelClass)));
         mv.visitInsn(Opcodes.ARETURN);
@@ -437,7 +437,7 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add PermazenObject.getObjId()
-        mv = this.startMethod(cw, JOBJECT_GET_OBJ_ID_METHOD);
+        mv = this.startMethod(cw, PERMAZEN_OBJECT_GET_OBJ_ID_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
@@ -446,7 +446,7 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add PermazenObject.resetCachedFieldValues()
-        mv = this.startMethod(cw, JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD);
+        mv = this.startMethod(cw, PERMAZEN_OBJECT_RESET_CACHED_FIELD_VALUES_METHOD);
         mv.visitCode();
         if (this.pclass != null) {
             String lastFieldName = null;
@@ -480,8 +480,8 @@ class ClassGenerator<T> {
             mv = this.startMethod(cw, OBJECT_TO_STRING_METHOD);
             mv.visitCode();
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            this.emitInvoke(mv, JOBJECT_GET_TRANSACTION);
-            this.emitInvoke(mv, JTRANSACTION_GET_TRANSACTION_METHOD);
+            this.emitInvoke(mv, PERMAZEN_OBJECT_GET_PERMAZEN_TRANSACTION_METHOD);
+            this.emitInvoke(mv, PERMAZEN_TRANSACTION_GET_TRANSACTION_METHOD);
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
             mv.visitLdcInsn(TO_STRING_MAX_COLLECTION_ENTRIES);
@@ -517,7 +517,7 @@ class ClassGenerator<T> {
         final ReferencePath path = info.getReferencePath();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(PermazenTransaction.class));
-        this.emitInvoke(mv, ClassGenerator.JTRANSACTION_GET_PERMAZEN_METHOD);
+        this.emitInvoke(mv, ClassGenerator.PERMAZEN_TRANSACTION_GET_PERMAZEN_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, ClassGenerator.OBJECT_GET_CLASS_METHOD);
         this.emitInvoke(mv, ClassGenerator.CLASS_GET_SUPERCLASS_METHOD);
@@ -533,7 +533,7 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.GETSTATIC, this.getClassName(), fieldName, Type.getDescriptor(ReferencePath.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, ClassGenerator.UTIL_STREAM_OF_METHOD);
-        this.emitInvoke(mv, JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD);
+        this.emitInvoke(mv, PERMAZEN_TRANSACTION_FOLLOW_REFERENCE_PATH_METHOD);
 
         // Extract first element if method returns Optional
         if (info.isReturnsOptional()) {

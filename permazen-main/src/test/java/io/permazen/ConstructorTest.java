@@ -51,7 +51,7 @@ public class ConstructorTest extends MainTestSupport {
     @PermazenType
     public abstract static class Person implements PermazenObject {
         protected Person(PermazenTransaction ptx, ObjId id) {
-            Assert.assertEquals(ptx, this.getTransaction());
+            Assert.assertEquals(ptx, this.getPermazenTransaction());
             Assert.assertEquals(id, this.getObjId());
         }
     }

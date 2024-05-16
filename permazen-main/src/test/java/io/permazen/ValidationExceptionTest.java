@@ -58,7 +58,7 @@ public class ValidationExceptionTest extends MainTestSupport {
 
         @Min(0)
         public int getDummy() {
-            throw new RetryTransactionException(this.getTransaction().getTransaction().getKVTransaction(),
+            throw new RetryTransactionException(this.getPermazenTransaction().getTransaction().getKVTransaction(),
               "simulated retry exception");
         }
         public void setDummy(int dummy) {

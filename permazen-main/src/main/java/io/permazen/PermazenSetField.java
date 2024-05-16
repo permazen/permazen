@@ -48,7 +48,7 @@ public class PermazenSetField extends PermazenCollectionField {
     @Override
     public NavigableSet<?> getValue(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
-        return pobj.getTransaction().readSetField(pobj.getObjId(), this.name, false);
+        return pobj.getPermazenTransaction().readSetField(pobj.getObjId(), this.name, false);
     }
 
     @Override
@@ -123,6 +123,6 @@ public class PermazenSetField extends PermazenCollectionField {
 
     @Override
     Method getFieldReaderMethod() {
-        return ClassGenerator.JTRANSACTION_READ_SET_FIELD_METHOD;
+        return ClassGenerator.PERMAZEN_TRANSACTION_READ_SET_FIELD_METHOD;
     }
 }

@@ -45,7 +45,7 @@ public class PermazenListField extends PermazenCollectionField {
     @Override
     public List<?> getValue(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
-        return pobj.getTransaction().readListField(pobj.getObjId(), this.name, false);
+        return pobj.getPermazenTransaction().readListField(pobj.getObjId(), this.name, false);
     }
 
     @Override
@@ -122,6 +122,6 @@ public class PermazenListField extends PermazenCollectionField {
 
     @Override
     Method getFieldReaderMethod() {
-        return ClassGenerator.JTRANSACTION_READ_LIST_FIELD_METHOD;
+        return ClassGenerator.PERMAZEN_TRANSACTION_READ_LIST_FIELD_METHOD;
     }
 }

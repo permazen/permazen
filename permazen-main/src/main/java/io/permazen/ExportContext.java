@@ -112,7 +112,7 @@ public class ExportContext {
      *
      * @return mapping from exported database object ID to corresponding POJO
      */
-    public Map<ObjId, Object> getJObjectMap() {
+    public Map<ObjId, Object> getPermazenObjectMap() {
         return Collections.unmodifiableMap(this.pobjectMap);
     }
 

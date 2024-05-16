@@ -76,7 +76,7 @@ public class PermazenMapField extends PermazenComplexField {
     @Override
     public NavigableMap<?, ?> getValue(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
-        return pobj.getTransaction().readMapField(pobj.getObjId(), this.name, false);
+        return pobj.getPermazenTransaction().readMapField(pobj.getObjId(), this.name, false);
     }
 
     @Override
@@ -263,6 +263,6 @@ public class PermazenMapField extends PermazenComplexField {
 
     @Override
     Method getFieldReaderMethod() {
-        return ClassGenerator.JTRANSACTION_READ_MAP_FIELD_METHOD;
+        return ClassGenerator.PERMAZEN_TRANSACTION_READ_MAP_FIELD_METHOD;
     }
 }
