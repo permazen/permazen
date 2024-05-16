@@ -5,6 +5,8 @@
 
 package io.permazen.schema;
 
+import com.google.common.base.Preconditions;
+
 import io.permazen.core.InvalidSchemaException;
 import io.permazen.util.DiffGenerating;
 import io.permazen.util.Diffs;
@@ -236,6 +238,24 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
     }
 
 // Schema ID
+
+    /**
+     * Get the {@link SchemaId} for an object type with the given name.
+     *
+     * <p>
+     * Object type schema ID's depend only on the object type name.
+     *
+     * @param name object type name
+     * @return corresponding schema ID
+     * @throws IllegalArgumentException if {@code name} is null
+     */
+    public static SchemaId schemaIdForName(String name) {
+        Preconditions.checkArgument(name != null, "null name");
+        final SchemaObjectType temp = new SchemaObjectType();
+        temp.setName(name);
+        temp.lockDown1();
+        return temp.getSchemaId();
+    }
 
     @Override
     public final ItemType getItemType() {
