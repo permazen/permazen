@@ -116,7 +116,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
             return super.doExecute();
         } finally {
             if (this.session.hasTransaction()) {
-                this.session.getError().println("Warning: an extended transaction is still open (aborting)");
+                this.session.getError().println("Warning: JShell exited with an extended transaction open (aborting)");
                 this.session.closeTransaction(false);
             }
             if (this.startupFile != null)
