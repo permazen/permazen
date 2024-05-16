@@ -71,7 +71,6 @@ class ClassGenerator<T> {
     static final Method JTRANSACTION_REGISTER_PERMAZEN_OBJECT_METHOD;
     static final Method JTRANSACTION_GET_PERMAZEN_METHOD;
     static final Method JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD;
-    static final Method JTRANSACTION_GET_TRANSACTION;
 
     // Permazen method handles
     static final Method PERMAZEN_PARSE_REFERENCE_PATH_METHOD;
@@ -137,7 +136,6 @@ class ClassGenerator<T> {
             JTRANSACTION_GET_PERMAZEN_METHOD = PermazenTransaction.class.getMethod("getPermazen");
             JTRANSACTION_FOLLOW_REFERENCE_PATH_METHOD = PermazenTransaction.class.getMethod("followReferencePath",
               ReferencePath.class, Stream.class);
-            JTRANSACTION_GET_TRANSACTION = PermazenTransaction.class.getMethod("getTransaction");
 
             // Permazen methods
             PERMAZEN_PARSE_REFERENCE_PATH_METHOD = Permazen.class.getMethod("parseReferencePath", Class.class, String.class);
@@ -483,7 +481,7 @@ class ClassGenerator<T> {
             mv.visitCode();
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             this.emitInvoke(mv, JOBJECT_GET_TRANSACTION);
-            this.emitInvoke(mv, JTRANSACTION_GET_TRANSACTION);
+            this.emitInvoke(mv, JTRANSACTION_GET_TRANSACTION_METHOD);
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
             mv.visitLdcInsn(TO_STRING_MAX_COLLECTION_ENTRIES);
