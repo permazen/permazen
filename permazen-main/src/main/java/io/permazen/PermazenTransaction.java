@@ -1764,7 +1764,7 @@ public class PermazenTransaction {
                     Util.invoke(info.getMethod(), pobj);
             }
 
-            // Do uniqueness validation
+            // Do simple and composite field uniqueness validation
             if ((!pclass.uniqueConstraintFields.isEmpty() || !pclass.uniqueConstraintCompositeIndexes.isEmpty())
               && Util.isAnyGroupBeingValidated(DEFAULT_AND_UNIQUENESS_CLASS_ARRAY, validationGroups)) {
 
@@ -1788,8 +1788,9 @@ public class PermazenTransaction {
                     // Seach for other objects with the same value in the field and report violation if any are found
                     final List<ObjId> conflictors = this.findUniqueConflictors(id, index.asMap().get(value));
                     if (!conflictors.isEmpty()) {
-                        throw new ValidationException(pobj, "uniqueness constraint on " + pfield + " failed for object "
-                          + id + ": field value " + value + " is also shared by object(s) " + conflictors);
+                        throw new ValidationException(pobj, String.format(
+                          "uniqueness constraint on %s failed for object %s: field value %s is also shared by object(s) %s",
+                          pfield, id, value, conflictors));
                     }
                 }
 
@@ -1847,9 +1848,10 @@ public class PermazenTransaction {
                     // Seach for other objects with the same values in the same fields and report violation if any are found
                     final List<ObjId> conflictors = this.findUniqueConflictors(id, ids);
                     if (!conflictors.isEmpty()) {
-                        throw new ValidationException(pobj, "uniqueness constraint on composite index \"" + pindex.name
-                          + "\" failed for object " + id + ": field value combination " + values + " is also shared by object(s) "
-                          + conflictors);
+                        throw new ValidationException(pobj, String.format(
+                          "uniqueness constraint on composite index \"%s\" failed for object %s:"
+                          + " field value combination %s is also shared by object(s) %s",
+                          pindex.name, id, values, conflictors));
                     }
                 }
             }
