@@ -74,7 +74,13 @@ public final class ObjDumper {
         try {
             type = tx.getObjType(id);
         } catch (StaleTransactionException e) {
-            return String.format("type#%d@%s [%s]", id.getStorageId(), id, "stale tx");
+            String typeName;
+            try {
+                typeName = tx.getSchemaBundle().getObjectTypeName(id.getStorageId());
+            } catch (IllegalArgumentException e2) {
+                typeName = String.format("type#%d");
+            }
+            return String.format("%s@%s [%s]", typeName, id, "stale tx");
         } catch (UnknownTypeException e) {
             return String.format("type#%d@%s [%s]", id.getStorageId(), id, "unknown type");
         } catch (DeletedObjectException e) {
