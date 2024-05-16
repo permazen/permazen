@@ -6,6 +6,10 @@
 /**
  * Spring Framework integration classes.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-xml-doc.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p><b>Overview</b></p>
  *
  * <p>
@@ -85,7 +89,7 @@
  * <p>
  * An example Spring XML configuration using an in-memory key/value store and supporting Spring's
  * {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation:
- * <pre>
+ * <pre><code class="language-xml">
  * &lt;beans xmlns="http://www.springframework.org/schema/beans"
  *   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  *   <b>xmlns:permazen="http://permazen.io/schema/spring/permazen"</b>
@@ -118,7 +122,7 @@
  *     &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;
  *
  * &lt;/beans&gt;
- * </pre>
+ * </code></pre>
  *
  * @see <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>
  */

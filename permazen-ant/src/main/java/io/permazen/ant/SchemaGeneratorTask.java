@@ -41,6 +41,10 @@ import org.apache.tools.ant.types.Resource;
 /**
  * Ant task for schema XML generation and/or verification.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-xml-doc.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * This task scans the configured classpath for classes with {@link PermazenType &#64;PermazenType}
  * annotations and either writes the generated schema to an XML file, or verifies the schema matches an existing XML file.
@@ -191,40 +195,40 @@ import org.apache.tools.ant.types.Resource;
  * <p>
  * To install this task into ant:
  *
- * <pre>
+ * <pre><code class="language-xml">
  *  &lt;project xmlns:permazen="urn:io.permazen.ant" ... &gt;
  *      ...
  *      &lt;taskdef uri="urn:io.permazen.ant" name="schema"
  *        classname="io.permazen.ant.SchemaGeneratorTask" classpathref="permazen.classpath"/&gt;
- * </pre>
+ * </code></pre>
  *
  * <p>
  * Example of generating a schema XML file that corresponds to the specified Java model classes:
  *
- * <pre>
+ * <pre><code class="language-xml">
  *  &lt;permazen:schema mode="generate" classpathref="myclasses.classpath"
  *    file="schema.xml" packages="com.example.model"/&gt;
- * </pre>
+ * </code></pre>
  *
  * <p>
  * Example of verifying that the schema generated from the Java model classes has not
  * changed incompatibly (i.e., in a way that would require a new schema version):
  *
- * <pre>
+ * <pre><code class="language-xml">
  *  &lt;permazen:schema mode="verify" classpathref="myclasses.classpath"
  *    file="expected-schema.xml" packages="com.example.model"/&gt;
- * </pre>
+ * </code></pre>
  *
  * <p>
  * Example of doing the same thing, and also verifying the generated schema is compatible with prior schema versions
  * that may still be in use in production databases:
  *
- * <pre>
+ * <pre><code class="language-xml">
  *  &lt;permazen:schema mode="verify" classpathref="myclasses.classpath"
  *    file="expected-schema.xml" packages="com.example.model"&gt;
  *      &lt;permazen:oldschemas dir="obsolete-schemas" includes="*.xml"/&gt;
  *  &lt;/permazen:schema&gt;
- * </pre>
+ * </code></pre>
  *
  * @see Permazen
  * @see SchemaModel

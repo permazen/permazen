@@ -35,14 +35,19 @@ import java.util.NavigableSet;
 /**
  * Utility classes for printing database objects and fields in a human-readable format.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * To use this class for implementing {@link Object#toString}, add a method like this to your Java model classes:
- * <blockquote><pre>
+ *
+ * <pre><code class="language-java">
  *  &#64;Override
  *  public String toString() {
  *      return ObjDumper.toString(this.getTransaction().getTransaction(), this.getObjId(), 16);
  *  }
- * </pre></blockquote>
+ * </code></pre>
  */
 public final class ObjDumper {
 

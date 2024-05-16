@@ -19,6 +19,10 @@ import java.lang.annotation.Target;
 /**
  * Annotates Permazen model class methods that are to be invoked whenever a database object is newly created.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * Note that there is a subtle distinction between (a) the creation of database objects in the database, and
  * (b) the instantiation of Java model objects that represent database objects (i.e., {@link PermazenObject}s).
@@ -34,7 +38,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * For example, instead of this:
- * <pre>
+ * <pre><code class="language-java">
  *  &#64;PermazenType
  *  public abstract class Event {
  *
@@ -47,11 +51,11 @@ import java.lang.annotation.Target;
  *      public abstract void setCreateTime(Date createTime);
  *
  *      ...
- * </pre>
+ * </code></pre>
  *
  * <p>
  * do this:
- * <pre>
+ * <pre><code class="language-java">
  *  &#64;PermazenType
  *  public abstract class Event {
  *
@@ -65,7 +69,7 @@ import java.lang.annotation.Target;
  *      public abstract void setCreateTime(Date createTime);
  *
  *      ...
- * </pre>
+ * </code></pre>
  *
  * <p>
  * Notifications are delivered in the same thread that created the object, immediately after the object is created.

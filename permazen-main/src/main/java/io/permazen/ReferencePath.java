@@ -35,6 +35,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Reference paths.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p><b>Overview</b>
  *
  * <p>
@@ -96,7 +100,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Consider the following model classes:
  *
- * <pre>
+ * <pre><code class="language-java">
  * public interface Animal&lt;T extends Animal&lt;T&gt;&gt; {
  *
  *     T getParent();
@@ -118,7 +122,7 @@ import org.slf4j.LoggerFactory;
  *     Giraffe getFriend();
  *     void setFriend(Giraffe friend);
  * }
- * </pre>
+ * </code></pre>
  *
  * Then these paths have the following meanings:
  *

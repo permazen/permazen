@@ -23,6 +23,10 @@ import java.lang.annotation.Target;
  * Annotation for methods that are to be invoked whenever an object's schema has just changed,
  * in order to apply arbitrary "semantic" schema migration logic.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * The annotated method is given access to all of the previous object version's fields, including fields that have
  * been deleted or whose types have changed in the new schema. This allows the object to perform any schema migration
@@ -42,7 +46,7 @@ import java.lang.annotation.Target;
  * <p>
  * In many cases, the simplest way to handle schema changes is to use the presence or absence of fields in {@code oldValues}
  * to determine what migration work needs to be done. For example:
- * <pre>
+ * <pre><code class="language-java">
  *      &#64;OnSchemaChange
  *      private void applySchemaChanges(Map&lt;String, Object&gt; oldValues) {
  *
@@ -61,7 +65,7 @@ import java.lang.annotation.Target;
  *          }
  *          // ...etc
  *      }
- * </pre>
+ * </code></pre>
  *
  * <p>
  * Note: {@linkplain PermazenCounterField} values are represented in {@code oldValues} as {@code Long}s.

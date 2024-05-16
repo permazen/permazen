@@ -57,12 +57,17 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 /**
  * Utility methods for serializing and deserializing {@link Database} objects in a {@link Transaction} to/from XML.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-xml-doc.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * <b>XML Structure</b>
  *
  * <p>
  * The overall XML format looks like this:
- *  <pre>
+ *
+ * <pre><code class="language-xml">
  *  &lt;database&gt;
  *      &lt;schemas&gt;
  *          ...
@@ -71,7 +76,7 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  *          ...
  *      &lt;/objects&gt;
  *  &lt;/database&gt;
- *  </pre>
+ * </code></pre>
  *
  * The {@code <schemas>} tag contains the database's schema definitions. Providing these definitions makes it
  * possible to import into a completely empty {@link Database}, i.e., one with no prior knowledge of the objects' schema(s).
@@ -86,7 +91,8 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  * There are two supported formats for {@code <object>} tags. The "plain" object format uses standard XML elements
  * and identifies objects and fields with a {@code "name"} attribute using standardized. This format supports all
  * possible database object and field names:
- *  <pre>
+ *
+ * <pre><code class="language-xml">
  *  &lt;objects schema="Schema_12e983a72e72ed56741ddc45e47d3377"&gt;
  *      &lt;object type="Person" id="64a971e1aef01cc8"&gt;
  *          &lt;field name="name"&gt;George Washington&lt;/field&gt;
@@ -101,11 +107,12 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  *      &lt;/object&gt;
  *      ...
  *  &lt;/objects&gt;
- *  </pre>
+ * </code></pre>
  *
  * The "custom" object format uses custom XML tags to specify object types and field names and is more readable.
  * However, it doesn't support object type names and field names that are not valid XML tags:
- * <pre>
+ *
+ * <pre><code class="language-xml">
  *  &lt;objects&gt;
  *      &lt;Person id="64a971e1aef01cc8"&gt;
  *          &lt;name&gt;George Washington&lt;/name&gt;
@@ -120,7 +127,7 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  *      &lt;/Person&gt;
  *      ...
  *  &lt;/objects&gt;
- *  </pre>
+ * </code></pre>
  *
  * When parsing input, the format is auto-detected on a per-element basis, depending on whether or not there is a
  * {@code type="..."} attribute (for objects) or {@code name="..."} attribute (for fields).

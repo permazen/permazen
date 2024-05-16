@@ -23,6 +23,10 @@ import java.lang.annotation.Target;
 /**
  * Annotates methods to be invoked whenever some target field in some target object changes during a transaction.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p><b>Overview</b></p>
  *
  * <p>
@@ -47,7 +51,10 @@ import java.lang.annotation.Target;
  *
  * <p><b>Examples</b></p>
  *
- * <pre>
+ * <p>
+ * This example shows how the declaration of the annotated method helps determine which events are delivered:
+ *
+ * <pre><code class="language-java">
  *   &#64;PermazenType
  *   public abstract class Account implements PermazenObject {
  *
@@ -76,7 +83,7 @@ import java.lang.annotation.Target;
  *
  *       &#64;OnChange("accessLevels")
  *       private void handleAccessLevelsChange(SetFieldAdd&lt;Account, AccessLevel&gt; change) {
- *           // Sees any addition to THIS accounts access levels
+ *           // Sees any addition to THIS account's access levels
  *       }
  *
  *       &#64;OnChange
@@ -84,7 +91,12 @@ import java.lang.annotation.Target;
  *           // Sees any change to any SIMPLE field of THIS account (i.e., "enabled", "name")
  *       }
  *   }
+ * </code></pre>
  *
+ * <p>
+ * This example shows how to use the {@link #path} property to track changes in other objects:
+ *
+ * <pre><code class="language-java">
  *   &#64;PermazenType
  *   public abstract class User implements PermazenObject {
  *
@@ -129,7 +141,7 @@ import java.lang.annotation.Target;
  *           // Sees any change to ANY user's account
  *       }
  *   }
- * </pre>
+ * </code></pre>
  *
  * <p><b>Depenedent Objects</b></p>
  *
@@ -140,14 +152,14 @@ import java.lang.annotation.Target;
  * to keep track of incoming references.
  *
  * <p>
- * For example, suppose multiple {@code Person}'s can share a common {@link Address}. You only want {@link Address} objects
- * in your database when they are referred to by at least one {@code Person}. As soon as an {@link Address} is no longer
+ * For example, suppose multiple {@code Person}'s can share a common {@code Address}. You only want {@code Address} objects
+ * in your database when they are referred to by at least one {@code Person}. As soon as an {@code Address} is no longer
  * referenced, you want it to be automaticaly garbage collected.
  *
  * <p>
  * Then you could do something like this:
  *
- * <pre>
+ * <pre><code class="language-java">
  *   &#64;PermazenType
  *   public abstract class Person implements PermazenObject {
  *
@@ -193,7 +205,7 @@ import java.lang.annotation.Target;
  *               this.delete();
  *       }
  *   }
- * </pre>
+ * </code></pre>
  *
  * <p><b>Method Parameter Types</b></p>
  *
@@ -260,7 +272,7 @@ import java.lang.annotation.Target;
  * This can lead to some subtleties: for example, in some cases, a field may not exist in a Java object type, but it does
  * exist in a some sub-type of that type:
  *
- * <pre>
+ * <pre><code class="language-java">
  * &#64;PermazenType
  * public abstract class <b>Person</b> {
  *
@@ -278,7 +290,7 @@ import java.lang.annotation.Target;
  *     public abstract String <b>getName</b>();
  *     public abstract void setName(String name);
  * }
- * </pre>
+ * </code></pre>
  *
  * Here the path {@code "friends.name"} seems incorrect because {@code "friends"} has type {@code Person},
  * while {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will still

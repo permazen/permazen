@@ -397,6 +397,7 @@
                     <source>${java.version}</source>
                     <notimestamp>true</notimestamp>
                     <doclint>-reference,-missing</doclint>
+                    <additionalJOption>--allow-script-in-comments</additionalJOption>
                     <validateLinks>true</validateLinks>
                     <additionalJOptions>
                         <additionalJOption>-Xmaxwarns</additionalJOption>
@@ -614,6 +615,7 @@
                     <notimestamp>true</notimestamp>
                     <validateLinks>true</validateLinks>
                     <doclint>-missing</doclint>
+                    <additionalJOption>--allow-script-in-comments</additionalJOption>
                     <aggregate>true</aggregate>
                     <inherited>false</inherited>
                     <links>

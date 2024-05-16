@@ -29,9 +29,13 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 /**
  * Utility methods for serializing and deserializing the contents of a {@link KVStore} to/from XML.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-xml-doc.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * The XML has a simple format; empty values may be omitted:
- *  <pre>
+ * <pre><code class="language-xml">
  *  &lt;xml version="1.0" encoding="UTF-8"?&gt;
  *
  *  &lt;entries&gt;
@@ -44,7 +48,7 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  *      &lt;/entry&gt;
  *      ...
  *  &lt;/entries&gt;
- *  </pre>
+ * </code></pre>
  */
 public class XMLSerializer extends AbstractXMLStreaming {
 

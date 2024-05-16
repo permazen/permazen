@@ -33,6 +33,10 @@ import java.lang.annotation.Target;
  * Java annotation for defining simple fields (including reference fields that refer to other Java model object types)
  * and {@link Counter} fields.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * This annotation is used in two scenarios:
  * <ul>
@@ -124,7 +128,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * For example:
- * <pre>
+ * <pre><code class="language-java">
  *  &#64;PermazenType
  *  public interface TreeNode extends PermazenObject {
  *
@@ -161,7 +165,7 @@ import java.lang.annotation.Target;
  *          return (TreeNode)this.cascadeCopyTo(this.getTransaction(), <b>"tree"</b>, true);
  *      }
  *  }
- * </pre>
+ * </code></pre>
  *
  * <p><b>References and Deletion</b></p>
  *

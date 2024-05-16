@@ -16,6 +16,10 @@ import java.util.Optional;
 /**
  * Annotates Java methods that should return all objects found at the far end of a {@link io.permazen.ReferencePath}.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * This annotation can be used as a convenience to let Permazen auto-generate reference path traversal code.
  * A common use case is inverting references, e.g., from a parent back to a child in a one-to-many relationship.
@@ -28,7 +32,7 @@ import java.util.Optional;
  *
  * <p>
  * For example:
- * <pre>
+ * <pre><code class="language-java">
  *  &#64;PermazenType
  *  public interface TreeNode extends PermazenObject {
  *
@@ -50,10 +54,10 @@ import java.util.Optional;
  *      &#64;ReferencePath("-&gt;parent-&gt;parent")
  *      Optional&lt;TreeNode&gt; getGrandparent();
  *  }
- * </pre>
+ * </code></pre>
  * In the example above, the generated {@code getChildren()} implementation will be functionally equivalent to
  * (and slightly more efficient than) this one:
- * <pre>
+ * <pre><code class="language-java">
  *      /**
  *       * Get the children of this node.
  *       *&#47;
@@ -63,7 +67,7 @@ import java.util.Optional;
  *          return jtx.followReferencePath(path, Collections.singleton(this));
  *      }
  *  }
- * </pre>
+ * </code></pre>
  *
  * <p><b>Method Return Type</b></p>
  *

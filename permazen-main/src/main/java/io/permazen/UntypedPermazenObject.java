@@ -10,6 +10,10 @@ import io.permazen.core.TypeNotInSchemaException;
 /**
  * Represents a {@link PermazenObject} for which no Java model type is defined in the instance's associated schema.
  *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+ *
  * <p>
  * Instances of this class are used to represent objects with a type that is defined in some other database schema
  * but not in the current one. This situation can occur when a new schema drops a previously defined Java model type
@@ -23,7 +27,7 @@ import io.permazen.core.TypeNotInSchemaException;
  * <p>
  * For example, suppose a schema update removes the {@code Account} class and replaces fields referencing {@code Account}
  * objects with a simple {@link String} account ID field. Then the corresponding schema migration might look like this:
- * <pre>
+ * <pre><code class="language-java">
  *      &#64;OnSchemaChange
  *      private void applySchemaChanges(Map&lt;String, Object&gt; oldValues) {
  *          if (oldValues.containsKey("account")) {                         // was replaced with "accountId"
@@ -34,7 +38,7 @@ import io.permazen.core.TypeNotInSchemaException;
  *          }
  *          // ...etc
  *      }
- * </pre>
+ * </code></pre>
  */
 public abstract class UntypedPermazenObject implements PermazenObject {
 }
