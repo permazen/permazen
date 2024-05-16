@@ -7,9 +7,11 @@ package io.permazen.cli.jshell;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.PermazenTransaction;
 import io.permazen.cli.HasPermazenSession;
 import io.permazen.cli.PermazenShellRequest;
 import io.permazen.cli.Session;
+import io.permazen.kv.KVDatabase;
 import io.permazen.util.ApplicationClassLoader;
 
 import java.io.File;
@@ -21,6 +23,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.dellroad.jct.jshell.JShellShellSession;
 import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
@@ -37,14 +41,19 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 
     private static final String STARTUP_FILE_RESOURCE = "META-INF/permazen/jshell-startup.jsh";
 
+    private final Session session;
+
     private volatile boolean runStandardStartup = true;
     private File startupFile;
+
+    private boolean extended;
 
 // Constructor
 
     @SuppressWarnings("this-escape")
     public PermazenJShellShellSession(PermazenJShellShell shell, PermazenShellRequest request) {
         super(shell, request);
+        this.session = ((PermazenShellRequest)this.getRequest()).getPermazenSession();
 
         // Configure local execution
         this.setLocalContextClassLoader(ApplicationClassLoader.getInstance());
@@ -106,6 +115,10 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
         try {
             return super.doExecute();
         } finally {
+            if (this.session.hasTransaction()) {
+                this.session.getError().println("Warning: an extended transaction is still open (aborting)");
+                this.session.closeTransaction(false);
+            }
             if (this.startupFile != null)
                 this.removeIfTemporary(this.startupFile);
         }
@@ -115,7 +128,136 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 
     @Override
     public Session getPermazenSession() {
-        return ((PermazenShellRequest)this.getRequest()).getPermazenSession();
+        return this.session;
+    }
+
+// Snippet Transactions
+
+    /**
+     * Commit the current snippet transaction and open a new non-extended transaction.
+     *
+     * <p>
+     * This method is only intended to be invoked from JShell snippets.
+     *
+     * @throws IllegalStateException if there is no current snippet transaction
+     */
+    public void commit() {
+        this.endTransaction(true);
+        this.session.openTransaction(null);
+    }
+
+    /**
+     * Abort the current snippet transaction and open a new non-extended transaction.
+     *
+     * <p>
+     * This method is only intended to be invoked from JShell snippets.
+     *
+     * @throws IllegalStateException if there is no current snippet transaction
+     */
+    public void rollback() {
+        this.endTransaction(false);
+        this.session.openTransaction(null);
+    }
+
+    private void endTransaction(boolean commit) {
+        Preconditions.checkState(this.session.hasTransaction(), "there is no current snippet transaction");
+        this.extended = false;
+        this.session.closeTransaction(commit);
+    }
+
+    /**
+     * Convert the current snippet transaction into an extended transaction.
+     *
+     * <p>
+     * If the current transaction is already extended, nothing happens.
+     *
+     * <p>
+     * This method is only intended to be invoked from JShell snippets.
+     *
+     * @throws IllegalStateException if there is no current snippet transaction
+     */
+    public void begin() {
+        Preconditions.checkState(this.session.hasTransaction(), "there is no current snippet transaction");
+        this.extended = true;
+    }
+
+    /**
+     * Commit the current snippet transaction and create a new <i>branched</i> extended transaction.
+     *
+     * <p>
+     * This method is only intended to be invoked from JShell snippets.
+     *
+     * @throws IllegalStateException if there is no current snippet transaction
+     */
+    public void branch() {
+        this.branch(null, null);
+    }
+
+    /**
+     * Commit the current snippet transaction and create a new <i>branched</i> extended transaction with options.
+     *
+     * <p>
+     * This method is only intended to be invoked from JShell snippets.
+     *
+     * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
+     * @param syncOptions {@link KVDatabase}-specific transaction options for the branch's commit transaction, or null for none
+     * @throws IllegalStateException if there is no current snippet transaction
+     */
+    public void branch(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
+        this.endTransaction(true);
+        this.session.openBranchedTransaction(openOptions, syncOptions);
+        this.extended = true;
+    }
+
+    /**
+     * Invoked by {@link PermazenExecutionControl#enterContext} to create or join a snippet transaction.
+     *
+     * @throws IllegalStateException if there's not supposed to be an extended snippet transaction but there's is
+     * @throws IllegalStateException if there's supposed to be an extended snippet transaction but there's not
+     */
+    protected void joinTransaction() {
+        if (this.extended) {
+            if (this.session.hasTransaction()) {
+                this.associateTransactionToCurrentThread();
+                return;
+            }
+            this.session.getError().println("Warning: extended transaction disappeared; opening new non-extended transaction");
+            this.extended = false;
+        }
+        if (this.session.hasTransaction()) {
+            this.session.getError().println("Warning: unexpected extended transaction encountered; joining it");
+            this.extended = true;
+        } else
+            this.session.openTransaction(null);
+        this.associateTransactionToCurrentThread();
+    }
+
+    /**
+     * Invoked by {@link PermazenExecutionControl#leaveContext} to commit or leave the snippet transaction.
+     *
+     * @throws IllegalStateException if there is no current snippet transaction
+     */
+    protected void leaveTransaction(boolean success) {
+        this.disassociateTransactionFromCurrentThread();
+        if (!this.session.hasTransaction()) {
+            // This is likely due to commit() or branch() throwing an exception
+            //this.session.getError().println("Warning: no snippet transaction found");
+            this.extended = false;
+            return;
+        }
+        if (!this.extended)
+            this.session.closeTransaction(success);
+    }
+
+    private void associateTransactionToCurrentThread() {
+        Optional.of(this.session)
+          .map(Session::getTxInfo)
+          .map(Session.TxInfo::getPermazenTransaction)
+          .ifPresent(PermazenTransaction::setCurrent);
+    }
+
+    private void disassociateTransactionFromCurrentThread() {
+        PermazenTransaction.setCurrent(null);
     }
 
 // Internal Methods

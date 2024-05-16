@@ -25,7 +25,7 @@ import org.dellroad.jct.jshell.LocalContextExecutionControl;
  */
 public class PermazenExecutionControl extends LocalContextExecutionControl {
 
-    private final Session session;
+    private final PermazenJShellShellSession session;
 
 // Constructor
 
@@ -36,7 +36,7 @@ public class PermazenExecutionControl extends LocalContextExecutionControl {
      */
     public PermazenExecutionControl(LoaderDelegate delegate) {
         super(delegate);
-        this.session = PermazenJShellShellSession.getCurrent().getPermazenSession();
+        this.session = PermazenJShellShellSession.getCurrent();
         Preconditions.checkState(this.session != null, "no session");
     }
 
@@ -44,11 +44,11 @@ public class PermazenExecutionControl extends LocalContextExecutionControl {
 
     @Override
     protected void enterContext() {
-        this.session.openTransaction(null);
+        this.session.joinTransaction();
     }
 
     @Override
     protected void leaveContext(boolean success) {
-        this.session.closeTransaction(success);
+        this.session.leaveTransaction(success);
     }
 }

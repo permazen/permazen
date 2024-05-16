@@ -16,12 +16,15 @@ import io.permazen.core.TransactionConfig;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.mvcc.BranchedKVTransaction;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ParseException;
 
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.dellroad.jct.core.ConsoleSession;
@@ -71,7 +74,7 @@ public class Session {
 
     private SessionMode mode;
     private SchemaModel schemaModel;
-    private ValidationMode validationMode;
+    private ValidationMode validationMode = ValidationMode.AUTOMATIC;
     private String databaseDescription;
     private boolean allowNewSchema;
     private boolean garbageCollectSchemas;
@@ -300,7 +303,9 @@ public class Session {
 
     /**
      * Get the {@link ValidationMode} associated with this instance.
-     * If this is left unconfigured, {@link ValidationMode#AUTOMATIC} is used for new transactions.
+     *
+     * <p>
+     * Default value is {@link ValidationMode#AUTOMATIC}.
      *
      * <p>
      * This property is only relevant in {@link SessionMode#PERMAZEN}.
@@ -311,6 +316,8 @@ public class Session {
         return this.validationMode;
     }
     public void setValidationMode(ValidationMode validationMode) {
+        if (validationMode == null)
+            validationMode = ValidationMode.AUTOMATIC;
         this.validationMode = validationMode;
     }
 
@@ -585,7 +592,7 @@ public class Session {
      *
      * @return true if there is an associated transaction
      */
-    public boolean isTransactionOpen() {
+    public boolean hasTransaction() {
         return this.txInfo != null;
     }
 
@@ -601,6 +608,34 @@ public class Session {
      * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
      */
     public void openTransaction(Map<String, ?> options) {
+        this.openTransaction(
+          ()  -> this.kvdb.createTransaction(options),
+          builder -> builder.kvOptions(options).build().newTransaction(this.db),
+          ()  -> this.pdb.createTransaction(this.validationMode, options));
+    }
+
+    /**
+     * Open a new branched transaction and associate it with this instance.
+     *
+     * <p>
+     * If this instance is in {@link SessionMode#PERMAZEN}, then the new {@link PermazenTransaction} will
+     * also be associated with the current thread.
+     *
+     * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
+     * @param syncOptions {@link KVDatabase}-specific transaction options for the branch's commit transaction, or null for none
+     * @throws IllegalStateException if there is already a transaction associated with this instance
+     * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
+     */
+    public void openBranchedTransaction(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
+        this.openTransaction(
+          () -> new BranchedKVTransaction(this.kvdb, openOptions, syncOptions),
+          builder -> this.db.createTransaction(new BranchedKVTransaction(this.kvdb, openOptions, syncOptions), builder.build()),
+          () -> this.pdb.createBranchedTransaction(this.validationMode, openOptions, syncOptions));
+    }
+
+    // Internal transaction opener
+    private void openTransaction(Supplier<KVTransaction> kvtCreator,
+      Function<TransactionConfig.Builder, Transaction> txCreator, Supplier<PermazenTransaction> ptxCreator) {
         Preconditions.checkState(this.txInfo == null, "a transaction is already associated with this session");
         boolean success = false;
         try {
@@ -608,17 +643,14 @@ public class Session {
             // Open transaction at the appropriate level
             switch (this.mode) {
             case KEY_VALUE:
-                this.txInfo = new TxInfo(this.kvdb.createTransaction(options));
+                this.txInfo = new TxInfo(kvtCreator.get());
                 break;
             case CORE_API:
-                final Transaction tx = TransactionConfig.builder()
+                final TransactionConfig.Builder builder = TransactionConfig.builder()
                   .schemaModel(this.schemaModel)
                   .allowNewSchema(this.allowNewSchema)
-                  .garbageCollectSchemas(this.garbageCollectSchemas)
-                  .kvOptions(options)
-                  .build()
-                  .newTransaction(this.db);
-                this.txInfo = new TxInfo(tx);
+                  .garbageCollectSchemas(this.garbageCollectSchemas);
+                this.txInfo = new TxInfo(txCreator.apply(builder));
                 break;
             case PERMAZEN:
                 PermazenTransaction currentTx = null;
@@ -628,8 +660,7 @@ public class Session {
                     // ok good
                 }
                 Preconditions.checkState(currentTx == null, "a Permazen transaction is already associated with the current thread");
-                this.txInfo = new TxInfo(this.pdb.createTransaction(
-                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC, options));
+                this.txInfo = new TxInfo(ptxCreator.get());
                 break;
             default:
                 throw new RuntimeException("internal error");
@@ -661,25 +692,34 @@ public class Session {
      * <p>
      * This essentially does the reverse of {@link #openTransaction openTransaction()}.
      *
+     * <p>
+     * If {@code commit} is false, and there is no transaction associated with this instance, this method does nothing.
+     *
      * @param commit true to commit the transaction, false to roll it back
-     * @throws IllegalStateException if there is no transaction associated with this instance
+     * @throws IllegalStateException if {@code commit} is true and there is no transaction associated with this instance
      */
     public void closeTransaction(boolean commit) {
-        Preconditions.checkState(this.txInfo != null, "there is no transaction associated with this session");
+        final TxInfo info = this.txInfo;
+        if (info == null) {
+            if (commit)
+                throw new IllegalStateException("there is no transaction associated with this session");
+            return;
+        }
+        this.txInfo = null;
         try {
-            switch (this.txInfo.getMode()) {
+            switch (info.getMode()) {
             case PERMAZEN:
             {
-                final Transaction tx = this.txInfo.getTransaction();
-                if (commit && tx.isRollbackOnly())
-                    PermazenTransaction.getCurrent().commit();
+                final PermazenTransaction ptx = info.getPermazenTransaction();
+                if (commit && !ptx.getTransaction().isRollbackOnly())
+                    ptx.commit();
                 else
-                    PermazenTransaction.getCurrent().rollback();
+                    ptx.rollback();
                 break;
             }
             case CORE_API:
             {
-                final Transaction tx = this.txInfo.getTransaction();
+                final Transaction tx = info.getTransaction();
                 if (commit && !tx.isRollbackOnly())
                     tx.commit();
                 else
@@ -687,7 +727,7 @@ public class Session {
                 break;
             }
             case KEY_VALUE:
-                final KVTransaction kvt = this.txInfo.getKVTransaction();
+                final KVTransaction kvt = info.getKVTransaction();
                 if (commit)
                     kvt.commit();
                 else
@@ -697,8 +737,7 @@ public class Session {
                 throw new RuntimeException("internal error");
             }
         } finally {
-            this.txInfo.cleanup();
-            this.txInfo = null;
+            info.cleanup();
         }
     }
 

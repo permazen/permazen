@@ -7,6 +7,8 @@ package io.permazen.cli;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.Permazen;
+
 import java.io.IOException;
 
 import org.dellroad.jct.core.ShellRequest;
@@ -39,7 +41,7 @@ public class PermazenShellSession extends SimpleShell.Session implements HasPerm
 
     @Override
     public String getGreeting() {
-        String greeting = "Welcome to Permazen.";
+        String greeting = String.format("Welcome to Permazen %s.", Permazen.VERSION);
         final SessionMode mode = this.session.getMode();
         if (!mode.equals(SessionMode.PERMAZEN))
             greeting += String.format(" You are in %s mode.", mode);
