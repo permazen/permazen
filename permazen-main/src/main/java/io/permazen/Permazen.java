@@ -43,6 +43,8 @@ import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -175,6 +178,25 @@ public class Permazen {
      * The suffix that is appended to Java model class names to get the corresponding Permazen generated class name.
      */
     public static final String GENERATED_CLASS_NAME_SUFFIX = "$$Permazen";
+
+    /**
+     * The version of this library.
+     */
+    public static final String VERSION;
+
+    private static final String PROPERTIES_RESOURCE = "/META-INF/permazen/permazen.properties";
+    private static final String VERSION_PROPERTY_NAME = "permazen.version";
+    static {
+        final Properties properties = new Properties();
+        try (InputStream input = Permazen.class.getResourceAsStream(PROPERTIES_RESOURCE)) {
+            if (input == null)
+                throw new RuntimeException("can't find resource " + PROPERTIES_RESOURCE);
+            properties.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
+        VERSION = properties.getProperty(VERSION_PROPERTY_NAME, "?");
+    }
 
     private static final int MAX_INDEX_QUERY_INFO_CACHE_SIZE = 1000;
 

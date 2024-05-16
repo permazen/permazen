@@ -40,9 +40,8 @@
     <!-- See http://checkstyle.sf.net/config_header.html   -->
     <!-- <module name="Header"> -->
     <module name="RegexpHeader">
-      <property
-        name="header"
-        value="^$\n^\/\*\n \* Copyright \(C\) .*\. All rights reserved\.\n^ \*/"/>
+      <property name="header" value="^$\n^\/\*\n \* Copyright \(C\) .*\. All rights reserved\.\n^ \*/"/>
+      <property name="fileExtensions" value=".java"/>
     </module>
 
     <!-- Checks for Size Violations.                    -->
