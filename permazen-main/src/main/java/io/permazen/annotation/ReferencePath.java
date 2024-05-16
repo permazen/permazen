@@ -86,7 +86,7 @@ import java.util.Optional;
  *
  * <p>
  * More examples:
- * <pre>
+ * <pre><code class="language-java">
  *  &#64;PermazenType
  *  public interface TreeNode extends PermazenObject {
  *
@@ -114,7 +114,7 @@ import java.util.Optional;
  *      <b>&#64;ReferencePath("-&gt;parent-&gt;parent-&gt;parent&lt;-TreeNode.parent&lt;-TreeNode.parent")</b>
  *      Optional&lt;TreeNode&gt; getSecondCousinOnceRemoved();
  *  }
- * </pre>
+ * </code></pre>
  *
  * <p><b>Meta-Annotations</b></p>
  *

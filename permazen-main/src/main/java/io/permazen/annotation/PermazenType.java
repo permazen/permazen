@@ -18,8 +18,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 
 /**
  * Java annotation for Java classes that represent Permazen database object types.

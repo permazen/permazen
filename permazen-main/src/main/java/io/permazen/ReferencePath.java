@@ -101,6 +101,7 @@ import org.slf4j.LoggerFactory;
  * Consider the following model classes:
  *
  * <pre><code class="language-java">
+ * &#64;PermazenType
  * public interface Animal&lt;T extends Animal&lt;T&gt;&gt; {
  *
  *     T getParent();

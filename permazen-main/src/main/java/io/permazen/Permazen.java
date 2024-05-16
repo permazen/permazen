@@ -31,6 +31,7 @@ import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.kv.mvcc.BranchedKVTransaction;
+import io.permazen.kv.mvcc.TransactionConflictException;
 import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaItem;
@@ -121,28 +122,32 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Branched transactions behave like normal transactions, but internally they are constructed from two separate
- * key/value transactions, one that occurs when the branched transaction is opened, and another that occurs at commit time.
- * When a branched transaction is opened, a read-only <i>snapshot</i> of the key/value database is taken, and then that
- * key/value transaction is closed. While it remains open the branched transaction operates entirely in-memory using the
- * snapshot, without any underlying key/value transaction, and all reads and writes are tracked internally. At commit
- * time, a new key/value transaction is opened, a conflict check is performed, and if there are no conflicts all of the
- * branched transaction's collected writes are flushed out and the transction is committed.
+ * key/value transactions, one that occurs when the branched transaction is opened and one that occurs at commit time.
+ * When a branched transaction is opened, the first key/value transaction is opened just long enoughh to create a read-only
+ * {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database and then closed. The branched transaction then
+ * operates entirely in memory, based on the snapshot, and it keeps track of all keys read and written. At commit time,
+ * a new key/value transaction is opened and a conflict check is performed. If successful, the accumulated writes are
+ * flushed out and the transaction completes, otherwise a {@link TransactionConflictException} is thrown.
  *
  * <p>
  * Because they consume no database resources while open, branched transactions can stay open for an arbitrarily long
  * time, yet they still provide the same consistency guarantees as normal transactions. Of course this comes at the cost of
- * having to track reads and writes in-memory and performing the conflict check, but they can be useful in certain scenarios,
- * for example, when a user is editing some database object in a GUI application, where the user may take several minutes
- * to complete the form, but because only a single object is being edited the operation is guaranteed to access a small amount
- * of data. In many applications it's important to detect conflicts, for example, where two users edit the same object and
- * the second user's changes would completely overwite the first user's changes. Traditionally this kind of conflict check
- * is done at the application layer, by using two separate transactions and applying application-level conflict detection,
- * or the application relies on database object versioning to detect unexpected changes, which is an incomplete solution
- * because it fails to detect changes in <i>other</i> objects that may be viewed by the user while deciding what to change
- * (e.g., some other object that the edited object refers to). In other words, traditional database object versioning detects
- * write/write conflicts but not read/write conflicts. Branched transactions provide full consistency automatically by
- * guaranteeing that <i>all</i> information the user sees while editing the form is still valid at the time the form is
- * submitted.
+ * having to track reads and writes in memory and performing conflict checks all at once on commit. Howerver they can be useful
+ * in certain scenarios. For example, imagine a user is editing some database object in a GUI application, and the user could
+ * take several minutes to complete a form. Because only a single object is being edited, the operation is guaranteed to
+ * only access a small amount of data. Using a branched transaction means no database resources are held open while the
+ * user decides.
+ *
+ * <p>
+ * In addition, in many applications it's important to detect conflicts, for example, when two users edit the same object
+ * where the second user's changes would otherwise overwite the first user's changes. Traditionally this kind of conflict check
+ * is done at the application layer, either by using two separate transactions and applying application-level conflict
+ * detection (which is tedious and error-prone), or by relying on database object versioning to detect unexpected changes,
+ * which is an incomplete solution because it fails to detect changes in <i>other</i> objects that might have been viewed by
+ * the user when deciding what to change (e.g., some other object that the edited object refers to). In other words, traditional
+ * database object versioning detects write/write conflicts but not read/write conflicts, and only for the object being
+ * written back. Branched transactions provide full consistency in a completely automated way by guaranteeing that <i>all</i>
+ * information the user sees while editing a form is still valid when the form's changes are committed.
  *
  * <p>
  * Branched transactions require that the underlying key/value database support {@link KVTransaction#readOnlySnapshot}
@@ -584,8 +589,8 @@ public class Permazen {
      * <p>
      * Convenience method; equivalent to:
      *  <blockquote><pre>
-     *  {@link #createBranchedTransaction(ValidationMode, Map, Map) createBranchedTransaction}({@link ValidationMode#AUTOMATIC},
-     *      null, null)
+     *  {@link #createBranchedTransaction(ValidationMode, Map, Map)
+     *      createBranchedTransaction}({@link ValidationMode#AUTOMATIC}, null, null)
      *  </pre></blockquote>
      *
      * @return the newly created branched transaction
