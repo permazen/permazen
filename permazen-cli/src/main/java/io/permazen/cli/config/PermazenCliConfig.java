@@ -29,7 +29,7 @@ import joptsimple.OptionSpec;
 public class PermazenCliConfig extends CoreApiCliConfig {
 
     // Options
-    protected OptionSpec<File> classpathOption;
+    protected OptionSpec<File> classPathOption;
     protected OptionSpec<String> modelClassOption;
     protected OptionSpec<String> modelPackageOption;
 
@@ -56,10 +56,10 @@ public class PermazenCliConfig extends CoreApiCliConfig {
      */
     protected void addPermazenOptions(OptionParser parser) {
         Preconditions.checkArgument(parser != null, "null parser");
-        Preconditions.checkState(this.classpathOption == null, "duplicate option");
+        Preconditions.checkState(this.classPathOption == null, "duplicate option");
         Preconditions.checkState(this.modelPackageOption == null, "duplicate option");
         Preconditions.checkState(this.modelClassOption == null, "duplicate option");
-        this.classpathOption = parser.accepts("classpath", "Add to the classpath searched for model classes")
+        this.classPathOption = parser.accepts("class-path", "Add to the class path searched for model classes")
           .withRequiredArg()
           .describedAs("file-or-dir")
           .ofType(File.class)
@@ -79,9 +79,9 @@ public class PermazenCliConfig extends CoreApiCliConfig {
     @Override
     protected void processOptions(OptionSet options) {
 
-        // Apply "--classpath" option as early as possible
-        if (this.classpathOption != null)
-            options.valuesOf(this.classpathOption).forEach(this.loader::addFile);
+        // Apply "--class-path" option as early as possible
+        if (this.classPathOption != null)
+            options.valuesOf(this.classPathOption).forEach(this.loader::addFile);
 
         // Delegate to superclass
         super.processOptions(options);
