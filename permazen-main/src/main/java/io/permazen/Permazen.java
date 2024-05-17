@@ -255,134 +255,145 @@ public class Permazen {
      */
     @SuppressWarnings("this-escape")
     public Permazen(PermazenConfig config) {
+        final ClassLoader prevLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(ApplicationClassLoader.getInstance());
+        try {
 
-        // Initialize
-        Preconditions.checkArgument(config != null, "null config");
-        this.db = config.getDatabase();
+            // Initialize
+            Preconditions.checkArgument(config != null, "null config");
+            this.db = config.getDatabase();
 
-        // Inventory classes; automatically add all @PermazenType-annotated superclasses of @PermazenType-annotated classes
-        final HashMap<Class<?>, PermazenType> permazenTypes = new HashMap<>();
-        for (Class<?> type : config.getModelClasses()) {
-            do {
+            // Inventory classes; automatically add all @PermazenType-annotated superclasses of @PermazenType-annotated classes
+            final HashMap<Class<?>, PermazenType> permazenTypes = new HashMap<>();
+            for (Class<?> type : config.getModelClasses()) {
+                do {
 
-                // Find @PermazenType annotation
-                final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);
-                if (annotation == null)
-                    continue;
+                    // Find @PermazenType annotation
+                    final PermazenType annotation = Util.getAnnotation(type, PermazenType.class);
+                    if (annotation == null)
+                        continue;
 
-                // Sanity check type
-                if (type.isPrimitive() || type.isArray()) {
+                    // Sanity check type
+                    if (type.isPrimitive() || type.isArray()) {
+                        throw new IllegalArgumentException(String.format(
+                          "illegal type %s for @%s annotation: not a normal class or interface",
+                          type, PermazenType.class.getSimpleName()));
+                    }
+
+                    // Add class
+                    permazenTypes.put(type, annotation);
+                } while ((type = type.getSuperclass()) != null);
+            }
+
+            // Create PermazenClass objects
+            permazenTypes.forEach((type, annotation) -> {
+
+                // Get object type name
+                final String typeName = !annotation.name().isEmpty() ? annotation.name() : type.getSimpleName();
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("found @{} annotation on {} defining object type \"{}\"",
+                      PermazenType.class.getSimpleName(), type, typeName);
+                }
+
+                // Check for name conflict
+                final PermazenClass<?> other = this.pclassesByName.get(typeName);
+                if (other != null) {
                     throw new IllegalArgumentException(String.format(
-                      "illegal type %s for @%s annotation: not a normal class or interface",
-                      type, PermazenType.class.getSimpleName()));
+                      "illegal duplicate use of object type name \"%s\" for both %s and %s",
+                      typeName, other.type.getName(), type.getName()));
                 }
 
-                // Add class
-                permazenTypes.put(type, annotation);
-            } while ((type = type.getSuperclass()) != null);
-        }
-
-        // Create PermazenClass objects
-        permazenTypes.forEach((type, annotation) -> {
-
-            // Get object type name
-            final String typeName = !annotation.name().isEmpty() ? annotation.name() : type.getSimpleName();
-            if (this.log.isTraceEnabled()) {
-                this.log.trace("found @{} annotation on {} defining object type \"{}\"",
-                  PermazenType.class.getSimpleName(), type, typeName);
-            }
-
-            // Check for name conflict
-            final PermazenClass<?> other = this.pclassesByName.get(typeName);
-            if (other != null) {
-                throw new IllegalArgumentException(String.format(
-                  "illegal duplicate use of object type name \"%s\" for both %s and %s",
-                  typeName, other.type.getName(), type.getName()));
-            }
-
-            // Create PermazenClass
-            final PermazenClass<?> pclass;
-            try {
-                pclass = new PermazenClass<>(this, typeName, annotation.storageId(), type);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(String.format(
-                  "invalid @%s annotation on %s: %s", PermazenType.class.getSimpleName(), type, e), e);
-            }
-
-            // Add PermazenClass
-            this.pclassesByName.put(pclass.name, pclass);
-            this.pclassesByType.put(pclass.type, pclass);                       // this should never conflict, no need to check
-            if (typeName.equals(type.getSimpleName()))
-                this.log.debug("added Java model class for object type \"{}\"", typeName);
-            else
-                this.log.debug("added Java model class {} for object type \"{}\"", type, typeName);
-        });
-        this.pclassesByName.values().forEach(this.pclasses::add);               // note: this.pclasses will be sorted by name
-
-        // Inventory class generators
-        this.classGenerators = this.pclasses.stream()
-          .map(pclass -> pclass.classGenerator)
-          .collect(Collectors.toCollection(ArrayList::new));
-        this.untypedClassGenerator = new ClassGenerator<>(this, UntypedPermazenObject.class);
-        this.classGenerators.add(this.untypedClassGenerator);
-
-        // Create fields
-        this.pclasses.forEach(pclass -> pclass.createFields(this.db.getEncodingRegistry(), this.pclasses));
-
-        // Create composite indexes
-        this.pclasses.forEach(PermazenClass::createCompositeIndexes);
-
-        // Build and validate initial schema model
-        this.schemaModel = new SchemaModel();
-        this.pclassesByName.forEach((name, pclass) -> this.schemaModel.getSchemaObjectTypes().put(name, pclass.toSchemaItem()));
-        this.schemaModel.lockDown(false);
-        this.schemaModel.validate();
-        if (!this.schemaModel.isEmpty())
-            this.log.debug("Permazen schema generated from annotated classes:\n{}", this.schemaModel);
-
-        // Copy it now so we have a pre-storage ID assignment version
-        this.origSchemaModel = this.schemaModel.clone();
-        this.origSchemaModel.lockDown(true);
-
-        // Determine which PermazenClass's have validation requirement(s) on creation
-        this.pclasses.forEach(PermazenClass::calculateValidationRequirement);
-        boolean anyDefaultValidation = false;
-        AnnotatedElement someElementRequiringJSR303Validation = null;
-        for (PermazenClass<?> pclass : this.pclasses) {
-            anyDefaultValidation |= pclass.requiresDefaultValidation;
-            if (someElementRequiringJSR303Validation == null)
-                someElementRequiringJSR303Validation = pclass.elementRequiringJSR303Validation;
-        }
-        this.anyClassRequiresDefaultValidation = anyDefaultValidation;
-        this.elementRequiringJSR303Validation = someElementRequiringJSR303Validation;
-
-        // Initialize ValidatorFactory (only if needed)
-        ValidatorFactory optionalValidatorFactory = config.getValidatorFactory();
-        if (optionalValidatorFactory == null && elementRequiringJSR303Validation != null) {
-            try {
-                optionalValidatorFactory = Validation.buildDefaultValidatorFactory();
-            } catch (Exception e) {
+                // Create PermazenClass
+                final PermazenClass<?> pclass;
                 try {
-                    final MessageInterpolator messageInterpolator = (MessageInterpolator)Class.forName(
-                        HIBERNATE_PARAMETER_MESSAGE_INTERPOLATOR_CLASS_NAME, false, this.loader.getParent())
-                      .getConstructor()
-                      .newInstance();
-                    optionalValidatorFactory = Validation.byDefaultProvider()
-                      .configure()
-                      .messageInterpolator(messageInterpolator)
-                      .buildValidatorFactory();
-                } catch (Exception e2) {
-                    throw new PermazenException(String.format(
-                      "JSR 303 validation constraint found on %s but creation of default ValidatorFactory failed;"
-                      + " is there a JSR 303 validation implementation on the classpath?", elementRequiringJSR303Validation), e2);
+                    pclass = new PermazenClass<>(this, typeName, annotation.storageId(), type);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(String.format(
+                      "invalid @%s annotation on %s: %s", PermazenType.class.getSimpleName(), type, e), e);
+                }
+
+                // Add PermazenClass
+                this.pclassesByName.put(pclass.name, pclass);
+                this.pclassesByType.put(pclass.type, pclass);                       // this should never conflict, no need to check
+                if (typeName.equals(type.getSimpleName()))
+                    this.log.debug("added Java model class for object type \"{}\"", typeName);
+                else
+                    this.log.debug("added Java model class {} for object type \"{}\"", type, typeName);
+            });
+            this.pclassesByName.values().forEach(this.pclasses::add);               // note: this.pclasses will be sorted by name
+
+            // Inventory class generators
+            this.classGenerators = this.pclasses.stream()
+              .map(pclass -> pclass.classGenerator)
+              .collect(Collectors.toCollection(ArrayList::new));
+            this.untypedClassGenerator = new ClassGenerator<>(this, UntypedPermazenObject.class);
+            this.classGenerators.add(this.untypedClassGenerator);
+
+            // Create fields
+            this.pclasses.forEach(pclass -> pclass.createFields(this.db.getEncodingRegistry(), this.pclasses));
+
+            // Create composite indexes
+            this.pclasses.forEach(PermazenClass::createCompositeIndexes);
+
+            // Build and validate initial schema model
+            this.schemaModel = new SchemaModel();
+            this.pclassesByName.forEach((name, pclass) -> this.schemaModel.getSchemaObjectTypes().put(name, pclass.toSchemaItem()));
+            this.schemaModel.lockDown(false);
+            this.schemaModel.validate();
+            if (!this.schemaModel.isEmpty())
+                this.log.debug("Permazen schema generated from annotated classes:\n{}", this.schemaModel);
+
+            // Copy it now so we have a pre-storage ID assignment version
+            this.origSchemaModel = this.schemaModel.clone();
+            this.origSchemaModel.lockDown(true);
+
+            // Determine which PermazenClass's have validation requirement(s) on creation
+            this.pclasses.forEach(PermazenClass::calculateValidationRequirement);
+            boolean anyDefaultValidation = false;
+            AnnotatedElement someElementRequiringJSR303Validation = null;
+            for (PermazenClass<?> pclass : this.pclasses) {
+                anyDefaultValidation |= pclass.requiresDefaultValidation;
+                if (someElementRequiringJSR303Validation == null)
+                    someElementRequiringJSR303Validation = pclass.elementRequiringJSR303Validation;
+            }
+            this.anyClassRequiresDefaultValidation = anyDefaultValidation;
+            this.elementRequiringJSR303Validation = someElementRequiringJSR303Validation;
+
+            // Initialize ValidatorFactory (only if needed)
+            ValidatorFactory optionalValidatorFactory = config.getValidatorFactory();
+            if (optionalValidatorFactory == null && elementRequiringJSR303Validation != null) {
+                try {
+                    optionalValidatorFactory = Validation.buildDefaultValidatorFactory();
+                } catch (Exception e) {
+                    try {
+                        final MessageInterpolator messageInterpolator = (MessageInterpolator)Class.forName(
+                            HIBERNATE_PARAMETER_MESSAGE_INTERPOLATOR_CLASS_NAME,
+                             false, Thread.currentThread().getContextClassLoader())
+                          .getConstructor()
+                          .newInstance();
+                        optionalValidatorFactory = Validation.byDefaultProvider()
+                          .configure()
+                          .messageInterpolator(messageInterpolator)
+                          .buildValidatorFactory();
+                    } catch (Exception e2) {
+                        this.log.info("loader = {}", this.loader.getParent());
+                        this.log.info("loader.urls = {}",
+                          java.util.Arrays.asList(((ApplicationClassLoader)this.loader.getParent()).getURLs()));
+                        throw new PermazenException(String.format(
+                          "JSR 303 validation constraint found on %s but creation of default ValidatorFactory failed;"
+                            + " is there a JSR 303 validation implementation on the classpath?",
+                          elementRequiringJSR303Validation), e2);
+                    }
                 }
             }
-        }
-        this.validatorFactory = optionalValidatorFactory;
+            this.validatorFactory = optionalValidatorFactory;
 
-        // Auto-initialize?
-        if (config.isInitializeOnCreation())
-            this.initialize();
+            // Auto-initialize?
+            if (config.isInitializeOnCreation())
+                this.initialize();
+        } finally {
+              Thread.currentThread().setContextClassLoader(prevLoader);
+        }
     }
 
 // Initialization
