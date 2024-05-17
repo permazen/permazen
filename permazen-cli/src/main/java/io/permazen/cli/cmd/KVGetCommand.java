@@ -32,13 +32,20 @@ public class KVGetCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Retrieves a single raw database key/value pair, or a range of key/value pairs, to the console.\nIf `-range' is"
-          + " not given, a single key/value pair is retrieved. Otherwise, `key' is the minimum key (inclusive) and `maxKey'"
-          + " is the maximum key (exclusive) if given, otherwise there is no maximum key. `key' and `maxKey' may be given"
-          + " as hexadecimal strings or C-style doubly-quoted strings.\nThe `limit' parameter limits the total number of"
-          + " key/value pairs displayed.\nBy default, keys and values are displayed in hexadecimal with an ASCII decoding;"
-          + " use the `-s' flag to display keys and values directly as C-style doubly-quoted strings.\nThe `-n' flag causes"
-          + " only keys (not values) to be displayed.";
+        return
+            "Retrieves a single raw database key/value pair, or a range of key/value pairs, to the console.\n"
+         + "\n"
+         + "Without \"-range\", a single key/value pair is retrieved. Otherwise, \"key\" is the minimum key (inclusive)\n"
+         + "and \"maxKey\", if any, is the maximum key (exclusive), otherwise \"key\" because the range prefix.\n"
+         + "\n"
+         + "The \"key\" and \"maxKey\" may be given as hexadecimal strings or C-style doubly-quoted strings.\n"
+         + "\n"
+         + "The \"limit\" parameter limits the total number of key/value pairs displayed.\n"
+         + "\n"
+         + "By default, keys and values are displayed in hexadecimal with an ASCII decoding; use the \"-s\" flag\n"
+         + "to display keys and values directly as C-style doubly-quoted strings.\n"
+         + "\n"
+         + "The \"-n\" flag causes only keys to be displayed (i.e., no values).";
     }
 
     @Override
@@ -73,7 +80,7 @@ public class KVGetCommand extends AbstractKVCommand {
             this.range = range;
             this.novals = novals;
             this.key = key;
-            this.maxKey = maxKey;
+            this.maxKey = maxKey != null || !range ? maxKey : ByteUtil.getKeyAfterPrefix(key);
             this.limit = limit;
         }
 
