@@ -13,6 +13,7 @@ import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.tuple.Tuple2;
+import io.permazen.util.TypeTokens;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -411,12 +412,12 @@ public class ReferencePath {
      * The returned type will be as narrow as possible while still including all possibilities, but note that it's
      * possible for there to be multiple candidates for the "starting type", none of which is a sub-type of any other.
      * To retrieve all such starting types, use {@link #getStartingTypes}; this method just invokes
-     * {@link Util#findLowestCommonAncestorOfClasses Util.findLowestCommonAncestorOfClasses()} on that result.
+     * {@link TypeTokens#findLowestCommonAncestorOfClasses TypeTokens.findLowestCommonAncestorOfClasses()} on that result.
      *
      * @return the Java type at which this reference path starts
      */
     public Class<?> getStartingType() {
-        return Util.findLowestCommonAncestorOfClasses(ReferencePath.toClasses(this.getStartingTypes())).getRawType();
+        return TypeTokens.findLowestCommonAncestorOfClasses(ReferencePath.toClasses(this.getStartingTypes())).getRawType();
     }
 
     /**
@@ -442,12 +443,12 @@ public class ReferencePath {
      * The returned type will be as narrow as possible while still including all possibilities, but note that it's
      * possible for there to be multiple candidates for the "target type", none of which is a sub-type of any other.
      * To retrieve all such target types, use {@link #getTargetTypes}; this method just invokes
-     * {@link Util#findLowestCommonAncestorOfClasses Util.findLowestCommonAncestorOfClasses()} on that result.
+     * {@link TypeTokens#findLowestCommonAncestorOfClasses TypeTokens.findLowestCommonAncestorOfClasses()} on that result.
      *
      * @return the Java type at which this reference path ends
      */
     public Class<?> getTargetType() {
-        return Util.findLowestCommonAncestorOfClasses(ReferencePath.toClasses(this.getTargetTypes())).getRawType();
+        return TypeTokens.findLowestCommonAncestorOfClasses(ReferencePath.toClasses(this.getTargetTypes())).getRawType();
     }
 
     /**

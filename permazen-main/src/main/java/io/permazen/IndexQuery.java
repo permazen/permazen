@@ -17,6 +17,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaId;
+import io.permazen.util.TypeTokens;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,7 +209,7 @@ class IndexQuery {
             throw new IllegalArgumentException(String.format(
               "no sub-type of %s contains an indexed simple field named \"%s\"", context, fieldName));
         }
-        return Util.findLowestCommonAncestors(contextEncodings.stream());
+        return TypeTokens.findLowestCommonAncestors(contextEncodings.stream());
     }
 
     private Set<Class<?>> wrapRaw(Set<TypeToken<?>> typeTokens) {

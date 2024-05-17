@@ -9,12 +9,11 @@ import com.google.common.reflect.TypeToken;
 
 import io.permazen.util.ApplicationClassLoader;
 import io.permazen.util.ParseContext;
+import io.permazen.util.TypeTokens;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 
 /**
@@ -26,8 +25,6 @@ import java.util.regex.Matcher;
 public class TypeTokenParser {
 
     private final ClassLoader loader;
-
-    private Method newParameterizedTypeMethod;
 
     /**
      * Default constructor.
@@ -93,41 +90,19 @@ public class TypeTokenParser {
                 final int ch = ctx.read();
                 if (ch == '>')
                     break;
-                if (ch != ',')
-                    throw new IllegalArgumentException("unexpected character \"" + ch + "\" at index " + ctx.getIndex());
+                if (ch != ',') {
+                    throw new IllegalArgumentException(String.format(
+                      "unexpected character \"%c\" at index %d", (char)ch, ctx.getIndex()));
+                }
             }
         }
         if (parameterTypes.size() != typeParameters.length) {
-            throw new IllegalArgumentException(cl + " has " + typeParameters.length + " generic type parameters but "
-              + parameterTypes.size() + " parameters were supplied");
+            throw new IllegalArgumentException(String.format(
+              "%s has %d generic type parameter(s) but %d parameter(s) were supplied",
+              cl, typeParameters.length, parameterTypes.size()));
         }
-        return parameterTypes.isEmpty() ? TypeToken.of(cl) : this.newParameterizedType(cl, parameterTypes);
-    }
-
-    /**
-     * Convert a raw class back into its generic type.
-     *
-     * @param target raw class
-     * @param params type parameters
-     * @return generic {@link TypeToken} for {@code target}
-     * @see <a href="https://github.com/google/guava/issues/1645">Guava Issue #1645</a>
-     */
-    @SuppressWarnings("unchecked")
-    private <T> TypeToken<? extends T> newParameterizedType(Class<T> target, List<Type> params) {
-        Type type;
-        try {
-            if (this.newParameterizedTypeMethod == null) {
-                this.newParameterizedTypeMethod = Class.forName("com.google.common.reflect.Types", false, this.loader)
-                  .getDeclaredMethod("newParameterizedType", Class.class, Type[].class);
-                this.newParameterizedTypeMethod.setAccessible(true);
-            }
-            type = (Type)this.newParameterizedTypeMethod.invoke(null, target, params.toArray(new Type[params.size()]));
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("unexpected exception", e);
-        }
-        return (TypeToken<T>)TypeToken.of(type);
+        return parameterTypes.isEmpty() ?
+          TypeToken.of(cl) : TypeTokens.newParameterizedType(cl, parameterTypes.toArray(new Type[0]));
     }
 
 // Test method
