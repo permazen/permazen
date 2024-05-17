@@ -5,8 +5,11 @@
 
 package io.permazen.cli.jshell;
 
+import io.permazen.util.ApplicationClassLoader;
+
 import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
 import org.dellroad.jct.jshell.MemoryLoaderDelegate;
+import org.dellroad.stuff.java.MemoryClassLoader;
 
 /**
  * A {@link LocalContextExecutionControlProvider} that creates {@link PermazenExecutionControl}'s.
@@ -23,5 +26,10 @@ public class PermazenExecutionControlProvider extends LocalContextExecutionContr
     @Override
     protected PermazenExecutionControl createLocalExecutionControl(MemoryLoaderDelegate delegate) {
         return new PermazenExecutionControl(delegate);
+    }
+
+    @Override
+    protected MemoryClassLoader createMemoryClassLoader() {
+        return new MemoryClassLoader(ApplicationClassLoader.getInstance());
     }
 }

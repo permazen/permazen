@@ -46,6 +46,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     private volatile boolean runStandardStartup = true;
     private File startupFile;
 
+    private ClassLoader previousContextLoader;
     private boolean extended;
 
 // Constructor
@@ -254,10 +255,14 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
           .map(Session::getTxInfo)
           .map(Session.TxInfo::getPermazenTransaction)
           .ifPresent(PermazenTransaction::setCurrent);
+        this.previousContextLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(ApplicationClassLoader.getInstance());
     }
 
     private void disassociateTransactionFromCurrentThread() {
         PermazenTransaction.setCurrent(null);
+        Thread.currentThread().setContextClassLoader(this.previousContextLoader);
+        this.previousContextLoader = null;
     }
 
 // Internal Methods
