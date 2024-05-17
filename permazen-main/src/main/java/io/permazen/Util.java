@@ -11,6 +11,7 @@ import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.annotation.OnValidate;
+import io.permazen.util.ApplicationClassLoader;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.groups.Default;
@@ -71,8 +72,8 @@ public final class Util {
             if (Util.annotationRetriever == null) {
                 final Logger log = LoggerFactory.getLogger(Util.class);
                 try {
-                    final Class<?> cl = Class.forName(ANNOTATION_ELEMENT_UTILS_CLASS_NAME,
-                      true, Thread.currentThread().getContextClassLoader());
+                    final Class<?> cl = Class.forName(
+                      ANNOTATION_ELEMENT_UTILS_CLASS_NAME, true, ApplicationClassLoader.getInstance());
                     final Method method = cl.getMethod(ANNOTATION_ELEMENT_UTILS_GET_MERGED_ANNOTATION_METHOD_NAME,
                       AnnotatedElement.class, Class.class);
                     Util.annotationRetriever = (elem, atype) -> {

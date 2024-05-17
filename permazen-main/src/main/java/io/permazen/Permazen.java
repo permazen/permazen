@@ -364,7 +364,7 @@ public class Permazen {
             } catch (Exception e) {
                 try {
                     final MessageInterpolator messageInterpolator = (MessageInterpolator)Class.forName(
-                      HIBERNATE_PARAMETER_MESSAGE_INTERPOLATOR_CLASS_NAME, false, Thread.currentThread().getContextClassLoader())
+                        HIBERNATE_PARAMETER_MESSAGE_INTERPOLATOR_CLASS_NAME, false, this.loader.getParent())
                       .getConstructor()
                       .newInstance();
                     optionalValidatorFactory = Validation.byDefaultProvider()
