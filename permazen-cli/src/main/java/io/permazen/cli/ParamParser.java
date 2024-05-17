@@ -54,19 +54,21 @@ public class ParamParser {
     /**
      * Build a usage summary string.
      *
-     * @param commandName command name
-     * @return usage string
+     * @return usage string, not including the command name
      */
-    public String getUsage(String commandName) {
-        final StringBuilder buf = new StringBuilder(commandName);
+    public String getUsage() {
+        final StringBuilder buf = new StringBuilder();
         for (Param param : this.optionFlags) {
-            buf.append(" [").append(param.getOptionFlag());
+            if (buf.length() > 0)
+                buf.append(' ');
+            buf.append('[').append(param.getOptionFlag());
             if (param.getTypeName() != null)
                 buf.append(' ').append(param.getName());
             buf.append(']');
         }
         for (Param param : this.params) {
-            buf.append(' ');
+            if (buf.length() > 0)
+                buf.append(' ');
             if (param.getMin() == 0)
                 buf.append('[');
             buf.append(param.getName());

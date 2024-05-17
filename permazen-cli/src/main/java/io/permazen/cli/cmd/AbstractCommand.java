@@ -75,13 +75,13 @@ public abstract class AbstractCommand implements Command {
      * {@inheritDoc}
      *
      * <p>
-     * The implementation in {@link AbstractCommand} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.
+     * The implementation in {@link AbstractCommand} delegates to {@link ParamParser#getUsage}.
      *
      * @return command usage string
      */
     @Override
     public String getUsage() {
-        return this.paramParser.getUsage(this.name);
+        return this.paramParser.getUsage();
     }
 
     /**
