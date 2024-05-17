@@ -27,6 +27,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.dellroad.jct.core.ConsoleSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +41,11 @@ import org.slf4j.LoggerFactory;
  * Instances operate in one of three modes; see {@link SessionMode}.
  *
  * <p>
- * Instances are <b>not</b> thread safe.
+ * Instances are thread safe.
  *
  * @see SessionMode
  */
+@ThreadSafe
 public class Session {
 
     /**
@@ -72,24 +76,29 @@ public class Session {
     private final Permazen pdb;
     private final Database db;
 
+    @GuardedBy("this")
     private SessionMode mode;
+    @GuardedBy("this")
     private SchemaModel schemaModel;
-    private ValidationMode validationMode = ValidationMode.AUTOMATIC;
-    private String databaseDescription;
-    private boolean allowNewSchema;
-    private boolean garbageCollectSchemas;
-    private boolean readOnly;
 
-    private boolean verbose;
-    private String errorMessagePrefix = DEFAULT_ERROR_MESSAGE_PREFIX;
+    private volatile ValidationMode validationMode = ValidationMode.AUTOMATIC;
+    private volatile String databaseDescription;
+    private volatile boolean allowNewSchema;
+    private volatile boolean garbageCollectSchemas;
+    private volatile boolean readOnly;
 
-    // The currently associated transaction, if any
-    private volatile TxInfo txInfo;
+    // Error handling settings
+    private volatile boolean verbose;
+    private volatile String errorMessagePrefix = DEFAULT_ERROR_MESSAGE_PREFIX;
 
     // Retry settings
-    private int maxRetries = DEFAULT_MAX_RETRIES;
-    private int initialRetryDelay = DEFAULT_INITIAL_RETRY_DELAY;
-    private int maximumRetryDelay = DEFAULT_MAXIMUM_RETRY_DELAY;
+    private volatile int maxRetries = DEFAULT_MAX_RETRIES;
+    private volatile int initialRetryDelay = DEFAULT_INITIAL_RETRY_DELAY;
+    private volatile int maximumRetryDelay = DEFAULT_MAXIMUM_RETRY_DELAY;
+
+    // The currently associated transaction, if any
+    @GuardedBy("this")
+    private TxInfo txInfo;
 
 // Constructors
 
@@ -130,21 +139,25 @@ public class Session {
         Preconditions.checkArgument(Stream.of(kvdb, db, pdb).filter(Objects::nonNull).count() == 1,
           "exactly one parameter must be non-null");
         this.consoleSession = Session.notNull(consoleSession, "consoleSession");
+        final SessionMode initialMode;
         if (pdb != null) {
             this.pdb = pdb;
             this.db = this.pdb.getDatabase();
             this.kvdb = this.db.getKVDatabase();
-            this.mode = SessionMode.PERMAZEN;
+            initialMode = SessionMode.PERMAZEN;
         } else if (db != null) {
             this.pdb = null;
             this.db = db;
             this.kvdb = this.db.getKVDatabase();
-            this.mode = SessionMode.CORE_API;
+            initialMode = SessionMode.CORE_API;
         } else {
             this.pdb = null;
             this.db = null;
             this.kvdb = kvdb;
-            this.mode = SessionMode.KEY_VALUE;
+            initialMode = SessionMode.KEY_VALUE;
+        }
+        synchronized (this) {
+            this.mode = initialMode;
         }
     }
 
@@ -160,7 +173,7 @@ public class Session {
      *
      * @return this instance's {@link SessionMode}.
      */
-    public SessionMode getMode() {
+    public synchronized SessionMode getMode() {
         return this.mode;
     }
 
@@ -172,7 +185,7 @@ public class Session {
      * @throws IllegalArgumentException if {@code mode} requires a {@link Permazen} (i.e., {@link SessionMode#PERMAZEN}),
      *  or {@link Database} (i.e., {@link SessionMode#CORE_API}) instance, but none was provided at construction
      */
-    public void setMode(SessionMode mode) {
+    public synchronized void setMode(SessionMode mode) {
         Preconditions.checkArgument(mode != null, "null mode");
         switch (mode) {
         case KEY_VALUE:
@@ -223,7 +236,7 @@ public class Session {
      * @return info for the transaction associated with this instance
      * @throws IllegalStateException if there is no transaction associated with this instance
      */
-    public TxInfo getTxInfo() {
+    public synchronized TxInfo getTxInfo() {
         Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
         return this.txInfo;
     }
@@ -237,7 +250,7 @@ public class Session {
      * @return {@link KVTransaction} associated with this instance
      * @throws IllegalStateException if there is no transaction associated with this session
      */
-    public KVTransaction getKVTransaction() {
+    public synchronized KVTransaction getKVTransaction() {
         Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
         return this.txInfo.getKVTransaction();
     }
@@ -253,7 +266,7 @@ public class Session {
      * @throws IllegalStateException if this instance was not in mode {@link SessionMode#CORE_API} or {@link SessionMode#PERMAZEN}
      *  when the transaction was opened
      */
-    public Transaction getTransaction() {
+    public synchronized Transaction getTransaction() {
         Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
         return this.txInfo.getTransaction();
     }
@@ -268,7 +281,7 @@ public class Session {
      * @throws IllegalStateException if there is no transaction associated with this instance
      * @throws IllegalStateException if this instance was not in mode {@link SessionMode#PERMAZEN} when the transaction was opened
      */
-    public PermazenTransaction getPermazenTransaction() {
+    public synchronized PermazenTransaction getPermazenTransaction() {
         Preconditions.checkState(this.txInfo != null, "no transaction is currently associated with this session");
         return this.txInfo.getPermazenTransaction();
     }
@@ -282,10 +295,10 @@ public class Session {
      *
      * @return the schema model used by this session if available, otherwise null
      */
-    public SchemaModel getSchemaModel() {
+    public synchronized SchemaModel getSchemaModel() {
         return this.schemaModel;
     }
-    public void setSchemaModel(SchemaModel schemaModel) {
+    public synchronized void setSchemaModel(SchemaModel schemaModel) {
         this.schemaModel = schemaModel;
     }
 
@@ -460,6 +473,9 @@ public class Session {
     /**
      * Determine whether a stack trace should be included in error messages by default for the given exception.
      *
+     * <p>
+     * When {@link #isVerbose} is true, this method is obviated.
+     *
      * @param e error
      * @return true to include stack trace
      */
@@ -478,16 +494,18 @@ public class Session {
     public String getErrorMessagePrefix() {
         return this.errorMessagePrefix;
     }
-
-    /**
-     * Set prefix to use when displaying error messages.
-     *
-     * @param prefix error message prefix
-     */
     public void setErrorMessagePrefix(String prefix) {
         this.errorMessagePrefix = prefix;
     }
 
+    /**
+     * Get whether to always show stack traces with error messages.
+     *
+     * <p>
+     * Default is false.
+     *
+     * @return whether to always show stack traces
+     */
     public boolean isVerbose() {
         return this.verbose;
     }
@@ -498,21 +516,23 @@ public class Session {
 // Transactions
 
     /**
-     * Perform the given action in the context of this session.
+     * Perform the given action in the context of this session and (optionally) an open transaction.
      *
      * <p>
-     * If {@code action} is a {@link TransactionalAction}, and there is no transaction currently associated with this instance,
-     * a new transaction will be created, held open while {@code action} executes, then committed; any transaction options
-     * from {@code action} implementing {@link TransactionalActionWithOptions} will be appied. Otherwise, {@code action}
-     * is just executed directly.
+     * If {@code action} is not a {@link TransactionalAction}, it is just executed with this instance as the parameter.
      *
      * <p>
-     * In either case, if {@code action} throws an {@link Exception}, it will be caught and handled by
+     * Otherwise, if there is no transaction currently associated with this instance, a new transaction is created,
+     * associated with the current thread while {@code action} executes, and then committed; if {@code action} implements
+     * {@link TransactionalActionWithOptions} then its transaction options will be appied.
+     *
+     * <p>
+     * Otherwise, the already open transaction associated with this instance is associated with the current thread while
+     * {@code action} executes, and left open when this method returns.
+     *
+     * <p>
+     * In any case, if {@code action} throws an {@link Exception}, it will be caught and handled by
      * {@link #reportException reportException()} and then false returned.
-     *
-     * <p>
-     * If there is already a transaction currently associated with this instance, it is left open while {@code action}
-     * executes and upon return.
      *
      * <p>
      * If {@code action} is a {@link RetryableTransactionalAction}, and a newly created transaction throws a
@@ -533,20 +553,37 @@ public class Session {
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
 
-        // Transaction already open or non-transactional action? If so, just use it.
-        if (this.txInfo != null || !(action instanceof TransactionalAction)) {
+        // Non-transactional action?
+        if (!(action instanceof TransactionalAction)) {
             try {
                 action.run(this);
-                return true;
             } catch (InterruptedException e) {
                 throw e;
             } catch (Exception e) {
                 this.reportException(e);
                 return false;
             }
+            return true;
         }
 
-        // Retry transaction as necessary
+        // Do we already have a transaction open? Just use it.
+        final TxInfo info;
+        synchronized (this) {
+            info = this.txInfo;
+        }
+        if (info != null) {
+            try {
+                info.runWithTx(this, action);
+            } catch (InterruptedException e) {
+                throw e;
+            } catch (Exception e) {
+                this.reportException(e);
+                return false;
+            }
+            return true;
+        }
+
+        // Create new transaction and retry as necessary
         int retryNumber = 0;
         int retryDelay = Math.min(this.maximumRetryDelay, this.initialRetryDelay);
         final Map<String, ?> options = action instanceof TransactionalActionWithOptions ?
@@ -592,23 +629,20 @@ public class Session {
      *
      * @return true if there is an associated transaction
      */
-    public boolean hasTransaction() {
+    public synchronized boolean hasTransaction() {
         return this.txInfo != null;
     }
 
     /**
      * Open a new transaction and associate it with this instance.
      *
-     * <p>
-     * If this instance is in {@link SessionMode#PERMAZEN}, then the new {@link PermazenTransaction} will
-     * also be associated with the current thread.
-     *
      * @param options transaction options, or null for none
+     * @return the newly created {@link TxInfo}
      * @throws IllegalStateException if there is already a transaction associated with this instance
      * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
      */
-    public void openTransaction(Map<String, ?> options) {
-        this.openTransaction(
+    public TxInfo openTransaction(Map<String, ?> options) {
+        return this.openTransaction(
           ()  -> this.kvdb.createTransaction(options),
           builder -> builder.kvOptions(options).build().newTransaction(this.db),
           ()  -> this.pdb.createTransaction(this.validationMode, options));
@@ -617,50 +651,40 @@ public class Session {
     /**
      * Open a new branched transaction and associate it with this instance.
      *
-     * <p>
-     * If this instance is in {@link SessionMode#PERMAZEN}, then the new {@link PermazenTransaction} will
-     * also be associated with the current thread.
-     *
      * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
      * @param syncOptions {@link KVDatabase}-specific transaction options for the branch's commit transaction, or null for none
+     * @return the newly created {@link TxInfo}
      * @throws IllegalStateException if there is already a transaction associated with this instance
      * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
      */
-    public void openBranchedTransaction(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
-        this.openTransaction(
+    public TxInfo openBranchedTransaction(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
+        return this.openTransaction(
           () -> new BranchedKVTransaction(this.kvdb, openOptions, syncOptions),
           builder -> this.db.createTransaction(new BranchedKVTransaction(this.kvdb, openOptions, syncOptions), builder.build()),
           () -> this.pdb.createBranchedTransaction(this.validationMode, openOptions, syncOptions));
     }
 
     // Internal transaction opener
-    private void openTransaction(Supplier<KVTransaction> kvtCreator,
+    private synchronized TxInfo openTransaction(Supplier<KVTransaction> kvtCreator,
       Function<TransactionConfig.Builder, Transaction> txCreator, Supplier<PermazenTransaction> ptxCreator) {
         Preconditions.checkState(this.txInfo == null, "a transaction is already associated with this session");
-        boolean success = false;
+        TxInfo info = null;
         try {
 
             // Open transaction at the appropriate level
             switch (this.mode) {
             case KEY_VALUE:
-                this.txInfo = new TxInfo(kvtCreator.get());
+                info = new TxInfo(kvtCreator.get());
                 break;
             case CORE_API:
                 final TransactionConfig.Builder builder = TransactionConfig.builder()
                   .schemaModel(this.schemaModel)
                   .allowNewSchema(this.allowNewSchema)
                   .garbageCollectSchemas(this.garbageCollectSchemas);
-                this.txInfo = new TxInfo(txCreator.apply(builder));
+                info = new TxInfo(txCreator.apply(builder));
                 break;
             case PERMAZEN:
-                PermazenTransaction currentTx = null;
-                try {
-                    currentTx = PermazenTransaction.getCurrent();
-                } catch (IllegalStateException e) {
-                    // ok good
-                }
-                Preconditions.checkState(currentTx == null, "a Permazen transaction is already associated with the current thread");
-                this.txInfo = new TxInfo(ptxCreator.get());
+                info = new TxInfo(ptxCreator.get());
                 break;
             default:
                 throw new RuntimeException("internal error");
@@ -668,22 +692,23 @@ public class Session {
 
             // Infer some settings and apply some settings
             if (this.mode.compareTo(SessionMode.CORE_API) >= 0) {
-                final Transaction tx = this.txInfo.getTransaction();
+                final Transaction tx = info.getTransaction();
                 this.setSchemaModel(tx.getSchema().getSchemaModel());
                 if (this.readOnly)
                     tx.setReadOnly(true);
             }
             if (this.readOnly)
-                this.txInfo.getKVTransaction().setReadOnly(true);
+                info.getKVTransaction().setReadOnly(true);
 
-            // OK
-            success = true;
+            // We're good to go
+            this.txInfo = info;
         } finally {
-            if (!success) {
-                this.txInfo.cleanup();
-                this.txInfo = null;
-            }
+            if (this.txInfo == null && info != null)
+                info.cleanup();
         }
+
+        // Done
+        return this.txInfo;
     }
 
     /**
@@ -698,19 +723,17 @@ public class Session {
      * @param commit true to commit the transaction, false to roll it back
      * @throws IllegalStateException if {@code commit} is true and there is no transaction associated with this instance
      */
-    public void closeTransaction(boolean commit) {
-        final TxInfo info = this.txInfo;
-        if (info == null) {
+    public synchronized void closeTransaction(boolean commit) {
+        if (this.txInfo == null) {
             if (commit)
                 throw new IllegalStateException("there is no transaction associated with this session");
             return;
         }
-        this.txInfo = null;
         try {
-            switch (info.getMode()) {
+            switch (this.txInfo.getMode()) {
             case PERMAZEN:
             {
-                final PermazenTransaction ptx = info.getPermazenTransaction();
+                final PermazenTransaction ptx = this.txInfo.getPermazenTransaction();
                 if (commit && !ptx.getTransaction().isRollbackOnly())
                     ptx.commit();
                 else
@@ -719,7 +742,7 @@ public class Session {
             }
             case CORE_API:
             {
-                final Transaction tx = info.getTransaction();
+                final Transaction tx = this.txInfo.getTransaction();
                 if (commit && !tx.isRollbackOnly())
                     tx.commit();
                 else
@@ -727,7 +750,7 @@ public class Session {
                 break;
             }
             case KEY_VALUE:
-                final KVTransaction kvt = info.getKVTransaction();
+                final KVTransaction kvt = this.txInfo.getKVTransaction();
                 if (commit)
                     kvt.commit();
                 else
@@ -737,7 +760,11 @@ public class Session {
                 throw new RuntimeException("internal error");
             }
         } finally {
-            info.cleanup();
+            try {
+                this.txInfo.cleanup();
+            } finally {
+                this.txInfo = null;
+            }
         }
     }
 
@@ -870,16 +897,32 @@ public class Session {
             return this.ptx;
         }
 
-        void cleanup() {
-            if (this.ptx != null) {
-                this.ptx.rollback();
-                try {
-                    if (PermazenTransaction.getCurrent() == this.ptx)
-                        PermazenTransaction.setCurrent(null);
-                } catch (IllegalStateException e) {
-                    // ignore
-                }
+        void runWithTx(Session session, Action action) throws Exception {
+
+            // Sanity check
+            Preconditions.checkArgument(session != null, "null session");
+            Preconditions.checkArgument(action != null, "null action");
+
+            // Save previous current tx
+            PermazenTransaction previous;
+            try {
+                previous = PermazenTransaction.getCurrent();
+            } catch (IllegalStateException e) {
+                previous = null;
             }
+
+            // Perform action with our tx then restore previous
+            PermazenTransaction.setCurrent(this.ptx);       // note, might be null
+            try {
+                action.run(session);
+            } finally {
+                PermazenTransaction.setCurrent(previous);
+            }
+        }
+
+        void cleanup() {
+            if (this.ptx != null)
+                this.ptx.rollback();
             if (this.tx != null)
                 this.tx.rollback();
             this.kvt.rollback();
