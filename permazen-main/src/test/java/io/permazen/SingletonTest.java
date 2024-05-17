@@ -22,9 +22,11 @@ public class SingletonTest extends MainTestSupport {
 
         // One is enough
 
-            final Singleton obj1 = ptx.create(Singleton.class);
+            final Singleton obj1 = ptx.getSingleton(Singleton.class);
 
             ptx.validate();
+
+            assert ptx.getSingleton(Singleton.class) == obj1;
 
         // Two is too many
 
@@ -69,6 +71,8 @@ public class SingletonTest extends MainTestSupport {
             obj2.revalidate();
 
             ptx.validate();
+
+            assert ptx.getSingleton(Singleton.class) == obj2;
 
         // Done
 

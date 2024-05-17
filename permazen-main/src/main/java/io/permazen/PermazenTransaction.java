@@ -15,6 +15,7 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.annotation.OnChange;
 import io.permazen.annotation.OnCreate;
 import io.permazen.annotation.OnSchemaChange;
+import io.permazen.annotation.PermazenType;
 import io.permazen.core.CoreIndex1;
 import io.permazen.core.CoreIndex2;
 import io.permazen.core.CoreIndex3;
@@ -77,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -91,6 +93,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A transaction associated with a {@link Permazen} instance.
+ *
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
  *
  * <p>
  * Commonly used methods in this class can be divided into the following categories:
@@ -118,6 +124,8 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #get(ObjId, Class) get()} - Get the Java model object in this transaction corresponding to a
  *      specific database object ID</li>
+ *  <li>{@link #getSingleton(Class) getSingleton()} - Get a singleton instance in this transaction, creating it on demand
+ *      if needed</li>
  *  <li>{@link #getAll getAll()} - Get all Java model objects in this transaction that are instances of a given Java type</li>
  *  <li>{@link #create(Class) create()} - Create a new Java model object in this transaction</li>
  *  <li>{@link #cascade cascade()} - Find all objects reachable through a reference cascade</li>
@@ -383,6 +391,49 @@ public class PermazenTransaction {
         if (!keyRanges.isFull())
             ids = ((AbstractKVNavigableSet<ObjId>)ids).filterKeys(keyRanges);
         return new ConvertedNavigableSet<T, ObjId>(ids, new ReferenceConverter<T>(this, type));
+    }
+
+    /**
+     * Get the singleton instance of the given type, creating it on demand if needed.
+     *
+     * <p>
+     * This is a convenience method for accessing the singleton instances of any type annotated with
+     * {@link PermazenType &#64;PermazenType}{@code (singleton = true)}. If {@code type} is not a
+     * singleton type, an exception is thrown.
+     *
+     * <p>
+     * If no instance exists yet, one is created. So this method is essentially shorthand for:
+     *
+     * <pre><code class="language-java">
+     *  try {
+     *      return this.getAll(type).first();
+     *  } catch (NoSuchElementException e) {
+     *      return this.create(type);
+     *  }
+     * </code></pre>
+     *
+     * @param type singleton model class
+     * @param <T> singleton type
+     * @return the singleton instance of type {@code type}
+     * @throws IllegalArgumentException if {@code type} is not a singleton type
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @see PermazenType#singleton
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getSingleton(Class<T> type) {
+        Preconditions.checkArgument(type != null, "null type");
+        final PermazenClass<T> pclass = this.pdb.getPermazenClass(type);
+        if (!pclass.singleton)
+            throw new IllegalArgumentException("model type is not a singleton type: " + type);
+        final AbstractKVNavigableSet<ObjId> ids = (AbstractKVNavigableSet<ObjId>)this.tx.getAll(pclass.name);
+        final ObjId id;
+        try {
+            id = ids.first();
+        } catch (NoSuchElementException e) {
+            return this.create(type);
+        }
+        return type.cast(this.get(id));
     }
 
     /**
