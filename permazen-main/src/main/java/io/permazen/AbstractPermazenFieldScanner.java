@@ -70,7 +70,7 @@ abstract class AbstractPermazenFieldScanner<T, A extends Annotation> extends Ann
             return false;
         if ((method.getModifiers() & Modifier.STATIC) != 0)
             return false;
-        if (this.hasJTransientAnnotation(method))
+        if (this.hasPermazenTransientAnnotation(method))
             return false;
         if (!this.permazenType.autogenNonAbstract() && this.isOverriddenByConcreteMethod(method))
             return false;
@@ -107,7 +107,7 @@ abstract class AbstractPermazenFieldScanner<T, A extends Annotation> extends Ann
         return false;
     }
 
-    private boolean hasJTransientAnnotation(Method method) {
+    private boolean hasPermazenTransientAnnotation(Method method) {
         final String name = method.getName();
         final Class<?>[] ptypes = method.getParameterTypes();
         for (TypeToken<?> typeToken : TypeToken.of(method.getDeclaringClass()).getTypes()) {

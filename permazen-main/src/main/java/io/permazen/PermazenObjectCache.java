@@ -35,7 +35,7 @@ class PermazenObjectCache {
      * is currently under construction by some thread.
      */
     @GuardedBy("itself")
-    private final ObjIdMap<JObjRef> cache = new ObjIdMap<>();
+    private final ObjIdMap<ObjRef> cache = new ObjIdMap<>();
 
     /**
      * Mapping of {@link PermazenObject}s currently under construction by the current thread.
@@ -64,7 +64,7 @@ class PermazenObjectCache {
 
         // Check for existing entry
         synchronized (this.cache) {
-            final JObjRef ref = this.cache.get(id);
+            final ObjRef ref = this.cache.get(id);
             if (ref != null)
                 return ref.get();
         }
@@ -96,7 +96,7 @@ class PermazenObjectCache {
                 this.gc();
 
                 // Get weak reference
-                final JObjRef ref = this.cache.get(id);
+                final ObjRef ref = this.cache.get(id);
                 if (ref != null) {
 
                     // If weak reference still valid, return corresponding PermazenObject
@@ -144,7 +144,7 @@ class PermazenObjectCache {
 
                 // Add PermazenObject to the cache, or else remove the 'under construction' flag
                 if (pobj != null)
-                    this.cache.put(id, new JObjRef(pobj, this.referenceQueue));
+                    this.cache.put(id, new ObjRef(pobj, this.referenceQueue));
                 else
                     this.cache.remove(id);
 
@@ -248,7 +248,7 @@ class PermazenObjectCache {
     private void gc() {
         assert Thread.holdsLock(this.cache);
         while (true) {
-            final JObjRef ref = (JObjRef)this.referenceQueue.poll();
+            final ObjRef ref = (ObjRef)this.referenceQueue.poll();
             if (ref == null)
                 break;
             assert ref.get() == null;
@@ -258,13 +258,13 @@ class PermazenObjectCache {
         }
     }
 
-// JObjRef
+// ObjRef
 
-    private static class JObjRef extends WeakReference<PermazenObject> {
+    private static class ObjRef extends WeakReference<PermazenObject> {
 
         private final long id;                                  // try to be memory efficient, avoiding extra objects
 
-        JObjRef(PermazenObject pobj, ReferenceQueue<PermazenObject> queue) {
+        ObjRef(PermazenObject pobj, ReferenceQueue<PermazenObject> queue) {
             super(pobj, queue);
             this.id = pobj.getObjId().asLong();
         }
