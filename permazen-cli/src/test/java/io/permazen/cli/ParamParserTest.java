@@ -7,6 +7,7 @@ package io.permazen.cli;
 
 import io.permazen.cli.parse.EncodingParser;
 import io.permazen.cli.parse.Parser;
+import io.permazen.cli.parse.WordParser;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
@@ -34,9 +35,13 @@ public class ParamParserTest extends TestSupport {
         final ParamParser parser = new ParamParser(specs) {
             @Override
             protected Parser<?> getParser(String typeName) {
+                if ("word".equals(typeName))
+                    return new WordParser("parameter");
                 final EncodingId encodingId = ParamParserTest.this.encodingRegistry.idForAlias(typeName);
                 final Encoding<?> encoding = ParamParserTest.this.encodingRegistry.getEncoding(encodingId);
-                return encoding != null ? this.createEncodingParser(encoding) : super.getParser(typeName);
+                if (encoding != null)
+                    return this.createEncodingParser(encoding);
+                throw new IllegalArgumentException("unknown type \"" + typeName + "\"");
             }
             private <T> EncodingParser<T> createEncodingParser(Encoding<T> encoding) {
                 return new EncodingParser<>(encoding);

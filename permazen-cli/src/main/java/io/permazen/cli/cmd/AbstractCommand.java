@@ -55,11 +55,7 @@ public abstract class AbstractCommand implements Command {
         this.paramParser = new ParamParser(paramSpec != null ? paramSpec : "") {
             @Override
             protected Parser<?> getParser(String typeName) {
-                try {
-                    return super.getParser(typeName);
-                } catch (IllegalArgumentException e) {
-                    return AbstractCommand.this.getParser(typeName);
-                }
+                return AbstractCommand.this.getParser(typeName);
             }
         };
     }

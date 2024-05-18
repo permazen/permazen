@@ -9,11 +9,6 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.cli.parse.Parser;
 import io.permazen.cli.parse.WhateverParser;
-import io.permazen.cli.parse.WordParser;
-import io.permazen.encoding.DefaultEncodingRegistry;
-import io.permazen.encoding.Encoding;
-import io.permazen.encoding.EncodingId;
-import io.permazen.encoding.EncodingRegistry;
 import io.permazen.util.ParseException;
 
 import java.util.ArrayList;
@@ -31,12 +26,12 @@ import java.util.regex.Pattern;
  *
  * <p>
  * The specification string contains whitespace-separated parameter specifications; see {@link Param} for syntax.
+ * Subclasses must provide the parsers for the parameter type specification names via {@link #getParser(String)}.
  */
-public class ParamParser {
+public abstract class ParamParser {
 
     private final LinkedHashSet<Param> optionFlags = new LinkedHashSet<>();
     private final ArrayList<Param> params = new ArrayList<>();
-    private final EncodingRegistry encodingRegistry = new DefaultEncodingRegistry();
 
     @SuppressWarnings("this-escape")
     public ParamParser(String spec) {
@@ -101,32 +96,11 @@ public class ParamParser {
     /**
      * Convert parameter spec type name into a {@link Parser}.
      *
-     * <p>
-     * The implementation in {@link ParamParser} supports all of the pre-defined types of {@link EncodingRegistry}
-     * (identified by their encoding ID's or aliases), plus {@code word} to parse a {@link String} containing
-     * one or more non-whitespace characters. Subclasses should override as required to add additional supported types.
-     *
      * @param typeName name of type
      * @return parser for parameters of the specified type
      * @throws IllegalArgumentException if {@code typeName} is unknown
      */
-    protected Parser<?> getParser(String typeName) {
-        Preconditions.checkArgument(typeName != null, "null typeName");
-        if (typeName.equals("word"))
-            return new WordParser("parameter");
-        final EncodingId encodingId = this.encodingRegistry.idForAlias(typeName);
-        final Encoding<?> encoding = this.encodingRegistry.getEncoding(encodingId);
-        if (encoding != null) {
-            return (session, text) -> {
-                try {
-                    return encoding.fromString(text);
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("invalid " + typeName + " value", e);
-                }
-            };
-        }
-        throw new IllegalArgumentException("unknown parameter type \"" + typeName + "\"");
-    }
+    protected abstract Parser<?> getParser(String typeName);
 
     /**
      * Parse command line parameters.
