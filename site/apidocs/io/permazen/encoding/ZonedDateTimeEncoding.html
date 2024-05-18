@@ -74,8 +74,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="AbstractEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.AbstractEncoding</a>&lt;T&gt;
+<div class="inheritance"><a href="ConvertedEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.ConvertedEncoding</a>&lt;T,<wbr><a href="../tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;V1,<wbr>V2&gt;&gt;
 <div class="inheritance"><a href="Concat2Encoding.html" title="class in io.permazen.encoding">io.permazen.encoding.Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;
 <div class="inheritance">io.permazen.encoding.ZonedDateTimeEncoding</div>
+</div>
 </div>
 </div>
 </div>
@@ -110,8 +112,8 @@ loadScripts(document, 'script');</script>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-io.permazen.encoding.Concat2Encoding">Fields inherited from class&nbsp;io.permazen.encoding.<a href="Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a></h3>
-<code><a href="Concat2Encoding.html#encoding1">encoding1</a>, <a href="Concat2Encoding.html#encoding2">encoding2</a></code></div>
+<h3 id="fields-inherited-from-class-io.permazen.encoding.ConvertedEncoding">Fields inherited from class&nbsp;io.permazen.encoding.<a href="ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></h3>
+<code><a href="ConvertedEncoding.html#converter">converter</a>, <a href="ConvertedEncoding.html#delegate">delegate</a></code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-io.permazen.encoding.AbstractEncoding">Fields inherited from class&nbsp;io.permazen.encoding.<a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
 <code><a href="AbstractEncoding.html#encodingId">encodingId</a>, <a href="AbstractEncoding.html#typeToken">typeToken</a></code></div>
@@ -128,7 +130,7 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ZonedDateTimeEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">ZonedDateTimeEncoding</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -149,30 +151,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#join(java.time.OffsetDateTime,java.time.ZoneId)" class="member-name-link">join</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>&nbsp;value1,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&nbsp;value2)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Combine two component values to create a new combined value.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine if this instance sorts Java instances naturally.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#split1(java.time.ZonedDateTime)" class="member-name-link">split1</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&nbsp;value)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Extract the first component value from the given combined value.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#split2(java.time.ZonedDateTime)" class="member-name-link">split2</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&nbsp;value)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(java.time.ZonedDateTime)" class="member-name-link">toString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&nbsp;zonedDateTime)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Extract the second component value from the given combined value.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(java.time.ZonedDateTime)" class="member-name-link">toString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&nbsp;zonedDateTime)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
 </div>
@@ -180,10 +166,13 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Concat2Encoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a></h3>
-<code><a href="Concat2Encoding.html#compare(T,T)">compare</a>, <a href="Concat2Encoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="Concat2Encoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="Concat2Encoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="Concat2Encoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="Concat2Encoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
+<code><a href="Concat2Encoding.html#getTuple2Encoding()">getTuple2Encoding</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-io.permazen.encoding.ConvertedEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></h3>
+<code><a href="ConvertedEncoding.html#compare(T,T)">compare</a>, <a href="ConvertedEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ConvertedEncoding.html#hashCode()">hashCode</a>, <a href="ConvertedEncoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="ConvertedEncoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="ConvertedEncoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="ConvertedEncoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="ConvertedEncoding.html#supportsNull()">supportsNull</a>, <a href="ConvertedEncoding.html#validate(java.lang.Object)">validate</a>, <a href="ConvertedEncoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
-<code><a href="AbstractEncoding.html#equals(java.lang.Object)">equals</a>, <a href="AbstractEncoding.html#getDefaultValue()">getDefaultValue</a>, <a href="AbstractEncoding.html#getDefaultValueBytes()">getDefaultValueBytes</a>, <a href="AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="AbstractEncoding.html#hashCode()">hashCode</a>, <a href="AbstractEncoding.html#toString()">toString</a></code></div>
+<code><a href="AbstractEncoding.html#getDefaultValue()">getDefaultValue</a>, <a href="AbstractEncoding.html#getDefaultValueBytes()">getDefaultValueBytes</a>, <a href="AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="AbstractEncoding.html#toString()">toString</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -192,7 +181,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#supportsNull()">supportsNull</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
+<code><a href="Encoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
 </section>
 </li>
 </ul>
@@ -205,9 +194,9 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId)">
+<section class="detail" id="&lt;init&gt;()">
 <h3>ZonedDateTimeEncoding</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ZonedDateTimeEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ZonedDateTimeEncoding</span>()</div>
 </section>
 </li>
 </ul>
@@ -219,62 +208,16 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="join(java.time.OffsetDateTime,java.time.ZoneId)">
-<h3>join</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a></span>&nbsp;<span class="element-name">join</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>&nbsp;value1,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&nbsp;value2)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="Concat2Encoding.html#join(S1,S2)">Concat2Encoding</a></code></span></div>
-<div class="block">Combine two component values to create a new combined value.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="Concat2Encoding.html#join(S1,S2)">join</a></code>&nbsp;in class&nbsp;<code><a href="Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;</code></dd>
-<dt>Parameters:</dt>
-<dd><code>value1</code> - first component value</dd>
-<dd><code>value2</code> - second component value</dd>
-<dt>Returns:</dt>
-<dd>new combined value</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="split1(java.time.ZonedDateTime)">
-<h3>split1</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a></span>&nbsp;<span class="element-name">split1</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&nbsp;value)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="Concat2Encoding.html#split1(T)">Concat2Encoding</a></code></span></div>
-<div class="block">Extract the first component value from the given combined value.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="Concat2Encoding.html#split1(T)">split1</a></code>&nbsp;in class&nbsp;<code><a href="Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;</code></dd>
-<dt>Parameters:</dt>
-<dd><code>value</code> - combined value</dd>
-<dt>Returns:</dt>
-<dd>first component value</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="split2(java.time.ZonedDateTime)">
-<h3>split2</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a></span>&nbsp;<span class="element-name">split2</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&nbsp;value)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="Concat2Encoding.html#split2(T)">Concat2Encoding</a></code></span></div>
-<div class="block">Extract the second component value from the given combined value.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="Concat2Encoding.html#split2(T)">split2</a></code>&nbsp;in class&nbsp;<code><a href="Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;</code></dd>
-<dt>Parameters:</dt>
-<dd><code>value</code> - combined value</dd>
-<dt>Returns:</dt>
-<dd>second component value</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="fromString(java.lang.String)">
 <h3>fromString</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a></span>&nbsp;<span class="element-name">fromString</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;string)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#fromString(java.lang.String)">Encoding</a></code></span></div>
 <div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Encoding.html#fromString(java.lang.String)">fromString</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&gt;</code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="ConvertedEncoding.html#fromString(java.lang.String)">fromString</a></code>&nbsp;in class&nbsp;<code><a href="ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="../tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>string</code> - non-null value previously encoded as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a></dd>
 <dt>Returns:</dt>
@@ -293,6 +236,10 @@ loadScripts(document, 'script');</script>
  Each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be one of the valid XML characters
  (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Encoding.html#toString(T)">toString</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&gt;</code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="ConvertedEncoding.html#toString(T)">toString</a></code>&nbsp;in class&nbsp;<code><a href="ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="../tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>zonedDateTime</code> - actual value, never null</dd>
 <dt>Returns:</dt>
@@ -322,6 +269,12 @@ loadScripts(document, 'script');</script>
       identical to <code>T</code>'s natural ordering.
  </ul></div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Encoding.html#sortsNaturally()">sortsNaturally</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>&gt;</code></dd>
+<dt>Specified by:</dt>
+<dd><code><a href="../util/NaturalSortAware.html#sortsNaturally()">sortsNaturally</a></code>&nbsp;in interface&nbsp;<code><a href="../util/NaturalSortAware.html" title="interface in io.permazen.util">NaturalSortAware</a></code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="ConvertedEncoding.html#sortsNaturally()">sortsNaturally</a></code>&nbsp;in class&nbsp;<code><a href="ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html" title="class or interface in java.time" class="external-link">ZonedDateTime</a>,<wbr><a href="../tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZoneId.html" title="class or interface in java.time" class="external-link">ZoneId</a>&gt;&gt;</code></dd>
 <dt>Returns:</dt>
 <dd>true if this instance orders Java values in their natural order</dd>
 </dl>

@@ -64,6 +64,10 @@ loadScripts(document, 'script');</script>
 <section class="package-description" id="package-description">
 <div class="block">Spring Framework integration classes.
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-xml-doc.min.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+
  <p><b>Overview</b></p>
 
  <p>
@@ -143,7 +147,7 @@ loadScripts(document, 'script');</script>
  <p>
  An example Spring XML configuration using an in-memory key/value store and supporting Spring's
  <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation:
- <pre>
+ <pre><code class="language-xml">
  &lt;beans xmlns="http://www.springframework.org/schema/beans"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    <b>xmlns:permazen="http://permazen.io/schema/spring/permazen"</b>
@@ -176,7 +180,7 @@ loadScripts(document, 'script');</script>
      &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;
 
  &lt;/beans&gt;
- </pre></div>
+ </code></pre></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>

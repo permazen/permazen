@@ -140,25 +140,31 @@ implements <a href="EncodingRegistry.html" title="interface in io.permazen.encod
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Add a new <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> to this registry.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E&gt;&nbsp;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;E[]&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildArrayEncoding(io.permazen.encoding.Encoding)" class="member-name-link">buildArrayEncoding</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;E&gt;&nbsp;elementEncoding)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addNullSafe(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">addNullSafe</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+ <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&nbsp;inner)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Add a null-safe version of the given non-null supporting <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> to this registry.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E&gt;&nbsp;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;E[]&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildArrayEncoding(io.permazen.encoding.Encoding)" class="member-name-link">buildArrayEncoding</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;E&gt;&nbsp;elementEncoding)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Build an array encoding for the given element encoding using Permazen's default array encoding.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> with the given encoding ID in this registry.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get all of the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s in this registry that supports values of the given Java type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#register(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">register</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#register(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">register</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;&nbsp;encoding)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Register a new <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>.</div>
 </div>
 </div>
@@ -169,7 +175,7 @@ implements <a href="EncodingRegistry.html" title="interface in io.permazen.encod
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.EncodingRegistry">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a></h3>
-<code><a href="EncodingRegistry.html#aliasForId(io.permazen.encoding.EncodingId)">aliasForId</a>, <a href="EncodingRegistry.html#getEncoding(com.google.common.reflect.TypeToken)">getEncoding</a>, <a href="EncodingRegistry.html#idForAlias(java.lang.String)">idForAlias</a></code></div>
+<code><a href="EncodingRegistry.html#aliasForId(io.permazen.encoding.EncodingId)">aliasForId</a>, <a href="EncodingRegistry.html#getEncoding(com.google.common.reflect.TypeToken)">getEncoding</a>, <a href="EncodingRegistry.html#getEncoding(java.lang.Class)">getEncoding</a>, <a href="EncodingRegistry.html#idForAlias(java.lang.String)">idForAlias</a></code></div>
 </section>
 </li>
 </ul>
@@ -219,7 +225,7 @@ implements <a href="EncodingRegistry.html" title="interface in io.permazen.encod
  The type's encoding ID must not contain any array dimensions except for single dimension primitive array types.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>encoding</code> - the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> to registre</dd>
+<dd><code>encoding</code> - the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> to register</dd>
 <dt>Returns:</dt>
 <dd>true if it was added, false if it was already registered</dd>
 <dt>Throws:</dt>
@@ -227,6 +233,29 @@ implements <a href="EncodingRegistry.html" title="interface in io.permazen.encod
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>encoding</code>'s encoding ID is null (i.e., <code>encoding</code> is anonymous)</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>encoding</code>'s encoding ID conflicts with an existing, but different, encoding</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>encoding</code>'s encoding ID has one or more array dimensions</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addNullSafe(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)">
+<h3>addNullSafe</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">addNullSafe</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+ <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&nbsp;inner)</span></div>
+<div class="block">Add a null-safe version of the given non-null supporting <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> to this registry.
+
+ <p>
+ The <code>encoding</code> is wrapped in a <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a> to add null value support.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>encodingId</code> - the ID for the newly added encoding</dd>
+<dd><code>inner</code> - the inner non-null supporting <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a></dd>
+<dt>Returns:</dt>
+<dd>true if it was added, false if it was already registered</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>inner</code> or <code>encodingId</code> is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>inner</code>'s encoding ID conflicts with an existing, but different, encoding</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>inner</code>'s encoding ID has one or more array dimensions</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>inner</code> already supports null values</dd>
 </dl>
 </section>
 </li>

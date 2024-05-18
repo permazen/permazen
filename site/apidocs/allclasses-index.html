@@ -143,7 +143,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a>&lt;<a href="io/permazen/encoding/ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>,<wbr><a href="io/permazen/encoding/ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Support superclass for built-in array <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Support superclass for non-null built-in array <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/array/ArrayKVDatabase.html" title="class in io.permazen.kv.array">ArrayKVDatabase</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -185,7 +185,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a>&lt;<a href="io/permazen/encoding/Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>,<wbr><a href="io/permazen/encoding/Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Adds support for an alternate Base-64 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding for primitive array types.</div>
+<div class="block">Adds support for an alternate Base-64 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding for non-null primitive array types.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -217,7 +217,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/BooleanArrayEncoding.html" title="class in io.permazen.encoding">BooleanArrayEncoding</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><code>boolean[]</code> array type.</div>
+<div class="block">Non-null <code>boolean[]</code> array type.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/BooleanEncoding.html" title="class in io.permazen.encoding">BooleanEncoding</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
@@ -306,7 +306,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/CharacterArrayEncoding.html" title="class in io.permazen.encoding">CharacterArrayEncoding</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><code>char[]</code> array type.</div>
+<div class="block">Non-null <code>char[]</code> array type.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/CharacterEncoding.html" title="class in io.permazen.encoding">CharacterEncoding</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -391,156 +391,171 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A composite index on two or more fields in an <a href="io/permazen/core/ObjType.html" title="class in io.permazen.core"><code>ObjType</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>,<wbr><a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">S1</a>,<wbr><a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">S2</a>&gt;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">Concat2Encoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>,<wbr><a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">V2</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Support superclass for <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into two component values,
- with the combined encoding formed by concatenating the two component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Support superclass for non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into two component values.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvcc/Conflict.html" title="class in io.permazen.kv.mvcc">Conflict</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Concat3Encoding.html" title="class in io.permazen.encoding">Concat3Encoding</a>&lt;<a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">T</a>,<wbr><a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">V3</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Support superclass for non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into three component values.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Concat4Encoding.html" title="class in io.permazen.encoding">Concat4Encoding</a>&lt;<a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">T</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V4</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Support superclass for non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into four component values.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Concat5Encoding.html" title="class in io.permazen.encoding">Concat5Encoding</a>&lt;<a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">T</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V4</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V5</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Support superclass for non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into four component values.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvcc/Conflict.html" title="class in io.permazen.kv.mvcc">Conflict</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents an MVCC conflict.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/raft/Consistency.html" title="enum class in io.permazen.kv.raft">Consistency</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/raft/Consistency.html" title="enum class in io.permazen.kv.raft">Consistency</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
 <div class="block"><a href="io/permazen/kv/raft/RaftKVTransaction.html" title="class in io.permazen.kv.raft"><code>RaftKVTransaction</code></a> supported consistency levels.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="io/permazen/encoding/ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that relies on some other <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>, converting values to/from
  the other <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s Java type.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedList.html" title="class in io.permazen.util">ConvertedList</a>&lt;<a href="io/permazen/util/ConvertedList.html" title="type parameter in ConvertedList">E</a>,<wbr><a href="io/permazen/util/ConvertedList.html" title="type parameter in ConvertedList">W</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedList.html" title="class in io.permazen.util">ConvertedList</a>&lt;<a href="io/permazen/util/ConvertedList.html" title="type parameter in ConvertedList">E</a>,<wbr><a href="io/permazen/util/ConvertedList.html" title="type parameter in ConvertedList">W</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Provides a transformed view of a wrapped <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> using a strictly invertable <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedNavigableMap.html" title="class in io.permazen.util">ConvertedNavigableMap</a>&lt;<a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">K</a>,<wbr><a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">V</a>,<wbr><a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">WK</a>,<wbr><a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">WV</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedNavigableMap.html" title="class in io.permazen.util">ConvertedNavigableMap</a>&lt;<a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">K</a>,<wbr><a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">V</a>,<wbr><a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">WK</a>,<wbr><a href="io/permazen/util/ConvertedNavigableMap.html" title="type parameter in ConvertedNavigableMap">WV</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Provides a transformed view of a wrapped <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link"><code>NavigableMap</code></a> using a strictly invertible <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedNavigableSet.html" title="class in io.permazen.util">ConvertedNavigableSet</a>&lt;<a href="io/permazen/util/ConvertedNavigableSet.html" title="type parameter in ConvertedNavigableSet">E</a>,<wbr><a href="io/permazen/util/ConvertedNavigableSet.html" title="type parameter in ConvertedNavigableSet">W</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedNavigableSet.html" title="class in io.permazen.util">ConvertedNavigableSet</a>&lt;<a href="io/permazen/util/ConvertedNavigableSet.html" title="type parameter in ConvertedNavigableSet">E</a>,<wbr><a href="io/permazen/util/ConvertedNavigableSet.html" title="type parameter in ConvertedNavigableSet">W</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Provides a transformed view of a wrapped <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link"><code>NavigableSet</code></a> using a strictly invertable <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedSet.html" title="class in io.permazen.util">ConvertedSet</a>&lt;<a href="io/permazen/util/ConvertedSet.html" title="type parameter in ConvertedSet">E</a>,<wbr><a href="io/permazen/util/ConvertedSet.html" title="type parameter in ConvertedSet">W</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedSet.html" title="class in io.permazen.util">ConvertedSet</a>&lt;<a href="io/permazen/util/ConvertedSet.html" title="type parameter in ConvertedSet">E</a>,<wbr><a href="io/permazen/util/ConvertedSet.html" title="type parameter in ConvertedSet">W</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Provides a transformed view of a wrapped <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link"><code>Set</code></a> using a strictly invertable <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedSpliterator.html" title="class in io.permazen.util">ConvertedSpliterator</a>&lt;<a href="io/permazen/util/ConvertedSpliterator.html" title="type parameter in ConvertedSpliterator">E</a>,<wbr><a href="io/permazen/util/ConvertedSpliterator.html" title="type parameter in ConvertedSpliterator">W</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/ConvertedSpliterator.html" title="class in io.permazen.util">ConvertedSpliterator</a>&lt;<a href="io/permazen/util/ConvertedSpliterator.html" title="type parameter in ConvertedSpliterator">E</a>,<wbr><a href="io/permazen/util/ConvertedSpliterator.html" title="type parameter in ConvertedSpliterator">W</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Provides a transformed view of a wrapped <a href="io/permazen/util/ConvertedSpliterator.html" title="class in io.permazen.util"><code>ConvertedSpliterator</code></a> using a strictly invertable <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Holds state during a multi-object copy operation.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Configuration for a CLI application supporting Core API database interaction.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex1.html" title="class in io.permazen.core">CoreIndex1</a>&lt;<a href="io/permazen/core/CoreIndex1.html" title="type parameter in CoreIndex1">V</a>,<wbr><a href="io/permazen/core/CoreIndex1.html" title="type parameter in CoreIndex1">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex1.html" title="class in io.permazen.core">CoreIndex1</a>&lt;<a href="io/permazen/core/CoreIndex1.html" title="type parameter in CoreIndex1">V</a>,<wbr><a href="io/permazen/core/CoreIndex1.html" title="type parameter in CoreIndex1">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Core API <a href="io/permazen/index/Index1.html" title="interface in io.permazen.index"><code>Index1</code></a> implementation representing an index on a single field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;<a href="io/permazen/core/CoreIndex2.html" title="type parameter in CoreIndex2">V1</a>,<wbr><a href="io/permazen/core/CoreIndex2.html" title="type parameter in CoreIndex2">V2</a>,<wbr><a href="io/permazen/core/CoreIndex2.html" title="type parameter in CoreIndex2">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex2.html" title="class in io.permazen.core">CoreIndex2</a>&lt;<a href="io/permazen/core/CoreIndex2.html" title="type parameter in CoreIndex2">V1</a>,<wbr><a href="io/permazen/core/CoreIndex2.html" title="type parameter in CoreIndex2">V2</a>,<wbr><a href="io/permazen/core/CoreIndex2.html" title="type parameter in CoreIndex2">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Core API <a href="io/permazen/index/Index2.html" title="interface in io.permazen.index"><code>Index2</code></a> implementation representing a composite index on two fields.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex3.html" title="class in io.permazen.core">CoreIndex3</a>&lt;<a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">V1</a>,<wbr><a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">V2</a>,<wbr><a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">V3</a>,<wbr><a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex3.html" title="class in io.permazen.core">CoreIndex3</a>&lt;<a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">V1</a>,<wbr><a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">V2</a>,<wbr><a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">V3</a>,<wbr><a href="io/permazen/core/CoreIndex3.html" title="type parameter in CoreIndex3">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Core API <a href="io/permazen/index/Index3.html" title="interface in io.permazen.index"><code>Index3</code></a> implementation representing a composite index on three fields.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex4.html" title="class in io.permazen.core">CoreIndex4</a>&lt;<a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V1</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V2</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V3</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V4</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CoreIndex4.html" title="class in io.permazen.core">CoreIndex4</a>&lt;<a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V1</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V2</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V3</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">V4</a>,<wbr><a href="io/permazen/core/CoreIndex4.html" title="type parameter in CoreIndex4">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Core API <a href="io/permazen/index/Index4.html" title="interface in io.permazen.index"><code>Index4</code></a> implementation representing a composite index on four fields.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/Counter.html" title="class in io.permazen">Counter</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/Counter.html" title="class in io.permazen">Counter</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents a 64-bit counter value that can be adjusted concurrently by multiple transactions,
  typically without locking (depending on the underlying key/value store).</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CounterField.html" title="class in io.permazen.core">CounterField</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/CounterField.html" title="class in io.permazen.core">CounterField</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Counter fields.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/CounterSchemaField.html" title="class in io.permazen.schema">CounterSchemaField</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/CounterSchemaField.html" title="class in io.permazen.schema">CounterSchemaField</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A counter field in a <a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/CreateListener.html" title="interface in io.permazen.core">CreateListener</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/CreateListener.html" title="interface in io.permazen.core">CreateListener</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Listener interface for notifications that an object has just been created.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvstore/CursorIterator.html" title="class in io.permazen.kv.mvstore">CursorIterator</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvstore/CursorIterator.html" title="class in io.permazen.kv.mvstore">CursorIterator</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/KVPair.html" title="class in io.permazen.kv"><code>KVPair</code></a> iterator based on an underlying <code>Cursor</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Database.html" title="class in io.permazen.core">Database</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Database.html" title="class in io.permazen.core">Database</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Provides an object database abstraction on top of a key/value database.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/DatabaseException.html" title="class in io.permazen.core">DatabaseException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/DatabaseException.html" title="class in io.permazen.core">DatabaseException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Superclass of all unchecked exceptions thrown by a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">DateEncoding</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DateEncoding.html" title="class in io.permazen.encoding">DateEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link"><code>Date</code></a> type.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/DecodeKeyCommand.html" title="class in io.permazen.cli.cmd">DecodeKeyCommand</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DefaultEncodingRegistry.html" title="class in io.permazen.encoding">DefaultEncodingRegistry</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/DecodeKeyCommand.html" title="class in io.permazen.cli.cmd">DecodeKeyCommand</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DefaultEncodingRegistry.html" title="class in io.permazen.encoding">DefaultEncodingRegistry</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Permazen's default <a href="io/permazen/encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/core/DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/core/DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">Describes what action to take when an object is deleted and a reference to that object from some other object still exists.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when an object is accessed but the object does not exist in its associated transaction.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/DeleteListener.html" title="interface in io.permazen.core">DeleteListener</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/DeleteListener.html" title="interface in io.permazen.core">DeleteListener</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Listener interface for notifications that an object is about to be deleted.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/mvcc/DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/mvcc/DeltaKVStore.html" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Presents a mutable view of an underlying read-only <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> and records the mutations in memory.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/DetachedPermazenTransaction.html" title="class in io.permazen">DetachedPermazenTransaction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A <a href="io/permazen/PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> that is not actually connected to a <a href="io/permazen/Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database instance, but instead exists
  just to hold objects in memory.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/spring/DetachedPermazenTransactionHttpMessageConverter.html" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/spring/DetachedPermazenTransactionHttpMessageConverter.html" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
  encoding and decoding a graph of <a href="io/permazen/PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="io/permazen/DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> that is
  backed by a <a href="io/permazen/kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/DetachedTransaction.html" title="class in io.permazen.core">DetachedTransaction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/DetachedTransaction.html" title="class in io.permazen.core">DetachedTransaction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> that is not actually connected to a persistent database, but instead exists
  just to hold objects in memory.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/util/DiffGenerating.html" title="interface in io.permazen.util">DiffGenerating</a>&lt;<a href="io/permazen/util/DiffGenerating.html" title="type parameter in DiffGenerating">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/util/DiffGenerating.html" title="interface in io.permazen.util">DiffGenerating</a>&lt;<a href="io/permazen/util/DiffGenerating.html" title="type parameter in DiffGenerating">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Implemented by classes that can generate a set of differences between themselves and other instances.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/Diffs.html" title="class in io.permazen.util">Diffs</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/Diffs.html" title="class in io.permazen.util">Diffs</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Used to report difference(s) between two hierarchical structures.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DoubleArrayEncoding.html" title="class in io.permazen.encoding">DoubleArrayEncoding</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><code>double[]</code> array type.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DoubleEncoding.html" title="class in io.permazen.encoding">DoubleEncoding</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DoubleArrayEncoding.html" title="class in io.permazen.encoding">DoubleArrayEncoding</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <code>double[]</code> array type.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DoubleEncoding.html" title="class in io.permazen.encoding">DoubleEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Double.html" title="class or interface in java.lang" class="external-link"><code>Double</code></a> type.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DoubleSummaryStatisticsEncoding.html" title="class in io.permazen.encoding">DoubleSummaryStatisticsEncoding</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/DoubleSummaryStatistics.html" title="class or interface in java.util" class="external-link"><code>DoubleSummaryStatistics</code></a> type.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/DurationEncoding.html" title="class in io.permazen.encoding">DurationEncoding</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -641,7 +656,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/FloatArrayEncoding.html" title="class in io.permazen.encoding">FloatArrayEncoding</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><code>float[]</code> array type.</div>
+<div class="block">Non-null <code>float[]</code> array type.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/FloatEncoding.html" title="class in io.permazen.encoding">FloatEncoding</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -786,7 +801,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/IntegralArrayEncoding.html" title="class in io.permazen.encoding">IntegralArrayEncoding</a>&lt;<a href="io/permazen/encoding/IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a>,<wbr><a href="io/permazen/encoding/IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a> extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Number.html" title="class or interface in java.lang" class="external-link">Number</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Array type for integral primitive element types.</div>
+<div class="block">Support superclass for non-null integral primitive array encodings.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="io/permazen/encoding/IntegralEncoding.html" title="type parameter in IntegralEncoding">T</a> extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Number.html" title="class or interface in java.lang" class="external-link">Number</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -796,278 +811,286 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><code>InternetAddress</code> email address encoding.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/InvalidKey.html" title="class in io.permazen.jsck">InvalidKey</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/IntSummaryStatisticsEncoding.html" title="class in io.permazen.encoding">IntSummaryStatisticsEncoding</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/IntSummaryStatistics.html" title="class or interface in java.util" class="external-link"><code>IntSummaryStatistics</code></a> type.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/InvalidKey.html" title="class in io.permazen.jsck">InvalidKey</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents an invalid/unexpected key in a Permazen key/value database.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/InvalidObjectVersionException.html" title="class in io.permazen.core">InvalidObjectVersionException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/InvalidObjectVersionException.html" title="class in io.permazen.core">InvalidObjectVersionException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when an object is found to have an invalid schema index.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/InvalidReferenceException.html" title="class in io.permazen.core">InvalidReferenceException</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/InvalidReferenceException.html" title="class in io.permazen.core">InvalidReferenceException</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when attempting to set a reference field to a disallowed object type.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown by <a href="io/permazen/core/Database.html#createTransaction(io.permazen.schema.SchemaModel)"><code>Database.createTransaction(io.permazen.schema.SchemaModel)</code></a> when the provided schema is invalid.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/InvalidValue.html" title="class in io.permazen.jsck">InvalidValue</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/InvalidValue.html" title="class in io.permazen.jsck">InvalidValue</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents an invalid/unexpected value in a Permazen key/value database under an otherwise valid key.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/sql/IsolationLevel.html" title="enum class in io.permazen.kv.sql">IsolationLevel</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/sql/IsolationLevel.html" title="enum class in io.permazen.kv.sql">IsolationLevel</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">Standard transaction isolation levels.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/Issue.html" title="class in io.permazen.jsck">Issue</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/Issue.html" title="class in io.permazen.jsck">Issue</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents a point of corruption or inconsistency in a Permazen key/value database.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/schema/ItemType.html" title="enum class in io.permazen.schema">ItemType</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/schema/ItemType.html" title="enum class in io.permazen.schema">ItemType</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">The various types of items that constitute a <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/config/JavaNameConverter.html" title="class in io.permazen.cli.config">JavaNameConverter</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/Jsck.html" title="class in io.permazen.jsck">Jsck</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/config/JavaNameConverter.html" title="class in io.permazen.cli.config">JavaNameConverter</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/Jsck.html" title="class in io.permazen.jsck">Jsck</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Applies consistency checks to, and optionally repairs corruption of, a Permazen key/value database.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/cmd/JsckCommand.html" title="class in io.permazen.jsck.cmd">JsckCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/cmd/JsckCommand.html" title="class in io.permazen.jsck.cmd">JsckCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Configuration for a <a href="io/permazen/jsck/Jsck.html" title="class in io.permazen.jsck"><code>Jsck</code></a> key/value database consistency inspection.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/jsck/JsckLogger.html" title="interface in io.permazen.jsck">JsckLogger</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/jsck/JsckLogger.html" title="interface in io.permazen.jsck">JsckLogger</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Logging callback interface used during a <a href="io/permazen/jsck/Jsck.html" title="class in io.permazen.jsck"><code>Jsck</code></a> key/value database consistency inspection.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KeyFilter.html" title="interface in io.permazen.kv">KeyFilter</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KeyFilter.html" title="interface in io.permazen.kv">KeyFilter</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A predicate for filtering <code>byte[]</code> keys that is also capable of efficiently jumping over
  contiguous regions of uncontained keys.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KeyFilterUtil.html" title="class in io.permazen.kv">KeyFilterUtil</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KeyFilterUtil.html" title="class in io.permazen.kv">KeyFilterUtil</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Utility methods for dealing with <a href="io/permazen/kv/KeyFilter.html" title="interface in io.permazen.kv"><code>KeyFilter</code></a>s.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KeyListEncoder.html" title="class in io.permazen.kv.util">KeyListEncoder</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KeyListEncoder.html" title="class in io.permazen.kv.util">KeyListEncoder</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Serializes a sequence of <code>byte[]</code> arrays, compressing consecutive common prefixes.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KeyRange.html" title="class in io.permazen.kv">KeyRange</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KeyRange.html" title="class in io.permazen.kv">KeyRange</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents a contiguous range of <code>byte[]</code> keys, when keys are sorted in unsigned lexical order.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A fixed set of <a href="io/permazen/kv/KeyRange.html" title="class in io.permazen.kv"><code>KeyRange</code></a> instances that can be treated as a unified whole, in particular as a <a href="io/permazen/kv/KeyFilter.html" title="interface in io.permazen.kv"><code>KeyFilter</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/config/KeyValueCliConfig.html" title="class in io.permazen.cli.config">KeyValueCliConfig</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/config/KeyValueCliConfig.html" title="class in io.permazen.cli.config">KeyValueCliConfig</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Configuration for a CLI application supporting key/value database interaction.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KeyWatchTracker.html" title="class in io.permazen.kv.util">KeyWatchTracker</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KeyWatchTracker.html" title="class in io.permazen.kv.util">KeyWatchTracker</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Utility class used to track key watches.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A transactional database with a simple key/value API.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/KVDatabaseException.html" title="class in io.permazen.kv">KVDatabaseException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/KVDatabaseException.html" title="class in io.permazen.kv">KVDatabaseException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Superclass of all unchecked exceptions thrown by a <a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/test/KVDatabaseTest.html" title="class in io.permazen.kv.test">KVDatabaseTest</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/KVException.html" title="class in io.permazen.kv">KVException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/test/KVDatabaseTest.html" title="class in io.permazen.kv.test">KVDatabaseTest</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/KVException.html" title="class in io.permazen.kv">KVException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Superclass of unchecked exceptions relating to <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>s, etc.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVGetCommand.html" title="class in io.permazen.cli.cmd">KVGetCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv">KVImplementation</a>&lt;<a href="io/permazen/kv/KVImplementation.html" title="type parameter in KVImplementation">C</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVGetCommand.html" title="class in io.permazen.cli.cmd">KVGetCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv">KVImplementation</a>&lt;<a href="io/permazen/kv/KVImplementation.html" title="type parameter in KVImplementation">C</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Descriptor for a provider of <a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> and/or <a href="io/permazen/kv/mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> implementations.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVLoadCommand.html" title="class in io.permazen.cli.cmd">KVLoadCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KVNavigableMap.html" title="class in io.permazen.kv.util">KVNavigableMap</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVLoadCommand.html" title="class in io.permazen.cli.cmd">KVLoadCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KVNavigableMap.html" title="class in io.permazen.kv.util">KVNavigableMap</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableMap.html" title="class or interface in java.util" class="external-link"><code>NavigableMap</code></a> view of the keys and values in a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KVNavigableSet.html" title="class in io.permazen.kv.util">KVNavigableSet</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/util/KVNavigableSet.html" title="class in io.permazen.kv.util">KVNavigableSet</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link"><code>NavigableSet</code></a> view of the keys in a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KVPair.html" title="class in io.permazen.kv">KVPair</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KVPair.html" title="class in io.permazen.kv">KVPair</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A key/value pair.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KVPairIterator.html" title="class in io.permazen.kv">KVPairIterator</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/KVPairIterator.html" title="class in io.permazen.kv">KVPairIterator</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html" title="class or interface in java.util" class="external-link"><code>Iterator</code></a> that iterates over all key/value pairs in a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> within a range of keys,
  without using the <a href="io/permazen/kv/KVStore.html#getRange(byte%5B%5D,byte%5B%5D,boolean)"><code>KVStore.getRange()</code></a> method.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVPutCommand.html" title="class in io.permazen.cli.cmd">KVPutCommand</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVRemoveCommand.html" title="class in io.permazen.cli.cmd">KVRemoveCommand</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVPutCommand.html" title="class in io.permazen.cli.cmd">KVPutCommand</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVSaveCommand.html" title="class in io.permazen.cli.cmd">KVSaveCommand</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVRemoveCommand.html" title="class in io.permazen.cli.cmd">KVRemoveCommand</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/KVSaveCommand.html" title="class in io.permazen.cli.cmd">KVSaveCommand</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv">KVStore</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/spring/KVStoreHttpMessageConverter.html" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/spring/KVStoreHttpMessageConverter.html" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>
  capable of encoding and decoding a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/test/KVTestSupport.html" title="class in io.permazen.kv.test">KVTestSupport</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/test/KVTestSupport.html" title="class in io.permazen.kv.test">KVTestSupport</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Base class for key/value unit tests.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> transaction API.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when an operation on a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> fails.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Layout.html" title="class in io.permazen.core">Layout</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Layout.html" title="class in io.permazen.core">Layout</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Constants and utility methods relating to the encoding and layout of a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a> in a key/value store.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/raft/LeaderRole.html" title="class in io.permazen.kv.raft">LeaderRole</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/raft/LeaderRole.html" title="class in io.permazen.kv.raft">LeaderRole</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Raft leader role.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBAtomicKVStore.html" title="class in io.permazen.kv.leveldb">LevelDBAtomicKVStore</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBAtomicKVStore.html" title="class in io.permazen.kv.leveldb">LevelDBAtomicKVStore</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An <a href="io/permazen/kv/mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> view of a LevelDB database.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVDatabase.html" title="class in io.permazen.kv.leveldb">LevelDBKVDatabase</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVDatabase.html" title="class in io.permazen.kv.leveldb">LevelDBKVDatabase</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementation based on a <a href="io/permazen/kv/leveldb/LevelDBAtomicKVStore.html" title="class in io.permazen.kv.leveldb"><code>LevelDBAtomicKVStore</code></a>, providing concurrent transactions
  and linearizable ACID semantics.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVImplementation.html" title="class in io.permazen.kv.leveldb">LevelDBKVImplementation</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVStore.html" title="class in io.permazen.kv.leveldb">LevelDBKVStore</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVImplementation.html" title="class in io.permazen.kv.leveldb">LevelDBKVImplementation</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVStore.html" title="class in io.permazen.kv.leveldb">LevelDBKVStore</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Straightforward <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> view of a LevelDB database.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVTransaction.html" title="class in io.permazen.kv.leveldb">LevelDBKVTransaction</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBKVTransaction.html" title="class in io.permazen.kv.leveldb">LevelDBKVTransaction</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/leveldb/LevelDBKVDatabase.html" title="class in io.permazen.kv.leveldb"><code>LevelDBKVDatabase</code></a> transaction.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBUtil.html" title="class in io.permazen.kv.leveldb">LevelDBUtil</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/LevelDBUtil.html" title="class in io.permazen.kv.leveldb">LevelDBUtil</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Utility methods for use with LevelDB.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/ListElementIndex.html" title="class in io.permazen.core">ListElementIndex</a>&lt;<a href="io/permazen/core/ListElementIndex.html" title="type parameter in ListElementIndex">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/ListElementIndex.html" title="class in io.permazen.core">ListElementIndex</a>&lt;<a href="io/permazen/core/ListElementIndex.html" title="type parameter in ListElementIndex">E</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An index on the elements of a list field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/ListField.html" title="class in io.permazen.core">ListField</a>&lt;<a href="io/permazen/core/ListField.html" title="type parameter in ListField">E</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/ListField.html" title="class in io.permazen.core">ListField</a>&lt;<a href="io/permazen/core/ListField.html" title="type parameter in ListField">E</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">List field.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldAdd.html" title="class in io.permazen.change">ListFieldAdd</a>&lt;<a href="io/permazen/change/ListFieldAdd.html" title="type parameter in ListFieldAdd">T</a>,<wbr><a href="io/permazen/change/ListFieldAdd.html" title="type parameter in ListFieldAdd">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldAdd.html" title="class in io.permazen.change">ListFieldAdd</a>&lt;<a href="io/permazen/change/ListFieldAdd.html" title="type parameter in ListFieldAdd">T</a>,<wbr><a href="io/permazen/change/ListFieldAdd.html" title="type parameter in ListFieldAdd">E</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods
  when an element is added to a list field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldChange.html" title="class in io.permazen.change">ListFieldChange</a>&lt;<a href="io/permazen/change/ListFieldChange.html" title="type parameter in ListFieldChange">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldChange.html" title="class in io.permazen.change">ListFieldChange</a>&lt;<a href="io/permazen/change/ListFieldChange.html" title="type parameter in ListFieldChange">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods when a list field changes.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/ListFieldChangeListener.html" title="interface in io.permazen.core">ListFieldChangeListener</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/ListFieldChangeListener.html" title="interface in io.permazen.core">ListFieldChangeListener</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Listener interface for notifications of a change in value of a <a href="io/permazen/core/ListField.html" title="class in io.permazen.core"><code>ListField</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldClear.html" title="class in io.permazen.change">ListFieldClear</a>&lt;<a href="io/permazen/change/ListFieldClear.html" title="type parameter in ListFieldClear">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldClear.html" title="class in io.permazen.change">ListFieldClear</a>&lt;<a href="io/permazen/change/ListFieldClear.html" title="type parameter in ListFieldClear">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods when a list field is cleared.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldRemove.html" title="class in io.permazen.change">ListFieldRemove</a>&lt;<a href="io/permazen/change/ListFieldRemove.html" title="type parameter in ListFieldRemove">T</a>,<wbr><a href="io/permazen/change/ListFieldRemove.html" title="type parameter in ListFieldRemove">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldRemove.html" title="class in io.permazen.change">ListFieldRemove</a>&lt;<a href="io/permazen/change/ListFieldRemove.html" title="type parameter in ListFieldRemove">T</a>,<wbr><a href="io/permazen/change/ListFieldRemove.html" title="type parameter in ListFieldRemove">E</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods
  when an element is removed from a list field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldReplace.html" title="class in io.permazen.change">ListFieldReplace</a>&lt;<a href="io/permazen/change/ListFieldReplace.html" title="type parameter in ListFieldReplace">T</a>,<wbr><a href="io/permazen/change/ListFieldReplace.html" title="type parameter in ListFieldReplace">E</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ListFieldReplace.html" title="class in io.permazen.change">ListFieldReplace</a>&lt;<a href="io/permazen/change/ListFieldReplace.html" title="type parameter in ListFieldReplace">T</a>,<wbr><a href="io/permazen/change/ListFieldReplace.html" title="type parameter in ListFieldReplace">E</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods
  when an element is replaced in a list field.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/ListSchemaField.html" title="class in io.permazen.schema">ListSchemaField</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/ListSchemaField.html" title="class in io.permazen.schema">ListSchemaField</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A list field in one version of a <a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVDatabase.html" title="class in io.permazen.kv.lmdb">LMDBKVDatabase</a>&lt;<a href="io/permazen/kv/lmdb/LMDBKVDatabase.html" title="type parameter in LMDBKVDatabase">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVDatabase.html" title="class in io.permazen.kv.lmdb">LMDBKVDatabase</a>&lt;<a href="io/permazen/kv/lmdb/LMDBKVDatabase.html" title="type parameter in LMDBKVDatabase">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> view of an LMDB database.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVImplementation.html" title="class in io.permazen.kv.lmdb">LMDBKVImplementation</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVImplementation.Config.html" title="class in io.permazen.kv.lmdb">LMDBKVImplementation.Config</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVImplementation.html" title="class in io.permazen.kv.lmdb">LMDBKVImplementation</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVStore.html" title="class in io.permazen.kv.lmdb">LMDBKVStore</a>&lt;<a href="io/permazen/kv/lmdb/LMDBKVStore.html" title="type parameter in LMDBKVStore">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVImplementation.Config.html" title="class in io.permazen.kv.lmdb">LMDBKVImplementation.Config</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVStore.html" title="class in io.permazen.kv.lmdb">LMDBKVStore</a>&lt;<a href="io/permazen/kv/lmdb/LMDBKVStore.html" title="type parameter in LMDBKVStore">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Straightforward <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> view of a LMDB transaction.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVTransaction.html" title="class in io.permazen.kv.lmdb">LMDBKVTransaction</a>&lt;<a href="io/permazen/kv/lmdb/LMDBKVTransaction.html" title="type parameter in LMDBKVTransaction">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/lmdb/LMDBKVTransaction.html" title="class in io.permazen.kv.lmdb">LMDBKVTransaction</a>&lt;<a href="io/permazen/kv/lmdb/LMDBKVTransaction.html" title="type parameter in LMDBKVTransaction">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">LMDB transaction viewed as a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/LoadCommand.html" title="class in io.permazen.cli.cmd">LoadCommand</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">LocalDateEncoding</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/LoadCommand.html" title="class in io.permazen.cli.cmd">LoadCommand</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">LocalDateEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDate.html" title="class or interface in java.time" class="external-link"><code>LocalDate</code></a> type.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">LocalDateTimeEncoding</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LocalDateTimeEncoding.html" title="class in io.permazen.encoding">LocalDateTimeEncoding</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDateTime.html" title="class or interface in java.time" class="external-link"><code>LocalDateTime</code></a> type.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">LocalTimeEncoding</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LocalTimeEncoding.html" title="class in io.permazen.encoding">LocalTimeEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalTime.html" title="class or interface in java.time" class="external-link"><code>LocalTime</code></a> type.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/LockManager.html" title="class in io.permazen.kv.simple">LockManager</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/LockManager.html" title="class in io.permazen.kv.simple">LockManager</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Manager of read/write locks on <code>byte[]</code> key ranges that ensures isolation and serialization while allowing concurrent
  access by multiple threads to a single underlying <code>byte[]</code> key/value store.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/simple/LockManager.LockResult.html" title="enum class in io.permazen.kv.simple">LockManager.LockResult</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/simple/LockManager.LockResult.html" title="enum class in io.permazen.kv.simple">LockManager.LockResult</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
 <div class="block">Possible return values from <a href="io/permazen/kv/simple/LockManager.html#lock(io.permazen.kv.simple.LockOwner,byte%5B%5D,byte%5B%5D,boolean,long)"><code>LockManager.lock()</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/LockOwner.html" title="class in io.permazen.kv.simple">LockOwner</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/LockOwner.html" title="class in io.permazen.kv.simple">LockOwner</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents the owner of a <code>Lock</code> managed by a <a href="io/permazen/kv/simple/LockManager.html" title="class in io.permazen.kv.simple"><code>LockManager</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/raft/LogEntry.html" title="class in io.permazen.kv.raft">LogEntry</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/raft/LogEntry.html" title="class in io.permazen.kv.raft">LogEntry</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents one unapplied Raft log entry.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LongArrayEncoding.html" title="class in io.permazen.encoding">LongArrayEncoding</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LongArrayEncoding.html" title="class in io.permazen.encoding">LongArrayEncoding</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><code>long[]</code> primitive array type.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/LongEncoder.html" title="class in io.permazen.util">LongEncoder</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/LongEncoder.html" title="class in io.permazen.util">LongEncoder</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Encodes <code>long</code> values to/from binary, preserving sort order, and such that the length of the
  encoding is optimized for values near zero.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LongEncoding.html" title="class in io.permazen.encoding">LongEncoding</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LongEncoding.html" title="class in io.permazen.encoding">LongEncoding</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Long type.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/LongSummaryStatisticsEncoding.html" title="class in io.permazen.encoding">LongSummaryStatisticsEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/LongSummaryStatistics.html" title="class or interface in java.util" class="external-link"><code>LongSummaryStatistics</code></a> type.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/MapField.html" title="class in io.permazen.core">MapField</a>&lt;<a href="io/permazen/core/MapField.html" title="type parameter in MapField">K</a>,<wbr><a href="io/permazen/core/MapField.html" title="type parameter in MapField">V</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -1239,7 +1262,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ObjectArrayEncoding.html" title="class in io.permazen.encoding">ObjectArrayEncoding</a>&lt;<a href="io/permazen/encoding/ObjectArrayEncoding.html" title="type parameter in ObjectArrayEncoding">E</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Array type for object arrays having non-primitive element types.</div>
+<div class="block">Support superclass for non-null object array encodings.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/ObjectCreate.html" title="class in io.permazen.change">ObjectCreate</a>&lt;<a href="io/permazen/change/ObjectCreate.html" title="type parameter in ObjectCreate">T</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -1435,9 +1458,13 @@ loadScripts(document, 'script');</script>
 <div class="block">A <code>SimpleExec.Session</code> with an associated Permazen database.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/jshell/PermazenExecutionControl.html" title="class in io.permazen.cli.jshell">PermazenExecutionControl</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Permazen-aware <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link"><code>LocalExecutionControl</code></a>.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/jshell/PermazenExecutionControlProvider.html" title="class in io.permazen.cli.jshell">PermazenExecutionControlProvider</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">A <code>LocalContextExecutionControlProvider</code> that creates <a href="io/permazen/cli/jshell/PermazenExecutionControl.html" title="class in io.permazen.cli.jshell"><code>PermazenExecutionControl</code></a>'s.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab7"><a href="io/permazen/annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">PermazenField</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab7">
 <div class="block">Java annotation for defining simple fields (including reference fields that refer to other Java model object types)
@@ -1452,11 +1479,17 @@ loadScripts(document, 'script');</script>
 <div class="block">Visitor pattern interface for <a href="io/permazen/PermazenField.html" title="class in io.permazen"><code>PermazenField</code></a>s.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/jshell/PermazenJShellCommand.html" title="class in io.permazen.cli.jshell">PermazenJShellCommand</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">A version of the JCT <code>JShellCommand</code> that is Permazen aware.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/jshell/PermazenJShellShell.html" title="class in io.permazen.cli.jshell">PermazenJShellShell</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">A version of the JCT <code>JShellShell</code> that is Permazen aware.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/jshell/PermazenJShellShellSession.html" title="class in io.permazen.cli.jshell">PermazenJShellShellSession</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">A version of the JCT <code>JShellShellSession</code> that is Permazen aware.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab7"><a href="io/permazen/annotation/PermazenListField.html" title="annotation interface in io.permazen.annotation">PermazenListField</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab7">
 <div class="block">Java annotation for the getter methods of Java bean properties reflecting <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> fields.</div>
@@ -1705,7 +1738,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">A unique identifier that corresponds to the structure and encoding of an individual <a href="io/permazen/schema/SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> component
+<div class="block">A unique identifier that corresponds to the structure and encoding of an individual <a href="io/permazen/schema/SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> component,
  or an entire <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SchemaItem.html" title="class in io.permazen.core">SchemaItem</a></div>
@@ -1735,12 +1768,11 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Holds <a href="io/permazen/Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="io/permazen/Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/cli/Session.Action.html" title="interface in io.permazen.cli">Session.Action</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Callback interface used by <a href="io/permazen/cli/Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="io/permazen/cli/Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="io/permazen/cli/Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/cli/Session.RetryableTransactionalAction.html" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
@@ -1755,301 +1787,310 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Extension of <a href="io/permazen/cli/Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the action provides custom transaction options.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Information about the a transaction associated with a <a href="io/permazen/cli/Session.html" title="class in io.permazen.cli"><code>Session</code></a>.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">Console <a href="io/permazen/cli/Session.html" title="class in io.permazen.cli"><code>Session</code></a> modes.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html" title="class in io.permazen.cli.cmd">SetAllowNewSchemaCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SetElementIndex.html" title="class in io.permazen.core">SetElementIndex</a>&lt;<a href="io/permazen/core/SetElementIndex.html" title="type parameter in SetElementIndex">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html" title="class in io.permazen.cli.cmd">SetAllowNewSchemaCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SetElementIndex.html" title="class in io.permazen.core">SetElementIndex</a>&lt;<a href="io/permazen/core/SetElementIndex.html" title="type parameter in SetElementIndex">E</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An index on the elements of a set field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SetField.html" title="class in io.permazen.core">SetField</a>&lt;<a href="io/permazen/core/SetField.html" title="type parameter in SetField">E</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SetField.html" title="class in io.permazen.core">SetField</a>&lt;<a href="io/permazen/core/SetField.html" title="type parameter in SetField">E</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Set field.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldAdd.html" title="class in io.permazen.change">SetFieldAdd</a>&lt;<a href="io/permazen/change/SetFieldAdd.html" title="type parameter in SetFieldAdd">T</a>,<wbr><a href="io/permazen/change/SetFieldAdd.html" title="type parameter in SetFieldAdd">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldAdd.html" title="class in io.permazen.change">SetFieldAdd</a>&lt;<a href="io/permazen/change/SetFieldAdd.html" title="type parameter in SetFieldAdd">T</a>,<wbr><a href="io/permazen/change/SetFieldAdd.html" title="type parameter in SetFieldAdd">E</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods
  when an element is added to a set field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldChange.html" title="class in io.permazen.change">SetFieldChange</a>&lt;<a href="io/permazen/change/SetFieldChange.html" title="type parameter in SetFieldChange">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldChange.html" title="class in io.permazen.change">SetFieldChange</a>&lt;<a href="io/permazen/change/SetFieldChange.html" title="type parameter in SetFieldChange">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods when a set field changes.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/SetFieldChangeListener.html" title="interface in io.permazen.core">SetFieldChangeListener</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/SetFieldChangeListener.html" title="interface in io.permazen.core">SetFieldChangeListener</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Listener interface for notifications of a change in value of a <a href="io/permazen/core/SetField.html" title="class in io.permazen.core"><code>SetField</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldClear.html" title="class in io.permazen.change">SetFieldClear</a>&lt;<a href="io/permazen/change/SetFieldClear.html" title="type parameter in SetFieldClear">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldClear.html" title="class in io.permazen.change">SetFieldClear</a>&lt;<a href="io/permazen/change/SetFieldClear.html" title="type parameter in SetFieldClear">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods when a set field is cleared.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldRemove.html" title="class in io.permazen.change">SetFieldRemove</a>&lt;<a href="io/permazen/change/SetFieldRemove.html" title="type parameter in SetFieldRemove">T</a>,<wbr><a href="io/permazen/change/SetFieldRemove.html" title="type parameter in SetFieldRemove">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SetFieldRemove.html" title="class in io.permazen.change">SetFieldRemove</a>&lt;<a href="io/permazen/change/SetFieldRemove.html" title="type parameter in SetFieldRemove">T</a>,<wbr><a href="io/permazen/change/SetFieldRemove.html" title="type parameter in SetFieldRemove">E</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods
  when an element is removed from a set field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/app/cmd/SetLogLevelCommand.html" title="class in io.permazen.cli.app.cmd">SetLogLevelCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/SetSchemaField.html" title="class in io.permazen.schema">SetSchemaField</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/app/cmd/SetLogLevelCommand.html" title="class in io.permazen.cli.app.cmd">SetLogLevelCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/SetSchemaField.html" title="class in io.permazen.schema">SetSchemaField</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A set field in one version of a <a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetValidationModeCommand.html" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetVerboseCommand.html" title="class in io.permazen.cli.cmd">SetVerboseCommand</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetValidationModeCommand.html" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ShortArrayEncoding.html" title="class in io.permazen.encoding">ShortArrayEncoding</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/SetVerboseCommand.html" title="class in io.permazen.cli.cmd">SetVerboseCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ShortArrayEncoding.html" title="class in io.permazen.encoding">ShortArrayEncoding</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><code>short[]</code> primitive array type.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ShortEncoding.html" title="class in io.permazen.encoding">ShortEncoding</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/ShortEncoding.html" title="class in io.permazen.encoding">ShortEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Short type.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/ShowSchemaCommand.html" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/SimpleCommandWrapper.html" title="class in io.permazen.cli">SimpleCommandWrapper</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/cmd/ShowSchemaCommand.html" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/SimpleCommandWrapper.html" title="class in io.permazen.cli">SimpleCommandWrapper</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Wraps a Permazen <a href="io/permazen/cli/cmd/Command.html" title="interface in io.permazen.cli.cmd"><code>Command</code></a>, making it into a Java Console Toolkit <code>SimpleCommand</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/SimpleEncodingRegistry.html" title="class in io.permazen.encoding">SimpleEncodingRegistry</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/SimpleEncodingRegistry.html" title="class in io.permazen.encoding">SimpleEncodingRegistry</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A straightforward <a href="io/permazen/encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementation that creates object array types on demand.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SimpleField.html" title="class in io.permazen.core">SimpleField</a>&lt;<a href="io/permazen/core/SimpleField.html" title="type parameter in SimpleField">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SimpleField.html" title="class in io.permazen.core">SimpleField</a>&lt;<a href="io/permazen/core/SimpleField.html" title="type parameter in SimpleField">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A simple <a href="io/permazen/core/Field.html" title="class in io.permazen.core"><code>Field</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SimpleFieldChange.html" title="class in io.permazen.change">SimpleFieldChange</a>&lt;<a href="io/permazen/change/SimpleFieldChange.html" title="type parameter in SimpleFieldChange">T</a>,<wbr><a href="io/permazen/change/SimpleFieldChange.html" title="type parameter in SimpleFieldChange">V</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/change/SimpleFieldChange.html" title="class in io.permazen.change">SimpleFieldChange</a>&lt;<a href="io/permazen/change/SimpleFieldChange.html" title="type parameter in SimpleFieldChange">T</a>,<wbr><a href="io/permazen/change/SimpleFieldChange.html" title="type parameter in SimpleFieldChange">V</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Notification object that gets passed to <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a>-annotated methods when a simple field changes.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/SimpleFieldChangeListener.html" title="interface in io.permazen.core">SimpleFieldChangeListener</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/SimpleFieldChangeListener.html" title="interface in io.permazen.core">SimpleFieldChangeListener</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Listener interface for notifications of a change in value of a <a href="io/permazen/core/SimpleField.html" title="class in io.permazen.core"><code>SimpleField</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SimpleFieldIndex.html" title="class in io.permazen.core">SimpleFieldIndex</a>&lt;<a href="io/permazen/core/SimpleFieldIndex.html" title="type parameter in SimpleFieldIndex">T</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SimpleFieldIndex.html" title="class in io.permazen.core">SimpleFieldIndex</a>&lt;<a href="io/permazen/core/SimpleFieldIndex.html" title="type parameter in SimpleFieldIndex">T</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An index on a simple field that is not a sub-field of a complex field.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SimpleIndex.html" title="class in io.permazen.core">SimpleIndex</a>&lt;<a href="io/permazen/core/SimpleIndex.html" title="type parameter in SimpleIndex">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/SimpleIndex.html" title="class in io.permazen.core">SimpleIndex</a>&lt;<a href="io/permazen/core/SimpleIndex.html" title="type parameter in SimpleIndex">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An index on a simple field, either a regular simple field or a sub-field of a complex field.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVDatabase.html" title="class in io.permazen.kv.simple">SimpleKVDatabase</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVDatabase.html" title="class in io.permazen.kv.simple">SimpleKVDatabase</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Simple implementation of the <a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> interface that provides a concurrent, transactional view
  of an underlying <a href="io/permazen/kv/mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> with strong ACID semantics (assuming <b>A</b>tomicity and <b>D</b>urability
  are provided by the underlying <a href="io/permazen/kv/mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a>).</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVImplementation.html" title="class in io.permazen.kv.simple">SimpleKVImplementation</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVImplementation.Config.html" title="class in io.permazen.kv.simple">SimpleKVImplementation.Config</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVImplementation.html" title="class in io.permazen.kv.simple">SimpleKVImplementation</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVTransaction.html" title="class in io.permazen.kv.simple">SimpleKVTransaction</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVImplementation.Config.html" title="class in io.permazen.kv.simple">SimpleKVImplementation.Config</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/simple/SimpleKVTransaction.html" title="class in io.permazen.kv.simple">SimpleKVTransaction</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> implementation for <a href="io/permazen/kv/simple/SimpleKVDatabase.html" title="class in io.permazen.kv.simple"><code>SimpleKVDatabase</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/SimpleSchemaField.html" title="class in io.permazen.schema">SimpleSchemaField</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/schema/SimpleSchemaField.html" title="class in io.permazen.schema">SimpleSchemaField</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A simple field in a <a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvcc/SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc">SnapshotKVDatabase</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvcc/SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc">SnapshotKVDatabase</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementation based on an underlying <a href="io/permazen/kv/mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> using
  <a href="io/permazen/kv/mvcc/AtomicKVStore.html#readOnlySnapshot()">snapshot</a> views and optimistic locking to provide concurrent
  transactions and linearizable ACID consistency.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvcc/SnapshotKVTransaction.html" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/mvcc/SnapshotKVTransaction.html" title="class in io.permazen.kv.mvcc">SnapshotKVTransaction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/mvcc/SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc"><code>SnapshotKVDatabase</code></a> transaction.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/SnapshotLevelDBKVStore.html" title="class in io.permazen.kv.leveldb">SnapshotLevelDBKVStore</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/leveldb/SnapshotLevelDBKVStore.html" title="class in io.permazen.kv.leveldb">SnapshotLevelDBKVStore</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Read-only <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> view of a LevelDB <code>Snapshot</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/parse/SpaceParser.html" title="class in io.permazen.cli.parse">SpaceParser</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/parse/SpaceParser.html" title="class in io.permazen.cli.parse">SpaceParser</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Parses whitespace.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVDatabase.html" title="class in io.permazen.kv.spanner">SpannerKVDatabase</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVDatabase.html" title="class in io.permazen.kv.spanner">SpannerKVDatabase</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementation based on <a href="https://cloud.google.com/spanner/">Google Cloud Spanner</a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVImplementation.html" title="class in io.permazen.kv.spanner">SpannerKVImplementation</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVImplementation.Config.html" title="class in io.permazen.kv.spanner">SpannerKVImplementation.Config</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVImplementation.html" title="class in io.permazen.kv.spanner">SpannerKVImplementation</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVTransaction.html" title="class in io.permazen.kv.spanner">SpannerKVTransaction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVImplementation.Config.html" title="class in io.permazen.kv.spanner">SpannerKVImplementation.Config</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/spanner/SpannerKVTransaction.html" title="class in io.permazen.kv.spanner">SpannerKVTransaction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/spanner/SpannerKVDatabase.html" title="class in io.permazen.kv.spanner"><code>SpannerKVDatabase</code></a> transaction.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/spring/SpringXMLKVDatabase.html" title="class in io.permazen.spring">SpringXMLKVDatabase</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/spring/SpringXMLKVDatabase.html" title="class in io.permazen.spring">SpringXMLKVDatabase</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLDriverKVImplementation.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation</a>&lt;<a href="io/permazen/kv/sql/SQLDriverKVImplementation.html" title="type parameter in SQLDriverKVImplementation">C</a> extends <a href="io/permazen/kv/sql/SQLDriverKVImplementation.Config.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation.Config</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLDriverKVImplementation.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation</a>&lt;<a href="io/permazen/kv/sql/SQLDriverKVImplementation.html" title="type parameter in SQLDriverKVImplementation">C</a> extends <a href="io/permazen/kv/sql/SQLDriverKVImplementation.Config.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation.Config</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Support superclass for <a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv"><code>KVImplementation</code></a>s that create <a href="io/permazen/kv/sql/SQLKVDatabase.html" title="class in io.permazen.kv.sql"><code>SQLKVDatabase</code></a> instances.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLDriverKVImplementation.Config.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation.Config</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sqlite/SQLiteKVDatabase.html" title="class in io.permazen.kv.sqlite">SQLiteKVDatabase</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLDriverKVImplementation.Config.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation.Config</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sqlite/SQLiteKVDatabase.html" title="class in io.permazen.kv.sqlite">SQLiteKVDatabase</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">SQLite variant of <a href="io/permazen/kv/sql/SQLKVDatabase.html" title="class in io.permazen.kv.sql"><code>SQLKVDatabase</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sqlite/SQLiteKVImplementation.html" title="class in io.permazen.kv.sqlite">SQLiteKVImplementation</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sqlite/SQLiteKVImplementation.Config.html" title="class in io.permazen.kv.sqlite">SQLiteKVImplementation.Config</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sqlite/SQLiteKVImplementation.html" title="class in io.permazen.kv.sqlite">SQLiteKVImplementation</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLKVDatabase.html" title="class in io.permazen.kv.sql">SQLKVDatabase</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sqlite/SQLiteKVImplementation.Config.html" title="class in io.permazen.kv.sqlite">SQLiteKVImplementation.Config</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLKVDatabase.html" title="class in io.permazen.kv.sql">SQLKVDatabase</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Support superclass for SQL <a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementations.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLKVTransaction.html" title="class in io.permazen.kv.sql">SQLKVTransaction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/sql/SQLKVTransaction.html" title="class in io.permazen.kv.sql">SQLKVTransaction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/kv/sql/SQLKVDatabase.html" title="class in io.permazen.kv.sql"><code>SQLKVDatabase</code></a> transaction.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/sql/SQLKVTransaction.StmtType.html" title="enum class in io.permazen.kv.sql">SQLKVTransaction.StmtType</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/sql/SQLKVTransaction.StmtType.html" title="enum class in io.permazen.kv.sql">SQLKVTransaction.StmtType</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">Used internally to build SQL statements.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when a transaction that has been committed, rolled back, or otherwise invalidated is accessed.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when an operation is attempted on a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is no longer usable.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/Streams.html" title="class in io.permazen.util">Streams</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/Streams.html" title="class in io.permazen.util">Streams</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link"><code>Stream</code></a> utility methods.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a>&lt;<a href="io/permazen/encoding/StringConvertedEncoding.html" title="type parameter in StringConvertedEncoding">T</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/StringConvertedEncoding.html" title="class in io.permazen.encoding">StringConvertedEncoding</a>&lt;<a href="io/permazen/encoding/StringConvertedEncoding.html" title="type parameter in StringConvertedEncoding">T</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block"><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for any Java type that can be encoded and ordered as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/StringEncoding.html" title="class in io.permazen.encoding">StringEncoding</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/test/TestSupport.html" title="class in io.permazen.test">TestSupport</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/test/TestSupport.html" title="class in io.permazen.test">TestSupport</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Base class for unit tests providing logging and random seed setup.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/raft/Timestamp.html" title="class in io.permazen.kv.raft">Timestamp</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/kv/raft/Timestamp.html" title="class in io.permazen.kv.raft">Timestamp</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Represents a relative timestamp in milliseconds.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A Permazen <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a> transaction.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/Transaction.Callback.html" title="interface in io.permazen.core">Transaction.Callback</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/core/Transaction.Callback.html" title="interface in io.permazen.core">Transaction.Callback</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Callback interface for notification of transaction completion events.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Transaction.CallbackAdapter.html" title="class in io.permazen.core">Transaction.CallbackAdapter</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Transaction.CallbackAdapter.html" title="class in io.permazen.core">Transaction.CallbackAdapter</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Adapter class for <a href="io/permazen/core/Transaction.Callback.html" title="interface in io.permazen.core"><code>Transaction.Callback</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Transaction.ListenerSet.html" title="class in io.permazen.core">Transaction.ListenerSet</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Transaction.ListenerSet.html" title="class in io.permazen.core">Transaction.ListenerSet</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A fixed collection of listeners (<a href="io/permazen/core/CreateListener.html" title="interface in io.permazen.core"><code>CreateListener</code></a>s, <a href="io/permazen/core/DeleteListener.html" title="interface in io.permazen.core"><code>DeleteListener</code></a>s, <a href="io/permazen/core/SchemaChangeListener.html" title="interface in io.permazen.core"><code>SchemaChangeListener</code></a>s,
  <a href="io/permazen/core/SimpleFieldChangeListener.html" title="interface in io.permazen.core"><code>SimpleFieldChangeListener</code></a>s, <a href="io/permazen/core/SetFieldChangeListener.html" title="interface in io.permazen.core"><code>SetFieldChangeListener</code></a>s, <a href="io/permazen/core/ListFieldChangeListener.html" title="interface in io.permazen.core"><code>ListFieldChangeListener</code></a>s, and
  <a href="io/permazen/core/MapFieldChangeListener.html" title="interface in io.permazen.core"><code>MapFieldChangeListener</code></a>s) that can be efficiently registered on a <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> all at once.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Configuration for a <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Builder for <a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a>s.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/mvcc/TransactionConflictException.html" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/mvcc/TransactionConflictException.html" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Exception thrown when a transaction fails because of an MVCC conflict.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/TransactionException.html" title="class in io.permazen.core">TransactionException</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/TransactionException.html" title="class in io.permazen.core">TransactionException</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Superclass of exceptions associated with a specific <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> is kept open for too long.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/xodus/TransactionType.html" title="enum class in io.permazen.kv.xodus">TransactionType</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/xodus/TransactionType.html" title="enum class in io.permazen.kv.xodus">TransactionType</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
 <div class="block">Xodus transaction types.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/tuple/Tuple.html" title="interface in io.permazen.tuple">Tuple</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/permazen/tuple/Tuple.html" title="interface in io.permazen.tuple">Tuple</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Implemented by all "tuple" classes.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple1.html" title="class in io.permazen.tuple">Tuple1</a>&lt;<a href="io/permazen/tuple/Tuple1.html" title="type parameter in Tuple1">V1</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple1.html" title="class in io.permazen.tuple">Tuple1</a>&lt;<a href="io/permazen/tuple/Tuple1.html" title="type parameter in Tuple1">V1</a>&gt;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A "tuple" of one value.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;<a href="io/permazen/tuple/Tuple2.html" title="type parameter in Tuple2">V1</a>,<wbr><a href="io/permazen/tuple/Tuple2.html" title="type parameter in Tuple2">V2</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;<a href="io/permazen/tuple/Tuple2.html" title="type parameter in Tuple2">V1</a>,<wbr><a href="io/permazen/tuple/Tuple2.html" title="type parameter in Tuple2">V2</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A tuple of two values.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple2Encoding.html" title="class in io.permazen.encoding">Tuple2Encoding</a>&lt;<a href="io/permazen/encoding/Tuple2Encoding.html" title="type parameter in Tuple2Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple2Encoding.html" title="type parameter in Tuple2Encoding">V2</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple2.html" title="class in io.permazen.tuple"><code>Tuple2</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple3.html" title="class in io.permazen.tuple">Tuple3</a>&lt;<a href="io/permazen/tuple/Tuple3.html" title="type parameter in Tuple3">V1</a>,<wbr><a href="io/permazen/tuple/Tuple3.html" title="type parameter in Tuple3">V2</a>,<wbr><a href="io/permazen/tuple/Tuple3.html" title="type parameter in Tuple3">V3</a>&gt;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple2Encoding.html" title="class in io.permazen.encoding">Tuple2Encoding</a>&lt;<a href="io/permazen/encoding/Tuple2Encoding.html" title="type parameter in Tuple2Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple2Encoding.html" title="type parameter in Tuple2Encoding">V2</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple2.html" title="class in io.permazen.tuple"><code>Tuple2</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple3.html" title="class in io.permazen.tuple">Tuple3</a>&lt;<a href="io/permazen/tuple/Tuple3.html" title="type parameter in Tuple3">V1</a>,<wbr><a href="io/permazen/tuple/Tuple3.html" title="type parameter in Tuple3">V2</a>,<wbr><a href="io/permazen/tuple/Tuple3.html" title="type parameter in Tuple3">V3</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A tuple of three values.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple3Encoding.html" title="class in io.permazen.encoding">Tuple3Encoding</a>&lt;<a href="io/permazen/encoding/Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V3</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple3.html" title="class in io.permazen.tuple"><code>Tuple3</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple4.html" title="class in io.permazen.tuple">Tuple4</a>&lt;<a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V1</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V2</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V3</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V4</a>&gt;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple3Encoding.html" title="class in io.permazen.encoding">Tuple3Encoding</a>&lt;<a href="io/permazen/encoding/Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V3</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple3.html" title="class in io.permazen.tuple"><code>Tuple3</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple4.html" title="class in io.permazen.tuple">Tuple4</a>&lt;<a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V1</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V2</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V3</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="type parameter in Tuple4">V4</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A tuple of four values.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple4Encoding.html" title="class in io.permazen.encoding">Tuple4Encoding</a>&lt;<a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple4.html" title="class in io.permazen.tuple"><code>Tuple4</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple5.html" title="class in io.permazen.tuple">Tuple5</a>&lt;<a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V1</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V2</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V3</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V4</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V5</a>&gt;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple4Encoding.html" title="class in io.permazen.encoding">Tuple4Encoding</a>&lt;<a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple4.html" title="class in io.permazen.tuple"><code>Tuple4</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuple5.html" title="class in io.permazen.tuple">Tuple5</a>&lt;<a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V1</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V2</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V3</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V4</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="type parameter in Tuple5">V5</a>&gt;</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A tuple of five values.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple5Encoding.html" title="class in io.permazen.encoding">Tuple5Encoding</a>&lt;<a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V4</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V5</a>&gt;</div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple5.html" title="class in io.permazen.tuple"><code>Tuple5</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a>&lt;<a href="io/permazen/encoding/TupleEncoding.html" title="type parameter in TupleEncoding">T</a> extends <a href="io/permazen/tuple/Tuple.html" title="interface in io.permazen.tuple">Tuple</a>&gt;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/Tuple5Encoding.html" title="class in io.permazen.encoding">Tuple5Encoding</a>&lt;<a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V4</a>,<wbr><a href="io/permazen/encoding/Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V5</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Support superclass for <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of <a href="io/permazen/tuple/Tuple.html" title="interface in io.permazen.tuple"><code>Tuple</code></a> classes created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="io/permazen/tuple/Tuple5.html" title="class in io.permazen.tuple"><code>Tuple5</code></a> created by concatenating the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuples.html" title="class in io.permazen.tuple">Tuples</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a>&lt;<a href="io/permazen/encoding/TupleEncoding.html" title="type parameter in TupleEncoding">T</a> extends <a href="io/permazen/tuple/Tuple.html" title="interface in io.permazen.tuple">Tuple</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Support superclass for non-null <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of <a href="io/permazen/tuple/Tuple.html" title="interface in io.permazen.tuple"><code>Tuple</code></a> classes created by concatenating
+ the component <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/tuple/Tuples.html" title="class in io.permazen.tuple">Tuples</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Tuple utility methods.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/raft/TxState.html" title="enum class in io.permazen.kv.raft">TxState</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/permazen/kv/raft/TxState.html" title="enum class in io.permazen.kv.raft">TxState</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block"><a href="io/permazen/kv/raft/RaftKVTransaction.html" title="class in io.permazen.kv.raft"><code>RaftKVTransaction</code></a> states.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/TypeNotInSchemaException.html" title="class in io.permazen.core">TypeNotInSchemaException</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab5">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab5"><a href="io/permazen/core/TypeNotInSchemaException.html" title="class in io.permazen.core">TypeNotInSchemaException</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab5">
 <div class="block">Thrown when attempting to migrate a database object to a new schema in which the object's type no longer exists.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/parse/util/TypeTokenParser.html" title="class in io.permazen.cli.parse.util">TypeTokenParser</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/cli/parse/util/TypeTokenParser.html" title="class in io.permazen.cli.parse.util">TypeTokenParser</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Recreates <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>s from the output of <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html#toString()" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken.toString()</code></a>.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/TypeTokens.html" title="class in io.permazen.util">TypeTokens</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Various utility routines relating to <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>s.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/util/UniqueIterator.html" title="class in io.permazen.util">UniqueIterator</a>&lt;<a href="io/permazen/util/UniqueIterator.html" title="type parameter in UniqueIterator">E</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -2083,7 +2124,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/UnsignedIntEncoding.html" title="class in io.permazen.encoding">UnsignedIntEncoding</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Encoding for unsigned <code>int</code> values in the manner of <a href="io/permazen/util/UnsignedIntEncoder.html" title="class in io.permazen.util"><code>UnsignedIntEncoder</code></a>.</div>
+<div class="block">Non-null encoding for unsigned <code>int</code> values in the manner of <a href="io/permazen/util/UnsignedIntEncoder.html" title="class in io.permazen.util"><code>UnsignedIntEncoder</code></a>.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/UntypedPermazenObject.html" title="class in io.permazen">UntypedPermazenObject</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -2131,14 +2172,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab7"><a href="io/permazen/annotation/ValuesList.html" title="annotation interface in io.permazen.annotation">ValuesList</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab7">
 <div class="block">Defines a predicate that matches certain combined values of a list of simple fields.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/core/Version.html" title="class in io.permazen.core">Version</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Contains library version information.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/Version.html" title="class in io.permazen">Version</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Contains Permazen library version information.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/permazen/encoding/VoidEncoding.html" title="class in io.permazen.encoding">VoidEncoding</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">

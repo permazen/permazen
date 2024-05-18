@@ -74,6 +74,10 @@ loadScripts(document, 'script');</script>
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">OnCreate</span></div>
 <div class="block">Annotates Permazen model class methods that are to be invoked whenever a database object is newly created.
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+
  <p>
  Note that there is a subtle distinction between (a) the creation of database objects in the database, and
  (b) the instantiation of Java model objects that represent database objects (i.e., <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s).
@@ -89,7 +93,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  For example, instead of this:
- <pre>
+ <pre><code class="language-java">
   &#64;PermazenType
   public abstract class Event {
 
@@ -102,11 +106,11 @@ loadScripts(document, 'script');</script>
       public abstract void setCreateTime(Date createTime);
 
       ...
- </pre>
+ </code></pre>
 
  <p>
  do this:
- <pre>
+ <pre><code class="language-java">
   &#64;PermazenType
   public abstract class Event {
 
@@ -120,7 +124,7 @@ loadScripts(document, 'script');</script>
       public abstract void setCreateTime(Date createTime);
 
       ...
- </pre>
+ </code></pre>
 
  <p>
  Notifications are delivered in the same thread that created the object, immediately after the object is created.

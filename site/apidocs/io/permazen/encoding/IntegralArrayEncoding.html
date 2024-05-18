@@ -93,7 +93,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">IntegralArrayEncoding&lt;T,<wbr>E extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Number.html" title="class or interface in java.lang" class="external-link">Number</a>&gt;</span>
 <span class="extends-implements">extends <a href="Base64ArrayEncoding.html" title="class in io.permazen.encoding">Base64ArrayEncoding</a>&lt;T,<wbr>E&gt;</span></div>
-<div class="block">Array type for integral primitive element types. Does not support null arrays.
+<div class="block">Support superclass for non-null integral primitive array encodings.
+
+ <p>
+ Null values are not supported by this class and there is no default value.
 
  <p>
  Arrays are encoded as a sequence of numerical values followed by <code>0x00</code>, where each value is encoded via
@@ -132,8 +135,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.IntegralEncoding,java.lang.Class)" class="member-name-link">IntegralArrayEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.IntegralEncoding,java.lang.Class)" class="member-name-link">IntegralArrayEncoding</a><wbr>(<a href="IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a>&gt;&nbsp;arrayClass)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
@@ -204,10 +206,9 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,io.permazen.encoding.IntegralEncoding,java.lang.Class)">
+<section class="detail" id="&lt;init&gt;(io.permazen.encoding.IntegralEncoding,java.lang.Class)">
 <h3>IntegralArrayEncoding</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">IntegralArrayEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">IntegralArrayEncoding</span><wbr><span class="parameters">(<a href="IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a>&gt;&nbsp;arrayClass)</span></div>
 </section>
 </li>

@@ -85,6 +85,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PermazenExecutionControlProvider</span>
 <span class="extends-implements">extends org.dellroad.jct.jshell.LocalContextExecutionControlProvider</span></div>
+<div class="block">A <code>LocalContextExecutionControlProvider</code> that creates <a href="PermazenExecutionControl.html" title="class in io.permazen.cli.jshell"><code>PermazenExecutionControl</code></a>'s.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -130,15 +131,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="PermazenExecutionControl.html" title="class in io.permazen.cli.jshell">PermazenExecutionControl</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createLocalExecutionControl(org.dellroad.jct.jshell.MemoryLoaderDelegate)" class="member-name-link">createLocalExecutionControl</a><wbr>(org.dellroad.jct.jshell.MemoryLoaderDelegate&nbsp;delegate)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#name()" class="member-name-link">name</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/java/MemoryClassLoader.html" title="class or interface in org.dellroad.stuff.java" class="external-link">MemoryClassLoader</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createMemoryClassLoader()" class="member-name-link">createMemoryClassLoader</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#name()" class="member-name-link">name</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-org.dellroad.jct.jshell.LocalContextExecutionControlProvider">Methods inherited from class&nbsp;org.dellroad.jct.jshell.LocalContextExecutionControlProvider</h3>
-<code>addToClassPath, createMemoryClassLoader, createMemoryLoaderDelegate, defaultParameters, generate, getExecutionFlag, modifyJShellFlags, setExecutionFlag</code></div>
+<code>addToClassPath, createMemoryLoaderDelegate, defaultParameters, generate, getExecutionFlag, modifyJShellFlags, setExecutionFlag</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -208,6 +212,16 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>createLocalExecutionControl</code>&nbsp;in class&nbsp;<code>org.dellroad.jct.jshell.LocalContextExecutionControlProvider</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createMemoryClassLoader()">
+<h3>createMemoryClassLoader</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/java/MemoryClassLoader.html" title="class or interface in org.dellroad.stuff.java" class="external-link">MemoryClassLoader</a></span>&nbsp;<span class="element-name">createMemoryClassLoader</span>()</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>createMemoryClassLoader</code>&nbsp;in class&nbsp;<code>org.dellroad.jct.jshell.LocalContextExecutionControlProvider</code></dd>
 </dl>
 </section>
 </li>

@@ -94,14 +94,13 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">ArrayEncoding&lt;T,<wbr>E&gt;</span>
 <span class="extends-implements">extends <a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;T&gt;</span></div>
-<div class="block">Support superclass for built-in array <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.
+<div class="block">Support superclass for non-null built-in array <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.
 
  <p>
  The string form looks like <code>[ "elem1", "elem2", ..., "elemN" ]</code>.
 
  <p>
- This class does not support null arrays; wrap in <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a> to get that.
- The default value is the empty array.
+ Null values are not supported by this class and there is no default value.
 
  <p>
  Arrays sort lexicographically.</div>
@@ -138,8 +137,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,com.google.common.reflect.TypeToken)" class="member-name-link">ArrayEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.Encoding,com.google.common.reflect.TypeToken)" class="member-name-link">ArrayEncoding</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&gt;&nbsp;typeToken)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor.</div>
@@ -245,15 +243,13 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,com.google.common.reflect.TypeToken)">
+<section class="detail" id="&lt;init&gt;(io.permazen.encoding.Encoding,com.google.common.reflect.TypeToken)">
 <h3>ArrayEncoding</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">ArrayEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">ArrayEncoding</span><wbr><span class="parameters">(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&gt;&nbsp;typeToken)</span></div>
 <div class="block">Constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>encodingId</code> - encoding ID for this encoding, or null to be anonymous</dd>
 <dd><code>elementEncoding</code> - array element type (possibly also an <a href="ArrayEncoding.html" title="class in io.permazen.encoding"><code>ArrayEncoding</code></a>)</dd>
 <dd><code>typeToken</code> - array type token</dd>
 <dt>Throws:</dt>

@@ -77,15 +77,16 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Session</span>
+<div class="type-signature"><span class="annotations">@ThreadSafe
+</span><span class="modifiers">public class </span><span class="element-name type-name-label">Session</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.
 
  <p>
  Instances operate in one of three modes; see <a href="SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>.
 
  <p>
- Instances are <b>not</b> thread safe.</div>
+ Instances are thread safe.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -109,8 +110,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="Session.Action.html" class="type-name-link" title="interface in io.permazen.cli">Session.Action</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Callback interface used by <a href="#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="Session.RetryableTransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></code></div>
@@ -127,6 +127,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><code><a href="Session.TransactionalActionWithOptions.html" class="type-name-link" title="interface in io.permazen.cli">Session.TransactionalActionWithOptions</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">Extension of <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the action provides custom transaction options.</div>
+</div>
+<div class="col-first even-row-color"><code>static final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="Session.TxInfo.html" class="type-name-link" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Information about the a transaction associated with a <a href="Session.html" title="class in io.permazen.cli"><code>Session</code></a>.</div>
 </div>
 </div>
 </section>
@@ -206,7 +211,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#closeTransaction(boolean)" class="member-name-link">closeTransaction</a><wbr>(boolean&nbsp;commit)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Close a transaction.</div>
+<div class="block">Closed the transaction previously opened and associated with this instance by <a href="#openTransaction(java.util.Map)"><code>openTransaction()</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/Database.html" title="class in io.permazen.core">Database</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDatabase()" class="member-name-link">getDatabase</a>()</code></div>
@@ -242,7 +247,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKVTransaction()" class="member-name-link">getKVTransaction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the open <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> currently associated with this instance.</div>
+<div class="block">Get the <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> currently associated with this instance.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaximumRetryDelay()" class="member-name-link">getMaximumRetryDelay</a>()</code></div>
@@ -274,7 +279,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPermazenTransaction()" class="member-name-link">getPermazenTransaction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the open <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> currently associated with this instance.</div>
+<div class="block">Get the <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> currently associated with this instance.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSchemaModel()" class="member-name-link">getSchemaModel</a>()</code></div>
@@ -284,12 +289,22 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/Transaction.html" title="class in io.permazen.core">Transaction</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTransaction()" class="member-name-link">getTransaction</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Get the open <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> currently associated with this instance.</div>
+<div class="block">Get the <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> currently associated with this instance.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getValidationMode()" class="member-name-link">getValidationMode</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTxInfo()" class="member-name-link">getTxInfo</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get information about the transaction currently associated with this instance.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getValidationMode()" class="member-name-link">getValidationMode</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="../ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> associated with this instance.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasTransaction()" class="member-name-link">hasTransaction</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Determine whether there is a transaction associated with this instance.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isAllowNewSchema()" class="member-name-link">isAllowNewSchema</a>()</code></div>
@@ -307,70 +322,60 @@ loadScripts(document, 'script');</script>
 <div class="block">Get whether new transactions should be marked read-only.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isTransactionOpen()" class="member-name-link">isTransactionOpen</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isVerbose()" class="member-name-link">isVerbose</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Determine whether there is a transaction already associated with this instance.</div>
+<div class="block">Get whether to always show stack traces with error messages.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isVerbose()" class="member-name-link">isVerbose</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openBranchedTransaction(java.util.Map,java.util.Map)" class="member-name-link">openBranchedTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Open a new branched transaction and associate it with this instance.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openTransaction(java.util.Map)" class="member-name-link">openTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;options)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Open a transaction.</div>
+<div class="block">Open a new transaction and associate it with this instance.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#performSessionAction(io.permazen.cli.Session.Action)" class="member-name-link">performSessionAction</a><wbr>(<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>&nbsp;action)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Perform the given action in the context of this session.</div>
+<div class="block">Perform the given action in the context of this session and (optionally) an open transaction.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)" class="member-name-link">performSessionActionWithCurrentTransaction</a><wbr>(<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>&nbsp;action)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reportException(java.lang.Exception)" class="member-name-link">reportException</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a>&nbsp;e)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Associate the current <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> with this instance, if not already associated,
- while performing the given action.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reportException(java.lang.Exception)" class="member-name-link">reportException</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a>&nbsp;e)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Handle an exception thrown during execution of a command.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAllowNewSchema(boolean)" class="member-name-link">setAllowNewSchema</a><wbr>(boolean&nbsp;allowNewSchema)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDatabaseDescription(java.lang.String)" class="member-name-link">setDatabaseDescription</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseDescription)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAllowNewSchema(boolean)" class="member-name-link">setAllowNewSchema</a><wbr>(boolean&nbsp;allowNewSchema)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setErrorMessagePrefix(java.lang.String)" class="member-name-link">setErrorMessagePrefix</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;prefix)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDatabaseDescription(java.lang.String)" class="member-name-link">setDatabaseDescription</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseDescription)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setErrorMessagePrefix(java.lang.String)" class="member-name-link">setErrorMessagePrefix</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;prefix)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGarbageCollectSchemas(boolean)" class="member-name-link">setGarbageCollectSchemas</a><wbr>(boolean&nbsp;garbageCollectSchemas)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInitialRetryDelay(int)" class="member-name-link">setInitialRetryDelay</a><wbr>(int&nbsp;initialRetryDelay)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMaximumRetryDelay(int)" class="member-name-link">setMaximumRetryDelay</a><wbr>(int&nbsp;maximumRetryDelay)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMaxRetries(int)" class="member-name-link">setMaxRetries</a><wbr>(int&nbsp;maxRetries)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMode(io.permazen.cli.SessionMode)" class="member-name-link">setMode</a><wbr>(<a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;mode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Set prefix to use when displaying error messages.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGarbageCollectSchemas(boolean)" class="member-name-link">setGarbageCollectSchemas</a><wbr>(boolean&nbsp;garbageCollectSchemas)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInitialRetryDelay(int)" class="member-name-link">setInitialRetryDelay</a><wbr>(int&nbsp;initialRetryDelay)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMaximumRetryDelay(int)" class="member-name-link">setMaximumRetryDelay</a><wbr>(int&nbsp;maximumRetryDelay)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMaxRetries(int)" class="member-name-link">setMaxRetries</a><wbr>(int&nbsp;maxRetries)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMode(io.permazen.cli.SessionMode)" class="member-name-link">setMode</a><wbr>(<a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;mode)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Change this instance's <a href="SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadOnly(boolean)" class="member-name-link">setReadOnly</a><wbr>(boolean&nbsp;readOnly)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRollbackOnly()" class="member-name-link">setRollbackOnly</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Mark the current transaction to be rolled back.</div>
-</div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadOnly(boolean)" class="member-name-link">setReadOnly</a><wbr>(boolean&nbsp;readOnly)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSchemaModel(io.permazen.schema.SchemaModel)" class="member-name-link">setSchemaModel</a><wbr>(<a href="../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -590,15 +595,31 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getTxInfo()">
+<h3>getTxInfo</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></span>&nbsp;<span class="element-name">getTxInfo</span>()</div>
+<div class="block">Get information about the transaction currently associated with this instance.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>info for the transaction associated with this instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no transaction associated with this instance</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getKVTransaction()">
 <h3>getKVTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../kv/KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></span>&nbsp;<span class="element-name">getKVTransaction</span>()</div>
-<div class="block">Get the open <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> currently associated with this instance.</div>
+<div class="block">Get the <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> currently associated with this instance.
+
+ <p>
+ Equivalent to <a href="#getTxInfo()"><code>getTxInfo</code></a><code>().</code><a href="Session.TxInfo.html#getKVTransaction()"><code>getKVTransaction</code></a><code>()</code>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the open <a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> in which to do work</dd>
+<dd><a href="../kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> associated with this instance</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if <a href="#performSessionAction(io.permazen.cli.Session.Action)"><code>performSessionAction()</code></a> is not currently being invoked</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no transaction associated with this session</dd>
 </dl>
 </section>
 </li>
@@ -606,13 +627,17 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getTransaction()">
 <h3>getTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../core/Transaction.html" title="class in io.permazen.core">Transaction</a></span>&nbsp;<span class="element-name">getTransaction</span>()</div>
-<div class="block">Get the open <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> currently associated with this instance.</div>
+<div class="block">Get the <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> currently associated with this instance.
+
+ <p>
+ Equivalent to <a href="#getTxInfo()"><code>getTxInfo</code></a><code>().</code><a href="Session.TxInfo.html#getTransaction()"><code>getTransaction</code></a><code>()</code>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the open <a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> in which to do work</dd>
+<dd><a href="../core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if <a href="#performSessionAction(io.permazen.cli.Session.Action)"><code>performSessionAction()</code></a> is not currently being invoked</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance is not in mode <a href="SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> or <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no transaction associated with this instance</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance was not in mode <a href="SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> or <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a>
+  when the transaction was opened</dd>
 </dl>
 </section>
 </li>
@@ -620,16 +645,16 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getPermazenTransaction()">
 <h3>getPermazenTransaction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">getPermazenTransaction</span>()</div>
-<div class="block">Get the open <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> currently associated with this instance.
+<div class="block">Get the <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> currently associated with this instance.
 
  <p>
- This method just invokes <a href="../PermazenTransaction.html#getCurrent()"><code>PermazenTransaction.getCurrent()</code></a> and returns the result.</div>
+ Equivalent to <a href="#getTxInfo()"><code>getTxInfo</code></a><code>().</code><a href="Session.TxInfo.html#getPermazenTransaction()"><code>getPermazenTransaction</code></a><code>()</code>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the open <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> in which to do work</dd>
+<dd><a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with this instance</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if <a href="#performSessionAction(io.permazen.cli.Session.Action)"><code>performSessionAction()</code></a> is not currently being invoked</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance is not in mode <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no transaction associated with this instance</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance was not in mode <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a> when the transaction was opened</dd>
 </dl>
 </section>
 </li>
@@ -676,7 +701,9 @@ loadScripts(document, 'script');</script>
 <h3>getValidationMode</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></span>&nbsp;<span class="element-name">getValidationMode</span>()</div>
 <div class="block">Get the <a href="../ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> associated with this instance.
- If this is left unconfigured, <a href="../ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a> is used for new transactions.
+
+ <p>
+ Default value is <a href="../ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a>.
 
  <p>
  This property is only relevant in <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a>.</div>
@@ -870,7 +897,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="showStackTrace(java.lang.Exception)">
 <h3>showStackTrace</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">showStackTrace</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a>&nbsp;e)</span></div>
-<div class="block">Determine whether a stack trace should be included in error messages by default for the given exception.</div>
+<div class="block">Determine whether a stack trace should be included in error messages by default for the given exception.
+
+ <p>
+ When <a href="#isVerbose()"><code>isVerbose()</code></a> is true, this method is obviated.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>e</code> - error</dd>
@@ -897,17 +927,20 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setErrorMessagePrefix(java.lang.String)">
 <h3>setErrorMessagePrefix</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setErrorMessagePrefix</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;prefix)</span></div>
-<div class="block">Set prefix to use when displaying error messages.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>prefix</code> - error message prefix</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="isVerbose()">
 <h3>isVerbose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isVerbose</span>()</div>
+<div class="block">Get whether to always show stack traces with error messages.
+
+ <p>
+ Default is false.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>whether to always show stack traces</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -917,58 +950,27 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)">
-<h3>performSessionActionWithCurrentTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">performSessionActionWithCurrentTransaction</span><wbr><span class="parameters">(<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>&nbsp;action)</span>
-                                                   throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/InterruptedException.html" title="class or interface in java.lang" class="external-link">InterruptedException</a></span></div>
-<div class="block">Associate the current <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> with this instance, if not already associated,
- while performing the given action.
-
- <p>
- If <code>action</code> throws an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link"><code>Exception</code></a>, it will be caught and handled by <a href="#reportException(java.lang.Exception)"><code>reportException()</code></a>
- and then false returned.
-
- <p>
- This instance must be in <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a>, there must be a <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> open and
- <a href="../PermazenTransaction.html#getCurrent()">associated with the current thread</a>, and this instance must not already
- have a different <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with it (it may already have the same <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>
- associated with it). The <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> will be left open when this method returns.
-
- <p>
- This method safely handles re-entrant invocation.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>action</code> - action to perform</dd>
-<dt>Returns:</dt>
-<dd>true if <code>action</code> completed successfully, false if <code>action</code> threw an exception</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is a different open transaction already associated with this instance</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance is not in mode <a href="SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a></dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/InterruptedException.html" title="class or interface in java.lang" class="external-link">InterruptedException</a></code> - if the current thread is interrupted</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>action</code> is null</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="performSessionAction(io.permazen.cli.Session.Action)">
 <h3>performSessionAction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">performSessionAction</span><wbr><span class="parameters">(<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>&nbsp;action)</span>
                              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/InterruptedException.html" title="class or interface in java.lang" class="external-link">InterruptedException</a></span></div>
-<div class="block">Perform the given action in the context of this session.
+<div class="block">Perform the given action in the context of this session and (optionally) an open transaction.
 
  <p>
- If <code>action</code> is a <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a>, and there is no transaction currently associated with this instance,
- a new transaction will be created, held open while <code>action</code> executes, then committed; any transaction options
- from <code>action</code> implementing <a href="Session.TransactionalActionWithOptions.html" title="interface in io.permazen.cli"><code>Session.TransactionalActionWithOptions</code></a> will be appied. Otherwise, <code>action</code>
- is just executed directly.
+ If <code>action</code> is not a <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a>, it is just executed with this instance as the parameter.
 
  <p>
- In either case, if <code>action</code> throws an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link"><code>Exception</code></a>, it will be caught and handled by
+ Otherwise, if there is no transaction currently associated with this instance, a new transaction is created,
+ associated with the current thread while <code>action</code> executes, and then committed; if <code>action</code> implements
+ <a href="Session.TransactionalActionWithOptions.html" title="interface in io.permazen.cli"><code>Session.TransactionalActionWithOptions</code></a> then its transaction options will be appied.
+
+ <p>
+ Otherwise, the already open transaction associated with this instance is associated with the current thread while
+ <code>action</code> executes, and left open when this method returns.
+
+ <p>
+ In any case, if <code>action</code> throws an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link"><code>Exception</code></a>, it will be caught and handled by
  <a href="#reportException(java.lang.Exception)"><code>reportException()</code></a> and then false returned.
-
- <p>
- If there is already a transaction currently associated with this instance, it is left open while <code>action</code>
- executes and upon return.
 
  <p>
  If <code>action</code> is a <a href="Session.RetryableTransactionalAction.html" title="interface in io.permazen.cli"><code>Session.RetryableTransactionalAction</code></a>, and a newly created transaction throws a
@@ -990,54 +992,69 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="isTransactionOpen()">
-<h3>isTransactionOpen</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isTransactionOpen</span>()</div>
-<div class="block">Determine whether there is a transaction already associated with this instance.</div>
+<section class="detail" id="hasTransaction()">
+<h3>hasTransaction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasTransaction</span>()</div>
+<div class="block">Determine whether there is a transaction associated with this instance.
+
+ <p>
+ Equivalent to <a href="#getTxInfo()"><code>getTxInfo() </code></a><code>!= null</code>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>true if a transaction is already open</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setRollbackOnly()">
-<h3>setRollbackOnly</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRollbackOnly</span>()</div>
-<div class="block">Mark the current transaction to be rolled back.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no transaction associated with this instance</dd>
+<dd>true if there is an associated transaction</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="openTransaction(java.util.Map)">
 <h3>openTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">openTransaction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;options)</span>
-                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">Open a transaction.
-
- <p>
- For experts only.</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></span>&nbsp;<span class="element-name">openTransaction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;options)</span></div>
+<div class="block">Open a new transaction and associate it with this instance.</div>
 <dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>options</code> - transaction options, or null for none</dd>
+<dt>Returns:</dt>
+<dd>the newly created <a href="Session.TxInfo.html" title="class in io.permazen.cli"><code>Session.TxInfo</code></a></dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is already a transaction associated with this instance</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is already a <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with the current thread</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="openBranchedTransaction(java.util.Map,java.util.Map)">
+<h3>openBranchedTransaction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></span>&nbsp;<span class="element-name">openBranchedTransaction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</span></div>
+<div class="block">Open a new branched transaction and associate it with this instance.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>openOptions</code> - <a href="../kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>-specific transaction options for the branch's opening transaction, or null for none</dd>
+<dd><code>syncOptions</code> - <a href="../kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>-specific transaction options for the branch's commit transaction, or null for none</dd>
+<dt>Returns:</dt>
+<dd>the newly created <a href="Session.TxInfo.html" title="class in io.permazen.cli"><code>Session.TxInfo</code></a></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is already a transaction associated with this instance</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is already a <a href="../PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with the current thread</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="closeTransaction(boolean)">
 <h3>closeTransaction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">closeTransaction</span><wbr><span class="parameters">(boolean&nbsp;commit)</span>
-                      throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">Close a transaction.
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">closeTransaction</span><wbr><span class="parameters">(boolean&nbsp;commit)</span></div>
+<div class="block">Closed the transaction previously opened and associated with this instance by <a href="#openTransaction(java.util.Map)"><code>openTransaction()</code></a>.
 
  <p>
- For experts only.</div>
+ This essentially does the reverse of <a href="#openTransaction(java.util.Map)"><code>openTransaction()</code></a>.
+
+ <p>
+ If <code>commit</code> is false, and there is no transaction associated with this instance, this method does nothing.</div>
 <dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>commit</code> - true to commit the transaction, false to roll it back</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if <code>commit</code> is true and there is no transaction associated with this instance</dd>
 </dl>
 </section>
 </li>

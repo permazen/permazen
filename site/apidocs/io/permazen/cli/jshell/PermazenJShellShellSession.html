@@ -90,6 +90,10 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PermazenJShellShellSession</span>
 <span class="extends-implements">extends org.dellroad.jct.jshell.JShellShellSession
 implements <a href="../HasPermazenSession.html" title="interface in io.permazen.cli">HasPermazenSession</a></span></div>
+<div class="block">A version of the JCT <code>JShellShellSession</code> that is Permazen aware.
+
+ <p>
+ Instances are created by <a href="PermazenJShellShell.html" title="class in io.permazen.cli.jshell"><code>PermazenJShellShell</code></a>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -142,6 +146,27 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#begin()" class="member-name-link">begin</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Convert the current snippet transaction into an extended transaction.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#branch()" class="member-name-link">branch</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Commit the current snippet transaction and create a new <i>branched</i> extended transaction.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#branch(java.util.Map,java.util.Map)" class="member-name-link">branch</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Commit the current snippet transaction and create a new <i>branched</i> extended transaction with options.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commit()" class="member-name-link">commit</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Commit the current snippet transaction and open a new non-extended transaction.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doExecute()" class="member-name-link">doExecute</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -155,17 +180,32 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the Permazen <a href="../Session.html" title="class in io.permazen.cli"><code>Session</code></a> associated with this instance.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#joinTransaction()" class="member-name-link">joinTransaction</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Invoked by <a href="PermazenExecutionControl.html#enterContext()"><code>PermazenExecutionControl.enterContext()</code></a> to create or join a snippet transaction.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#leaveTransaction(boolean)" class="member-name-link">leaveTransaction</a><wbr>(boolean&nbsp;success)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Invoked by <a href="PermazenExecutionControl.html#leaveContext(boolean)"><code>PermazenExecutionControl.leaveContext(boolean)</code></a> to commit or leave the snippet transaction.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#modifyJShellParams(java.util.List)" class="member-name-link">modifyJShellParams</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;params)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link">File</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resourceToFile(java.lang.String)" class="member-name-link">resourceToFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;resource)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Make a classpath available as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a>.</div>
+<div class="block">Make a classpath resource available as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRunStandardStartup(boolean)" class="member-name-link">setRunStandardStartup</a><wbr>(boolean&nbsp;runStandardStartup)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rollback()" class="member-name-link">rollback</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Abort the current snippet transaction and open a new non-extended transaction.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRunStandardStartup(boolean)" class="member-name-link">setRunStandardStartup</a><wbr>(boolean&nbsp;runStandardStartup)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set whether to run the standard Permazen jshell startup script.</div>
 </div>
 </div>
@@ -248,10 +288,20 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <section class="detail" id="getCurrent()">
 <h3>getCurrent</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="PermazenJShellShellSession.html" title="class in io.permazen.cli.jshell">PermazenJShellShellSession</a></span>&nbsp;<span class="element-name">getCurrent</span>()</div>
-<div class="block">Get the instance associated with the current thread.</div>
+<div class="block">Get the instance associated with the current thread.
+
+ <p>
+ This method just returns the result from <code>JShellShellSession.getCurrent()</code> cast to a
+ <a href="PermazenJShellShellSession.html" title="class in io.permazen.cli.jshell"><code>PermazenJShellShellSession</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>session associated with the current thread, or null if not found</dd>
+<dd>the instance of this class associated with the current thread, or null if none found</dd>
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list-long">
+<li><code>JShellShellSession.getCurrent()</code></li>
+</ul>
+</dd>
 </dl>
 </section>
 </li>
@@ -291,10 +341,110 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 </section>
 </li>
 <li>
+<section class="detail" id="commit()">
+<h3>commit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">commit</span>()</div>
+<div class="block">Commit the current snippet transaction and open a new non-extended transaction.
+
+ <p>
+ This method is only intended to be invoked from JShell snippets.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="rollback()">
+<h3>rollback</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">rollback</span>()</div>
+<div class="block">Abort the current snippet transaction and open a new non-extended transaction.
+
+ <p>
+ This method is only intended to be invoked from JShell snippets.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="begin()">
+<h3>begin</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">begin</span>()</div>
+<div class="block">Convert the current snippet transaction into an extended transaction.
+
+ <p>
+ If the current transaction is already extended, nothing happens.
+
+ <p>
+ This method is only intended to be invoked from JShell snippets.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="branch()">
+<h3>branch</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">branch</span>()</div>
+<div class="block">Commit the current snippet transaction and create a new <i>branched</i> extended transaction.
+
+ <p>
+ This method is only intended to be invoked from JShell snippets.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="branch(java.util.Map,java.util.Map)">
+<h3>branch</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">branch</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</span></div>
+<div class="block">Commit the current snippet transaction and create a new <i>branched</i> extended transaction with options.
+
+ <p>
+ This method is only intended to be invoked from JShell snippets.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>openOptions</code> - <a href="../../kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>-specific transaction options for the branch's opening transaction, or null for none</dd>
+<dd><code>syncOptions</code> - <a href="../../kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>-specific transaction options for the branch's commit transaction, or null for none</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="joinTransaction()">
+<h3>joinTransaction</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">joinTransaction</span>()</div>
+<div class="block">Invoked by <a href="PermazenExecutionControl.html#enterContext()"><code>PermazenExecutionControl.enterContext()</code></a> to create or join a snippet transaction.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there's not supposed to be an extended snippet transaction but there's is</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there's supposed to be an extended snippet transaction but there's not</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="leaveTransaction(boolean)">
+<h3>leaveTransaction</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">leaveTransaction</span><wbr><span class="parameters">(boolean&nbsp;success)</span></div>
+<div class="block">Invoked by <a href="PermazenExecutionControl.html#leaveContext(boolean)"><code>PermazenExecutionControl.leaveContext(boolean)</code></a> to commit or leave the snippet transaction.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="resourceToFile(java.lang.String)">
 <h3>resourceToFile</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link">File</a></span>&nbsp;<span class="element-name">resourceToFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;resource)</span></div>
-<div class="block">Make a classpath available as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a>.
+<div class="block">Make a classpath resource available as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link"><code>File</code></a>.
 
  <p>
  If the resource is already a file, that file is returned. Otherwise, a temporary

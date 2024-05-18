@@ -55,37 +55,17 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Package</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><a href="#io.permazen.core">io.permazen.core</a></div>
+<div class="col-first even-row-color"><a href="#io.permazen.encoding">io.permazen.encoding</a></div>
 <div class="col-last even-row-color">
-<div class="block">Core classes for the Permazen Java persistence layer.</div>
-</div>
-<div class="col-first odd-row-color"><a href="#io.permazen.encoding">io.permazen.encoding</a></div>
-<div class="col-last odd-row-color">
 <div class="block">Permazen <a href="../Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
-<div class="col-first even-row-color"><a href="#io.permazen.schema">io.permazen.schema</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="#io.permazen.schema">io.permazen.schema</a></div>
+<div class="col-last odd-row-color">
 <div class="block">Classes for modeling Permazen <a href="../../core/Database.html" title="class in io.permazen.core"><code>Database</code></a> schemas.</div>
 </div>
 </div>
 <section class="class-uses">
 <ul class="block-list">
-<li>
-<section class="detail" id="io.permazen.core">
-<h2>Uses of <a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a> in <a href="../../core/package-summary.html">io.permazen.core</a></h2>
-<div class="caption"><span>Constructors in <a href="../../core/package-summary.html">io.permazen.core</a> with parameters of type <a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier</div>
-<div class="table-header col-second">Constructor</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../../core/ObjIdEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ObjIdEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor.</div>
-</div>
-</div>
-</section>
-</li>
 <li>
 <section class="detail" id="io.permazen.encoding">
 <h2>Uses of <a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a> in <a href="../package-summary.html">io.permazen.encoding</a></h2>
@@ -146,38 +126,44 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">DefaultEncodingRegistry.</span><code><a href="../DefaultEncodingRegistry.html#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">EncodingIds.</span><code><a href="../EncodingIds.html#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>&lt;T&gt;&nbsp;boolean</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SimpleEncodingRegistry.</span><code><a href="../SimpleEncodingRegistry.html#addNullSafe(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">addNullSafe</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+ <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&nbsp;inner)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Add a null-safe version of the given non-null supporting <a href="../Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> to this registry.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">DefaultEncodingRegistry.</span><code><a href="../DefaultEncodingRegistry.html#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">EncodingIds.</span><code><a href="../EncodingIds.html#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Get the alias (or "nickname") for the given encoding ID in this registry, if any,
  for a Permazen built-in encoding.</div>
 </div>
-<div class="col-first even-row-color"><code>default <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">EncodingRegistry.</span><code><a href="../EncodingRegistry.html#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>default <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">EncodingRegistry.</span><code><a href="../EncodingRegistry.html#aliasForId(io.permazen.encoding.EncodingId)" class="member-name-link">aliasForId</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Get the alias (or "nickname") for the given encoding ID in this registry, if any.</div>
 </div>
-<div class="col-first odd-row-color"><code>int</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">EncodingId.</span><code><a href="../EncodingId.html#compareTo(io.permazen.encoding.EncodingId)" class="member-name-link">compareTo</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;that)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">DefaultEncodingRegistry.</span><code><a href="../DefaultEncodingRegistry.html#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-first even-row-color"><code>int</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">EncodingId.</span><code><a href="../EncodingId.html#compareTo(io.permazen.encoding.EncodingId)" class="member-name-link">compareTo</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;that)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">EncodingRegistry.</span><code><a href="../EncodingRegistry.html#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-second odd-row-color"><span class="type-name-label">DefaultEncodingRegistry.</span><code><a href="../DefaultEncodingRegistry.html#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code><a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">EncodingRegistry.</span><code><a href="../EncodingRegistry.html#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Get the <a href="../Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> with the given encoding ID in this registry.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SimpleEncodingRegistry.</span><code><a href="../SimpleEncodingRegistry.html#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected void</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SimpleEncodingRegistry.</span><code><a href="../SimpleEncodingRegistry.html#register(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">register</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-first odd-row-color"><code><a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">SimpleEncodingRegistry.</span><code><a href="../SimpleEncodingRegistry.html#getEncoding(io.permazen.encoding.EncodingId)" class="member-name-link">getEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>protected void</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SimpleEncodingRegistry.</span><code><a href="../SimpleEncodingRegistry.html#register(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">register</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;&nbsp;encoding)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Register a new <a href="../Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>.</div>
 </div>
 </div>
@@ -199,80 +185,32 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../AbstractEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,T)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-second even-row-color"><code><a href="../AbstractEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,java.util.function.Supplier)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="../AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;typeToken,
- <a href="../AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&nbsp;defaultValue)</code></div>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="../AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;defaultValueSupplier)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor.</div>
 </div>
 <div class="col-first odd-row-color"><code>protected </code></div>
-<div class="col-second odd-row-color"><code><a href="../AbstractEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,T)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-second odd-row-color"><code><a href="../AbstractEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,java.util.function.Supplier)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="../AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;type,
- <a href="../AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&nbsp;defaultValue)</code></div>
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="../AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;defaultValueSupplier)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
 </div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../ArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,com.google.common.reflect.TypeToken)" class="member-name-link">ArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../ArrayEncoding.html" title="type parameter in ArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="../ArrayEncoding.html" title="type parameter in ArrayEncoding">T</a>&gt;&nbsp;typeToken)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first odd-row-color"><code>protected </code></div>
-<div class="col-second odd-row-color"><code><a href="../Base64ArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.PrimitiveEncoding,com.google.common.reflect.TypeToken)" class="member-name-link">Base64ArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../PrimitiveEncoding.html" title="class in io.permazen.encoding">PrimitiveEncoding</a>&lt;<a href="../Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="../Base64ArrayEncoding.html" title="type parameter in Base64ArrayEncoding">T</a>&gt;&nbsp;typeToken)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../BigDecimalEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">BigDecimalEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../BigIntegerEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">BigIntegerEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../BitSetEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">BitSetEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../BooleanArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">BooleanArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../BooleanEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">BooleanEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../ByteArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ByteArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../ByteEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ByteEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../CharacterArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">CharacterArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-second odd-row-color"><code><a href="../ByteEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ByteEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../CharacterEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">CharacterEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected </code></div>
-<div class="col-second odd-row-color"><code><a href="../Concat2Encoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,T,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Concat2Encoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>&gt;&nbsp;typeToken,
- <a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>&nbsp;defaultValue,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">S1</a>&gt;&nbsp;encoding1,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">S2</a>&gt;&nbsp;encoding2)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../Concat2Encoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,T,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Concat2Encoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>&gt;&nbsp;type,
- <a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>&nbsp;defaultValue,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">S1</a>&gt;&nbsp;encoding1,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Concat2Encoding.html" title="type parameter in Concat2Encoding">S2</a>&gt;&nbsp;encoding2)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor.</div>
-</div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,T,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-second odd-row-color"><code><a href="../ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,java.util.function.Supplier,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
- <a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&nbsp;defaultValue,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;defaultValueSupplier,
  <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</code></div>
@@ -280,9 +218,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Primary constructor.</div>
 </div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,T,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-second even-row-color"><code><a href="../ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,java.util.function.Supplier,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
- <a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&nbsp;defaultValue,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;defaultValueSupplier,
  <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="../ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</code></div>
@@ -290,48 +228,16 @@ loadScripts(document, 'script');</script>
 <div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 </div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../DateEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">DateEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../DoubleArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">DoubleArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="../DoubleEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">DoubleEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../DurationEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">DurationEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../FileEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">FileEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../FloatArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">FloatArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-second even-row-color"><code><a href="../FileEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">FileEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="../FloatEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">FloatEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../Inet4AddressEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">Inet4AddressEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../Inet6AddressEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">Inet6AddressEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../InetAddressEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">InetAddressEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../InstantEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">InstantEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../IntegerArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">IntegerArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../IntegerEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">IntegerEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../IntegralArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.IntegralEncoding,java.lang.Class)" class="member-name-link">IntegralArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a>&lt;<a href="../IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">E</a>&gt;&nbsp;elementEncoding,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="../IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a>&gt;&nbsp;arrayClass)</code></div>
+<div class="col-second even-row-color"><code><a href="../IntegerEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">IntegerEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected </code></div>
 <div class="col-second odd-row-color"><code><a href="../IntegralEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,org.dellroad.stuff.java.Primitive)" class="member-name-link">IntegralEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
@@ -341,55 +247,24 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="../InternetAddressEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">InternetAddressEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../LocalDateEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">LocalDateEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../LocalDateTimeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">LocalDateTimeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../LocalTimeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">LocalTimeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../LongArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">LongArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="../LongEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">LongEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../MonthDayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">MonthDayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../NullSafeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">NullSafeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-second even-row-color"><code><a href="../NullSafeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">NullSafeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../NullSafeEncoding.html" title="type parameter in NullSafeEncoding">T</a>&gt;&nbsp;inner)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Constructor.</div>
 </div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../NumberEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,org.dellroad.stuff.java.Primitive)" class="member-name-link">NumberEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-first odd-row-color"><code>protected </code></div>
+<div class="col-second odd-row-color"><code><a href="../NumberEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,org.dellroad.stuff.java.Primitive)" class="member-name-link">NumberEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/java/Primitive.html" title="class or interface in org.dellroad.stuff.java" class="external-link">Primitive</a>&lt;<a href="../NumberEncoding.html" title="type parameter in NumberEncoding">T</a>&gt;&nbsp;primitive)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../ObjectArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding)" class="member-name-link">ObjectArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../ObjectArrayEncoding.html" title="type parameter in ObjectArrayEncoding">E</a>&gt;&nbsp;elementEncoding)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../OffsetDateTimeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">OffsetDateTimeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../OffsetTimeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">OffsetTimeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../PatternEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">PatternEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../PeriodEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">PeriodEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../PrimitiveEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,org.dellroad.stuff.java.Primitive)" class="member-name-link">PrimitiveEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
+<div class="col-first odd-row-color"><code>protected </code></div>
+<div class="col-second odd-row-color"><code><a href="../PrimitiveEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,org.dellroad.stuff.java.Primitive)" class="member-name-link">PrimitiveEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/java/Primitive.html" title="class or interface in org.dellroad.stuff.java" class="external-link">Primitive</a>&lt;<a href="../PrimitiveEncoding.html" title="type parameter in PrimitiveEncoding">T</a>&gt;&nbsp;primitive)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../ShortArrayEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ShortArrayEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../ShortEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ShortEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
@@ -409,78 +284,11 @@ loadScripts(document, 'script');</script>
 <div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 </div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../StringEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">StringEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../Tuple2Encoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Tuple2Encoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple2Encoding.html" title="type parameter in Tuple2Encoding">V1</a>&gt;&nbsp;value1Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple2Encoding.html" title="type parameter in Tuple2Encoding">V2</a>&gt;&nbsp;value2Encoding)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../Tuple3Encoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Tuple3Encoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V1</a>&gt;&nbsp;value1Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V2</a>&gt;&nbsp;value2Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple3Encoding.html" title="type parameter in Tuple3Encoding">V3</a>&gt;&nbsp;value3Encoding)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../Tuple4Encoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Tuple4Encoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;&nbsp;value1Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>&gt;&nbsp;value2Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>&gt;&nbsp;value3Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;&nbsp;value4Encoding)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../Tuple5Encoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Tuple5Encoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V1</a>&gt;&nbsp;value1Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V2</a>&gt;&nbsp;value2Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V3</a>&gt;&nbsp;value3Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V4</a>&gt;&nbsp;value4Encoding,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="../Tuple5Encoding.html" title="type parameter in Tuple5Encoding">V5</a>&gt;&nbsp;value5Encoding)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-second even-row-color"><code><a href="../TupleEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding...)" class="member-name-link">TupleEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="../TupleEncoding.html" title="type parameter in TupleEncoding">T</a>&gt;&nbsp;typeToken,
- <a href="../Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;?&gt;...&nbsp;encodings)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../UnsignedIntEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">UnsignedIntEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor.</div>
-</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../URIEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">URIEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../UUIDEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">UUIDEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../VoidEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">VoidEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../YearEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">YearEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../YearMonthEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">YearMonthEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../ZonedDateTimeEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ZonedDateTimeEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
+<div class="col-second odd-row-color"><code><a href="../URIEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">URIEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../ZoneIdEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ZoneIdEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../ZoneOffsetEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ZoneOffsetEncoding</a><wbr>(<a href="../EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

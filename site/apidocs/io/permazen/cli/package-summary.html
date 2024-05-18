@@ -157,12 +157,11 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="Session.html" title="class in io.permazen.cli">Session</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab1"><a href="Session.RetryableTransactionalAction.html" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab1">
@@ -177,12 +176,16 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Extension of <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the action provides custom transaction options.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab3">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Information about the a transaction associated with a <a href="Session.html" title="class in io.permazen.cli"><code>Session</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
 <div class="block">Console <a href="Session.html" title="class in io.permazen.cli"><code>Session</code></a> modes.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SimpleCommandWrapper.html" title="class in io.permazen.cli">SimpleCommandWrapper</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SimpleCommandWrapper.html" title="class in io.permazen.cli">SimpleCommandWrapper</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Wraps a Permazen <a href="cmd/Command.html" title="interface in io.permazen.cli.cmd"><code>Command</code></a>, making it into a Java Console Toolkit <code>SimpleCommand</code>.</div>
 </div>
 </div>

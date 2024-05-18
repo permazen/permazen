@@ -77,7 +77,7 @@ loadScripts(document, 'script');</script>
  <p>
  Model classes may be POJO's, <code>abstract</code> classes, or interfaces, and the Java bean getter methods therein define database
  fields; Permazen generates concrete subclasses of each model class at runtime.
- Model classes must have a zero-arg constructor with at least <code>protected</code> access.
+ Non-interface model classes must have a zero-arg constructor with at least <code>protected</code> access.
 
  <p>
  The following annotations on the getter methods of a <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated class
@@ -127,6 +127,14 @@ loadScripts(document, 'script');</script>
  <p>
  Composite indexes are declared by annotating any supertype of a <a href="PermazenType.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenType</code></a>-annotated class
  with one or more <a href="PermazenCompositeIndex.html" title="annotation interface in io.permazen.annotation"><code>&#64;PermazenCompositeIndex</code></a> annotations.
+
+ <p><b>Singletons</b></p>
+
+ <p>
+ A database type intended to be a singleton can be marked with <a href="#singleton()"><code>singleton()</code></a> <code>= true</code>, which means that
+ at most one instance of the type may exist. Similar to <a href="PermazenField.html#unique()"><code>PermazenField.unique()</code></a>, <a href="#singleton()"><code>singleton()</code></a> functions
+ as an implicit validation constraint: the requirement is verified when the validation queue is processed, and it is
+ affected by the transaction's configured <a href="../ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a>.
 
  <p><b>Meta-Annotations</b></p>
 
@@ -178,9 +186,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block"><a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> schema ID hash epoch.</div>
 </div>
-<div class="col-first even-row-color"><code>int</code></div>
-<div class="col-second even-row-color"><code><a href="#storageId()" class="member-name-link">storageId</a></code></div>
+<div class="col-first even-row-color"><code>boolean</code></div>
+<div class="col-second even-row-color"><code><a href="#singleton()" class="member-name-link">singleton</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Determine if there should only be one instance of this type.</div>
+</div>
+<div class="col-first odd-row-color"><code>int</code></div>
+<div class="col-second odd-row-color"><code><a href="#storageId()" class="member-name-link">storageId</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Storage ID for this object type.</div>
 </div>
 </div>
@@ -353,6 +366,24 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Default:</dt>
 <dd>ATTEMPT</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="singleton()">
+<h3>singleton</h3>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">singleton</span></div>
+<div class="block">Determine if there should only be one instance of this type.
+
+ <p>
+ If this is true, then an implicit validation constraint is added requiring that at most one instance exist.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true if this is a singleton type</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>false</dd>
 </dl>
 </section>
 </li>

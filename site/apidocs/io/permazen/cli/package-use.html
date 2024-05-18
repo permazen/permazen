@@ -123,19 +123,22 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Session.html#io.permazen.cli">Session</a></div>
 <div class="col-last even-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Session.Action.html#io.permazen.cli">Session.Action</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Session.TransactionalAction.html#io.permazen.cli">Session.TransactionalAction</a></div>
 <div class="col-last even-row-color">
 <div class="block">Extension of <a href="Session.Action.html" title="interface in io.permazen.cli"><code>Session.Action</code></a> that indicates the action requires an open transaction.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/SessionMode.html#io.permazen.cli">SessionMode</a></div>
+<div class="col-first odd-row-color"><a href="class-use/Session.TxInfo.html#io.permazen.cli">Session.TxInfo</a></div>
 <div class="col-last odd-row-color">
+<div class="block">Information about the a transaction associated with a <a href="Session.html" title="class in io.permazen.cli"><code>Session</code></a>.</div>
+</div>
+<div class="col-first even-row-color"><a href="class-use/SessionMode.html#io.permazen.cli">SessionMode</a></div>
+<div class="col-last even-row-color">
 <div class="block">Console <a href="Session.html" title="class in io.permazen.cli"><code>Session</code></a> modes.</div>
 </div>
 </div>
@@ -149,12 +152,11 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><a href="class-use/Session.html#io.permazen.cli.app.cmd">Session</a></div>
 <div class="col-last even-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Session.Action.html#io.permazen.cli.app.cmd">Session.Action</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/SessionMode.html#io.permazen.cli.app.cmd">SessionMode</a></div>
 <div class="col-last even-row-color">
@@ -175,12 +177,11 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Session.html#io.permazen.cli.cmd">Session</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Session.Action.html#io.permazen.cli.cmd">Session.Action</a></div>
 <div class="col-last even-row-color">
-<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/SessionMode.html#io.permazen.cli.cmd">SessionMode</a></div>
 <div class="col-last odd-row-color">
@@ -205,7 +206,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Session.html#io.permazen.cli.config">Session</a></div>
 <div class="col-last even-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/SessionMode.html#io.permazen.cli.config">SessionMode</a></div>
 <div class="col-last odd-row-color">
@@ -234,7 +235,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Session.html#io.permazen.cli.jshell">Session</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 </div>
 </section>
@@ -247,7 +248,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><a href="class-use/Session.html#io.permazen.cli.parse">Session</a></div>
 <div class="col-last even-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 </div>
 </section>
@@ -260,12 +261,11 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><a href="class-use/Session.html#io.permazen.jsck.cmd">Session</a></div>
 <div class="col-last even-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Session.Action.html#io.permazen.jsck.cmd">Session.Action</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/SessionMode.html#io.permazen.jsck.cmd">SessionMode</a></div>
 <div class="col-last even-row-color">
@@ -282,12 +282,11 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><a href="class-use/Session.html#io.permazen.kv.raft.cmd">Session</a></div>
 <div class="col-last even-row-color">
-<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session.</div>
+<div class="block">Holds <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a>-specific state during a CLI session, include the current open transaction, if any.</div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Session.Action.html#io.permazen.kv.raft.cmd">Session.Action</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a>
- and <a href="Session.html#performSessionActionWithCurrentTransaction(io.permazen.cli.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+<div class="block">Callback interface used by <a href="Session.html#performSessionAction(io.permazen.cli.Session.Action)"><code>Session.performSessionAction()</code></a></div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Session.RetryableTransactionalAction.html#io.permazen.kv.raft.cmd">Session.RetryableTransactionalAction</a></div>
 <div class="col-last even-row-color">

@@ -74,6 +74,10 @@ loadScripts(document, 'script');</script>
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">ReferencePath</span></div>
 <div class="block">Annotates Java methods that should return all objects found at the far end of a <a href="../ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a>.
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+
  <p>
  This annotation can be used as a convenience to let Permazen auto-generate reference path traversal code.
  A common use case is inverting references, e.g., from a parent back to a child in a one-to-many relationship.
@@ -86,7 +90,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  For example:
- <pre>
+ <pre><code class="language-java">
   &#64;PermazenType
   public interface TreeNode extends PermazenObject {
 
@@ -108,10 +112,10 @@ loadScripts(document, 'script');</script>
       &#64;ReferencePath("-&gt;parent-&gt;parent")
       Optional&lt;TreeNode&gt; getGrandparent();
   }
- </pre>
+ </code></pre>
  In the example above, the generated <code>getChildren()</code> implementation will be functionally equivalent to
  (and slightly more efficient than) this one:
- <pre>
+ <pre><code class="language-java">
       /**
        * Get the children of this node.
        *&#47;
@@ -121,7 +125,7 @@ loadScripts(document, 'script');</script>
           return jtx.followReferencePath(path, Collections.singleton(this));
       }
   }
- </pre>
+ </code></pre>
 
  <p><b>Method Return Type</b></p>
 
@@ -140,7 +144,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  More examples:
- <pre>
+ <pre><code class="language-java">
   &#64;PermazenType
   public interface TreeNode extends PermazenObject {
 
@@ -168,7 +172,7 @@ loadScripts(document, 'script');</script>
       <b>&#64;ReferencePath("-&gt;parent-&gt;parent-&gt;parent&lt;-TreeNode.parent&lt;-TreeNode.parent")</b>
       Optional&lt;TreeNode&gt; getSecondCousinOnceRemoved();
   }
- </pre>
+ </code></pre>
 
  <p><b>Meta-Annotations</b></p>
 

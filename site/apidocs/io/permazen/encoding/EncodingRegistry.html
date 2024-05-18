@@ -121,14 +121,19 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> with the given encoding ID in this registry.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;T&gt;&nbsp;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getEncoding(java.lang.Class)" class="member-name-link">getEncoding</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Get the unique <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> in this registry that supports values of the given Java type.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get all of the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s in this registry that supports values of the given Java type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#idForAlias(java.lang.String)" class="member-name-link">idForAlias</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;alias)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#idForAlias(java.lang.String)" class="member-name-link">idForAlias</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;alias)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Get the encoding ID corresponding to the given alias (or "nickname"), if any.</div>
 </div>
 </div>
@@ -279,6 +284,28 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>typeToken</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if no <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s supports <code>typeToken</code></dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if more than one <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> supports <code>typeToken</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getEncoding(java.lang.Class)">
+<h3>getEncoding</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;</span>&nbsp;<span class="element-name">getEncoding</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</span></div>
+<div class="block">Get the unique <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> in this registry that supports values of the given Java type.
+
+ <p>
+ This is a convenience method, equivalent to: <code>getEncoding(TypeToken.of(type))</code>.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - encoding value type</dd>
+<dt>Parameters:</dt>
+<dd><code>type</code> - encoding value type</dd>
+<dt>Returns:</dt>
+<dd><a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> supporting Java values of type <code>type</code></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>type</code> is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if no <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s supports <code>type</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if more than one <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> supports <code>type</code></dd>
 </dl>
 </section>
 </li>

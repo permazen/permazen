@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Every <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> has a unique 64-bit object identifier, represented as an <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>.
- All <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> instances are permanently <a href="#getTransaction()">associated</a> with a specific
+ All <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> instances are permanently <a href="#getPermazenTransaction()">associated</a> with a specific
  <a href="PermazenTransaction.html" title="class in io.permazen">transaction</a>, and are the unique representatives for their corresponding <a href="core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>
  in that transaction. All field state derives from the associated transaction.
 
@@ -183,15 +183,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Get the <a href="PermazenClass.html" title="class in io.permazen"><code>PermazenClass</code></a> of which this <a href="PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a> is an instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getSchemaId()" class="member-name-link">getSchemaId</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Get the <a href="schema/SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> that identifies this instance's current schema.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getTransaction()" class="member-name-link">getTransaction</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getPermazenTransaction()" class="member-name-link">getPermazenTransaction</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get this instance's associated <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getSchemaId()" class="member-name-link">getSchemaId</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Get the <a href="schema/SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> that identifies this instance's current schema.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#isDetached()" class="member-name-link">isDetached</a>()</code></div>
@@ -248,9 +248,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getTransaction()">
-<h3>getTransaction</h3>
-<div class="member-signature"><span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">getTransaction</span>()</div>
+<section class="detail" id="getPermazenTransaction()">
+<h3>getPermazenTransaction</h3>
+<div class="member-signature"><span class="return-type"><a href="PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></span>&nbsp;<span class="element-name">getPermazenTransaction</span>()</div>
 <div class="block">Get this instance's associated <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -268,7 +268,7 @@ loadScripts(document, 'script');</script>
 <dd>the ID of this instance's current schema</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with this instance</dd>
-<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getTransaction()">associated with this instance</a> is no longer usable</dd>
+<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getPermazenTransaction()">associated with this instance</a> is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -300,7 +300,7 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>true if instance exists, otherwise false</dd>
 <dt>Throws:</dt>
-<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getTransaction()">associated with this instance</a> is no longer usable</dd>
+<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getPermazenTransaction()">associated with this instance</a> is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -312,7 +312,7 @@ loadScripts(document, 'script');</script>
  with a <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a>.
 
  <p>
- Equivalent to <code>getTransaction().isDetached()</code>.</div>
+ Equivalent to <code>getPermazenTransaction().isDetached()</code>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if instance lives in a detached transaction</dd>
@@ -329,7 +329,7 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>true if instance was recreated, false if it already existed</dd>
 <dt>Throws:</dt>
-<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getTransaction()">associated with this instance</a> is no longer usable</dd>
+<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getPermazenTransaction()">associated with this instance</a> is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -352,7 +352,7 @@ loadScripts(document, 'script');</script>
 <dt>Throws:</dt>
 <dd><code><a href="core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with this instance</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if transaction commit is already in progress</dd>
-<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getTransaction()">associated with this instance</a> is no longer usable</dd>
+<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getPermazenTransaction()">associated with this instance</a> is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>groups</code> is or any group in <code>groups</code> null</dd>
 </dl>
 </section>
@@ -371,7 +371,7 @@ loadScripts(document, 'script');</script>
 <dd>true if the object's schema changed, false if it was already migrated</dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with this instance</dd>
-<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getTransaction()">associated with this instance</a> is no longer usable</dd>
+<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the transaction <a href="#getPermazenTransaction()">associated with this instance</a> is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -430,7 +430,7 @@ loadScripts(document, 'script');</script>
  <p>
  This is a convenience method, and is equivalent to invoking:
  <blockquote><pre>
- this.copyTo(this.getTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+ this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
  </pre></blockquote></div>
 <dl class="notes">
 <dt>Parameters:</dt>

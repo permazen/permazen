@@ -600,8 +600,8 @@ loadScripts(document, 'script');</script>
 <h4>Serialized Fields</h4>
 <ul class="block-list">
 <li class="block-list">
-<h5>defaultValue</h5>
-<pre><a href="io/permazen/encoding/AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a> defaultValue</pre>
+<h5>defaultValueSupplier</h5>
+<pre><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="io/permazen/encoding/AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt; defaultValueSupplier</pre>
 </li>
 <li class="block-list">
 <h5>encodingId</h5>
@@ -769,28 +769,41 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.encoding.Concat2Encoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/Concat2Encoding.html" title="class in io.permazen.encoding">io.permazen.encoding.Concat2Encoding</a></h3>
-<div class="type-signature">class Concat2Encoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class Concat2Encoding extends <a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">T</a>,<wbr><a href="io/permazen/tuple/Tuple2.html" title="class in io.permazen.tuple">Tuple2</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">V2</a>&gt;&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
-<dd>-7395218884659436172L</dd>
+<dd>-7395218884659436173L</dd>
 </dl>
-<ul class="block-list">
-<li>
-<section class="detail">
-<h4>Serialized Fields</h4>
-<ul class="block-list">
-<li class="block-list">
-<h5>encoding1</h5>
-<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">S1</a>&gt; encoding1</pre>
-</li>
-<li class="block-list">
-<h5>encoding2</h5>
-<pre><a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="io/permazen/encoding/Concat2Encoding.html" title="type parameter in Concat2Encoding">S2</a>&gt; encoding2</pre>
-</li>
-</ul>
 </section>
 </li>
-</ul>
+<li>
+<section class="serialized-class-details" id="io.permazen.encoding.Concat3Encoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/Concat3Encoding.html" title="class in io.permazen.encoding">io.permazen.encoding.Concat3Encoding</a></h3>
+<div class="type-signature">class Concat3Encoding extends <a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">T</a>,<wbr><a href="io/permazen/tuple/Tuple3.html" title="class in io.permazen.tuple">Tuple3</a>&lt;<a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Concat3Encoding.html" title="type parameter in Concat3Encoding">V3</a>&gt;&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-7395218884659436174L</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="serialized-class-details" id="io.permazen.encoding.Concat4Encoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/Concat4Encoding.html" title="class in io.permazen.encoding">io.permazen.encoding.Concat4Encoding</a></h3>
+<div class="type-signature">class Concat4Encoding extends <a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">T</a>,<wbr><a href="io/permazen/tuple/Tuple4.html" title="class in io.permazen.tuple">Tuple4</a>&lt;<a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Concat4Encoding.html" title="type parameter in Concat4Encoding">V4</a>&gt;&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-7395218884659436175L</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="serialized-class-details" id="io.permazen.encoding.Concat5Encoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/Concat5Encoding.html" title="class in io.permazen.encoding">io.permazen.encoding.Concat5Encoding</a></h3>
+<div class="type-signature">class Concat5Encoding extends <a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a>&lt;<a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">T</a>,<wbr><a href="io/permazen/tuple/Tuple5.html" title="class in io.permazen.tuple">Tuple5</a>&lt;<a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V1</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V2</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V3</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V4</a>,<wbr><a href="io/permazen/encoding/Concat5Encoding.html" title="type parameter in Concat5Encoding">V5</a>&gt;&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-7395218884659436176L</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -864,6 +877,16 @@ loadScripts(document, 'script');</script>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>7124114664265270273L</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="serialized-class-details" id="io.permazen.encoding.DoubleSummaryStatisticsEncoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/DoubleSummaryStatisticsEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.DoubleSummaryStatisticsEncoding</a></h3>
+<div class="type-signature">class DoubleSummaryStatisticsEncoding extends <a href="io/permazen/encoding/Concat4Encoding.html" title="class in io.permazen.encoding">Concat4Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/DoubleSummaryStatistics.html" title="class or interface in java.util" class="external-link">DoubleSummaryStatistics</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Double.html" title="class or interface in java.lang" class="external-link">Double</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Double.html" title="class or interface in java.lang" class="external-link">Double</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Double.html" title="class or interface in java.lang" class="external-link">Double</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-1637830934776137662L</dd>
 </dl>
 </section>
 </li>
@@ -1034,6 +1057,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="serialized-class-details" id="io.permazen.encoding.IntSummaryStatisticsEncoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/IntSummaryStatisticsEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.IntSummaryStatisticsEncoding</a></h3>
+<div class="type-signature">class IntSummaryStatisticsEncoding extends <a href="io/permazen/encoding/Concat4Encoding.html" title="class in io.permazen.encoding">Concat4Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/IntSummaryStatistics.html" title="class or interface in java.util" class="external-link">IntSummaryStatistics</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-1637830934776137662L</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="serialized-class-details" id="io.permazen.encoding.LocalDateEncoding">
 <h3>Class&nbsp;<a href="io/permazen/encoding/LocalDateEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.LocalDateEncoding</a></h3>
 <div class="type-signature">class LocalDateEncoding extends <a href="io/permazen/encoding/AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDate.html" title="class or interface in java.time" class="external-link">LocalDate</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
@@ -1080,6 +1113,16 @@ loadScripts(document, 'script');</script>
 <dl class="name-value">
 <dt>serialVersionUID:</dt>
 <dd>-1090469104525478415L</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="serialized-class-details" id="io.permazen.encoding.LongSummaryStatisticsEncoding">
+<h3>Class&nbsp;<a href="io/permazen/encoding/LongSummaryStatisticsEncoding.html" title="class in io.permazen.encoding">io.permazen.encoding.LongSummaryStatisticsEncoding</a></h3>
+<div class="type-signature">class LongSummaryStatisticsEncoding extends <a href="io/permazen/encoding/Concat4Encoding.html" title="class in io.permazen.encoding">Concat4Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/LongSummaryStatistics.html" title="class or interface in java.util" class="external-link">LongSummaryStatistics</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>&gt; implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<dl class="name-value">
+<dt>serialVersionUID:</dt>
+<dd>-1637830934776137662L</dd>
 </dl>
 </section>
 </li>
@@ -1145,8 +1188,8 @@ loadScripts(document, 'script');</script>
 <h4>Serialized Fields</h4>
 <ul class="block-list">
 <li class="block-list">
-<h5>inline</h5>
-<pre>boolean inline</pre>
+<h5>inlineValue</h5>
+<pre>boolean inlineValue</pre>
 </li>
 </ul>
 </section>

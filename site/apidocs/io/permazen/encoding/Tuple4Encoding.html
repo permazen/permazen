@@ -87,7 +87,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Tuple4Encoding&lt;V1,<wbr>V2,<wbr>V3,<wbr>V4&gt;</span>
 <span class="extends-implements">extends <a href="TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a>&lt;<a href="../tuple/Tuple4.html" title="class in io.permazen.tuple">Tuple4</a>&lt;V1,<wbr>V2,<wbr>V3,<wbr>V4&gt;&gt;</span></div>
-<div class="block"><a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple4.html" title="class in io.permazen.tuple"><code>Tuple4</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple4.html" title="class in io.permazen.tuple"><code>Tuple4</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.
+
+ <p>
+ Null values are not supported by this class and there is no default value.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -119,8 +122,7 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Tuple4Encoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;&nbsp;value1Encoding,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)" class="member-name-link">Tuple4Encoding</a><wbr>(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;&nbsp;value1Encoding,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>&gt;&nbsp;value2Encoding,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>&gt;&nbsp;value3Encoding,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;&nbsp;value4Encoding)</code></div>
@@ -143,6 +145,18 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../tuple/Tuple4.html" title="class in io.permazen.tuple">Tuple4</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>,<wbr><a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>,<wbr><a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>,<wbr><a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTuple(java.lang.Object%5B%5D)" class="member-name-link">createTuple</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>[]&nbsp;values)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding1()" class="member-name-link">getEncoding1</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding2()" class="member-name-link">getEncoding2</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding3()" class="member-name-link">getEncoding3</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding4()" class="member-name-link">getEncoding4</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -174,17 +188,15 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)">
+<section class="detail" id="&lt;init&gt;(io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding,io.permazen.encoding.Encoding)">
 <h3>Tuple4Encoding</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">Tuple4Encoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;&nbsp;value1Encoding,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">Tuple4Encoding</span><wbr><span class="parameters">(<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;&nbsp;value1Encoding,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>&gt;&nbsp;value2Encoding,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>&gt;&nbsp;value3Encoding,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;&nbsp;value4Encoding)</span></div>
 <div class="block">Constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>encodingId</code> - encoding ID, or null for an anonymous instance</dd>
 <dd><code>value1Encoding</code> - component value encoding</dd>
 <dd><code>value2Encoding</code> - component value encoding</dd>
 <dd><code>value3Encoding</code> - component value encoding</dd>
@@ -202,6 +214,30 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="getEncoding1()">
+<h3>getEncoding1</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V1</a>&gt;</span>&nbsp;<span class="element-name">getEncoding1</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getEncoding2()">
+<h3>getEncoding2</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V2</a>&gt;</span>&nbsp;<span class="element-name">getEncoding2</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getEncoding3()">
+<h3>getEncoding3</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V3</a>&gt;</span>&nbsp;<span class="element-name">getEncoding3</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getEncoding4()">
+<h3>getEncoding4</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="Tuple4Encoding.html" title="type parameter in Tuple4Encoding">V4</a>&gt;</span>&nbsp;<span class="element-name">getEncoding4</span>()</div>
+</section>
+</li>
 <li>
 <section class="detail" id="createTuple(java.lang.Object[])">
 <h3>createTuple</h3>

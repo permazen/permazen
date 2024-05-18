@@ -139,25 +139,21 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">A range of values of some Java type, along with string and binary encodings and a total ordering of those values.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/EncodingId.html#io.permazen.core">EncodingId</a></div>
+<div class="col-first even-row-color"><a href="class-use/EncodingRegistry.html#io.permazen.core">EncodingRegistry</a></div>
 <div class="col-last even-row-color">
-<div class="block">A globally unique identifier that identifies an <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s encoding scheme.</div>
-</div>
-<div class="col-first odd-row-color"><a href="class-use/EncodingRegistry.html#io.permazen.core">EncodingRegistry</a></div>
-<div class="col-last odd-row-color">
 <div class="block">A registry of <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/NullSafeEncoding.html#io.permazen.core">NullSafeEncoding</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="class-use/NullSafeEncoding.html#io.permazen.core">NullSafeEncoding</a></div>
+<div class="col-last odd-row-color">
 <div class="block">An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that wraps any other <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> not supporting null values and adds support for null values.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/StringEncoding.html#io.permazen.core">StringEncoding</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="class-use/StringEncoding.html#io.permazen.core">StringEncoding</a></div>
+<div class="col-last even-row-color">
 <div class="block">Non-null <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/UnsignedIntEncoding.html#io.permazen.core">UnsignedIntEncoding</a></div>
-<div class="col-last even-row-color">
-<div class="block">Encoding for unsigned <code>int</code> values in the manner of <a href="../util/UnsignedIntEncoder.html" title="class in io.permazen.util"><code>UnsignedIntEncoder</code></a>.</div>
+<div class="col-first odd-row-color"><a href="class-use/UnsignedIntEncoding.html#io.permazen.core">UnsignedIntEncoding</a></div>
+<div class="col-last odd-row-color">
+<div class="block">Non-null encoding for unsigned <code>int</code> values in the manner of <a href="../util/UnsignedIntEncoder.html" title="class in io.permazen.util"><code>UnsignedIntEncoder</code></a>.</div>
 </div>
 </div>
 </section>
@@ -174,65 +170,85 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/ArrayEncoding.html#io.permazen.encoding">ArrayEncoding</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Support superclass for built-in array <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Support superclass for non-null built-in array <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Base64ArrayEncoding.html#io.permazen.encoding">Base64ArrayEncoding</a></div>
 <div class="col-last even-row-color">
-<div class="block">Adds support for an alternate Base-64 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding for primitive array types.</div>
+<div class="block">Adds support for an alternate Base-64 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> encoding for non-null primitive array types.</div>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Concat2Encoding.html#io.permazen.encoding">Concat2Encoding</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Support superclass for <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into two component values,
- with the combined encoding formed by concatenating the two component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Support superclass for non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into two component values.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/ConvertedEncoding.html#io.permazen.encoding">ConvertedEncoding</a></div>
+<div class="col-first even-row-color"><a href="class-use/Concat4Encoding.html#io.permazen.encoding">Concat4Encoding</a></div>
 <div class="col-last even-row-color">
+<div class="block">Support superclass for non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of values that can be decomposed into four component values.</div>
+</div>
+<div class="col-first odd-row-color"><a href="class-use/ConvertedEncoding.html#io.permazen.encoding">ConvertedEncoding</a></div>
+<div class="col-last odd-row-color">
 <div class="block">An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that relies on some other <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>, converting values to/from
  the other <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s Java type.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/Encoding.html#io.permazen.encoding">Encoding</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="class-use/Encoding.html#io.permazen.encoding">Encoding</a></div>
+<div class="col-last even-row-color">
 <div class="block">A range of values of some Java type, along with string and binary encodings and a total ordering of those values.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/EncodingId.html#io.permazen.encoding">EncodingId</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="class-use/EncodingId.html#io.permazen.encoding">EncodingId</a></div>
+<div class="col-last odd-row-color">
 <div class="block">A globally unique identifier that identifies an <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s encoding scheme.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/EncodingRegistry.html#io.permazen.encoding">EncodingRegistry</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="class-use/EncodingRegistry.html#io.permazen.encoding">EncodingRegistry</a></div>
+<div class="col-last even-row-color">
 <div class="block">A registry of <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/IntegralArrayEncoding.html#io.permazen.encoding">IntegralArrayEncoding</a></div>
-<div class="col-last even-row-color">
-<div class="block">Array type for integral primitive element types.</div>
-</div>
-<div class="col-first odd-row-color"><a href="class-use/IntegralEncoding.html#io.permazen.encoding">IntegralEncoding</a></div>
+<div class="col-first odd-row-color"><a href="class-use/IntegralArrayEncoding.html#io.permazen.encoding">IntegralArrayEncoding</a></div>
 <div class="col-last odd-row-color">
+<div class="block">Support superclass for non-null integral primitive array encodings.</div>
+</div>
+<div class="col-first even-row-color"><a href="class-use/IntegralEncoding.html#io.permazen.encoding">IntegralEncoding</a></div>
+<div class="col-last even-row-color">
 <div class="block">Support superclass for the integral types encoded via <a href="../util/LongEncoder.html" title="class in io.permazen.util"><code>LongEncoder</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/NullSafeEncoding.html#io.permazen.encoding">NullSafeEncoding</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="class-use/NullSafeEncoding.html#io.permazen.encoding">NullSafeEncoding</a></div>
+<div class="col-last odd-row-color">
 <div class="block">An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that wraps any other <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> not supporting null values and adds support for null values.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/NumberEncoding.html#io.permazen.encoding">NumberEncoding</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="class-use/NumberEncoding.html#io.permazen.encoding">NumberEncoding</a></div>
+<div class="col-last even-row-color">
 <div class="block">Support superclass for the numeric primitive types.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/PrimitiveEncoding.html#io.permazen.encoding">PrimitiveEncoding</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="class-use/PrimitiveEncoding.html#io.permazen.encoding">PrimitiveEncoding</a></div>
+<div class="col-last odd-row-color">
 <div class="block">Support superclass for built-in primitive type encodings.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/SimpleEncodingRegistry.html#io.permazen.encoding">SimpleEncodingRegistry</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="class-use/SimpleEncodingRegistry.html#io.permazen.encoding">SimpleEncodingRegistry</a></div>
+<div class="col-last even-row-color">
 <div class="block">A straightforward <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementation that creates object array types on demand.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/StringConvertedEncoding.html#io.permazen.encoding">StringConvertedEncoding</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="class-use/StringConvertedEncoding.html#io.permazen.encoding">StringConvertedEncoding</a></div>
+<div class="col-last odd-row-color">
 <div class="block"><a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for any Java type that can be encoded and ordered as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/TupleEncoding.html#io.permazen.encoding">TupleEncoding</a></div>
+<div class="col-first even-row-color"><a href="class-use/Tuple2Encoding.html#io.permazen.encoding">Tuple2Encoding</a></div>
+<div class="col-last even-row-color">
+<div class="block">Non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple2.html" title="class in io.permazen.tuple"><code>Tuple2</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color"><a href="class-use/Tuple3Encoding.html#io.permazen.encoding">Tuple3Encoding</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Support superclass for <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of <a href="../tuple/Tuple.html" title="interface in io.permazen.tuple"><code>Tuple</code></a> classes created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+<div class="block">Non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple3.html" title="class in io.permazen.tuple"><code>Tuple3</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first even-row-color"><a href="class-use/Tuple4Encoding.html#io.permazen.encoding">Tuple4Encoding</a></div>
+<div class="col-last even-row-color">
+<div class="block">Non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple4.html" title="class in io.permazen.tuple"><code>Tuple4</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first odd-row-color"><a href="class-use/Tuple5Encoding.html#io.permazen.encoding">Tuple5Encoding</a></div>
+<div class="col-last odd-row-color">
+<div class="block">Non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> for a <a href="../tuple/Tuple5.html" title="class in io.permazen.tuple"><code>Tuple5</code></a> created by concatenating the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
+</div>
+<div class="col-first even-row-color"><a href="class-use/TupleEncoding.html#io.permazen.encoding">TupleEncoding</a></div>
+<div class="col-last even-row-color">
+<div class="block">Support superclass for non-null <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s of <a href="../tuple/Tuple.html" title="interface in io.permazen.tuple"><code>Tuple</code></a> classes created by concatenating
+ the component <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s.</div>
 </div>
 </div>
 </section>

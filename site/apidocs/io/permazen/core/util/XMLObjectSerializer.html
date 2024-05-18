@@ -83,12 +83,17 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="../../util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></span></div>
 <div class="block">Utility methods for serializing and deserializing <a href="../Database.html" title="class in io.permazen.core"><code>Database</code></a> objects in a <a href="../Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> to/from XML.
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-xml-doc.min.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+
  <p>
  <b>XML Structure</b>
 
  <p>
  The overall XML format looks like this:
-  <pre>
+
+ <pre><code class="language-xml">
   &lt;database&gt;
       &lt;schemas&gt;
           ...
@@ -97,7 +102,7 @@ loadScripts(document, 'script');</script>
           ...
       &lt;/objects&gt;
   &lt;/database&gt;
-  </pre>
+ </code></pre>
 
  The <code>&lt;schemas&gt;</code> tag contains the database's schema definitions. Providing these definitions makes it
  possible to import into a completely empty <a href="../Database.html" title="class in io.permazen.core"><code>Database</code></a>, i.e., one with no prior knowledge of the objects' schema(s).
@@ -112,7 +117,8 @@ loadScripts(document, 'script');</script>
  There are two supported formats for <code>&lt;object&gt;</code> tags. The "plain" object format uses standard XML elements
  and identifies objects and fields with a <code>"name"</code> attribute using standardized. This format supports all
  possible database object and field names:
-  <pre>
+
+ <pre><code class="language-xml">
   &lt;objects schema="Schema_12e983a72e72ed56741ddc45e47d3377"&gt;
       &lt;object type="Person" id="64a971e1aef01cc8"&gt;
           &lt;field name="name"&gt;George Washington&lt;/field&gt;
@@ -127,11 +133,12 @@ loadScripts(document, 'script');</script>
       &lt;/object&gt;
       ...
   &lt;/objects&gt;
-  </pre>
+ </code></pre>
 
  The "custom" object format uses custom XML tags to specify object types and field names and is more readable.
  However, it doesn't support object type names and field names that are not valid XML tags:
- <pre>
+
+ <pre><code class="language-xml">
   &lt;objects&gt;
       &lt;Person id="64a971e1aef01cc8"&gt;
           &lt;name&gt;George Washington&lt;/name&gt;
@@ -146,7 +153,7 @@ loadScripts(document, 'script');</script>
       &lt;/Person&gt;
       ...
   &lt;/objects&gt;
-  </pre>
+ </code></pre>
 
  When parsing input, the format is auto-detected on a per-element basis, depending on whether or not there is a
  <code>type="..."</code> attribute (for objects) or <code>name="..."</code> attribute (for fields).

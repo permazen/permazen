@@ -75,7 +75,9 @@ loadScripts(document, 'script');</script>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/DirectExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">jdk.jshell.execution.DirectExecutionControl</a>
 <div class="inheritance"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">jdk.jshell.execution.LocalExecutionControl</a>
+<div class="inheritance">org.dellroad.jct.jshell.LocalContextExecutionControl
 <div class="inheritance">io.permazen.cli.jshell.PermazenExecutionControl</div>
+</div>
 </div>
 </div>
 </div>
@@ -86,7 +88,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PermazenExecutionControl</span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">LocalExecutionControl</a></span></div>
+<span class="extends-implements">extends org.dellroad.jct.jshell.LocalContextExecutionControl</span></div>
+<div class="block">Permazen-aware <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link"><code>LocalExecutionControl</code></a>.
+
+ <p>
+ When snippets are evaluated, the Permazen <a href="../Session.html" title="class in io.permazen.cli"><code>Session</code></a> obtained from <a href="PermazenJShellShellSession.html#getPermazenSession()"><code>PermazenJShellShellSession.getPermazenSession()</code></a>
+ is used to create a transaction that stays open for the duration of the snippet execution and the subsequent formatting
+ of the returned result. In effect each JShell command executes within its own transaction, and the evaluated expressions
+ may directly access and manipulate database objects.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -119,23 +128,24 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#invoke(java.lang.reflect.Method)" class="member-name-link">invoke</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html" title="class or interface in java.lang.reflect" class="external-link">Method</a>&nbsp;method)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#enterContext()" class="member-name-link">enterContext</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#invokeWrapper()" class="member-name-link">invokeWrapper</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Invocation wrapper method.</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#leaveContext(boolean)" class="member-name-link">leaveContext</a><wbr>(boolean&nbsp;success)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
-</div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-org.dellroad.jct.jshell.LocalContextExecutionControl">Methods inherited from class&nbsp;org.dellroad.jct.jshell.LocalContextExecutionControl</h3>
+<code>decodeWithContext, invoke, invokeWithContext, invokeWrapper</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-jdk.jshell.execution.LocalExecutionControl">Methods inherited from class&nbsp;jdk.jshell.execution.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">LocalExecutionControl</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#clientCodeEnter()" title="class or interface in jdk.jshell.execution" class="external-link">clientCodeEnter</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#clientCodeLeave()" title="class or interface in jdk.jshell.execution" class="external-link">clientCodeLeave</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#stop()" title="class or interface in jdk.jshell.execution" class="external-link">stop</a></code></div>
@@ -176,30 +186,22 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="invoke(java.lang.reflect.Method)">
-<h3>invoke</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">invoke</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html" title="class or interface in java.lang.reflect" class="external-link">Method</a>&nbsp;method)</span>
-                 throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
+<section class="detail" id="enterContext()">
+<h3>enterContext</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">enterContext</span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#invoke(java.lang.reflect.Method)" title="class or interface in jdk.jshell.execution" class="external-link">invoke</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">LocalExecutionControl</a></code></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
+<dd><code>enterContext</code>&nbsp;in class&nbsp;<code>org.dellroad.jct.jshell.LocalContextExecutionControl</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="invokeWrapper()">
-<h3>invokeWrapper</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span>&nbsp;<span class="element-name">invokeWrapper</span>()
-                            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a></span></div>
-<div class="block">Invocation wrapper method.
-
- <p>
- This method is only used internally but is required to be public due to Java access controls.</div>
+<section class="detail" id="leaveContext(boolean)">
+<h3>leaveContext</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">leaveContext</span><wbr><span class="parameters">(boolean&nbsp;success)</span></div>
 <dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a></code></dd>
+<dt>Overrides:</dt>
+<dd><code>leaveContext</code>&nbsp;in class&nbsp;<code>org.dellroad.jct.jshell.LocalContextExecutionControl</code></dd>
 </dl>
 </section>
 </li>

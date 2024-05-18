@@ -81,6 +81,10 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Reference paths.
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
+
  <p><b>Overview</b>
 
  <p>
@@ -142,7 +146,8 @@ loadScripts(document, 'script');</script>
  <p>
  Consider the following model classes:
 
- <pre>
+ <pre><code class="language-java">
+ &#64;PermazenType
  public interface Animal&lt;T extends Animal&lt;T&gt;&gt; {
 
      T getParent();
@@ -164,7 +169,7 @@ loadScripts(document, 'script');</script>
      Giraffe getFriend();
      void setFriend(Giraffe friend);
  }
- </pre>
+ </code></pre>
 
  Then these paths have the following meanings:
 
@@ -385,7 +390,7 @@ loadScripts(document, 'script');</script>
  The returned type will be as narrow as possible while still including all possibilities, but note that it's
  possible for there to be multiple candidates for the "starting type", none of which is a sub-type of any other.
  To retrieve all such starting types, use <a href="#getStartingTypes()"><code>getStartingTypes()</code></a>; this method just invokes
- <a href="Util.html#findLowestCommonAncestorOfClasses(java.util.stream.Stream)"><code>Util.findLowestCommonAncestorOfClasses()</code></a> on that result.</div>
+ <a href="util/TypeTokens.html#findLowestCommonAncestorOfClasses(java.util.stream.Stream)"><code>TypeTokens.findLowestCommonAncestorOfClasses()</code></a> on that result.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the Java type at which this reference path starts</dd>
@@ -420,7 +425,7 @@ loadScripts(document, 'script');</script>
  The returned type will be as narrow as possible while still including all possibilities, but note that it's
  possible for there to be multiple candidates for the "target type", none of which is a sub-type of any other.
  To retrieve all such target types, use <a href="#getTargetTypes()"><code>getTargetTypes()</code></a>; this method just invokes
- <a href="Util.html#findLowestCommonAncestorOfClasses(java.util.stream.Stream)"><code>Util.findLowestCommonAncestorOfClasses()</code></a> on that result.</div>
+ <a href="util/TypeTokens.html#findLowestCommonAncestorOfClasses(java.util.stream.Stream)"><code>TypeTokens.findLowestCommonAncestorOfClasses()</code></a> on that result.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the Java type at which this reference path ends</dd>
