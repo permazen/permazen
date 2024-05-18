@@ -31,6 +31,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -382,9 +384,12 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         }
         if (!abstractMethods.isEmpty()) {
             throw new IllegalArgumentException(String.format(
-              "the @%s-annotated type %s is invalid because %d abstract method(s) remain unimplemented: %s",
+              "the @%s-annotated type %s is invalid because %d abstract method(s) remain unimplemented:%n  %s",
               PermazenType.class.getSimpleName(), this.type.getName(), abstractMethods.size(),
-              abstractMethods.values().toString().replaceAll("^\\[(.*)\\]$", "$1")));
+              abstractMethods.values().stream()
+                .sorted(Comparator.comparing(Method::getName))
+                .map(Method::toString)
+                .collect(Collectors.joining("\n  "))));
         }
 
         // Calculate which fields require default validation
