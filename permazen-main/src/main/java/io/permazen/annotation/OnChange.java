@@ -143,6 +143,105 @@ import java.lang.annotation.Target;
  *   }
  * </code></pre>
  *
+ * <p><b>Custom Indexes</b></p>
+ *
+ * <p>
+ * {@link OnChange &#64;OnChange} annotations are useful for creating custom database indexes. In the most general
+ * sense, an "index" is some secondary data structure that (a) is entirely derived from some primary data, (b) can be
+ * efficiently when the primary data changes, and (c) provides a quick answer to a question that would otherwise require
+ * an extensive calculation if computed from scratch.
+ *
+ * <p>
+ * The code below shows an example index that tracks the average and variance in {@code House} prices.
+ * See <a href="https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm">Welford's
+ * Algorithm</a> for an explanation of how {@code HouseStats.adjust()} works.
+ *
+ * <pre><code class="language-java">
+ *  &#64;PermazenType
+ *  public abstract class House implements PermazenObject {
+ *
+ *      public abstract double getPrice();
+ *      public abstract void setPrice(double price);
+ *
+ *  // Index maintenance
+ *
+ *      &#64;OnCreate
+ *      private void handleAddition() {
+ *          this.getStats().adjust(true, this.getPrice());    // price is always zero here
+ *      }
+ *
+ *      &#64;OnDelete
+ *      private void handleRemoval() {
+ *          this.getStats().adjust(false, this.getPrice());
+ *      }
+ *
+ *      &#64;OnChange("price")
+ *      private void handlePriceChange(SimpleFieldChange&lt;House, Double&gt; change) {
+ *          HouseStats stats = this.getStats();
+ *          stats.adjust(false, change.getOldValue());
+ *          stats.adjust(true, change.getNewValue());
+ *      }
+ *
+ *      private HouseStats getStats() {
+ *          return this.getPermazenTransaction().getSingleton(HouseStats.class);
+ *      }
+ *  }
+ *
+ *  &#64;PermazenType(singleton = true)
+ *  public abstract class HouseStats implements PermazenObject {
+ *
+ *  // Public Methods
+ *
+ *      // The total number of houses
+ *      public abstract long getCount();
+ *
+ *      // The average house price
+ *      public abstract double getAverage();
+ *
+ *      // The variance in the house price
+ *      public double getVariance() {
+ *          return this.getCount() &gt; 1 ? this.getM2() / this.getCount() : 0.0;
+ *      }
+ *
+ *  // Non-public Methods
+ *
+ *      protected abstract void setCount(long count);
+ *
+ *      protected abstract void setAverage(double average);
+ *
+ *      protected abstract double getM2();
+ *      protected abstract void setM2(double m2);
+ *
+ *      protected void adjust(boolean add, double price) {
+ *          long count = this.getCount();
+ *          double mean = this.getAverage();
+ *          double m2 = this.getM2();
+ *          double delta;
+ *          double delta2;
+ *          if (add) {
+ *              count++;
+ *              delta = price - mean;
+ *              mean += delta / count;
+ *              delta2 = price - mean;
+ *              m2 += delta * delta2;
+ *          } else if (count == 1) {
+ *              count = 0;
+ *              mean = 0;
+ *              m2 = 0;
+ *          } else {                    // reverse the above steps
+ *              delta2 = price - mean;
+ *              mean = (count * mean - price) / (count - 1);
+ *              delta = price - mean;
+ *              m2 -= delta * delta2;
+ *              count--;
+ *          }
+ *          this.setCount(count);
+ *          this.setAverage(mean);
+ *          this.setM2(m2);
+ *      }
+ *  }
+ * </code></pre>
+ *
  * <p><b>Depenedent Objects</b></p>
  *
  * <p>
