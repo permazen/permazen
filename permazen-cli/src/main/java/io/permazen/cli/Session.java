@@ -846,13 +846,6 @@ public class Session {
             this.kvt = kvt;
             this.tx = tx;
             this.ptx = ptx;
-            if (this.ptx != null) {
-                try {
-                    PermazenTransaction.getCurrent();
-                } catch (IllegalStateException e) {
-                    PermazenTransaction.setCurrent(this.ptx);
-                }
-            }
         }
 
         /**
