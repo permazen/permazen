@@ -337,6 +337,15 @@ public class PermazenTransaction {
         CURRENT.set(ptx);
     }
 
+    /**
+     * Determine if there is a {@link PermazenTransaction} associated with the current thread.
+     *
+     * @return true if there is a current {@link PermazenTransaction}, otherwise false
+     */
+    public static boolean hasCurrent() {
+        return CURRENT.get() != null;
+    }
+
 // Accessors
 
     /**

@@ -439,11 +439,7 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
      * @return the transaction associated with the current thread, or null if there is none
      */
     protected PermazenTransaction getCurrent() {
-        try {
-            return PermazenTransaction.getCurrent();
-        } catch (IllegalStateException e) {
-            return null;
-        }
+        return PermazenTransaction.hasCurrent() ? PermazenTransaction.getCurrent() : null;
     }
 
 // TxWrapper
