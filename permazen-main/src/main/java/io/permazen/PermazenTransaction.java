@@ -81,6 +81,7 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -1738,6 +1739,28 @@ public class PermazenTransaction {
         CURRENT.set(this);
         try {
             action.run();
+        } finally {
+            CURRENT.set(previous);
+        }
+    }
+
+    /**
+     * Invoke the given {@link Supplier} with this instance as the {@linkplain #getCurrent current transaction}.
+     *
+     * <p>
+     * If another instance is currently associated with the current thread, it is set aside for the duration of
+     * {@code action}'s execution, and then restored when {@code action} is finished (regardless of outcome).
+     *
+     * @param action action to perform
+     * @return result from action
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    public <T> T performAction(Supplier<T> action) {
+        Preconditions.checkArgument(action != null, "null action");
+        final PermazenTransaction previous = CURRENT.get();
+        CURRENT.set(this);
+        try {
+            return action.get();
         } finally {
             CURRENT.set(previous);
         }
