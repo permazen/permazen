@@ -1820,6 +1820,9 @@ public class PermazenTransaction {
             if (pclass == null)
                 return;
 
+            // Do early @OnValidate method validation
+            this.doOnValidate(pclass.earlyOnValidateMethods, pobj, validationGroups);
+
             // Do singleton validation
             if (pclass.singleton) {
                 final AbstractKVNavigableSet<ObjId> ids = (AbstractKVNavigableSet<ObjId>)this.tx.getAll(pclass.name);
@@ -1851,15 +1854,6 @@ public class PermazenTransaction {
                       "validation error for object %s of type \"%s\":%n%s",
                       id, pclass.name, ValidationUtil.describe(violations)));
                 }
-            }
-
-            // Do @OnValidate method validation
-            for (OnValidateScanner<?>.MethodInfo info : pclass.onValidateMethods) {
-                Class<?>[] methodGroups = info.getAnnotation().groups();
-                if (methodGroups.length == 0)
-                    methodGroups = DEFAULT_CLASS_ARRAY;
-                if (Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
-                    Util.invoke(info.getMethod(), pobj);
             }
 
             // Do simple and composite field uniqueness validation
@@ -1953,9 +1947,24 @@ public class PermazenTransaction {
                     }
                 }
             }
+
+            // Do late @OnValidate method validation
+            this.doOnValidate(pclass.lateOnValidateMethods, pobj, validationGroups);
         }
     }
 
+    // Do @OnValidate method validation
+    private <T> void doOnValidate(Set<OnValidateScanner<T>.MethodInfo> infos, PermazenObject pobj, Class<?>[] validationGroups) {
+        for (OnValidateScanner<?>.MethodInfo info : infos) {
+            Class<?>[] methodGroups = info.getAnnotation().groups();
+            if (methodGroups.length == 0)
+                methodGroups = DEFAULT_CLASS_ARRAY;
+            if (Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
+                Util.invoke(info.getMethod(), pobj);
+        }
+    }
+
+    // Find some duplicates that shouldn't be there, if any
     private ArrayList<ObjId> findUniqueConflictors(ObjId id, NavigableSet<ObjId> ids) {
         final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
         for (ObjId conflictor : ids) {

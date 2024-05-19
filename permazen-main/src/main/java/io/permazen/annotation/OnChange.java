@@ -245,7 +245,7 @@ import java.lang.annotation.Target;
  * <p><b>Depenedent Objects</b></p>
  *
  * <p>
- * {@link OnChange &#64;OnChange} annotations can be used to automatically garbage collect dependent objects.
+ * {@link OnChange &#64;OnChange} annotations can be used to automatically garbage collect <i>dependent</i> objects.
  * A dependent object is one that is only useful or meaningful in the context of some other object(s) that reference it.
  * You can combine {@link OnChange &#64;OnChange} with {@link OnDelete &#64;OnDelete} and {@link ReferencePath &#64;ReferencePath}
  * to keep track of incoming references.
@@ -280,12 +280,8 @@ import java.lang.annotation.Target;
  *   public abstract class Address implements PermazenObject {
  *
  *       &#64;NotNull
- *       public abstract String getAddress();
- *       public abstract void setAddress(String adddress);
- *
- *       &#64;NotNull
- *       public abstract String getCity();
- *       public abstract void setCity(String city);
+ *       public abstract String getNumberAndStreet();
+ *       public abstract void setNumberAndStreet(String ns);
  *
  *       &#64;NotNull
  *       public abstract String getZip();
@@ -296,10 +292,15 @@ import java.lang.annotation.Target;
  *       &#64;ReferencePath("&lt;-Person.address")
  *       public abstract NavigableSet&lt;Person&gt; getOccupants();
  *
- *   // &#64;OnChange methods
+ *   // Dependent Object Checks
  *
  *       &#64;OnChange(path = "&lt;-Person.address", value = "address")
- *       private void referenceChange(SimpleFieldChange&lt;Person, Address&gt; change) {
+ *       private void occupantChange(SimpleFieldChange&lt;Person, Address&gt; change) {
+ *           this.revalidate();
+ *       }
+ *
+ *       &#64;OnValidate(early = true)
+ *       private void deleteIfOrphan() {
  *           if (this.getOccupants().isEmpty())
  *               this.delete();
  *       }

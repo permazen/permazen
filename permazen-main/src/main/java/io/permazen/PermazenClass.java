@@ -76,7 +76,8 @@ public class PermazenClass<T> extends PermazenSchemaItem {
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
-    Set<OnValidateScanner<T>.MethodInfo> onValidateMethods;
+    Set<OnValidateScanner<T>.MethodInfo> earlyOnValidateMethods;
+    Set<OnValidateScanner<T>.MethodInfo> lateOnValidateMethods;
     Set<OnSchemaChangeScanner<T>.MethodInfo> onSchemaChangeMethods;
 
     boolean requiresDefaultValidation;
@@ -472,8 +473,16 @@ public class PermazenClass<T> extends PermazenSchemaItem {
         this.onCreateMethods = new OnCreateScanner<>(this).findAnnotatedMethods();
         this.onDeleteMethods = new OnDeleteScanner<>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<>(this).findAnnotatedMethods();
-        this.onValidateMethods = new OnValidateScanner<>(this).findAnnotatedMethods();
         this.onSchemaChangeMethods = new OnSchemaChangeScanner<>(this).findAnnotatedMethods();
+
+        // Find @OnValidate methods and split into early vs. late
+        final Set<OnValidateScanner<T>.MethodInfo> onValidateMethods = new OnValidateScanner<>(this).findAnnotatedMethods();
+        this.earlyOnValidateMethods = onValidateMethods.stream()
+          .filter(info -> info.getAnnotation().early())
+          .collect(Collectors.toSet());
+        this.lateOnValidateMethods = onValidateMethods.stream()
+          .filter(info -> !info.getAnnotation().early())
+          .collect(Collectors.toSet());
     }
 
     void calculateValidationRequirement() {

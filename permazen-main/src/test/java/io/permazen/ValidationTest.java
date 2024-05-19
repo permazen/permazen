@@ -261,6 +261,39 @@ public class ValidationTest extends MainTestSupport {
     }
 
     @Test
+    public void testEarlyLateValidation() {
+
+        final Permazen pdb = BasicTest.newPermazen(EarlyValidation.class, LateValidation.class);
+
+        PermazenTransaction ptx = pdb.createTransaction(ValidationMode.AUTOMATIC);
+        PermazenTransaction.setCurrent(ptx);
+        try {
+
+            EarlyValidation early = ptx.create(EarlyValidation.class);
+
+            ptx.validate();
+
+            assert early.getName().equals("placeholder");
+
+            LateValidation late = ptx.create(LateValidation.class);
+
+            try {
+                ptx.validate();
+                assert false;
+            } catch (ValidationException e) {
+                this.log.info("got expected " + e);
+            }
+
+            late.setName("foo");
+
+            ptx.commit();
+
+        } finally {
+            PermazenTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
     public void testNameThing1() {
         this.testNameThing(NameThing1.class);
     }
@@ -440,6 +473,40 @@ public class ValidationTest extends MainTestSupport {
         @Override
         public boolean isValid(Object obj, ConstraintValidatorContext context) {
             return obj == null || obj.toString().length() > 0;
+        }
+    }
+
+// Fixup Validation
+
+    public abstract static class AbstractFixupValidation implements PermazenObject {
+
+        protected void fixupNullName() {
+            if (this.getName() == null)
+                this.setName("placeholder");
+        }
+
+        @NotNull
+        public abstract String getName();
+        public abstract void setName(String name);
+    }
+
+    @PermazenType
+    public abstract static class EarlyValidation extends AbstractFixupValidation {
+
+        @OnValidate(early = true)
+        @Override
+        protected void fixupNullName() {
+            super.fixupNullName();
+        }
+    }
+
+    @PermazenType
+    public abstract static class LateValidation extends AbstractFixupValidation {
+
+        @OnValidate
+        @Override
+        protected void fixupNullName() {
+            super.fixupNullName();
         }
     }
 }
