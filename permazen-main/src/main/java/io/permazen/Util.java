@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -125,9 +126,11 @@ public final class Util {
         }
 
         // Recurse on supertypes
+        final HashSet<Class<?>> visited = new HashSet<>();
+        visited.add(type);
         for (TypeToken<?> typeToken : TypeToken.of(type).getTypes()) {
             final Class<?> superType = typeToken.getRawType();
-            if (superType == type)
+            if (!visited.add(superType))
                 continue;
             final AnnotatedElement annotatedElement = Util.hasValidation(superType);
             if (annotatedElement != null)
