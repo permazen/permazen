@@ -29,7 +29,7 @@ public class CopyCascadeTest extends MainTestSupport {
             assert n1.exists();
 
             final PermazenTransaction stx = ptx.getDetachedTransaction();
-            final Node n2 = (Node)n1.copyTo(stx, 0, new CopyState());
+            final Node n2 = (Node)n1.copyTo(stx, 0, new CopyState(false));
             assert n2.exists();
 
             ptx.commit();

@@ -216,7 +216,7 @@ public class UniqueConstraintTest extends MainTestSupport {
             final UniqueName u1 = ptx.create(UniqueName.class);
             u1.setName("Jeffrey");
 
-            final CopyState copyState = new CopyState();
+            final CopyState copyState = new CopyState(false);
             copyState.getObjectIdMap().put(u1.getObjId(), null);                // map to new object id
             final UniqueName u2 = (UniqueName)u1.copyTo(ptx, -1, copyState);
 
@@ -257,8 +257,7 @@ public class UniqueConstraintTest extends MainTestSupport {
             final UniqueName u2s = stx.create(UniqueName.class);
             u2s.setName("Jeffrey");
 
-            final CopyState copyState = new CopyState();
-            copyState.setSuppressNotifications(this.random.nextBoolean());
+            final CopyState copyState = new CopyState(this.random.nextBoolean());
 
             final UniqueName u2 = (UniqueName)u2s.copyTo(ptx, -1, copyState);
 
@@ -332,8 +331,7 @@ public class UniqueConstraintTest extends MainTestSupport {
             u2s.recreate();
             u2s.setName("Jeffrey");
 
-            final CopyState copyState = new CopyState();
-            copyState.setSuppressNotifications(true);
+            final CopyState copyState = new CopyState(true);
             u2s.copyTo(ptx, -1, copyState);
 
             final UniqueName u1 = ptx.get(id1, UniqueName.class);

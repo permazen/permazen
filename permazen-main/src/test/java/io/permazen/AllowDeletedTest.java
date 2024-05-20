@@ -73,7 +73,7 @@ public class AllowDeletedTest extends MainTestSupport {
             // copyIn() of one object and one other object it refers to
             ptx.getAll(Person.class).forEach(PermazenObject::delete);
             try {
-                p1.copyTo(ptx, 1, new CopyState(), "definitelyExistsFriend");
+                p1.copyTo(ptx, 1, new CopyState(false), "definitelyExistsFriend");
                 assert false;
             } catch (DeletedObjectException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -87,7 +87,7 @@ public class AllowDeletedTest extends MainTestSupport {
             // copyTo() of 2/3 objects
             ptx.getAll(Person.class).forEach(PermazenObject::delete);
             try {
-                stx.copyTo(ptx, new CopyState(), Arrays.asList(p1, p2).stream());
+                stx.copyTo(ptx, new CopyState(false), Arrays.asList(p1, p2).stream());
                 assert false;
             } catch (DeletedObjectException e) {
                 this.log.debug("got expected {}", e.toString());
@@ -96,7 +96,7 @@ public class AllowDeletedTest extends MainTestSupport {
 
             // copyTo() of all 3/3 objects
             ptx.getAll(Person.class).forEach(PermazenObject::delete);
-            stx.copyTo(ptx, new CopyState(), Arrays.asList(p1, p2, p3).stream());
+            stx.copyTo(ptx, new CopyState(false), Arrays.asList(p1, p2, p3).stream());
             Assert.assertEquals(ptx.getAll(Person.class).size(), 3);
 
         } finally {

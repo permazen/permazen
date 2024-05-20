@@ -154,7 +154,7 @@ public class DetachedTest extends MainTestSupport {
             Assert.assertFalse(p1.exists());
             Assert.assertFalse(p1.isDetached());
 
-            detached.copyTo(tx2, -1, new CopyState());
+            detached.copyTo(tx2, -1, new CopyState(false));
             Assert.assertTrue(p1.exists());
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -175,7 +175,7 @@ public class DetachedTest extends MainTestSupport {
             detached.getMap2().put(33.33f, p2);
             detached.getMap2().put(null, p3);
 
-            detached.copyTo(tx2, -1, new CopyState());
+            detached.copyTo(tx2, -1, new CopyState(false));
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);
@@ -226,7 +226,7 @@ public class DetachedTest extends MainTestSupport {
             TestSupport.checkSet(f2.getReferrers(), buildSet(f1));
             TestSupport.checkSet(f3.getReferrers(), buildSet(f2));
 
-            tx.copyTo(stx, new CopyState(), f1.getWithRelatedObjects());
+            tx.copyTo(stx, new CopyState(false), f1.getWithRelatedObjects());
             final Foo f1s = stx.get(f1.getObjId(), Foo.class);
 
             final Foo f2s = (Foo)stx.get(f2.getObjId());

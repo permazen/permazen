@@ -116,7 +116,7 @@ public class BasicTest extends MainTestSupport {
 
             // Test copyTo() with different target
             final MeanPerson t1dup = tx.create(MeanPerson.class);
-            t1.copyTo(tx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(t1.getObjId(), t1dup.getObjId()))));
+            t1.copyTo(tx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(t1.getObjId(), t1dup.getObjId())), false));
             this.check(t1dup, true, (byte)123, (short)-32763, '!', -99, 12.34e-13f, Long.MAX_VALUE, Double.POSITIVE_INFINITY,
               "hey there", Mood.HAPPY, t1dup,
               Arrays.asList("apple", "banana", "dinkle"),

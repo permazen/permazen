@@ -35,34 +35,37 @@ public class CopyState {
 
     private final ObjIdSet copied;
     private final ObjIdMap<ObjId> objectIdMap;
-    private boolean suppressNotifications;
+    private final boolean suppressNotifications;
 
 // Constructors
 
     /**
-     * Default constructor.
+     * Simple constructor.
      *
      * <p>
      * No object ID's will be remapped.
      *
      * <p>
-     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap) CopyState(new ObjIdSet(), null)}.
+     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap) CopyState(new ObjIdSet(), null, suppressNotifications)}.
+     *
+     * @param suppressNotifications true to suppress create and change notifications, otherwise false
      */
-    public CopyState() {
-        this(new ObjIdSet(), new ObjIdMap<>());
+    public CopyState(boolean suppressNotifications) {
+        this(new ObjIdSet(), new ObjIdMap<>(), suppressNotifications);
     }
 
     /**
-     * Default remapping constructor.
+     * Remapping constructor.
      *
      * <p>
-     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap) CopyState(new ObjIdSet(), objectIdMap)}.
+     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap) CopyState(new ObjIdSet(), objectIdMap, boolean suppressNotifications)}.
      *
      * @param objectIdMap mapping from source object ID to destination object ID
+     * @param suppressNotifications true to suppress create and change notifications, otherwise false
      * @throws IllegalArgumentException if {@code objectIdMap} is null
      */
-    public CopyState(ObjIdMap<ObjId> objectIdMap) {
-        this(new ObjIdSet(), objectIdMap);
+    public CopyState(ObjIdMap<ObjId> objectIdMap, boolean suppressNotifications) {
+        this(new ObjIdSet(), objectIdMap, suppressNotifications);
     }
 
     /**
@@ -81,13 +84,15 @@ public class CopyState {
      *
      * @param copied the ID's of objects that have already been copied
      * @param objectIdMap optional mapping from source object ID to remapped destination object ID
+     * @param suppressNotifications true to suppress create and change notifications, otherwise false
      * @throws IllegalArgumentException if either parameter is null
      */
-    public CopyState(ObjIdSet copied, ObjIdMap<ObjId> objectIdMap) {
+    public CopyState(ObjIdSet copied, ObjIdMap<ObjId> objectIdMap, boolean suppressNotifications) {
         Preconditions.checkArgument(copied != null, "null copied");
         Preconditions.checkArgument(objectIdMap != null, "null objectIdMap");
         this.copied = copied;
         this.objectIdMap = objectIdMap;
+        this.suppressNotifications = suppressNotifications;
     }
 
     /**
@@ -131,25 +136,11 @@ public class CopyState {
      * Determine whether to suppress {@link OnCreate &#64;OnCreate} and
      * {@link OnChange &#64;OnChange} notifications in the destination transaction.
      *
-     * <p>
-     * Default is false.
-     *
      * @return true if {@link OnCreate &#64;OnCreate} and
      *  {@link OnChange &#64;OnChange} notifications should be suppressed, otherwise false
      */
     public boolean isSuppressNotifications() {
         return this.suppressNotifications;
-    }
-
-    /**
-     * Configure whether to suppress {@link OnCreate &#64;OnCreate} and
-     * {@link OnChange &#64;OnChange} notifications in the destination transaction.
-     *
-     * @param suppressNotifications true if {@link OnCreate &#64;OnCreate} and
-     *  {@link OnChange &#64;OnChange} notifications should be suppressed, otherwise false
-     */
-    public void setSuppressNotifications(boolean suppressNotifications) {
-        this.suppressNotifications = suppressNotifications;
     }
 
     /**

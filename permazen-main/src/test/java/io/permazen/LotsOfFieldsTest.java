@@ -88,7 +88,7 @@ public class LotsOfFieldsTest extends MainTestSupport {
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 456);
 
-            f1.copyTo(ptx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(f1.getObjId(), f2.getObjId()))));
+            f1.copyTo(ptx, -1, new CopyState(new ObjIdMap<>(Collections.singletonMap(f1.getObjId(), f2.getObjId())), false));
 
             Assert.assertEquals(f1.getField55(), 123);
             Assert.assertEquals(f2.getField55(), 123);

@@ -231,8 +231,12 @@ public interface PermazenObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><pre>
-     * this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+     * this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(true), cascades);
      * </pre></blockquote>
+     *
+     * <p>
+     * Note that {@link OnCreate &#64;OnCreate} and {@link OnChange &#64;OnChange} notifications will not be delivered
+     * in the detached transaction.
      *
      * @param cascades zero or more reference cascades that identify additional objects to copy
      * @return the detached {@link PermazenObject} copy of this instance
@@ -242,7 +246,7 @@ public interface PermazenObject {
      * @see #copyIn copyIn()
      */
     default PermazenObject copyOut(String... cascades) {
-        return this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(), cascades);
+        return this.copyTo(this.getPermazenTransaction().getDetachedTransaction(), -1, new CopyState(true), cascades);
     }
 
     /**
@@ -256,8 +260,12 @@ public interface PermazenObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      * <blockquote><pre>
-     * this.copyTo(PermazenTransaction.getCurrent(), -1, new CopyState(), cascades)
+     * this.copyTo(PermazenTransaction.getCurrent(), -1, new CopyState(false), cascades)
      * </pre></blockquote>
+     *
+     * <p>
+     * Note that {@link OnCreate &#64;OnCreate} and {@link OnChange &#64;OnChange} notifications will be delivered
+     * in the destination transaction as objects are created and updated.
      *
      * @param cascades zero or more reference cascades that identify additional objects to copy
      * @return the regular database copy of this instance
@@ -269,7 +277,7 @@ public interface PermazenObject {
      * @see #copyOut copyOut()
      */
     default PermazenObject copyIn(String... cascades) {
-        return this.copyTo(PermazenTransaction.getCurrent(), -1, new CopyState(), cascades);
+        return this.copyTo(PermazenTransaction.getCurrent(), -1, new CopyState(false), cascades);
     }
 
     /**
