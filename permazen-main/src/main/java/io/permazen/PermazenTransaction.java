@@ -1838,8 +1838,10 @@ public class PermazenTransaction {
                 }
             }
 
-            // Do JSR 303 validation if needed
-            if (validator != null) {
+            // Do JSR 303 validation (if any)
+            if (validator != null && pclass.elementRequiringJSR303Validation != null) {
+
+                // Run validator
                 final Set<ConstraintViolation<PermazenObject>> violations;
                 try {
                     violations = new ValidationContext<PermazenObject>(pobj, validationGroups).validate(validator);
