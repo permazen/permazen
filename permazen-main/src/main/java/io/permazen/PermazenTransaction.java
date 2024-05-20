@@ -1810,7 +1810,7 @@ public class PermazenTransaction {
                 assert validationGroups != null;
             }
 
-            // Does it still exist?
+            // Does the object still exist?
             if (!this.tx.exists(id))
                 continue;
 
@@ -1820,8 +1820,9 @@ public class PermazenTransaction {
             if (pclass == null)
                 return;
 
-            // Do early @OnValidate method validation
-            this.doOnValidate(pclass.earlyOnValidateMethods, pobj, validationGroups);
+            // Do early @OnValidate method validation, bailing out if an @OnValidate method deletes the object
+            if (!this.doOnValidate(pclass.earlyOnValidateMethods, pobj, validationGroups))
+                continue;
 
             // Do singleton validation
             if (pclass.singleton) {
@@ -1856,6 +1857,10 @@ public class PermazenTransaction {
                       "validation error for object %s of type \"%s\":%n%s",
                       id, pclass.name, ValidationUtil.describe(violations)));
                 }
+
+                // It's posible (though unlikely) that a JSR 303 validation could have deleted the object, so check for that
+                if (!this.tx.exists(id))
+                    continue;
             }
 
             // Do simple and composite field uniqueness validation
@@ -1955,15 +1960,19 @@ public class PermazenTransaction {
         }
     }
 
-    // Do @OnValidate method validation
-    private <T> void doOnValidate(Set<OnValidateScanner<T>.MethodInfo> infos, PermazenObject pobj, Class<?>[] validationGroups) {
+    // Do @OnValidate method validation; return false if it results in object being deleted
+    private <T> boolean doOnValidate(Set<OnValidateScanner<T>.MethodInfo> infos, PermazenObject pobj, Class<?>[] validationGroups) {
         for (OnValidateScanner<?>.MethodInfo info : infos) {
             Class<?>[] methodGroups = info.getAnnotation().groups();
             if (methodGroups.length == 0)
                 methodGroups = DEFAULT_CLASS_ARRAY;
-            if (Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
-                Util.invoke(info.getMethod(), pobj);
+            if (!Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
+                continue;
+            Util.invoke(info.getMethod(), pobj);
+            if (!this.tx.exists(pobj.getObjId()))
+                return false;
         }
+        return true;
     }
 
     // Find some duplicates that shouldn't be there, if any
