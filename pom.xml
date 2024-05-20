@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.dellroad</groupId>
         <artifactId>dellroad-dependencies</artifactId>
-        <version>3.1.7.0</version>
+        <version>3.2.5.0</version>
     </parent>
     <groupId>io.permazen</groupId>
     <artifactId>permazen</artifactId>
@@ -85,9 +85,6 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
-
-        <!-- dellroad-dependencies overrides -->
-        <dellroad-stuff.version>3.0.4</dellroad-stuff.version>
 
         <!-- Versions for dependencies used by multiple modules -->
         <testng.version>7.7.1</testng.version>
