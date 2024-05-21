@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * Support superclass for {@link Encoding} implementations.
  *
  * <p>
- * Instances are {@link Serializable} if their default values are (typically the default value is null, making this the case).
+ * Instances are {@link Serializable} if their default value suppliers are.
  *
  * @param <T> The associated Java type
  * @see EncodingRegistry
@@ -28,6 +28,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     protected final EncodingId encodingId;
     protected final TypeToken<T> typeToken;
 
+    @SuppressWarnings("serial")
     private final Supplier<? extends T> defaultValueSupplier;
 
     private transient byte[] defaultValueBytes;
