@@ -83,6 +83,7 @@
 
         <!-- Basic stuff -->
         <java.version>17</java.version>
+        <java.version.upper.bound/><!-- Overridden by "sign" profile (see below) -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
@@ -298,7 +299,7 @@
 
                                 <!-- Enforce Java version -->
                                 <requireJavaVersion>
-                                    <version>[${java.version},)</version>
+                                    <version>[${java.version},${java.version.upper.bound})</version>
                                 </requireJavaVersion>
 
                                 <!-- Check for dependency conflicts -->
@@ -642,6 +643,9 @@
         <!-- Maven Central requires signed artifacts -->
         <profile>
             <id>sign</id>
+            <properties>
+                <java.version.upper.bound>18</java.version.upper.bound>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
