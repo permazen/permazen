@@ -367,6 +367,7 @@
                     <compilerArgs>
                         <arg>-Xlint:all,-processing,-path</arg>
                         <arg>-parameters</arg>
+                        <arg>-proc:none</arg>
                         <arg>-Werror</arg>
                     </compilerArgs>
                 </configuration>
