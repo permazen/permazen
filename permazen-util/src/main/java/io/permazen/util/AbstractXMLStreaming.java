@@ -5,6 +5,8 @@
 
 package io.permazen.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 
 import javax.xml.namespace.QName;
@@ -17,6 +19,8 @@ import javax.xml.stream.XMLStreamWriter;
  * Support superclass for classes that serialize and deserialize via XML.
  */
 public abstract class AbstractXMLStreaming {
+
+    private static final String CDATA_END = "]]>";
 
     protected AbstractXMLStreaming() {
     }
@@ -327,13 +331,17 @@ public abstract class AbstractXMLStreaming {
      * Write out a simple XML element containing the given content.
      *
      * @param writer XML output
-     * @param element element name
+     * @param name element name
      * @param content simple content
      * @throws XMLStreamException if error occurs writing output
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code name} is invalid
      */
-    protected void writeElement(XMLStreamWriter writer, QName element, String content) throws XMLStreamException {
-        writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());
-        writer.writeCharacters(content);
+    protected void writeElement(XMLStreamWriter writer, QName name, String content) throws XMLStreamException {
+        Preconditions.checkArgument(writer != null, "null writer");
+        this.validateQName(name);
+        writer.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
+        this.writeCharacters(writer, content);
         writer.writeEndElement();
     }
 
@@ -343,8 +351,12 @@ public abstract class AbstractXMLStreaming {
      * @param writer XML output
      * @param name element name
      * @throws XMLStreamException if error occurs writing output
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code name} is invalid
      */
     protected void writeEmptyElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
+        Preconditions.checkArgument(writer != null, "null writer");
+        this.validateQName(name);
         writer.writeEmptyElement(name.getNamespaceURI(), name.getLocalPart());
     }
 
@@ -354,20 +366,96 @@ public abstract class AbstractXMLStreaming {
      * @param writer XML output
      * @param name element name
      * @throws XMLStreamException if error occurs writing output
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code name} is invalid
      */
     protected void writeStartElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
+        Preconditions.checkArgument(writer != null, "null writer");
+        this.validateQName(name);
         writer.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
     }
 
     /**
-     * Write out an attribute.
+     * Write out an attribute, and also verify that no illegal characters are written.
      *
      * @param writer XML output
      * @param name attribute qualified name
      * @param value attribute value
      * @throws XMLStreamException if error occurs writing output
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code name} is invalid
+     * @throws IllegalArgumentException if the {@link String} value of {@code value} contains an illegal character
      */
     protected void writeAttr(XMLStreamWriter writer, QName name, Object value) throws XMLStreamException {
-        writer.writeAttribute(name.getNamespaceURI(), name.getLocalPart(), String.valueOf(value));
+        Preconditions.checkArgument(writer != null, "null writer");
+        this.validateQName(name);
+        Preconditions.checkArgument(value != null, "null value");
+        writer.writeAttribute(name.getNamespaceURI(), name.getLocalPart(), this.validateText(value.toString()));
+    }
+
+    /**
+     * Write out text, and also verify that no illegal characters are written.
+     *
+     * @param writer XML output
+     * @param text text to output
+     * @throws XMLStreamException if error occurs writing output
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code text} contains an illegal character
+     */
+    protected void writeCharacters(XMLStreamWriter writer, String text) throws XMLStreamException {
+        Preconditions.checkArgument(writer != null, "null writer");
+        writer.writeCharacters(this.validateText(text));
+    }
+
+    /**
+     * Write out CDATA text with proper escaping of nested {@code ]]>} sequences,
+     * and also verify that no illegal characters are written.
+     *
+     * <p>
+     * Note: The method {@link XMLStreamWriter#writeCData} does not escape nested {@code ]]>} sequences.
+     * This method handles them.
+     *
+     * @param writer XML output
+     * @param text text to output
+     * @throws XMLStreamException if error occurs writing output
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code text} contains an illegal character
+     */
+    protected void writeCData(XMLStreamWriter writer, String text) throws XMLStreamException {
+        Preconditions.checkArgument(writer != null, "null writer");
+        this.validateText(text);
+        int endOffset;
+        for (int offset = 0; offset < text.length(); offset = endOffset) {
+            final int cdataEnd = text.indexOf(CDATA_END, offset);
+            endOffset = cdataEnd != -1 ? cdataEnd : text.length();
+            if (endOffset > offset)
+                writer.writeCData(text.substring(offset, endOffset));
+            if (cdataEnd != -1) {
+                writer.writeCharacters(CDATA_END);
+                endOffset += CDATA_END.length();
+            }
+        }
+    }
+
+    private String validateText(String text) {
+        Preconditions.checkArgument(text != null, "null text");
+        int codePoint;
+        for (int offset = 0; offset < text.length(); offset += Character.charCount(codePoint)) {
+            codePoint = text.codePointAt(offset);
+            if (!XMLUtil.isValidChar(codePoint)) {
+                throw new IllegalArgumentException(String.format(
+                  "text contains invalid XML character 0x%x at offset %d", codePoint, offset));
+            }
+        }
+        return text;
+    }
+
+    private void validateQName(QName qname) {
+        Preconditions.checkArgument(qname != null, "null name");
+        final String name = qname.getLocalPart();
+        final String prefix = qname.getPrefix();
+        Preconditions.checkArgument(!name.isEmpty(), "empty name");
+        Preconditions.checkArgument(XMLUtil.isValidName(prefix), "invalid name prefix");
+        Preconditions.checkArgument(XMLUtil.isValidName(name), "invalid name local part");
     }
 }
