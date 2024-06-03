@@ -21,6 +21,8 @@ public abstract class AbstractXMLStreaming {
     protected AbstractXMLStreaming() {
     }
 
+// INPUT METHODS
+
     /**
      * Scan forward until we see an opening or closing tag.
      * If opening tag is seen, it must match one of {@code names} and then we return true, if not or if {@code names}
@@ -111,73 +113,6 @@ public abstract class AbstractXMLStreaming {
      */
     protected void expectClose(XMLStreamReader reader) throws XMLStreamException {
         this.expect(reader, true);
-    }
-
-    private String description(QName[] names) {
-        switch (names.length) {
-        case 0:
-            return "closing tag";
-        case 1:
-            return "opening <" + names[0] + "> tag";
-        default:
-            final StringBuilder buf = new StringBuilder();
-            for (QName name : names) {
-                if (buf.length() == 0)
-                    buf.append("one of ");
-                else
-                    buf.append(", ");
-                buf.append('<').append(name).append('>');
-            }
-            return buf.toString();
-        }
-    }
-
-    /**
-     * Write out a simple XML element containing the given content.
-     *
-     * @param writer XML output
-     * @param element element name
-     * @param content simple content
-     * @throws XMLStreamException if error occurs writing output
-     */
-    protected void writeElement(XMLStreamWriter writer, QName element, String content) throws XMLStreamException {
-        writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());
-        writer.writeCharacters(content);
-        writer.writeEndElement();
-    }
-
-    /**
-     * Start an empty XML element.
-     *
-     * @param writer XML output
-     * @param name element name
-     * @throws XMLStreamException if error occurs writing output
-     */
-    protected void writeEmptyElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
-        writer.writeEmptyElement(name.getNamespaceURI(), name.getLocalPart());
-    }
-
-    /**
-     * Start a non-empty XML element.
-     *
-     * @param writer XML output
-     * @param name element name
-     * @throws XMLStreamException if error occurs writing output
-     */
-    protected void writeStartElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
-        writer.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
-    }
-
-    /**
-     * Write out an attribute.
-     *
-     * @param writer XML output
-     * @param name attribute qualified name
-     * @param value attribute value
-     * @throws XMLStreamException if error occurs writing output
-     */
-    protected void writeAttr(XMLStreamWriter writer, QName name, Object value) throws XMLStreamException {
-        writer.writeAttribute(name.getNamespaceURI(), name.getLocalPart(), String.valueOf(value));
     }
 
     /**
@@ -365,5 +300,74 @@ public abstract class AbstractXMLStreaming {
         if (cause != null)
             e.initCause(cause);
         return e;
+    }
+
+    private String description(QName[] names) {
+        switch (names.length) {
+        case 0:
+            return "closing tag";
+        case 1:
+            return "opening <" + names[0] + "> tag";
+        default:
+            final StringBuilder buf = new StringBuilder();
+            for (QName name : names) {
+                if (buf.length() == 0)
+                    buf.append("one of ");
+                else
+                    buf.append(", ");
+                buf.append('<').append(name).append('>');
+            }
+            return buf.toString();
+        }
+    }
+
+// OUTPUT METHODS
+
+    /**
+     * Write out a simple XML element containing the given content.
+     *
+     * @param writer XML output
+     * @param element element name
+     * @param content simple content
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeElement(XMLStreamWriter writer, QName element, String content) throws XMLStreamException {
+        writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());
+        writer.writeCharacters(content);
+        writer.writeEndElement();
+    }
+
+    /**
+     * Start an empty XML element.
+     *
+     * @param writer XML output
+     * @param name element name
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeEmptyElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
+        writer.writeEmptyElement(name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    /**
+     * Start a non-empty XML element.
+     *
+     * @param writer XML output
+     * @param name element name
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeStartElement(XMLStreamWriter writer, QName name) throws XMLStreamException {
+        writer.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    /**
+     * Write out an attribute.
+     *
+     * @param writer XML output
+     * @param name attribute qualified name
+     * @param value attribute value
+     * @throws XMLStreamException if error occurs writing output
+     */
+    protected void writeAttr(XMLStreamWriter writer, QName name, Object value) throws XMLStreamException {
+        writer.writeAttribute(name.getNamespaceURI(), name.getLocalPart(), String.valueOf(value));
     }
 }
