@@ -7,14 +7,6 @@ package io.permazen.util;
 
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-
 /**
  * XML related utility methods.
  */
