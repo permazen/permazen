@@ -29,9 +29,11 @@ public abstract class SchemaItem extends SchemaSupport {
      * The regular expression that all schema item names must match.
      *
      * <p>
-     * This pattern is the same as is required for Java identifiers.
+     * This pattern is the same as is required for Java identifiers, with the exception that control characters
+     * (i.e., {@code 0x0000} through {@code 0x001f}, plus {@code 0x007f}) are disallowed. This restriction ensures
+     * that item names are valid in an XML document.
      */
-    public static final String NAME_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
+    public static final String NAME_PATTERN = "\\p{javaJavaIdentifierStart}((?!\\p{Cntrl})\\p{javaJavaIdentifierPart})*";
 
     private String name;
     private int storageId;
