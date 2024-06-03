@@ -164,8 +164,8 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * Encode a non-null value as a {@link String} for later decoding by {@link #fromString fromString()}.
      *
      * <p>
-     * Each of the characters in the returned {@link String} must be one of the valid XML characters
-     * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).
+     * Each of the characters in the returned {@link String}, when decoded as 32-bit Unicode codepoints,
+     * must contain only valid XML characters (see {@link XMLUtil#isValidChar}).
      *
      * @param value actual value, never null
      * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
