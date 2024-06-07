@@ -257,12 +257,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint, boolean includeName) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint, boolean includeName)
+      throws XMLStreamException {
         if (this.objectTypes != null)
             this.writeStartElement(writer, XMLConstants.REFERENCE_FIELD_TAG);
         else
             this.writeEmptyElement(writer, XMLConstants.REFERENCE_FIELD_TAG);
-        this.writeAttributes(writer, includeName);
+        this.writeAttributes(writer, includeStorageIds, includeName);
         if (this.inverseDelete != null)
             this.writeAttr(writer, XMLConstants.INVERSE_DELETE_ATTRIBUTE, this.inverseDelete.name());
         if (this.allowDeleted != (this.inverseDelete == DeleteAction.IGNORE))

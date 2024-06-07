@@ -435,7 +435,7 @@ public class SchemaGeneratorTask extends Task {
             if (generate) {
                 this.flog("writing generated Permazen schema to \"%s\"", this.file);
                 try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(this.file))) {
-                    schemaModel.toXML(output, true);
+                    schemaModel.toXML(output, false, true);
                 } catch (IOException e) {
                     throw new BuildException("error writing schema to \"" + this.file + "\": " + e, e);
                 }

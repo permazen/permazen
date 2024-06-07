@@ -22,7 +22,7 @@ import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 public class SaveCommand extends AbstractCommand {
 
     public SaveCommand() {
-        super("save --storage-id-format:storageIdFormat -w:weak file.xml:file");
+        super("save --plain:plain --storage-ids:storageIds --weak:weak file.xml:file");
     }
 
     @Override
@@ -33,8 +33,9 @@ public class SaveCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "Writes all database objects to the specified XML file. Objects can be read back in later via `load'.\n"
-          + "If the `-w' flag is given, for certain key/value stores a weaker consistency level is used for"
-          + " the tranasction to reduce the chance of conflicts.";
+          + "By default, objects are written in the custom format; add the \"--plain\" flag to get the plain format.\n"
+          + "To include explicit storage ID's, use the \"--storage-ids\" flag.\n"
+          + "Add the `--weak' flag for a weaker transaction consistency level in certain key/value stores to reduce conflicts.";
     }
 
     @Override
@@ -46,22 +47,25 @@ public class SaveCommand extends AbstractCommand {
     public Session.Action getAction(Session session, Map<String, Object> params) {
 
         // Parse parameters
-        final boolean nameFormat = !params.containsKey("storageIdFormat");
+        final boolean plain = !params.containsKey("plain");
+        final boolean storageIds = params.containsKey("storageIds");
         final boolean weak = params.containsKey("weak");
         final File file = (File)params.get("file.xml");
 
         // Return action
-        return new SaveAction(nameFormat, weak, file);
+        return new SaveAction(plain, storageIds, weak, file);
     }
 
     private static class SaveAction implements Session.RetryableTransactionalAction, Session.TransactionalActionWithOptions {
 
-        private final boolean nameFormat;
+        private final boolean plain;
+        private final boolean storageIds;
         private final boolean weak;
         private final File file;
 
-        SaveAction(boolean nameFormat, boolean weak, File file) {
-            this.nameFormat = nameFormat;
+        SaveAction(boolean plain, boolean storageIds, boolean weak, File file) {
+            this.plain = plain;
+            this.storageIds = storageIds;
             this.weak = weak;
             this.file = file;
         }
@@ -72,9 +76,13 @@ public class SaveCommand extends AbstractCommand {
               new AtomicUpdateFileOutputStream(this.file) : new FileOutputStream(this.file);
             final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
             boolean success = false;
-            final int count;
+            final long count;
             try {
-                count = new XMLObjectSerializer(session.getTransaction()).write(output, this.nameFormat, true);
+                final XMLObjectSerializer.OutputOptions options = XMLObjectSerializer.OutputOptions.builder()
+                  .includeStorageIds(this.storageIds)
+                  .elementsAsNames(!this.plain)
+                  .build();
+                count = new XMLObjectSerializer(session.getTransaction()).write(output, options);
                 success = true;
             } finally {
                 if (success) {

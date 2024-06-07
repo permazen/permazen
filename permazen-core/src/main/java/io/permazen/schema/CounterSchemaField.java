@@ -28,9 +28,9 @@ public class CounterSchemaField extends SchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException {
         this.writeEmptyItemElement(writer);
-        this.writeAttributes(writer);
+        this.writeAttributes(writer, includeStorageIds);
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
     }

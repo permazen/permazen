@@ -173,6 +173,7 @@ public class ImportExportTest extends MainTestSupport {
         public Person() {
         }
 
+        @SuppressWarnings("this-escape")
         public Person(String name) {
             this.setName(name);
         }

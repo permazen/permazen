@@ -214,12 +214,12 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException {
 
         // Totally empty?
         if (this.fields.isEmpty() && this.indexes.isEmpty()) {
             this.writeEmptyElement(writer, XMLConstants.OBJECT_TYPE_TAG);
-            this.writeAttributes(writer);
+            this.writeAttributes(writer, includeStorageIds);
             if (prettyPrint)
                 this.writeSchemaIdComment(writer);
             return;
@@ -227,13 +227,13 @@ public class SchemaObjectType extends SchemaItem implements DiffGenerating<Schem
 
         // Write fields and/or composite indexes
         this.writeStartElement(writer, XMLConstants.OBJECT_TYPE_TAG);
-        this.writeAttributes(writer);
+        this.writeAttributes(writer, includeStorageIds);
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
         for (SchemaField schemaField : this.fields.values())
-            schemaField.writeXML(writer, prettyPrint);
+            schemaField.writeXML(writer, includeStorageIds, prettyPrint);
         for (SchemaCompositeIndex schemaIndex : this.indexes.values())
-            schemaIndex.writeXML(writer, prettyPrint);
+            schemaIndex.writeXML(writer, includeStorageIds, prettyPrint);
         writer.writeEndElement();
     }
 

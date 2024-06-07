@@ -111,25 +111,34 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
 
         Assert.assertEquals(s1.getFieldTruncationLength(), -1);
 
+        final XMLObjectSerializer.OutputOptions customOptions = XMLObjectSerializer.OutputOptions.builder()
+          .includeStorageIds(true)
+          .elementsAsNames(true)
+          .build();
+        final XMLObjectSerializer.OutputOptions plainOptions = XMLObjectSerializer.OutputOptions.builder()
+          .includeStorageIds(true)
+          .elementsAsNames(false)
+          .build();
+
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        s1.write(buf, false, true);
+        s1.write(buf, plainOptions);
         this.compareResult(tx, buf.toByteArray(), "test1.xml");
 
         // Check we properly derive object ID's when not specified explicitly
         this.compareParse(tx, this.readResource(this.getClass().getResource("test1b.xml")).trim());
 
         buf.reset();
-        s1.write(buf, true, true);
+        s1.write(buf, customOptions);
         this.compareResult(tx, buf.toByteArray(), "test2.xml");
 
         buf.reset();
         s1.setFieldTruncationLength(6);
-        s1.write(buf, true, true);
+        s1.write(buf, customOptions);
         this.compareResult(tx, buf.toByteArray(), "test2a.xml", false);
 
         buf.reset();
         s1.setFieldTruncationLength(0);
-        s1.write(buf, true, true);
+        s1.write(buf, customOptions);
         this.compareResult(tx, buf.toByteArray(), "test2b.xml", false);
 
         tx.commit();
@@ -181,11 +190,11 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         XMLObjectSerializer s2 = new XMLObjectSerializer(tx);
 
         buf.reset();
-        s2.write(buf, false, true);
+        s2.write(buf, plainOptions);
         this.compareResult(tx, buf.toByteArray(), "test3.xml");
 
         buf.reset();
-        s2.write(buf, true, true);
+        s2.write(buf, customOptions);
         this.compareResult(tx, buf.toByteArray(), "test4.xml");
 
         // Check we properly ignore XML tags in other namespaces
@@ -196,7 +205,7 @@ public class XMLObjectSerializerTest extends CoreAPITestSupport {
         tx.delete(id1);
         tx.create(id1, schemaId1);
         buf.reset();
-        s2.write(buf, true, true);
+        s2.write(buf, customOptions);
         this.compareResult(tx, buf.toByteArray(), "test4c.xml");
 
         tx.commit();

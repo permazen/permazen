@@ -38,7 +38,7 @@ public abstract class CoreAPITestSupport extends KVTestSupport {
     protected void showObjects(Transaction tx, String label) {
         try {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            new XMLObjectSerializer(tx).write(buf, true, true);
+            new XMLObjectSerializer(tx).write(buf);
             this.log.info("{}\n{}", label, new String(buf.toByteArray(), StandardCharsets.UTF_8));
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);

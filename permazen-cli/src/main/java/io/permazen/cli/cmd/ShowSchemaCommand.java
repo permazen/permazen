@@ -15,26 +15,30 @@ import java.util.Optional;
 public class ShowSchemaCommand extends AbstractSchemaCommand {
 
     public ShowSchemaCommand() {
-        super("show-schema schemaId?");
+        super("show-schema --storage-ids:storageIds schemaId?");
     }
 
     @Override
     public String getHelpSummary() {
-        return "Shows a specific schema version, or the currently active database schema, in XML form";
+        return "Shows a specific schema version, or the currently active database schema, in XML form.\n"
+          + "To include explicit storage ID's, use the \"--storage-ids\" flag.";
     }
 
     @Override
     public Session.Action getAction(Session session, Map<String, Object> params) {
+        final boolean storageIds = params.containsKey("storageIds");
         final SchemaId schemaId = Optional.ofNullable((String)params.get("schemaId")).map(SchemaId::new).orElse(null);
-        return new ShowSchemaAction(schemaId);
+        return new ShowSchemaAction(schemaId, storageIds);
     }
 
     private static class ShowSchemaAction implements Session.Action {
 
         private final SchemaId schemaId;
+        private final boolean storageIds;
 
-        ShowSchemaAction(SchemaId schemaId) {
+        ShowSchemaAction(SchemaId schemaId, boolean storageIds) {
             this.schemaId = schemaId;
+            this.storageIds = storageIds;
         }
 
         @Override
@@ -45,10 +49,12 @@ public class ShowSchemaCommand extends AbstractSchemaCommand {
             if (schemaModel == null)
                 return;
 
-            // Print it out with version (if known)
+            // Print schema version (if known)
             if (this.schemaId != null)
                 session.getOutput().println(String.format("=== Schema version \"%s\" ===", schemaId));
-            session.getOutput().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+
+            // Print schema with storage ID's
+            session.getOutput().println(schemaModel.toString(this.storageIds, true));
         }
     }
 }

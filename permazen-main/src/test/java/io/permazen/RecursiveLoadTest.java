@@ -35,6 +35,7 @@ public class RecursiveLoadTest extends MainTestSupport {
     @PermazenType
     public abstract static class Person implements PermazenObject {
 
+        @SuppressWarnings("this-escape")
         protected Person() {
             this.setName("Some name");
         }

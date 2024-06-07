@@ -266,7 +266,7 @@ public final class Layout {
         // Encode and compress XML
         final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
         try (DeflaterOutputStream output = new DeflaterOutputStream(writer.asOutputStream(), deflater)) {
-            schemaModel.toXML(output, false);
+            schemaModel.toXML(output, true, false);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }

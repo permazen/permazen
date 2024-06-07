@@ -155,10 +155,13 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      * The {@code output} is not closed by this method.
      *
      * @param output XML output
+     * @param includeStorageIds true to include storage ID's
      * @param prettyPrint true to indent the XML and add schema ID comments
      * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if {@code output} is null
      */
-    public void toXML(OutputStream output, boolean prettyPrint) throws IOException {
+    public void toXML(OutputStream output, boolean includeStorageIds, boolean prettyPrint) throws IOException {
+        Preconditions.checkArgument(output != null, "null output");
         try {
 
             // Create factory, preferring Sun implementation to avoid https://github.com/FasterXML/woodstox/issues/17
@@ -180,7 +183,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
             if (prettyPrint)
                 writer = new IndentXMLStreamWriter(writer);
             writer.writeStartDocument("UTF-8", "1.0");
-            this.writeXML(writer, prettyPrint);
+            this.writeXML(writer, includeStorageIds, prettyPrint);
             writer.writeEndDocument();
             writer.flush();
         } catch (XMLStreamException e) {
@@ -435,11 +438,12 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      * Write this instance to the given XML output.
      *
      * @param writer XML output
+     * @param includeStorageIds true to include storage ID's
      * @param prettyPrint true to indent and include {@link SchemaId} comments
      * @throws XMLStreamException if an XML error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+    public void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException {
 
         // Sanity check
         Preconditions.checkArgument(writer != null, "null writer");
@@ -456,7 +460,7 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
         for (SchemaObjectType objectType : this.objectTypes.values())
-            objectType.writeXML(writer, prettyPrint);
+            objectType.writeXML(writer, includeStorageIds, prettyPrint);
         writer.writeEndElement();
     }
 
@@ -467,14 +471,25 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
      */
     @Override
     public String toString() {
+        return this.toString(false, true);
+    }
+
+    /**
+     * Returns this schema model in XML form.
+     *
+     * @param writer XML output
+     * @param includeStorageIds true to include storage ID's
+     * @param prettyPrint true to indent and include {@link SchemaId} comments
+     */
+    public String toString(boolean includeStorageIds, boolean prettyPrint) {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
-            this.toXML(buf, true);
+            this.toXML(buf, includeStorageIds, prettyPrint);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return new String(buf.toByteArray(), StandardCharsets.UTF_8)
-          .replaceAll("(?s)<\\?xml version=\"1\\.0\" encoding=\"UTF-8\"\\?>\n", "").trim();
+          .replaceAll("^<\\?xml[^>]+\\?>\\n", "").trim();
     }
 
     @Override

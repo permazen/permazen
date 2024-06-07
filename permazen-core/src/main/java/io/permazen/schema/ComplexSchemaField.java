@@ -89,14 +89,14 @@ public abstract class ComplexSchemaField extends SchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException {
         final QName tag = this.getXMLTag();
         this.writeStartElement(writer, tag);
-        this.writeAttributes(writer);
+        this.writeAttributes(writer, includeStorageIds);
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
         for (SimpleSchemaField subField : this.getSubFields().values())
-            subField.writeXML(writer, prettyPrint, false);                      // omit (redundant) names for sub-fields
+            subField.writeXML(writer, includeStorageIds, prettyPrint, false);           // omit (redundant) names for sub-fields
         writer.writeEndElement();
     }
 

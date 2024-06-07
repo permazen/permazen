@@ -230,7 +230,7 @@ public abstract class SchemaItem extends SchemaSupport {
 
 // XML Writing
 
-    abstract void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException;
+    abstract void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException;
 
     void writeStartItemElement(XMLStreamWriter writer) throws XMLStreamException {
         this.writeStartElement(writer, this.getItemType().getElementName());
@@ -240,12 +240,12 @@ public abstract class SchemaItem extends SchemaSupport {
         this.writeEmptyElement(writer, this.getItemType().getElementName());
     }
 
-    final void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
-        this.writeAttributes(writer, true);
+    final void writeAttributes(XMLStreamWriter writer, boolean includeStorageIds) throws XMLStreamException {
+        this.writeAttributes(writer, includeStorageIds, true);
     }
 
-    void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        if (this.storageId != 0)
+    void writeAttributes(XMLStreamWriter writer, boolean includeStorageIds, boolean includeName) throws XMLStreamException {
+        if (includeStorageIds && this.storageId != 0)
             this.writeAttr(writer, XMLConstants.STORAGE_ID_ATTRIBUTE, this.storageId);
         if (includeName && this.name != null)
             this.writeAttr(writer, XMLConstants.NAME_ATTRIBUTE, this.name);

@@ -44,9 +44,13 @@ public abstract class MainTestSupport extends KVTestSupport {
      * Dump object contents to the log.
      */
     protected void showObjects(Transaction tx, String label) {
+        final XMLObjectSerializer.OutputOptions options = XMLObjectSerializer.OutputOptions.builder()
+          .includeStorageIds(true)
+          .elementsAsNames(true)
+          .build();
         try {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            new XMLObjectSerializer(tx).write(buf, true, true);
+            new XMLObjectSerializer(tx).write(buf, options);
             this.log.info("{}\n{}", label, new String(buf.toByteArray(), StandardCharsets.UTF_8));
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);

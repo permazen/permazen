@@ -29,6 +29,7 @@ import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.schema.SchemaObjectType;
 import io.permazen.util.AbstractXMLStreaming;
+import io.permazen.util.XMLUtil;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -85,65 +86,67 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  * The {@code <objects>} tag contains the actual object data. Each object may belong to a different schema.
  *
  * <p>
- * <b>Object Formats</b>
+ * <b>Object XML Format</b>
  *
  * <p>
- * There are two supported formats for {@code <object>} tags. The "plain" object format uses standard XML elements
- * and identifies objects and fields with a {@code "name"} attribute using standardized. This format supports all
- * possible database object and field names:
+ * There are two supported XML formats for {@code <object>} tags, <b>plain</b> and <b>custom</b>.
+ *
+ * <p>
+ * The plain object format uses standardized XML element names and identifies object types and fields with a {@code "name"}
+ * attribute. Because Permazen requires object type and field names to contain only characters that are valid in XML attributes,
+ * this format supports all possible database object and field names. Example:
  *
  * <pre><code class="language-xml">
- *  &lt;objects schema="Schema_12e983a72e72ed56741ddc45e47d3377"&gt;
- *      &lt;object type="Person" id="64a971e1aef01cc8"&gt;
- *          &lt;field name="name"&gt;George Washington&lt;/field&gt;
- *          &lt;field name="wasPresident"&gt;true&lt;/field&gt;
- *          &lt;field name="attributes"&gt;
- *              &lt;entry&gt;
- *                  &lt;key&gt;teeth&lt;/key&gt;
- *                  &lt;value&gt;wooden&lt;/value&gt;
- *              &lt;/entry&gt;
- *          &lt;/field&gt;
- *          &lt;field name="spouse"&gt;c8b84a08e5c2b1a2&lt;/field&gt;
- *      &lt;/object&gt;
- *      ...
- *  &lt;/objects&gt;
+ *  &lt;object type="Person" id="64a971e1aef01cc8"&gt;
+ *      &lt;field name="name"&gt;George Washington&lt;/field&gt;
+ *      &lt;field name="wasPresident"&gt;true&lt;/field&gt;
+ *      &lt;field name="attributes"&gt;
+ *          &lt;entry&gt;
+ *              &lt;key&gt;teeth&lt;/key&gt;
+ *              &lt;value&gt;wooden&lt;/value&gt;
+ *          &lt;/entry&gt;
+ *      &lt;/field&gt;
+ *      &lt;field name="spouse"&gt;c8b84a08e5c2b1a2&lt;/field&gt;
+ *  &lt;/object&gt;
  * </code></pre>
  *
- * The "custom" object format uses custom XML tags to specify object types and field names and is more readable.
- * However, it doesn't support object type names and field names that are not valid XML tags:
+ * <p>
+ * The custom object format uses the object type and field names as XML element names, and is therefore more readable.
+ * However, it doesn't support object type and field names that are not valid XML element names. Equivalent example:
  *
  * <pre><code class="language-xml">
- *  &lt;objects&gt;
- *      &lt;Person id="64a971e1aef01cc8"&gt;
- *          &lt;name&gt;George Washington&lt;/name&gt;
- *          &lt;wasPresident&gt;true&lt;/wasPresident&gt;
- *          &lt;attributes&gt;
- *              &lt;entry&gt;
- *                  &lt;key&gt;teeth&lt;/key&gt;
- *                  &lt;value&gt;wooden&lt;/value&gt;
- *              &lt;/entry&gt;
- *          &lt;/attributes&gt;
- *          &lt;spouse&gt;c8b84a08e5c2b1a2&lt;/spouse&gt;
- *      &lt;/Person&gt;
- *      ...
- *  &lt;/objects&gt;
+ *  &lt;Person id="64a971e1aef01cc8"&gt;
+ *      &lt;name&gt;George Washington&lt;/name&gt;
+ *      &lt;wasPresident&gt;true&lt;/wasPresident&gt;
+ *      &lt;attributes&gt;
+ *          &lt;entry&gt;
+ *              &lt;key&gt;teeth&lt;/key&gt;
+ *              &lt;value&gt;wooden&lt;/value&gt;
+ *          &lt;/entry&gt;
+ *      &lt;/attributes&gt;
+ *      &lt;spouse&gt;c8b84a08e5c2b1a2&lt;/spouse&gt;
+ *  &lt;/Person&gt;
  * </code></pre>
  *
- * When parsing input, the format is auto-detected on a per-element basis, depending on whether or not there is a
- * {@code type="..."} attribute (for objects) or {@code name="..."} attribute (for fields).
+ * When parsing input, the format is auto-detected on a per-XML element basis, depending on whether or not there is a
+ * {@code type="..."} attribute (for objects) or a {@code name="..."} attribute (for fields). When generating an output
+ * element in the custom format, the plain format is used for any element which would otherwise result in invalid XML.
+ * You can also configure all elements to be generated in the plain format for uniformity.
  *
  * <p>
  * <b>Schema Determination</b>
  *
  * <p>
- * The schema against which each {@code <object>} is interpreted is determined as follows:
+ * On input, the schema against which each {@code <object>} element is interpreted is determined as follows:
  * <ul>
- *  <li>If the {@code <object>} tag has a {@code schema="..."} attribute, interpret it as the {@link SchemaId}
- *      of a {@link SchemaModel} and use the corresponding schema.
- *  <li>Otherwise, if the containing {@code <objects>} tag has a {@code schema="..."} attribute, use that.
- *  <li>Either way, an explicit schema must either be defined earlier in the XML or already exist in the database.
- *  <li>Otherwise if no explicit schema is specified, use the schema associated with the {@link Transaction} being written into.
+ *  <li>If the {@code <object>} tag has a {@code schema} attribute, use the previously defined {@link SchemaModel}
+ *      having the specified {@link SchemaId}.
+ *  <li>Otherwise, if the containing {@code <objects>} tag has a {@code schema} attribute, use that {@link SchemaId}
+ *  <li>Otherwise no explicit schema is specified, so use the schema associated with the {@link Transaction} being written into.
  * </ul>
+ *
+ * In all cases, the selected schema must either be defined in the XML in the {@code <schemas>} section,
+ * or already exist in the target {@link Transaction}.
  *
  * <p>
  * <b>Object ID Generation</b>
@@ -153,20 +156,48 @@ import org.dellroad.stuff.xml.IndentXMLStreamWriter;
  * <code>generated:<i>TYPE</i>:<i>SUFFIX</i></code>, where <code><i>TYPE</i></code> is the object type name
  * and <code><i>SUFFIX</i></code> is an arbitrary string. In this case, a random, unassigned object ID
  * is generated on the first occurrence, and on subsequent occurences the previously generated ID is recalled.
- * This facilitates automatically generated input (e.g., using XSL's {@code generate-id()} function)
- * and forward references.
+ * This facilitates automatically generated input (e.g., using XSL's {@code generate-id()} function),
+ * including forward references.
  *
  * <p>
  * When using object ID generation, the {@linkplain #getGeneratedIdCache configured} {@link GeneratedIdCache}
  * keeps track of generated IDs.</li>
  *
  * <p>
+ * <b>Storage ID's and Portability</b>
+ *
+ * <p>
+ * Permazen assigns storage ID's to schema elements (object types, fields, indexes, etc.) dynamically when a schema
+ * is first registered in the database. When exporting schemas and objects from an existing database, you have a choice
+ * whether to include or exclude these storage ID assignments in the export.
+ *
+ * <p>
+ * If you include them, then the XML file is able to exactly reproduce the keys and values in the underlying key/value
+ * database. In particular, each object will be assigned the same object ID it had when it was originally exported,
+ * and on import if an object with a given object ID already exists, it will be replaced.
+ * However, the XML file will be incompatible with (i.e., fail to import into) any database that has different storage
+ * ID assignments for any of the object types or fields being imported.
+ *
+ * <p>
+ * You may instead omit storage ID assignments from the export. This means the data can be imported freely into any database,
+ * but it will no longer create the original object ID's, keys and values. In this scenario, object ID's are exported in the
+ * form <code>generated:<i>TYPE</i>:<i>SUFFIX</i></code>, and so a new object is created as each {@code <object>} is imported.
+ *
+ * <p>
+ * In general you should include storage ID's if you are exporting data that will later be imported back into the same database
+ * (an "edit" operation) or an empty database (a "copy" operation), and exclude storage ID's if you are exporting data that will
+ * later be imported into some other, existing database (a "merge" operation).
+ *
+ * <p>
  * <b>Other Details</b>
+ *
  * <ul>
- *  <li>The {@code "id"} attribute may be omitted, in which case a random unassigned ID is generated</li>
+ *  <li>The {@code "id"} attribute may be omitted from an {@code <object>} tag; in this case, a random, unassigned ID
+ *      is generated. In this case, the object will not be referenced by any other object.
  *  <li>Simple fields that are equal to their default values and complex fields that are empty may be omitted</li>
- *  <li>XML elements and annotations are expected to be in the null namespace; elements and annotations in other
- *      namespaces are ignored</li>
+ *  <li>XML element and annotation names are in the null XML namespace; elements and annotations in other namespaces
+ *      are ignored</li>
+ *  <li>It is allowed for a custom XML tag to have a redundant {@code name} attribute, as long as the name matches</li>
  * </ul>
  */
 public class XMLObjectSerializer extends AbstractXMLStreaming {
@@ -198,7 +229,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     public static final QName SCHEMA_ATTR = new QName("schema");
     public static final QName TYPE_ATTR = new QName("type");
 
-    private static final Pattern GENERATED_ID_PATTERN = Pattern.compile("generated:([^:]+):(.*)");
+    private static final String GENERATED_PREFIX = "generated";
+    private static final Pattern GENERATED_ID_PATTERN = Pattern.compile(Pattern.quote(GENERATED_PREFIX) + ":([^:]+):(.*)");
 
     private final Transaction tx;
 
@@ -463,10 +495,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             try {
                 objType = schema.getObjType(typeName);
             } catch (UnknownTypeException e) {
-                final String message = typeName.equals(OBJECT_TAG.toString()) ?
-                  String.format("<%s> tag is missing \"%s\" attribute", OBJECT_TAG, TYPE_ATTR) :
-                  String.format("invalid object type \"%s\": %s", typeName, e.getMessage());
-                throw this.newInvalidInputException(reader, e, "%s", message);
+                throw this.newInvalidInputException(reader, e, "invalid object type \"%s\": %s", typeName, e.getMessage());
             }
 
             // Reset detached transaction to discard previous object
@@ -498,23 +527,33 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             while ((tagName = this.next(reader)) != null) {
 
                 // Determine the field
-                final String fieldNameAttr = this.getAttr(reader, NAME_ATTR, false);
-                final Field<?> field;
-                if (fieldNameAttr == null) {
+                String fieldName = this.getAttr(reader, NAME_ATTR, false);
+                if (fieldName == null) {
                     if (!XMLConstants.NULL_NS_URI.equals(tagName.getNamespaceURI())) {
                         throw this.newInvalidInputException(reader,
-                          "unexpected element <%s:%s>; expected field name",
-                          tagName.getPrefix(), tagName.getLocalPart());
+                          "unexpected element <%s:%s>; expected <%s> or field name",
+                          tagName.getPrefix(), tagName.getLocalPart(), FIELD_TAG);
                     }
-                    if ((field = objType.getFields().get(tagName.getLocalPart())) == null) {
+                    fieldName = tagName.getLocalPart();
+                } else if (!tagName.equals(FIELD_TAG)) {
+                    if (!XMLConstants.NULL_NS_URI.equals(tagName.getNamespaceURI())) {
                         throw this.newInvalidInputException(reader,
-                          "unexpected element <%s>; unknown field \"%s\" in object type \"%s\" in schema \"%s\"",
-                          tagName.getLocalPart(), tagName.getLocalPart(), objType.getName(), schema.getSchemaId());
+                          "unexpected element <%s:%s>; expected <%s>",
+                          tagName.getPrefix(), tagName.getLocalPart(), FIELD_TAG);
                     }
-                } else if ((field = objType.getFields().get(fieldNameAttr)) == null) {
+                    if (!fieldName.equals(tagName.getLocalPart())) {
+                        throw this.newInvalidInputException(reader,
+                          "element <%s> does not match field name \"%s\" (should be <%s> or <%s>)",
+                          tagName.getLocalPart(), typeName, fieldName, FIELD_TAG);
+                    }
+                }
+
+                // Get the corresponding field
+                final Field<?> field;
+                if ((field = objType.getFields().get(fieldName)) == null) {
                     throw this.newInvalidInputException(reader,
                       "unknown field \"%s\" in object type \"%s\" in schema %s",
-                      fieldNameAttr, objType.getName(), schema.getSchemaId());
+                      fieldName, objType.getName(), schema.getSchemaId());
                 }
 
                 // Parse the field
@@ -600,44 +639,77 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     }
 
     /**
-     * Export all objects from the {@link Transaction} associated with this instance to the given output.
+     * Export all objects from the {@link Transaction} associated with this instance to the given output
+     * using the default configuration.
+     *
+     * <p>
+     * Equivalent to: <code>write(output, OutputOptions.builder().build())</code>.
      *
      * @param output XML output; will not be closed by this method
-     * @param customFormat true for custom format, false for plain Format
-     * @param indent true to indent output, false for all on one line
+     * @param options output options
      * @return the number of objects written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code output} is null
      */
-    public int write(OutputStream output, boolean customFormat, boolean indent) throws XMLStreamException {
+    public long write(OutputStream output) throws XMLStreamException {
+        return this.write(output, OutputOptions.builder().build());
+    }
+
+    /**
+     * Export all objects from the {@link Transaction} associated with this instance to the given writer
+     * using the default configuration.
+     *
+     * <p>
+     * Equivalent to: <code>write(writer, OutputOptions.OutputOptions.builder().build())</code>.
+     *
+     * @param writer XML output; will not be closed by this method
+     * @return the number of objects written
+     * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code writer} is null
+     */
+    public long write(Writer writer) throws XMLStreamException {
+        return this.write(writer, OutputOptions.builder().build());
+    }
+
+    /**
+     * Export all objects from the {@link Transaction} associated with this instance to the given output.
+     *
+     * @param output XML output; will not be closed by this method
+     * @param options output options
+     * @return the number of objects written
+     * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public long write(OutputStream output, OutputOptions options) throws XMLStreamException {
         Preconditions.checkArgument(output != null, "null output");
-        XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
-        if (indent)
-            xmlWriter = new IndentXMLStreamWriter(xmlWriter);
-        xmlWriter.writeStartDocument("UTF-8", "1.0");
-        return this.write(xmlWriter, customFormat);
+        Preconditions.checkArgument(options != null, "null options");
+        XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
+        if (options.isPrettyPrint())
+            writer = new IndentXMLStreamWriter(writer);
+        writer.writeStartDocument("UTF-8", "1.0");
+        return this.write(writer, options);
     }
 
     /**
      * Export all objects from the {@link Transaction} associated with this instance to the given writer.
      *
      * @param writer XML output; will not be closed by this method
-     * @param customFormat true for custom format, false for plain Format
-     * @param indent true to indent output, false for all on one line
+     * @param options output options
      * @return the number of objects written
      * @throws XMLStreamException if an error occurs
-     * @throws IllegalArgumentException if {@code writer} is null
+     * @throws IllegalArgumentException if either parameter is null
      */
-    public int write(Writer writer, boolean customFormat, boolean indent) throws XMLStreamException {
+    public long write(Writer writer, OutputOptions options) throws XMLStreamException {
         Preconditions.checkArgument(writer != null, "null writer");
+        Preconditions.checkArgument(options != null, "null options");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
-        if (indent)
+        if (options.isPrettyPrint())
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
         xmlWriter.writeStartDocument("1.0");
-        return this.write(xmlWriter, customFormat);
+        return this.write(xmlWriter, options);
     }
 
-    private int write(XMLStreamWriter writer, boolean customFormat) throws XMLStreamException {
+    private long write(XMLStreamWriter writer, OutputOptions options) throws XMLStreamException {
 
         // Open <database>
         writer.setDefaultNamespace(DATABASE_TAG.getNamespaceURI());
@@ -646,13 +718,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         // Write <schemas>
         writer.writeStartElement(SCHEMAS_TAG.getNamespaceURI(), SCHEMAS_TAG.getLocalPart());
         for (Schema schema : this.tx.getSchemaBundle().getSchemasBySchemaIndex().values())
-            schema.getSchemaModel(true).writeXML(writer, true);         // always include storage ID assignments
+            schema.getSchemaModel(true).writeXML(writer, options.isIncludeStorageIds(), options.isPrettyPrint());
         writer.writeEndElement();       // </schemas>
 
         // Write <objects>
-        final int count;
+        final long count;
         try (Stream<ObjId> objIds = this.tx.getAll().stream()) {
-            count = this.write(writer, customFormat, objIds);
+            count = this.writeObjects(writer, options, objIds);
         }
 
         // Done
@@ -670,16 +742,18 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * {@link XMLStreamWriter#writeStartDocument writer.writeStartDocument()}.
      *
      * @param writer XML writer; will not be closed by this method
-     * @param customFormat true for custom format, false for plain Format
+     * @param options output options
      * @param objIds object IDs
      * @return the number of objects written
      * @throws XMLStreamException if an error occurs
-     * @throws IllegalArgumentException if {@code writer} or {@code objIds} is null
+     * @throws IllegalArgumentException if any parameter is null
      */
-    public int write(XMLStreamWriter writer, boolean customFormat, Stream<? extends ObjId> objIds) throws XMLStreamException {
+    public long writeObjects(XMLStreamWriter writer, OutputOptions options, Stream<? extends ObjId> objIds)
+      throws XMLStreamException {
 
         // Sanity check
         Preconditions.checkArgument(writer != null, "null writer");
+        Preconditions.checkArgument(options != null, "null options");
         Preconditions.checkArgument(objIds != null, "null objIds");
 
         // Create opening tag
@@ -691,7 +765,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         this.writeAttribute(writer, SCHEMA_ATTR, defaultSchemaId);
 
         // Write objects
-        int count = 0;
+        long count = 0;
         for (Iterator<? extends ObjId> i = objIds.iterator(); i.hasNext(); ) {
             final ObjId id = i.next();
 
@@ -700,15 +774,18 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             final Schema schema = objType.getSchema();
             final SchemaId schemaId = schema.getSchemaId();
 
+            // Should we use plain or custom format for the object element?
+            final boolean customObjectElement = options.isElementsAsNames() && XMLUtil.isValidName(objType.getName());
+
             // Get format info
-            final QName objectElement = customFormat ? new QName(objType.getName()) : OBJECT_TAG;
-            final String typeNameAttr = customFormat ? null : objType.getName();
+            final QName objectElement = customObjectElement ? new QName(objType.getName()) : OBJECT_TAG;
+            final String typeNameAttr = customObjectElement ? null : objType.getName();
             final SchemaId schemaAttr = !schemaId.equals(defaultSchemaId) ? schemaId : null;
 
             // Output fields; if all are default, output empty tag
             boolean tagOutput = false;
             ArrayList<Field<?>> fieldList = new ArrayList<>(objType.getFields().values());
-            if (customFormat)
+            if (customObjectElement)
                 Collections.sort(fieldList, Comparator.comparing(Field::getName));
             for (Field<?> field : fieldList) {
 
@@ -718,12 +795,15 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                 // Output <object> opening tag if not output yet
                 if (!tagOutput) {
-                    this.writeOpenTag(writer, false, objectElement, typeNameAttr, id, schemaAttr);
+                    this.writeOpenTag(writer, options, objType, false, objectElement, typeNameAttr, id, schemaAttr);
                     tagOutput = true;
                 }
 
+                // Should we use plain or custom format for the field element?
+                final boolean customFieldElement = options.isElementsAsNames() && XMLUtil.isValidName(field.getName());
+
                 // Get tag name
-                final QName fieldTag = customFormat ? new QName(field.getName()) : FIELD_TAG;
+                final QName fieldTag = customFieldElement ? new QName(field.getName()) : FIELD_TAG;
 
                 // Special case for simple fields, which use empty tags when null
                 if (field instanceof SimpleField) {
@@ -732,7 +812,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         writer.writeEmptyElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
                     else
                         writer.writeStartElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
-                    if (!customFormat)
+                    if (!customFieldElement)
                         this.writeAttribute(writer, NAME_ATTR, field.getName());
                     if (value != null && this.fieldTruncationLength != 0) {
                         this.writeSimpleFieldText(writer, (SimpleField<?>)field, value);
@@ -744,12 +824,12 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                 // Output field opening tag
                 writer.writeStartElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
-                if (!customFormat)
+                if (!customFieldElement)
                     this.writeAttribute(writer, NAME_ATTR, field.getName());
 
                 // Output field value
                 if (field instanceof CounterField)
-                    writer.writeCharacters("" + this.tx.readCounterField(id, field.getName(), false));
+                    this.writeCharacters(writer, "" + this.tx.readCounterField(id, field.getName(), false));
                 else if (field instanceof CollectionField) {
                     final SimpleField<?> elementField = ((CollectionField<?, ?>)field).getElementField();
                     final Iterable<?> collection = field instanceof SetField ?
@@ -775,7 +855,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
             // Output empty opening tag if not output yet, otherwise closing tag
             if (!tagOutput)
-                this.writeOpenTag(writer, true, objectElement, typeNameAttr, id, schemaAttr);
+                this.writeOpenTag(writer, options, objType, true, objectElement, typeNameAttr, id, schemaAttr);
             else
                 writer.writeEndElement();
             count++;
@@ -807,11 +887,11 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         String text = encoding.toString(encoding.validate(value));
         final int length = text.length();
         if (this.fieldTruncationLength == -1 || length <= this.fieldTruncationLength) {
-            writer.writeCharacters(text);
+            this.writeCharacters(writer, text);
             return;
         }
-        writer.writeCharacters(text.substring(0, this.fieldTruncationLength));
-        writer.writeCharacters("...[truncated]");
+        this.writeCharacters(writer, text.substring(0, this.fieldTruncationLength));
+        this.writeCharacters(writer, "...[truncated]");
     }
 
     private <T> T readSimpleField(XMLStreamReader reader, SimpleField<T> field) throws XMLStreamException {
@@ -906,15 +986,18 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         return this.generatedIdCache.getGeneratedId(this.tx, objType.getName(), suffix);
     }
 
-    private void writeOpenTag(XMLStreamWriter writer, boolean empty, QName element, String typeName, ObjId id, SchemaId schemaId)
-      throws XMLStreamException {
+    private void writeOpenTag(XMLStreamWriter writer, OutputOptions options, ObjType objType,
+      boolean empty, QName element, String typeName, ObjId id, SchemaId schemaId) throws XMLStreamException {
         if (empty)
             writer.writeEmptyElement(element.getNamespaceURI(), element.getLocalPart());
         else
             writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());
         if (typeName != null)
             this.writeAttribute(writer, TYPE_ATTR, typeName);
-        this.writeAttribute(writer, ID_ATTR, id);
+        String idText = id.toString();
+        if (!options.isIncludeStorageIds())
+            idText = String.format("%s:%s:%s", GENERATED_PREFIX, objType.getName(), idText);
+        this.writeAttribute(writer, ID_ATTR, idText);
         if (schemaId != null)
             this.writeAttribute(writer, SCHEMA_ATTR, schemaId);
     }
@@ -938,6 +1021,134 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             if (name == null || NS_URI.equals(name.getNamespaceURI()))
                 return name;
             this.skip(reader);
+        }
+    }
+
+// OutputOptions
+
+    /**
+     * Options for the output XML format produced by {@link XMLObjectSerializer}.
+     */
+    public static final class OutputOptions {
+
+        private final boolean elementsAsNames;
+        private final boolean includeStorageIds;
+        private final boolean prettyPrint;
+
+        private OutputOptions(Builder builder) {
+            this.elementsAsNames = builder.elementsAsNames;
+            this.includeStorageIds = builder.includeStorageIds;
+            this.prettyPrint = builder.prettyPrint;
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /**
+         * Determine whether to output XML element names that are based on the corresponding object or field name.
+         *
+         * @return whether to use custom XML element names
+         */
+        public boolean isElementsAsNames() {
+            return this.elementsAsNames;
+        }
+
+        /**
+         * Determine whether to include storage ID's in the output.
+         *
+         * @return whether to include storage ID's
+         */
+        public boolean isIncludeStorageIds() {
+            return this.includeStorageIds;
+        }
+
+        /**
+         * Determine whether to pretty-print the XML, i.e., indent and include storage ID comments.
+         *
+         * @return whether to pretty-print
+         */
+        public boolean isPrettyPrint() {
+            return this.prettyPrint;
+        }
+
+    // Builder
+
+        /**
+         * Builder for {@link OutputOptions}.
+         */
+        public static final class Builder implements Cloneable {
+
+            private boolean elementsAsNames = true;
+            private boolean includeStorageIds;
+            private boolean prettyPrint = true;
+
+            private Builder() {
+            }
+
+            /**
+             * Configure whether to output XML element names that are based on the corresponding object or field name.
+             *
+             * <p>
+             * The default value is true.
+             *
+             * @param elementsAsNames whether to use custom XML element names
+             * @return this instance
+             */
+            public Builder elementsAsNames(boolean elementsAsNames) {
+                this.elementsAsNames = elementsAsNames;
+                return this;
+            }
+
+            /**
+             * Configure whether to include storage ID's in the output.
+             *
+             * <p>
+             * The default value is false.
+             *
+             * @param elementsAsNames whether to include storage ID's
+             * @return this instance
+             */
+            public Builder includeStorageIds(boolean includeStorageIds) {
+                this.includeStorageIds = includeStorageIds;
+                return this;
+            }
+
+            /**
+             * Configure whether to pretty-print the XML, i.e., indent and include storage ID comments.
+             *
+             * <p>
+             * The default value is true.
+             *
+             * @param prettyPrint whether to pretty-print
+             * @return this instance
+             */
+            public Builder prettyPrint(boolean prettyPrint) {
+                this.prettyPrint = prettyPrint;
+                return this;
+            }
+
+            /**
+             * Create a new {@link OutputOptions} from this instance.
+             *
+             * @return new output config
+             */
+            public OutputOptions build() {
+                return new OutputOptions(this);
+            }
+
+            /**
+             * Clone this instance.
+             *
+             * @return clone of this instance
+             */
+            public Builder clone() {
+                try {
+                    return (Builder)super.clone();
+                } catch (CloneNotSupportedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }

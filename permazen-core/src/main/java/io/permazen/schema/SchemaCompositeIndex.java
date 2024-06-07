@@ -91,9 +91,9 @@ public class SchemaCompositeIndex extends AbstractObjectTypeMember implements Di
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException {
         this.writeStartElement(writer, XMLConstants.COMPOSITE_INDEX_TAG);
-        this.writeAttributes(writer, true);
+        this.writeAttributes(writer, includeStorageIds, true);
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
         for (String fieldName : this.indexedFields) {

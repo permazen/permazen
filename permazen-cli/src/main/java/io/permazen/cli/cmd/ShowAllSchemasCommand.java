@@ -16,7 +16,7 @@ import java.util.Map;
 public class ShowAllSchemasCommand extends AbstractSchemaCommand {
 
     public ShowAllSchemasCommand() {
-        super("show-all-schemas -x:xml");
+        super("show-all-schemas --xml:xml");
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ShowAllSchemasCommand extends AbstractSchemaCommand {
 
     @Override
     public String getHelpDetail() {
-        return "If the `-x' flag is provided, the XML representation of each schema version is included.";
+        return "If the `--xml' flag is provided, the XML representation of each schema version is included.";
     }
 
     @Override

@@ -36,7 +36,7 @@ public class SchemaGenerationTest extends MainTestSupport {
           .modelClasses(types)
           .build();
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        config.newPermazen().getSchemaModel(false).toXML(buf, true);
+        config.newPermazen().getSchemaModel(false).toXML(buf, true, true);
         final String actual = new String(buf.toByteArray(), StandardCharsets.UTF_8)
           .replaceAll("<!--((?!--).)*-->", ""); // strip schema ID comments
         Assert.assertEquals(actual.replaceAll("\\r\\n?", "\n"), expected);

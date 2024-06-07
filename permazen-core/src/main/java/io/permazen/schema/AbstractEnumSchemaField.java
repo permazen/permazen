@@ -90,9 +90,10 @@ public abstract class AbstractEnumSchemaField extends SimpleSchemaField {
 // XML Writing
 
     @Override
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint, boolean includeName) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint, boolean includeName)
+      throws XMLStreamException {
         this.writeElement(writer, includeName);
-        this.writeAttributes(writer, includeName);
+        this.writeAttributes(writer, includeStorageIds, includeName);
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
         for (String ident : this.idents) {

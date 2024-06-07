@@ -216,20 +216,21 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 // XML Writing
 
     @Override
-    final void writeXML(XMLStreamWriter writer, boolean prettyPrint) throws XMLStreamException {
-        this.writeXML(writer, prettyPrint, true);
+    final void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint) throws XMLStreamException {
+        this.writeXML(writer, includeStorageIds, prettyPrint, true);
     }
 
-    void writeXML(XMLStreamWriter writer, boolean prettyPrint, boolean includeName) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeStorageIds, boolean prettyPrint, boolean includeName)
+      throws XMLStreamException {
         this.writeEmptyItemElement(writer);
-        this.writeAttributes(writer, includeName);
+        this.writeAttributes(writer, includeStorageIds, includeName);
         if (prettyPrint)
             this.writeSchemaIdComment(writer);
     }
 
     @Override
-    final void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        super.writeAttributes(writer, includeName);
+    final void writeAttributes(XMLStreamWriter writer, boolean includeStorageIds, boolean includeName) throws XMLStreamException {
+        super.writeAttributes(writer, includeStorageIds, includeName);
         this.writeSimpleAttributes(writer);
     }
 

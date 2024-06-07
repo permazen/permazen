@@ -50,6 +50,7 @@ public class ConstructorTest extends MainTestSupport {
 
     @PermazenType
     public abstract static class Person implements PermazenObject {
+        @SuppressWarnings("this-escape")
         protected Person(PermazenTransaction ptx, ObjId id) {
             Assert.assertEquals(ptx, this.getPermazenTransaction());
             Assert.assertEquals(id, this.getObjId());

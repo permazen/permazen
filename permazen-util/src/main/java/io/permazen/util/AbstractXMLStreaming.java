@@ -452,10 +452,10 @@ public abstract class AbstractXMLStreaming {
 
     private void validateQName(QName qname) {
         Preconditions.checkArgument(qname != null, "null name");
-        final String name = qname.getLocalPart();
         final String prefix = qname.getPrefix();
+        Preconditions.checkArgument(prefix.isEmpty() || XMLUtil.isValidName(prefix), "invalid name prefix");
+        final String name = qname.getLocalPart();
         Preconditions.checkArgument(!name.isEmpty(), "empty name");
-        Preconditions.checkArgument(XMLUtil.isValidName(prefix), "invalid name prefix");
         Preconditions.checkArgument(XMLUtil.isValidName(name), "invalid name local part");
     }
 }

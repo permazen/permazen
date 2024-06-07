@@ -161,7 +161,7 @@ public class SchemaUtilityImpl implements SchemaUtility {
         // Write schema model to file
         this.log.info("Writing Permazen schema to " + file);
         try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
-            this.schema.toXML(output, true);
+            this.schema.toXML(output, false, true);
         } catch (IOException e) {
             throw new MojoExecutionException(String.format("Error writing schema to \"%s\": %s", file, e.getMessage()), e);
         }
