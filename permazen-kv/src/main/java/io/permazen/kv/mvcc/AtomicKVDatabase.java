@@ -15,7 +15,7 @@ import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
 import io.permazen.util.ByteUtil;
@@ -170,7 +170,7 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
                     else
                         kvtx.rollback();
                 }
-            } catch (RetryTransactionException e) {
+            } catch (RetryKVTransactionException e) {
                 if (count++ < 3) {
                     Thread.yield();
                     continue;

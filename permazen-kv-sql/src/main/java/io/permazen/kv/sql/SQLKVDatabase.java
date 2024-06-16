@@ -11,8 +11,8 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.KVTransactionTimeoutException;
+import io.permazen.kv.RetryKVTransactionException;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -612,11 +612,11 @@ public class SQLKVDatabase implements KVDatabase {
      */
     public KVTransactionException wrapException(SQLKVTransaction transaction, SQLException e) {
         if (e instanceof SQLTimeoutException)
-            return new TransactionTimeoutException(transaction, e);
+            return new KVTransactionTimeoutException(transaction, e);
         if (e instanceof SQLRecoverableException)
-            return new RetryTransactionException(transaction, e);
+            return new RetryKVTransactionException(transaction, e);
         if (e instanceof SQLTransientException)
-            return new RetryTransactionException(transaction, e);
+            return new RetryKVTransactionException(transaction, e);
         return new KVTransactionException(transaction, e);
     }
 }

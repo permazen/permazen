@@ -12,8 +12,8 @@ import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.StaleTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.KVTransactionTimeoutException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
 
 import java.io.Closeable;
@@ -117,8 +117,8 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      * The implementation in {@link SnapshotKVTransaction} returns the {@link MutableView} associated with this instance.
      *
      * @return the underlying {@link KVStore}
-     * @throws StaleTransactionException if this transaction is no longer valid
-     * @throws TransactionTimeoutException if this transaction has timed out
+     * @throws StaleKVTransactionException if this transaction is no longer valid
+     * @throws KVTransactionTimeoutException if this transaction has timed out
      */
     @Override
     protected synchronized KVStore delegate() {
@@ -139,7 +139,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      * <p>
      * {@link SnapshotKVTransaction}s do not perform any locking while the transaction is open. Therefore, the configured
      * value is used instead as a timeout on the overall transaction duration. If the transaction is kept open for longer
-     * than {@code timeout} milliseconds, a {@link TransactionTimeoutException} will be thrown.
+     * than {@code timeout} milliseconds, a {@link KVTransactionTimeoutException} will be thrown.
      *
      * @param timeout transaction timeout in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code timeout} is negative
@@ -256,7 +256,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
         // Has commit() or rollback() already been invoked?
         if (this.closed.get())
-            throw this.kvdb.logException(new StaleTransactionException(this));
+            throw this.kvdb.logException(new StaleKVTransactionException(this));
 
         // Check for timeout
         if (this.error == null && this.timeout != 0) {
@@ -264,7 +264,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
             if (duration >= this.timeout) {
                 synchronized (this.kvdb) {
                     if (this.error == null) {
-                        this.error = new TransactionTimeoutException(this,
+                        this.error = new KVTransactionTimeoutException(this,
                           "transaction has timed out after " + duration + "ms > limit of " + this.timeout + "ms");
                     }
                 }

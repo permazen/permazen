@@ -11,10 +11,12 @@ import io.permazen.Permazen;
 import io.permazen.PermazenTransaction;
 import io.permazen.ValidationMode;
 import io.permazen.core.DatabaseException;
+import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
 import io.permazen.kv.KVDatabase;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.KVTransactionTimeoutException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -358,10 +360,12 @@ public class PermazenTransactionManager extends AbstractPlatformTransactionManag
             if (this.logger.isTraceEnabled())
                 this.logger.trace("committing Permazen transaction " + jtx);
             jtx.commit();
-        } catch (RetryTransactionException e) {
+        } catch (RetryKVTransactionException e) {
             throw new PessimisticLockingFailureException("transaction must be retried", e);
-        } catch (StaleTransactionException e) {
+        } catch (KVTransactionTimeoutException e) {
             throw new TransactionTimedOutException("transaction is no longer usable", e);
+        } catch (StaleKVTransactionException | StaleTransactionException e) {
+            throw new NoTransactionException("transaction is no longer usable", e);
         } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
         } finally {

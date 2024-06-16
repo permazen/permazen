@@ -14,7 +14,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
@@ -93,8 +93,8 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
      *
      * @param key {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws StaleTransactionException {@inheritDoc}
-     * @throws io.permazen.kv.RetryTransactionException {@inheritDoc}
+     * @throws StaleKVTransactionException {@inheritDoc}
+     * @throws io.permazen.kv.RetryKVTransactionException {@inheritDoc}
      * @throws io.permazen.kv.KVDatabaseException {@inheritDoc}
      * @throws UnsupportedOperationException {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
@@ -106,14 +106,14 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
     private synchronized byte[] getSQL(byte[] key) {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         Preconditions.checkArgument(key != null, "null key");
         return this.queryBytes(StmtType.GET, this.encodeKey(key));
     }
 
     private synchronized KVPair getAtLeastSQL(byte[] minKey, byte[] maxKey) {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         return minKey != null && minKey.length > 0 ?
           (maxKey != null ?
            this.queryKVPair(StmtType.GET_RANGE_FORWARD_SINGLE, this.encodeKey(minKey), this.encodeKey(maxKey)) :
@@ -125,7 +125,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
     private synchronized KVPair getAtMostSQL(byte[] maxKey, byte[] minKey) {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         return maxKey != null ?
           (minKey != null && minKey.length > 0 ?
            this.queryKVPair(StmtType.GET_RANGE_REVERSE_SINGLE, this.encodeKey(minKey), this.encodeKey(maxKey)) :
@@ -137,7 +137,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
     private synchronized CloseableIterator<KVPair> getRangeSQL(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         if (minKey != null && minKey.length == 0)
             minKey = null;
         if (minKey == null && maxKey == null)
@@ -159,20 +159,20 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.update(StmtType.PUT, this.encodeKey(key), value, value);
     }
 
     private synchronized void removeSQL(byte[] key) {
         Preconditions.checkArgument(key != null, "null key");
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.update(StmtType.REMOVE, this.encodeKey(key));
     }
 
     private synchronized void removeRangeSQL(byte[] minKey, byte[] maxKey) {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         if (minKey != null && minKey.length == 0)
             minKey = null;
         if (minKey == null && maxKey == null)
@@ -188,7 +188,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     private synchronized void applyBatch(Mutations mutations) {
         Preconditions.checkArgument(mutations != null, "null mutations");
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
 
         // Do removes
         final EnumMap<StmtType, ArrayList<byte[]>> removeBatchMap = new EnumMap<>(StmtType.class);
@@ -249,7 +249,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     @Override
     public synchronized void commit() {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.stale = true;
         try {
             if (this.readOnly && !(this.view instanceof MutableView))

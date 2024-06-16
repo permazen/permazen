@@ -6,7 +6,7 @@
 package io.permazen.kv.simple;
 
 import io.permazen.kv.KVDatabase;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.mvcc.MemoryAtomicKVStore;
 
 /**
@@ -36,9 +36,9 @@ public class MemoryKVDatabase extends SimpleKVDatabase {
     /**
      * Primary constructor.
      *
-     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
-     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      */

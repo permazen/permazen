@@ -9,7 +9,7 @@ import com.mysql.cj.exceptions.MysqlErrorNumbers;
 import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
 
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
 
@@ -125,12 +125,12 @@ public class MySQLKVDatabase extends SQLKVDatabase {
     public KVTransactionException wrapException(SQLKVTransaction tx, SQLException e) {
         switch (e.getErrorCode()) {
         case MysqlErrorNumbers.ER_LOCK_WAIT_TIMEOUT:
-            return new RetryTransactionException(tx, e);
+            return new RetryKVTransactionException(tx, e);
         case MysqlErrorNumbers.ER_LOCK_DEADLOCK:
-            return new RetryTransactionException(tx, e);
+            return new RetryKVTransactionException(tx, e);
         default:
             if (e instanceof MySQLTimeoutException)
-                return new RetryTransactionException(tx, e);
+                return new RetryKVTransactionException(tx, e);
             return super.wrapException(tx, e);
         }
     }

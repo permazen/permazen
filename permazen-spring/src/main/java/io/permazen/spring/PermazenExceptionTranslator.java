@@ -12,8 +12,9 @@ import io.permazen.core.ReferencedObjectException;
 import io.permazen.core.RollbackOnlyTransactionException;
 import io.permazen.core.SchemaMismatchException;
 import io.permazen.core.StaleTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.KVTransactionTimeoutException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
@@ -49,11 +50,11 @@ public class PermazenExceptionTranslator implements PersistenceExceptionTranslat
             return new DataIntegrityViolationException(message, e0);
         if (e0 instanceof RollbackOnlyTransactionException)
             return new InvalidDataAccessApiUsageException(message, e0);
-        if (e0 instanceof TransactionTimeoutException)
+        if (e0 instanceof KVTransactionTimeoutException)
             return new QueryTimeoutException(message, e0);
-        if (e0 instanceof StaleTransactionException || e0 instanceof io.permazen.kv.StaleTransactionException)
+        if (e0 instanceof StaleTransactionException || e0 instanceof StaleKVTransactionException)
             return new InvalidDataAccessApiUsageException(message, e0);
-        if (e0 instanceof RetryTransactionException)
+        if (e0 instanceof RetryKVTransactionException)
             return new ConcurrencyFailureException(message, e0);
         if (e0 instanceof ValidationException)
             return new DataIntegrityViolationException(message, e0);

@@ -7,7 +7,7 @@ package io.permazen.kv.cockroach;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
 
@@ -87,10 +87,10 @@ public class CockroachKVDatabase extends SQLKVDatabase {
         case "55P03":                                   // lock not available
         case "40P01":                                   // deadlock detected
         case "CR000":                                   // See https://groups.google.com/forum/#!topic/cockroach-db/FpBemFJM4w8
-            return new RetryTransactionException(tx, e);
+            return new RetryKVTransactionException(tx, e);
         default:
             if (e.getMessage().contains("restart transaction"))
-                return new RetryTransactionException(tx, e);
+                return new RetryKVTransactionException(tx, e);
             return super.wrapException(tx, e);
         }
     }

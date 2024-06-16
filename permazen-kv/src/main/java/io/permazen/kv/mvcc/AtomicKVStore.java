@@ -60,8 +60,8 @@ public interface AtomicKVStore extends KVStore {
      * needed to release any underlying resources.
      *
      * @return read-only, snapshot view of this instance
-     * @throws io.permazen.kv.StaleTransactionException if an underlying transaction is no longer usable
-     * @throws io.permazen.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws io.permazen.kv.StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws io.permazen.kv.RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws IllegalStateException if this instance is not {@link #start}ed
      */
     CloseableKVStore readOnlySnapshot();
@@ -84,8 +84,8 @@ public interface AtomicKVStore extends KVStore {
      *
      * @param mutations the mutations to apply
      * @param sync if true, caller requires that the changes be durably persisted
-     * @throws io.permazen.kv.StaleTransactionException if an underlying transaction is no longer usable
-     * @throws io.permazen.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws io.permazen.kv.StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws io.permazen.kv.RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws UnsupportedOperationException if {@code sync} is true and this implementation cannot guarantee durability
      * @throws IllegalArgumentException if {@code mutations} is null
      * @throws IllegalStateException if this instance is not {@link #start}ed

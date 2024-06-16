@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.ForwardingKVStore;
 
@@ -71,7 +71,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
     @Override
     public synchronized void commit() {
         if (this.closed)
-            throw new StaleTransactionException(this, "transaction closed");
+            throw new StaleKVTransactionException(this, "transaction closed");
         this.kvdb.transactionClosed(this);
         this.closed = true;
         if (this.kv != null) {
@@ -102,7 +102,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
     @Override
     public synchronized void setReadOnly(boolean readOnly) {
         if (this.closed)
-            throw new StaleTransactionException(this, "transaction closed");
+            throw new StaleKVTransactionException(this, "transaction closed");
         Preconditions.checkState(this.kv == null || readOnly == this.readOnly, "already accessed");
         this.readOnly = readOnly;
     }
@@ -127,7 +127,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
     @Override
     protected synchronized KVStore delegate() {
         if (this.closed)
-            throw new StaleTransactionException(this, "transaction closed");
+            throw new StaleKVTransactionException(this, "transaction closed");
         if (this.kv == null)
             this.buildKV();
         return this.delegate;
@@ -139,7 +139,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
 
     private synchronized LMDBKVStore<T> buildKV() {
         if (this.closed)
-            throw new StaleTransactionException(this, "transaction closed");
+            throw new StaleKVTransactionException(this, "transaction closed");
         if (this.kv == null) {
             assert this.delegate == null;
             this.tx = this.readOnly ? this.env.txnRead() : this.env.txnWrite();

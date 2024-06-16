@@ -6,7 +6,7 @@
 package io.permazen.kv.raft;
 
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.mvcc.Reads;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.raft.msg.AppendRequest;
@@ -185,7 +185,7 @@ public class FollowerRole extends NonLeaderRole {
             if (this.commitRequests.contains(tx) && tx.addsLogEntry()) {
                 assert !tx.isRebasable();
                 assert tx.getState().equals(TxState.COMMIT_READY);
-                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed before commit response received"));
+                this.raft.fail(tx, new RetryKVTransactionException(tx, "leader was deposed before commit response received"));
             }
         }
 
@@ -331,7 +331,7 @@ public class FollowerRole extends NonLeaderRole {
 
             // Otherwise, we can only handle an initial config change that is adding the local node
             if (configChange == null || !configChange[0].equals(this.raft.identity) || configChange[1] == null) {
-                throw new RetryTransactionException(tx, "unconfigured node: an initial configuration change adding"
+                throw new RetryKVTransactionException(tx, "unconfigured node: an initial configuration change adding"
                   + " the local node (\"" + this.raft.identity + "\") as the first member of a new cluster is required");
             }
 
@@ -460,7 +460,7 @@ public class FollowerRole extends NonLeaderRole {
         if (this.log.isTraceEnabled())
             this.trace("sending {} to \"{}\" for {}", msg, this.leader, tx);
         if (!this.raft.sendMessage(msg))
-            throw new RetryTransactionException(tx, "error sending commit request to leader");
+            throw new RetryKVTransactionException(tx, "error sending commit request to leader");
 
         // Record pending request
         assert !this.commitRequests.contains(tx);
@@ -599,7 +599,7 @@ public class FollowerRole extends NonLeaderRole {
                 // Fail any transactions that are based on any of the discarded log entries
                 for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
                     if (tx.getBaseIndex() >= logIndex && !tx.getConsistency().equals(Consistency.UNCOMMITTED)) {
-                        this.raft.fail(tx, new RetryTransactionException(tx,
+                        this.raft.fail(tx, new RetryKVTransactionException(tx,
                           "base log entry " + tx.getBaseIndex() + "t" + tx.getBaseTerm() + " overwritten by new leader"));
                     }
                 }
@@ -744,7 +744,7 @@ public class FollowerRole extends NonLeaderRole {
 
         // Did the request fail?
         if (!msg.isSuccess()) {
-            this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));
+            this.raft.fail(tx, new RetryKVTransactionException(tx, msg.getErrorMessage()));
             return;
         }
 
@@ -758,7 +758,7 @@ public class FollowerRole extends NonLeaderRole {
                   commitIndex, commitTerm, tx.getBaseIndex(), tx.getBaseTerm(), commitIndex,
                   actualCommitTerm != 0 ? "" + actualCommitTerm : "unknown");
             }
-            this.raft.fail(tx, new RetryTransactionException(tx, "transaction was rebased past its commit index"));
+            this.raft.fail(tx, new RetryKVTransactionException(tx, "transaction was rebased past its commit index"));
             return;
         }
 
@@ -878,13 +878,13 @@ public class FollowerRole extends NonLeaderRole {
 
                 // Fail if base index is past our applied index
                 if (tx.getBaseIndex() > index) {
-                    this.raft.fail(tx, new RetryTransactionException(tx,
+                    this.raft.fail(tx, new RetryKVTransactionException(tx,
                       "rec'd snapshot install from leader and base index " + tx.getBaseIndex() + " > " + index));
                 }
 
                 // Fail if rebasable and the base index doesn't exactly match
                 if (tx.isRebasable() && (tx.getBaseTerm() != term || tx.getBaseIndex() != index)) {
-                    this.raft.fail(tx, new RetryTransactionException(tx, "snapshot install of " + index + "t" + term
+                    this.raft.fail(tx, new RetryKVTransactionException(tx, "snapshot install of " + index + "t" + term
                       + " invalidated transaction base " + tx.getBaseIndex() + "t" + tx.getBaseTerm()));
                 }
             }

@@ -9,7 +9,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.util.XMLSerializer;
 import io.permazen.test.TestSupport;
 import io.permazen.util.ByteUtil;
@@ -143,7 +143,7 @@ public abstract class KVTestSupport extends TestSupport {
     }
 
     protected <R> R tryNtimesWithResult(KVDatabase kvdb, Function<KVTransaction, R> function) {
-        RetryTransactionException retry = null;
+        RetryKVTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
             try {
                 this.numTransactionAttempts.incrementAndGet();
@@ -151,7 +151,7 @@ public abstract class KVTestSupport extends TestSupport {
                 final R result = function.apply(tx);
                 tx.commit();
                 return result;
-            } catch (RetryTransactionException e) {
+            } catch (RetryKVTransactionException e) {
                 this.updateRetryStats(e);
                 this.log.debug("attempt #{} yeilded {}", count + 1, e.toString());
                 retry = e;
@@ -171,11 +171,11 @@ public abstract class KVTestSupport extends TestSupport {
 
     // Some k/v databases can throw a RetryTransaction from createTransaction()
     protected KVTransaction createKVTransaction(KVDatabase kvdb) {
-        RetryTransactionException retry = null;
+        RetryKVTransactionException retry = null;
         for (int count = 0; count < this.getNumTries(); count++) {
             try {
                 return this.doCreateTransaction(kvdb);
-            } catch (RetryTransactionException e) {
+            } catch (RetryKVTransactionException e) {
                 retry = e;
             }
             try {
@@ -191,7 +191,7 @@ public abstract class KVTestSupport extends TestSupport {
         return kvdb.createTransaction();
     }
 
-    protected void updateRetryStats(RetryTransactionException e) {
+    protected void updateRetryStats(RetryKVTransactionException e) {
         this.numTransactionRetries.incrementAndGet();
         String message = e.getMessage();
         if (message != null)

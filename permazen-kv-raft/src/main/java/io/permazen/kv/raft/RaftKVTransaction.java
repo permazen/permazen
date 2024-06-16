@@ -14,8 +14,8 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
@@ -404,7 +404,7 @@ public class RaftKVTransaction implements KVTransaction {
      * @throws IllegalArgumentException if {@code readOnly} is false and
      *  {@linkplain #getConsistency this transaction's consistency} is not {@link Consistency#LINEARIZABLE}
      * @throws IllegalArgumentException if {@code readOnly} is false and this transaction is currently read-only
-     * @throws StaleTransactionException if this transaction is no longer open
+     * @throws StaleKVTransactionException if this transaction is no longer open
      */
     @Override
     public void setReadOnly(final boolean readOnly) {
@@ -603,14 +603,14 @@ public class RaftKVTransaction implements KVTransaction {
      * <p>
      * {@link RaftKVTransaction}s do not block while the transaction is open; the configured value is used
      * as a timeout for the {@link #commit} operation only. If {@link #commit} takes longer than {@code timeout}
-     * milliseconds, a {@link RetryTransactionException} is thrown.
+     * milliseconds, a {@link RetryKVTransactionException} is thrown.
      *
      * <p>
      * The default value for all transactions is configured by {@link RaftKVDatabase#setCommitTimeout}.
      *
      * @param timeout transaction commit timeout in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code timeout} is negative
-     * @throws StaleTransactionException if this transaction is no longer open
+     * @throws StaleKVTransactionException if this transaction is no longer open
      */
     @Override
     public void setTimeout(final long timeout) {
@@ -640,8 +640,8 @@ public class RaftKVTransaction implements KVTransaction {
      *
      * @param key {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws StaleTransactionException {@inheritDoc}
-     * @throws io.permazen.kv.RetryTransactionException {@inheritDoc}
+     * @throws StaleKVTransactionException {@inheritDoc}
+     * @throws io.permazen.kv.RetryKVTransactionException {@inheritDoc}
      * @throws io.permazen.kv.KVDatabaseException {@inheritDoc}
      * @throws UnsupportedOperationException {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
@@ -674,8 +674,8 @@ public class RaftKVTransaction implements KVTransaction {
      *
      * @return {@inheritDoc}
      * @throws UnsupportedOperationException {@inheritDoc}
-     * @throws StaleTransactionException {@inheritDoc}
-     * @throws io.permazen.kv.RetryTransactionException {@inheritDoc}
+     * @throws StaleKVTransactionException {@inheritDoc}
+     * @throws io.permazen.kv.RetryKVTransactionException {@inheritDoc}
      */
     @Override
     public CloseableKVStore readOnlySnapshot() {
@@ -769,7 +769,7 @@ public class RaftKVTransaction implements KVTransaction {
     void verifyExecuting() {
         assert Thread.holdsLock(this.raft);
         if (!this.state.equals(TxState.EXECUTING))
-            throw this.failure != null ? this.failure.duplicate() : new StaleTransactionException(this);
+            throw this.failure != null ? this.failure.duplicate() : new StaleKVTransactionException(this);
     }
 
     boolean isCommittable() {

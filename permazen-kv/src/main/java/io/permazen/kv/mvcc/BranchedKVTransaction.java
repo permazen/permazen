@@ -14,7 +14,7 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
@@ -489,7 +489,7 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
     private enum State {
         INITIAL("transaction is not open yet", (tx, msg) -> new IllegalStateException(msg)),
         OPEN("transaction is already open", (tx, msg) -> new IllegalStateException(msg)),
-        CLOSED("transaction is no longer open", StaleTransactionException::new);
+        CLOSED("transaction is no longer open", StaleKVTransactionException::new);
 
         private final String stateMismatchMessage;
         private final BiFunction<KVTransaction, String, RuntimeException> exceptionCreator;

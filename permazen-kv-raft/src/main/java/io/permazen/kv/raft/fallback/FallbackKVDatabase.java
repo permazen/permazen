@@ -14,7 +14,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.raft.Consistency;
 import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.RaftKVTransaction;
@@ -771,7 +771,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 } finally {
                     src.rollback();                     // no effect if already committed
                 }
-            } catch (RetryTransactionException e) {
+            } catch (RetryKVTransactionException e) {
                 this.log.info("{} failed (will try again later): {}", desc, e.toString());
             } catch (Throwable t) {
                 this.log.error(desc + " failed", t);

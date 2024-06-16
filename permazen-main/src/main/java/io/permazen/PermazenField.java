@@ -13,6 +13,7 @@ import io.permazen.annotation.PermazenType;
 import io.permazen.core.Field;
 import io.permazen.core.ObjId;
 import io.permazen.core.ObjType;
+import io.permazen.core.StaleTransactionException;
 import io.permazen.kv.KVDatabase;
 import io.permazen.schema.SchemaField;
 
@@ -91,8 +92,7 @@ public abstract class PermazenField extends PermazenSchemaItem {
      *
      * @param pobj object containing this field
      * @throws io.permazen.core.DeletedObjectException if {@code pobj} does not exist in its associated {@link PermazenTransaction}
-     * @throws io.permazen.kv.StaleTransactionException if the {@link PermazenTransaction} associated with {@code pobj}
-     *  is no longer usable
+     * @throws StaleTransactionException if the {@link PermazenTransaction} associated with {@code pobj} is no longer usable
      * @return this field's value in {@code pobj}
      * @throws IllegalArgumentException if {@code pobj} is null
      * @throws IllegalArgumentException if this field is a sub-field of a complex field

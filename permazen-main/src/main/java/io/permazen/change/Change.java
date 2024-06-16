@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.PermazenObject;
 import io.permazen.PermazenTransaction;
+import io.permazen.core.StaleTransactionException;
 
 /**
  * Object change notification.
@@ -77,7 +78,7 @@ public abstract class Change<T> {
      *  does not contain the affected field, or in which the affected field has a different type
      * @throws RuntimeException if there is some other incompatibility between this change and the target object,
      *  for example, setting a list element at an index that is out of bounds
-     * @throws io.permazen.kv.StaleTransactionException if {@code jtx} is no longer usable
+     * @throws StaleTransactionException if {@code jtx} is no longer usable
      * @throws IllegalArgumentException if {@code jtx} or {@code jobj} is null
      */
     public abstract void apply(PermazenTransaction jtx, PermazenObject jobj);

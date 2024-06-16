@@ -6,7 +6,7 @@
 package io.permazen.kv.sqlite;
 
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
 
@@ -207,7 +207,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
         switch (SQLiteErrorCode.getErrorCode(e.getErrorCode())) {
         case SQLITE_BUSY:
         case SQLITE_LOCKED:
-            return new RetryTransactionException(tx, e);
+            return new RetryKVTransactionException(tx, e);
         default:
             return super.wrapException(tx, e);
         }

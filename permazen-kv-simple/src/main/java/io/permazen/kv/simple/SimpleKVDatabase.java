@@ -10,10 +10,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
+import io.permazen.kv.KVTransactionTimeoutException;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.KeyWatchTracker;
@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Transaction isolation is implemented via key range locking using a {@link LockManager}. Conflicting access
  * will block, subject to the {@linkplain #getWaitTimeout wait timeout} and {@linkplain #getHoldTimeout hold timeout}.
- * If the wait timeout is exceeded, a {@link RetryTransactionException} is thrown. If the hold timeout is exceeded,
- * a {@link TransactionTimeoutException} is thrown.
+ * If the wait timeout is exceeded, a {@link RetryKVTransactionException} is thrown. If the hold timeout is exceeded,
+ * a {@link KVTransactionTimeoutException} is thrown.
  *
  * <p>
  * Instances wrap an underlying {@link AtomicKVStore} which from which committed data is read and written.
@@ -114,9 +114,9 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      * Primary constructor.
      *
      * @param kv {@link AtomicKVStore} for the committed data
-     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
-     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      * @throws IllegalArgumentException if {@code kv} is null
@@ -136,7 +136,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      *
      * <p>
      * The wait timeout limits how long a thread will wait for a contested lock before giving up and throwing
-     * {@link RetryTransactionException}.
+     * {@link RetryKVTransactionException}.
      *
      * @return wait timeout in milliseconds
      */
@@ -147,7 +147,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     /**
      * Set the wait timeout for newly created transactions. Default is {@link #DEFAULT_WAIT_TIMEOUT}.
      *
-     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds (default), or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */
@@ -161,7 +161,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      *
      * <p>
      * The hold timeout limits how long a thread may hold on to a contested lock before being forced to release
-     * all of its locks; after that, the next attempted operation will fail with {@link RetryTransactionException}.
+     * all of its locks; after that, the next attempted operation will fail with {@link RetryKVTransactionException}.
      *
      * @return hold timeout in milliseconds
      */
@@ -172,7 +172,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     /**
      * Set the hold timeout for this instance. Default is {@link #DEFAULT_HOLD_TIMEOUT}.
      *
-     * @param holdTimeout how long a thread may hold a contested lock before throwing {@link RetryTransactionException}
+     * @param holdTimeout how long a thread may hold a contested lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code holdTimeout} is negative
      */
@@ -227,7 +227,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      * The implementation in {@link SimpleKVDatabase} does nothing.
      *
      * @param tx the transaction about to be committed
-     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     * @throws RetryKVTransactionException if this transaction must be retried and is no longer usable
      */
     protected void preCommit(SimpleKVTransaction tx) {
     }
@@ -292,9 +292,9 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      * The implementation in {@link SimpleKVDatabase} does nothing.
      *
      * @param tx the transaction being accessed
-     * @throws StaleTransactionException if this instance is no longer usable
-     * @throws RetryTransactionException if this transaction should be retried
-     * @throws TransactionTimeoutException if the transaction has timed out
+     * @throws StaleKVTransactionException if this instance is no longer usable
+     * @throws RetryKVTransactionException if this transaction should be retried
+     * @throws KVTransactionTimeoutException if the transaction has timed out
      */
     protected void checkState(SimpleKVTransaction tx) {
         assert Thread.holdsLock(this);
@@ -302,10 +302,10 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
     private void checkUsable(SimpleKVTransaction tx) {
         if (tx.stale)
-            throw new StaleTransactionException(tx);
+            throw new StaleKVTransactionException(tx);
         if (this.lockManager.checkHoldTimeout(tx.lockOwner) == -1) {
             this.rollback(tx);
-            throw new TransactionTimeoutException(tx, String.format(
+            throw new KVTransactionTimeoutException(tx, String.format(
               "transaction taking too long: hold timeout of %dms has expired", this.lockManager.getHoldTimeout()));
         }
     }
@@ -575,7 +575,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
         // Prevent use after commit() or rollback() invoked
         if (tx.stale)
-            throw new StaleTransactionException(tx);
+            throw new StaleKVTransactionException(tx);
         tx.stale = true;
 
         // Sanity check locking here before releasing locks
@@ -593,7 +593,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
         // Release all locks
         if (!this.lockManager.release(tx.lockOwner)) {
-            throw new TransactionTimeoutException(tx,
+            throw new KVTransactionTimeoutException(tx,
               "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
         }
         assert allMutationsWereLocked;
@@ -648,7 +648,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         } catch (InterruptedException e) {
             this.rollback(tx);
             Thread.currentThread().interrupt();
-            throw new RetryTransactionException(tx, "transaction interrupted while waiting to acquire lock", e);
+            throw new RetryKVTransactionException(tx, "transaction interrupted while waiting to acquire lock", e);
         }
 
         // Check result
@@ -657,10 +657,10 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             break;
         case WAIT_TIMEOUT_EXPIRED:
             this.rollback(tx);
-            throw new RetryTransactionException(tx, "could not acquire lock after " + tx.waitTimeout + "ms");
+            throw new RetryKVTransactionException(tx, "could not acquire lock after " + tx.waitTimeout + "ms");
         case HOLD_TIMEOUT_EXPIRED:
             this.rollback(tx);
-            throw new TransactionTimeoutException(tx,
+            throw new KVTransactionTimeoutException(tx,
               "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
         default:
             throw new RuntimeException("internal error");

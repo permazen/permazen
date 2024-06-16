@@ -62,8 +62,8 @@ public interface KVStore {
      * @param key key
      * @return value associated with key, or null if not found
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
     byte[] get(byte[] key);
@@ -85,8 +85,8 @@ public interface KVStore {
      * @param minKey minimum key (inclusive), or null for no minimum (get the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (no upper bound)
      * @return smallest key/value pair with {@code key >= minKey} and {@code key < maxKey}, or null if none exists
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     KVPair getAtLeast(byte[] minKey, byte[] maxKey);
 
@@ -107,8 +107,8 @@ public interface KVStore {
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
      * @param minKey minimum key (inclusive), or null for no minimum (no lower bound)
      * @return largest key/value pair with {@code key < maxKey} and {@code key >= minKey}, or null if none exists
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     KVPair getAtMost(byte[] maxKey, byte[] minKey);
 
@@ -148,8 +148,8 @@ public interface KVStore {
      * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
      * @return iteration of key/value pairs in the range {@code minKey} (inclusive) to {@code maxKey} (exclusive)
      * @throws IllegalArgumentException if {@code minKey > maxKey}
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse);
 
@@ -164,8 +164,8 @@ public interface KVStore {
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
      * @return iteration of key/value pairs in the range {@code minKey} (inclusive) to {@code maxKey} (exclusive)
      * @throws IllegalArgumentException if {@code minKey > maxKey}
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     default CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey) {
         return this.getRange(minKey, maxKey, false);
@@ -180,8 +180,8 @@ public interface KVStore {
      *
      * @param range range of keys to iterate
      * @return iteration of key/value pairs in {@code range}
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws IllegalArgumentException if {@code range} is null
      */
     default CloseableIterator<KVPair> getRange(KeyRange range) {
@@ -195,8 +195,8 @@ public interface KVStore {
      * @param key key
      * @param value value
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} or {@code value} is null
      */
     void put(byte[] key, byte[] value);
@@ -206,8 +206,8 @@ public interface KVStore {
      *
      * @param key key
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
     void remove(byte[] key);
@@ -229,8 +229,8 @@ public interface KVStore {
      * @param minKey minimum key (inclusive), or null for no minimum
      * @param maxKey maximum key (exclusive), or null for no maximum
      * @throws IllegalArgumentException if {@code minKey > maxKey}
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     void removeRange(byte[] minKey, byte[] maxKey);
 
@@ -242,8 +242,8 @@ public interface KVStore {
      *
      * @param range range to remove
      * @throws IllegalArgumentException if {@code range} is null
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     default void removeRange(KeyRange range) {
         Preconditions.checkArgument(range != null, "null range");
@@ -256,8 +256,8 @@ public interface KVStore {
      *
      * @param value desired counter value
      * @return encoded counter value
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
     byte[] encodeCounter(long value);
 
@@ -267,8 +267,8 @@ public interface KVStore {
      * @param value encoded counter value
      * @return decoded counter value
      * @throws IllegalArgumentException if {@code value} is not a valid counter value
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code value} is null
      */
     long decodeCounter(byte[] value);
@@ -287,8 +287,8 @@ public interface KVStore {
      *
      * @param key key
      * @param amount amount to adjust counter value by
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if an underlying transaction is no longer usable
+     * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
     void adjustCounter(byte[] key, long amount);

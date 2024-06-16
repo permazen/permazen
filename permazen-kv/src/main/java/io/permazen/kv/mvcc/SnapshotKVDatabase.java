@@ -11,8 +11,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.KeyWatchTracker;
 import io.permazen.util.CloseableRefs;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * transactions do not contend for any locks until commit time. During each transaction, reads are noted and derive from the
  * snapshot, while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
  * snapshot was created, and any of those writes {@linkplain Reads#isConflict conflict} with any of the committing
- * transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the transaction is committed and its
+ * transaction's reads, a {@link RetryKVTransactionException} is thrown. Otherwise, the transaction is committed and its
  * writes are applied.
  *
  * <p>
@@ -305,7 +305,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         try {
             this.doCommit(tx, readOnly);
         } finally {
-            tx.error = null;                                // from this point on, throw a StaleTransactionException if accessed
+            tx.error = null;                                // from this point on, throw a StaleKVTransactionException if accessed
             this.cleanupTransaction(tx);
         }
     }
@@ -317,7 +317,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         assert Thread.holdsLock(tx);
         if (this.log.isTraceEnabled())
             this.log.trace("rolling back transaction {}", tx);
-        tx.error = null;                                    // from this point on, throw a StaleTransactionException if accessed
+        tx.error = null;                                    // from this point on, throw a StaleKVTransactionException if accessed
         this.cleanupTransaction(tx);
     }
 
@@ -347,7 +347,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         // Remove transaction; if not there, it's already been invalidated
         if (!this.transactions.remove(tx)) {
             tx.throwErrorIfAny();
-            throw this.logException(new StaleTransactionException(tx));
+            throw this.logException(new StaleKVTransactionException(tx));
         }
         assert tx.error == null;
         assert this.snapshot != null;
@@ -398,7 +398,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
                     // Mark transaction for failure
                     i.remove();
-                    victim.error = new RetryTransactionException(victim, "transaction is based on version "
+                    victim.error = new RetryKVTransactionException(victim, "transaction is based on version "
                       + victim.baseVersion + " but the transaction committed at version "
                       + this.currentVersion + " contains conflicting writes");
                     if (this.log.isTraceEnabled())
@@ -406,7 +406,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
                     // This looks weird. What it's really doing is ensuring that any subsequent attempt to access the
                     // data in the transaction via iterators that have already been created will "fail fast" and throw the
-                    // RetryTransactionException created above. This happens because those accesses go through victim.delegate().
+                    // RetryKVTransactionException created above. This happens because those accesses go through victim.delegate().
                     victim.view.setKVStore(victim);
                     continue;
                 }

@@ -15,7 +15,7 @@ import io.permazen.core.Transaction;
 import io.permazen.core.TransactionConfig;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.mvcc.BranchedKVTransaction;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.ParseException;
@@ -554,7 +554,7 @@ public class Session {
      *
      * <p>
      * If {@code action} is a {@link RetryableTransactionalAction}, and a newly created transaction throws a
-     * {@link RetryTransactionException}, it will be retried automatically up to the configured
+     * {@link RetryKVTransactionException}, it will be retried automatically up to the configured
      * {@linkplain #getMaxRetries maximum number of retry attempts}.
      * An exponential back-off algorithm is used: after the first failed attempt, the current thread sleeps for the
      * {@linkplain #getInitialRetryDelay initial retry delay}. After each subsequent failed attempt, the retry delay is doubled,
@@ -659,7 +659,7 @@ public class Session {
             } catch (InterruptedException e) {
                 throw e;
             } catch (Exception e) {
-                if (shouldRetry && e instanceof RetryTransactionException && retryNumber++ < this.maxRetries)
+                if (shouldRetry && e instanceof RetryKVTransactionException && retryNumber++ < this.maxRetries)
                     continue;
                 this.reportException(e);
                 return false;
@@ -886,7 +886,7 @@ public class Session {
 
     /**
      * Extension of {@link TransactionalAction} that indicates the transaction should be retried if a
-     * {@link RetryTransactionException} is thrown.
+     * {@link RetryKVTransactionException} is thrown.
      */
     public interface RetryableTransactionalAction extends TransactionalAction {
     }

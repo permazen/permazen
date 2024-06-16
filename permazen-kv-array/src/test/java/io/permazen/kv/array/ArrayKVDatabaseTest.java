@@ -6,7 +6,7 @@
 package io.permazen.kv.array;
 
 import io.permazen.kv.KVDatabase;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.test.KVDatabaseTest;
 
 import java.io.File;
@@ -108,7 +108,7 @@ public class ArrayKVDatabaseTest extends KVDatabaseTest {
                     }
                     tx.commit();
                     success = true;
-                } catch (RetryTransactionException e) {
+                } catch (RetryKVTransactionException e) {
                     // ignore
                 } finally {
                     if (!success)

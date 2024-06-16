@@ -50,7 +50,7 @@ public class TestKVDatabase implements KVDatabase {
 
     private synchronized void commit(Transaction tx) {
         if (tx != this.tx)
-            throw new StaleTransactionException(tx);
+            throw new StaleKVTransactionException(tx);
         synchronized (tx.view) {
             tx.view.setReadOnly();
             tx.view.getWrites().applyTo(this.kv);

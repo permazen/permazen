@@ -8,13 +8,13 @@ package io.permazen.kv.mvcc;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 
 /**
  * Exception thrown when a transaction fails because of an MVCC conflict.
  */
 @SuppressWarnings("serial")
-public class TransactionConflictException extends RetryTransactionException {
+public class TransactionConflictException extends RetryKVTransactionException {
 
     private final Conflict conflict;
 

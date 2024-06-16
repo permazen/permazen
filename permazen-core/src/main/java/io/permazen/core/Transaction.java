@@ -437,7 +437,7 @@ public class Transaction {
      * Commit this transaction.
      *
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws io.permazen.kv.RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
+     * @throws io.permazen.kv.RetryKVTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws RollbackOnlyTransactionException if this instance has been {@linkplain #setRollbackOnly marked} rollback only;
      *  this instance will be automatically rolled back
      */

@@ -6,7 +6,7 @@
 package io.permazen.kv.mssql;
 
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.sql.SQLKVDatabase;
 import io.permazen.kv.sql.SQLKVTransaction;
 
@@ -201,7 +201,7 @@ public class MSSQLKVDatabase extends SQLKVDatabase {
         case 1222:                                                      // lock timeout exceeded
         case 1205:                                                      // deadlock
         case 8645:                                                      // server can't allocate memory
-            return new RetryTransactionException(tx, e);
+            return new RetryKVTransactionException(tx, e);
         default:
             return super.wrapException(tx, e);
         }

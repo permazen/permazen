@@ -7,7 +7,7 @@ package io.permazen;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.annotation.PermazenType;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 
 import jakarta.validation.constraints.Min;
 
@@ -34,7 +34,7 @@ public class ValidationExceptionTest extends MainTestSupport {
             try {
                 tx.validate();
                 assert false;
-            } catch (RetryTransactionException e) {
+            } catch (RetryKVTransactionException e) {
                 // expected
             } catch (ValidationException e) {
                 assert false;
@@ -58,7 +58,7 @@ public class ValidationExceptionTest extends MainTestSupport {
 
         @Min(0)
         public int getDummy() {
-            throw new RetryTransactionException(this.getPermazenTransaction().getTransaction().getKVTransaction(),
+            throw new RetryKVTransactionException(this.getPermazenTransaction().getTransaction().getKVTransaction(),
               "simulated retry exception");
         }
         public void setDummy(int dummy) {

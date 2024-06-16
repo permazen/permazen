@@ -8,7 +8,7 @@ package io.permazen.kv.simple;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabaseException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.util.XMLSerializer;
 
 import java.io.BufferedInputStream;
@@ -51,7 +51,7 @@ import org.dellroad.stuff.io.StreamRepository;
  * When a {@link FileStreamRepository} is used, instances support "out-of-band" updates of the XML file. In that case,
  * each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been
  * updated by some external process since the time the transaction was created, the database will be reloaded from
- * the XML file and the transaction will fail with a {@link RetryTransactionException}.
+ * the XML file and the transaction will fail with a {@link RetryKVTransactionException}.
  *
  * <p>
  * Note that "out-of-band" updates are not without race conditions: e.g., it's possible for an external process to update
@@ -103,9 +103,9 @@ public class XMLKVDatabase extends MemoryKVDatabase {
      * Uses a {@link FileStreamRepository} backed by the specified file with configurable lock timeouts.
      *
      * @param file persistent XML file
-     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
-     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      * @throws IllegalArgumentException if {@code file} is null
@@ -135,9 +135,9 @@ public class XMLKVDatabase extends MemoryKVDatabase {
      * Allows storage in any user-supplied {@link StreamRepository} with configurable lock timeouts.
      *
      * @param repository XML file storage
-     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
-     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryKVTransactionException}
      *  in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      * @throws IllegalArgumentException if {@code repository} is null
@@ -244,7 +244,7 @@ public class XMLKVDatabase extends MemoryKVDatabase {
         this.checkForOutOfBandUpdate();
         final int txGeneration = ((XMLKVTransaction)tx).getGeneration();
         if (txGeneration != this.generation) {
-            throw new RetryTransactionException(tx, String.format(
+            throw new RetryKVTransactionException(tx, String.format(
               "XML file changed since transaction started (generation number changed from %d to %d)",
               txGeneration, this.generation));
         }

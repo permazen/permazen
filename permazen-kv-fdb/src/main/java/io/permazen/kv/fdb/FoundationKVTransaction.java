@@ -14,9 +14,9 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.KVTransactionTimeoutException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
@@ -88,7 +88,7 @@ public class FoundationKVTransaction implements KVTransaction {
     public synchronized CompletableFuture<Void> watchKey(byte[] key) {
         Preconditions.checkArgument(key != null, "null key");
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         try {
             return this.tx.watch(this.kvstore.addPrefix(key));
         } catch (FDBException e) {
@@ -105,7 +105,7 @@ public class FoundationKVTransaction implements KVTransaction {
     @Override
     public synchronized void setReadOnly(boolean readOnly) {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         Preconditions.checkState(this.view == null || readOnly == this.readOnly, "data already accessed");
         this.readOnly = readOnly;
     }
@@ -113,7 +113,7 @@ public class FoundationKVTransaction implements KVTransaction {
     @Override
     public synchronized void commit() {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         try {
             this.tx.commit().get();
         } catch (ExecutionException e) {
@@ -250,15 +250,15 @@ public class FoundationKVTransaction implements KVTransaction {
      */
     public KVTransactionException wrapException(FDBException e) {
         if (e.getCode() == ErrorCode.TRANSACTION_TIMED_OUT.getCode())
-            return new TransactionTimeoutException(this, e);
+            return new KVTransactionTimeoutException(this, e);
         if (e.getCode() < 1500)
-            return new RetryTransactionException(this, e);
+            return new RetryKVTransactionException(this, e);
         return new KVTransactionException(this, e);
     }
 
     private synchronized KVStore getKVStore() {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         if (this.view == null)
             this.view = this.readOnly ? new MutableView(this.kvstore, false) : this.kvstore;
         return this.view;

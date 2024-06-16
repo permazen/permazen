@@ -58,7 +58,7 @@ public class MemoryKVDatabaseTest extends KVDatabaseTest {
         holderThread.join();
         waiterThread.join();
         Assert.assertEquals(holderThread.getResult(), "success");
-        Assert.assertEquals(waiterThread.getResult(), "RetryTransactionException");
+        Assert.assertEquals(waiterThread.getResult(), "RetryKVTransactionException");
 
         // Test hold timeout by itself - no exception because nobody is waiting
         this.timeoutTestStartTime = System.currentTimeMillis();
@@ -77,7 +77,7 @@ public class MemoryKVDatabaseTest extends KVDatabaseTest {
         waiterThread.start();
         holderThread.join();
         waiterThread.join();
-        Assert.assertEquals(holderThread.getResult(), "TransactionTimeoutException");
+        Assert.assertEquals(holderThread.getResult(), "KVTransactionTimeoutException");
         Assert.assertEquals(waiterThread.getResult(), "success");
     }
 

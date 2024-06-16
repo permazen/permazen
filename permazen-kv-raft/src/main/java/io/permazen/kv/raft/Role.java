@@ -9,7 +9,7 @@ import com.google.common.primitives.Bytes;
 
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.mvcc.Conflict;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Reads;
@@ -88,7 +88,7 @@ public abstract class Role {
         for (RaftKVTransaction tx : new ArrayList<>(this.raft.openTransactions.values())) {
             if (!tx.getState().equals(TxState.COMPLETED) && tx.getCommitLeaderLeaseTimeout() != null) {
                 assert tx.hasCommitInfo();
-                this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during leader lease timeout wait"));
+                this.raft.fail(tx, new RetryKVTransactionException(tx, "leader was deposed during leader lease timeout wait"));
             }
         }
 
@@ -501,13 +501,13 @@ public abstract class Role {
 
             // The commit log entry has already been forgotten. We don't know whether it actually got committed
             // or not, so the transaction must be retried.
-            throw new RetryTransactionException(tx, "commit index " + commitIndex
+            throw new RetryKVTransactionException(tx, "commit index " + commitIndex
               + " < first index " + this.raft.log.getFirstIndex() + " for which the term is known");
         }
 
         // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
         if (commitTerm != commitIndexActualTerm) {
-            throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's commit log entry "
+            throw new RetryKVTransactionException(tx, "leader was deposed during commit and transaction's commit log entry "
               + commitIndex + "t" + commitTerm + " overwritten by " + commitIndex + "t" + commitIndexActualTerm);
         }
 

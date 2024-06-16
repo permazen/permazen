@@ -10,8 +10,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
         // Check freshness
         synchronized (this.db) {
             if (this.stale)
-                throw new StaleTransactionException(this);
+                throw new StaleKVTransactionException(this);
         }
 
         // Get target's future - it must be a ListenableFuture or we can't do this
@@ -118,7 +118,7 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
         // Check freshness
         synchronized (this.db) {
             if (this.stale)
-                throw new StaleTransactionException(this);
+                throw new StaleKVTransactionException(this);
             this.stale = true;
         }
 
@@ -157,7 +157,7 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     private void retryIfMigrating() {
         if (!this.db.checkNoMigration(this.migrationCount)) {
             this.rollback();
-            throw new RetryTransactionException(this, "fallback migration in progress");
+            throw new RetryKVTransactionException(this, "fallback migration in progress");
         }
     }
 }

@@ -8,7 +8,7 @@ package io.permazen.kv.raft;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.mvcc.Conflict;
 import io.permazen.kv.mvcc.Reads;
 import io.permazen.kv.mvcc.Writes;
@@ -704,7 +704,7 @@ public class LeaderRole extends Role {
                 final String conflictMsg = this.checkHighPriorityConflict(tx.view.getWrites(),
                   this.raft.dumpConflicts ? "local tx " + tx : null);
                 if (conflictMsg != null)
-                    throw new RetryTransactionException(tx, conflictMsg);
+                    throw new RetryKVTransactionException(tx, conflictMsg);
             }
 
             // Commit transaction as a new log entry
@@ -712,7 +712,7 @@ public class LeaderRole extends Role {
             try {
                 logEntry = this.applyNewLogEntry(new NewLogEntry(tx));
             } catch (IllegalStateException e) {
-                throw new RetryTransactionException(tx, e.getMessage());
+                throw new RetryKVTransactionException(tx, e.getMessage());
             } catch (Exception e) {
                 throw new KVTransactionException(tx, "error attempting to persist transaction", e);
             }

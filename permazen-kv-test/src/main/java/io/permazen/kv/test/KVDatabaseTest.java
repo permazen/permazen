@@ -9,11 +9,11 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
+import io.permazen.kv.KVTransactionTimeoutException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
-import io.permazen.kv.TransactionTimeoutException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.MemoryKVStore;
@@ -196,7 +196,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         try {
             tx.get(b("01"));
             assert false;
-        } catch (StaleTransactionException e) {
+        } catch (StaleKVTransactionException e) {
             // expected
         }
         this.log.info("finished testSimpleStuff() on {}", store);
@@ -470,9 +470,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     throw (AssertionError)e;
                 if (e.toString().contains(AssertionError.class.getName()))
                     throw new AssertionError("internal assertion failure", e);
-                if (!(e instanceof RetryTransactionException))
+                if (!(e instanceof RetryKVTransactionException))
                     throw new AssertionError("wrong exception type: " + e, e);
-                final RetryTransactionException retry = (RetryTransactionException)e;
+                final RetryKVTransactionException retry = (RetryKVTransactionException)e;
                 //Assert.assertSame(retry.getTransaction(), txs[i]);
                 this.log.info("{} #{} failed on write", txs[i], i + 1);
                 if (this.log.isTraceEnabled())
@@ -513,8 +513,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         throw (AssertionError)e;
                     if (e.toString().contains(AssertionError.class.getName()))
                         throw new AssertionError("internal assertion failure", e);
-                    assert e instanceof RetryTransactionException : "wrong exception type: " + e;
-                    final RetryTransactionException retry = (RetryTransactionException)e;
+                    assert e instanceof RetryKVTransactionException : "wrong exception type: " + e;
+                    final RetryKVTransactionException retry = (RetryKVTransactionException)e;
                     //Assert.assertSame(retry.getTransaction(), txs[i]);
                     this.log.info("{} #{} failed on commit", txs[i], i + 1);
                     if (this.log.isTraceEnabled())
@@ -577,7 +577,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     try {
                         f.get();
                     } catch (ExecutionException e) {
-                        if (e.getCause() instanceof RetryTransactionException) {
+                        if (e.getCause() instanceof RetryKVTransactionException) {
                             txs[i] = this.createKVTransaction(store);
                             break;
                         }
@@ -602,7 +602,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             throw (RuntimeException)e.getCause();
                         throw new RuntimeException(e.getCause());
                     }
-                } catch (RetryTransactionException e) {
+                } catch (RetryKVTransactionException e) {
                     this.updateRetryStats(e);
                     txs[i] = this.threads[i].submit(() -> this.createKVTransaction(store)).get();
                     continue;
@@ -1120,7 +1120,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     try {
                         KVDatabaseTest.this.numTransactionAttempts.incrementAndGet();
                         tx.commit();
-                    } catch (RetryTransactionException e) {
+                    } catch (RetryKVTransactionException e) {
                         KVDatabaseTest.this.updateRetryStats(e);
                         throw e;
                     }
@@ -1129,11 +1129,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     this.log("committed");
                 }
 
-            } catch (TransactionTimeoutException e) {
+            } catch (KVTransactionTimeoutException e) {
                 KVDatabaseTest.this.log.debug("*** TX {} THREW {}", tx, e.toString());
                 this.log("got {}", e.toString());
                 committed = false;
-            } catch (RetryTransactionException e) {             // might have committed, might not have, we don't know for sure
+            } catch (RetryKVTransactionException e) {             // might have committed, might not have, we don't know for sure
                 KVDatabaseTest.this.log.debug("*** TX {} THREW {}", tx, e.toString());
                 this.log("got {}", e.toString());
             }
@@ -1426,8 +1426,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 KVDatabaseTest.this.numTransactionAttempts.incrementAndGet();
                 this.tx.commit();
             } catch (RuntimeException e) {
-                if (e instanceof RetryTransactionException)
-                    KVDatabaseTest.this.updateRetryStats((RetryTransactionException)e);
+                if (e instanceof RetryKVTransactionException)
+                    KVDatabaseTest.this.updateRetryStats((RetryKVTransactionException)e);
                 KVDatabaseTest.this.log.info("exception committing {}: {}", this.tx, e.toString());
                 if (KVDatabaseTest.this.log.isTraceEnabled())
                     KVDatabaseTest.this.log.trace("{} commit failure exception trace", this.tx, e);

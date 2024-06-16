@@ -13,8 +13,8 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Reads;
@@ -111,7 +111,7 @@ import org.slf4j.LoggerFactory;
  * {@link RaftKVDatabase} supports multiple simultaneous read/write transactions across all nodes. Simultaneous transactions
  * will successfully commit as long as the database is able to meet its consistency obligations. It does this verification
  * by performing conflict analysis at the key/value level. When two transactions do conflict, the loser receives a
- * {@link RetryTransactionException}. Because it is based on the Raft algorithm, consistency is guaranteed even in the face
+ * {@link RetryKVTransactionException}. Because it is based on the Raft algorithm, consistency is guaranteed even in the face
  * of arbitrary network drops, delays, and reorderings.
  *
  * <p><b>Persistence</b>
@@ -148,7 +148,7 @@ import org.slf4j.LoggerFactory;
  *          If this is not the case, then the transaction is rejected with a {@link TransactionConflictException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries (if any) after the transaction's base log entry
  *          do not create {@linkplain Reads#isConflict conflicts} when compared against the transaction's
- *          {@link Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
+ *          {@link Reads}. If so, the transaction is rejected with a {@link RetryKVTransactionException}.</li>
  *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} (and any config change) to its log.
  *          The associated term and index become the transaction's <i>commit term and index</i>; the leader then
  *          {@linkplain CommitResponse replies} to the follower with this information.</li>
@@ -201,7 +201,7 @@ import org.slf4j.LoggerFactory;
  * the system is experiencing, due to contention, network errors, etc., can be measured in terms of:
  * <ul>
  *  <li>The average amount of time it takes to commit a transaction</li>
- *  <li>The frequency of {@link RetryTransactionException}'s</li>
+ *  <li>The frequency of {@link RetryKVTransactionException}'s</li>
  * </ul>
  *
  * <p><b>Cluster Configuration</b></p>
@@ -696,7 +696,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * <p>
      * This value determines how transactions will wait once {@link RaftKVTransaction#commit commit()}
-     * is invoked for the commit to succeed before failing with a {@link RetryTransactionException}.
+     * is invoked for the commit to succeed before failing with a {@link RetryKVTransactionException}.
      * This can be overridden on a per-transaction basis via {@link RaftKVTransaction#setTimeout}.
      *
      * <p>
@@ -1625,7 +1625,7 @@ public class RaftKVDatabase implements KVDatabase {
                 // Sanity check
                 assert this.checkState();
                 if (this.role == null)
-                    throw new StaleTransactionException(tx, "database is shutdown");
+                    throw new StaleKVTransactionException(tx, "database is shutdown");
 
                 // Check tx state
                 switch (tx.getState()) {
@@ -1637,7 +1637,7 @@ public class RaftKVDatabase implements KVDatabase {
                     tx.setState(TxState.COMMIT_READY);
                     this.requestService(new CheckReadyTransactionService(this.role, tx));
 
-                    // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
+                    // From this point on, throw a StaleKVTransactionException if accessed, instead of retry exception or whatever
                     tx.setFailure(null);
 
                     // Setup commit timer
@@ -1647,7 +1647,7 @@ public class RaftKVDatabase implements KVDatabase {
                             switch (tx.getState()) {
                             case COMMIT_READY:
                             case COMMIT_WAITING:
-                                this.fail(tx, new RetryTransactionException(tx, "transaction failed to complete within "
+                                this.fail(tx, new RetryKVTransactionException(tx, "transaction failed to complete within "
                                   + tx.getTimeout() + "ms (in state " + tx.getState() + ")"));
                                 break;
                             default:
@@ -1662,7 +1662,7 @@ public class RaftKVDatabase implements KVDatabase {
                     try {
                         tx.verifyExecuting();                       // always throws some kind of exception
                     } finally {
-                        tx.setFailure(null);                        // from now on, throw StaleTransactionException if accessed
+                        tx.setFailure(null);                        // from now on, throw StaleKVTransactionException if accessed
                     }
                     assert false;
                     return;
@@ -1698,7 +1698,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (this.role == null)
             return;
 
-        // From this point on, throw a StaleTransactionException if accessed, instead of retry exception or whatever
+        // From this point on, throw a StaleKVTransactionException if accessed, instead of retry exception or whatever
         tx.setFailure(null);
 
         // Check tx state

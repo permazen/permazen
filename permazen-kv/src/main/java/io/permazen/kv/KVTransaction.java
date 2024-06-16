@@ -17,12 +17,12 @@ import java.util.concurrent.Future;
  *
  * <p>
  * Instances may throw {@link KVTransactionException} during any operation if the transaction cannot be continued.
- * In particular, {@link StaleTransactionException} is thrown by a transaction that is no longer open, and
- * {@link RetryTransactionException} is thrown when the transaction should be retried due to a transient
+ * In particular, {@link StaleKVTransactionException} is thrown by a transaction that is no longer open, and
+ * {@link RetryKVTransactionException} is thrown when the transaction should be retried due to a transient
  * problem (such as a write conflict with another transaction).
  *
  * <p>
- * When {@link RetryTransactionException} is thrown by {@link #commit}, the transaction may have actually been committed.
+ * When {@link RetryKVTransactionException} is thrown by {@link #commit}, the transaction may have actually been committed.
  * Therefore, transactions should be written to be idempotent.
  *
  * <p>
@@ -30,12 +30,12 @@ import java.util.concurrent.Future;
  *
  * <p>
  * If an instance throws a {@link KVTransactionException}, the transaction should be implicitly rolled back.
- * Any subsequent operation other than {@link #rollback} should throw {@link StaleTransactionException}.
+ * Any subsequent operation other than {@link #rollback} should throw {@link StaleKVTransactionException}.
  *
  * <p>
- * Except for {@link #rollback} and methods that just query status, implementations must throw {@link StaleTransactionException}
+ * Except for {@link #rollback} and methods that just query status, implementations must throw {@link StaleKVTransactionException}
  * if {@link #commit} or {@link #rollback} has already been invoked, or if the {@link KVTransaction} instance is no longer usable
- * for some other reason. In particular, implementations should throw {@link TransactionTimeoutException} if an operation
+ * for some other reason. In particular, implementations should throw {@link KVTransactionTimeoutException} if an operation
  * is attempted on a transaction that has been held open past some maximum allowed time limit.
  *
  * <p>
@@ -65,7 +65,7 @@ public interface KVTransaction extends KVStore {
      * @param timeout transaction timeout in milliseconds, or zero for unlimited
      * @throws UnsupportedOperationException if this transaction does not support timeouts
      * @throws IllegalArgumentException if {@code timeout} is negative
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws StaleKVTransactionException if this transaction is no longer usable
      */
     void setTimeout(long timeout);
 
@@ -76,7 +76,7 @@ public interface KVTransaction extends KVStore {
      * Default is false.
      *
      * @return true if this instance is read-only
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws StaleKVTransactionException if this transaction is no longer usable
      */
     boolean isReadOnly();
 
@@ -104,7 +104,7 @@ public interface KVTransaction extends KVStore {
      *
      * @param readOnly read-only setting
      * @throws IllegalStateException if the implementation doesn't support changing read-only status at this time
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws StaleKVTransactionException if this transaction is no longer usable
      */
     void setReadOnly(boolean readOnly);
 
@@ -150,7 +150,7 @@ public interface KVTransaction extends KVStore {
      * <p>
      * Note: many {@link KVDatabase} implementations actually return a
      * {@link com.google.common.util.concurrent.ListenableFuture}. However, listeners must not perform any
-     * long running or blocking operations. Also, because the semantics of {@link RetryTransactionException} allow for
+     * long running or blocking operations. Also, because the semantics of {@link RetryKVTransactionException} allow for
      * the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
      *
      * <p>
@@ -162,8 +162,8 @@ public interface KVTransaction extends KVStore {
      *
      * @param key the key to watch
      * @return a {@link Future} that returns {@code key} when the value associated with {@code key} is modified
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if this transaction is no longer usable
+     * @throws RetryKVTransactionException if this transaction must be retried and is no longer usable
      * @throws KVDatabaseException if an unexpected error occurs
      * @throws UnsupportedOperationException if this instance does not support key watches
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
@@ -177,7 +177,7 @@ public interface KVTransaction extends KVStore {
      * Commit this transaction.
      *
      * <p>
-     * Note that if this method throws a {@link RetryTransactionException},
+     * Note that if this method throws a {@link RetryKVTransactionException},
      * the transaction was either successfully committed or rolled back. In either case,
      * this instance is no longer usable.
      *
@@ -185,8 +185,8 @@ public interface KVTransaction extends KVStore {
      * Note also for some implementations, even read-only transactions must be {@link #commit}'ed in order for the
      * data accessed during the transaction to be guaranteed to be up to date.
      *
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if this transaction is no longer usable
+     * @throws RetryKVTransactionException if this transaction must be retried and is no longer usable
      */
     void commit();
 
@@ -203,7 +203,7 @@ public interface KVTransaction extends KVStore {
      * <p>
      * This method may be invoked at any time, even after a previous invocation of
      * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
-     * In particular, this method must <b>not</b> throw {@link StaleTransactionException}.
+     * In particular, this method must <b>not</b> throw {@link StaleKVTransactionException}.
      */
     void rollback();
 
@@ -258,8 +258,8 @@ public interface KVTransaction extends KVStore {
      *
      * @return independent, read-only copy of this transaction's entire database content
      * @throws UnsupportedOperationException if this method is not supported
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     * @throws StaleKVTransactionException if this transaction is no longer usable
+     * @throws RetryKVTransactionException if this transaction must be retried and is no longer usable
      */
     CloseableKVStore readOnlySnapshot();
 }

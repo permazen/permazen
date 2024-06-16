@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.annotation.PermazenField;
 import io.permazen.core.ObjId;
+import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
 
 /**
@@ -45,7 +46,7 @@ public class Counter {
      * behavior of {@link #adjust adjust()} in the current transaction.
      *
      * @return current value of the counter
-     * @throws io.permazen.kv.StaleTransactionException if the transaction from which this instance
+     * @throws StaleTransactionException if the transaction from which this instance
      *  was read is no longer usable
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
@@ -58,8 +59,7 @@ public class Counter {
      * behavior of {@link #adjust adjust()} in the current transaction.
      *
      * @param value new value for the counter
-     * @throws io.permazen.kv.StaleTransactionException if the transaction from which this instance
-     *  was read is no longer usable
+     * @throws StaleTransactionException if the transaction from which this instance was read is no longer usable
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void set(long value) {
@@ -70,8 +70,7 @@ public class Counter {
      * Adjust this counter's value by the specified amount.
      *
      * @param offset amount to add to counter
-     * @throws io.permazen.kv.StaleTransactionException if the transaction from which this instance
-     *  was read is no longer usable
+     * @throws StaleTransactionException if the transaction from which this instance was read is no longer usable
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void adjust(long offset) {
@@ -81,8 +80,7 @@ public class Counter {
     /**
      * Increment this counter's value by one.
      *
-     * @throws io.permazen.kv.StaleTransactionException if the transaction from which this instance
-     *  was read is no longer usable
+     * @throws StaleTransactionException if the transaction from which this instance was read is no longer usable
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void increment() {
@@ -92,8 +90,7 @@ public class Counter {
     /**
      * Decrement this counter's value by one.
      *
-     * @throws io.permazen.kv.StaleTransactionException if the transaction from which this instance
-     *  was read is no longer usable
+     * @throws StaleTransactionException if the transaction from which this instance was read is no longer usable
      * @throws io.permazen.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void decrement() {

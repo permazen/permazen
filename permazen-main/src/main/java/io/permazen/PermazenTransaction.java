@@ -1643,7 +1643,7 @@ public class PermazenTransaction {
      * the transaction open, invoke {@link #validate} prior to commit.
      *
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws io.permazen.kv.RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
+     * @throws io.permazen.kv.RetryKVTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
      * @throws IllegalStateException if this method is invoked re-entrantly from within a validation check
      */
@@ -1703,7 +1703,7 @@ public class PermazenTransaction {
      * <p>
      * <b>Note:</b> if the this transaction was created with {@link ValidationMode#DISABLED}, then this method does nothing.
      *
-     * @throws io.permazen.kv.RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
+     * @throws io.permazen.kv.RetryKVTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws StaleTransactionException if this transaction is no longer usable

@@ -19,8 +19,8 @@ import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
@@ -105,7 +105,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     public synchronized byte[] get(byte[] key) {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
         Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         final DatabaseEntry value = new DatabaseEntry();
@@ -141,7 +141,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     public synchronized CursorIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
         final Cursor cursor;
         try {
@@ -155,7 +155,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     public synchronized void put(byte[] key, byte[] value) {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
         Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
@@ -168,7 +168,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     public synchronized void remove(byte[] key) {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
         Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
@@ -193,7 +193,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     public synchronized void commit() {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         this.close();
         try {
             if (this.readOnly)
@@ -264,7 +264,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
      */
     public KVTransactionException wrapException(DatabaseException e) {
         if (e instanceof LockConflictException)
-            return new RetryTransactionException(this, e);
+            return new RetryKVTransactionException(this, e);
         return new KVTransactionException(this, e);
     }
 
@@ -329,7 +329,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         @Override
         public synchronized void remove() {
             if (BerkeleyKVTransaction.this.closed)
-                throw new StaleTransactionException(BerkeleyKVTransaction.this);
+                throw new StaleKVTransactionException(BerkeleyKVTransaction.this);
             if (this.removeKey == null)
                 throw new IllegalStateException();
             try {
@@ -365,7 +365,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         private /*synchronized*/ boolean findNext() {
             assert Thread.holdsLock(this);
             if (BerkeleyKVTransaction.this.closed)
-                throw new StaleTransactionException(BerkeleyKVTransaction.this);
+                throw new StaleKVTransactionException(BerkeleyKVTransaction.this);
             if (!this.initialized)
                 this.initialize();
             assert this.initialized;

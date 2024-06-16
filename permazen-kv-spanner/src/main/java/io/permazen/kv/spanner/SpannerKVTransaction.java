@@ -22,8 +22,8 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
-import io.permazen.kv.RetryTransactionException;
-import io.permazen.kv.StaleTransactionException;
+import io.permazen.kv.RetryKVTransactionException;
+import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.util.CloseableIterator;
@@ -210,7 +210,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
             break;
         case CLOSED:
         default:
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         }
 
         // Commit transaction (if read/write) and close view
@@ -422,7 +422,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
         default:
             assert this.view == null;
             assert this.context == null;
-            throw new StaleTransactionException(this);
+            throw new StaleKVTransactionException(this);
         }
 
         // Create the appropriate context and view
@@ -454,7 +454,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
 
     protected RuntimeException wrapException(SpannerException e) {
         return e.isRetryable() || e instanceof AbortedException || ErrorCode.ABORTED.equals(e.getErrorCode()) ?
-          new RetryTransactionException(this, e.getMessage(), e) :
+          new RetryKVTransactionException(this, e.getMessage(), e) :
           new KVTransactionException(this, e.getMessage(), e);
     }
 }
