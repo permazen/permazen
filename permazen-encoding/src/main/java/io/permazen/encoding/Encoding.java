@@ -15,6 +15,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.NaturalSortAware;
+import io.permazen.util.XMLUtil;
 
 import java.io.Serializable;
 import java.util.Comparator;

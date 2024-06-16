@@ -81,6 +81,11 @@ import java.util.Set;
  * number of bytes produced by {@link #encodeKey encodeKey()} or consumed by {@link #decodeKey decodeKey()}.
  * When not in prefix mode, {@link #decodeKey decodeKey()} <b>must</b> consume the entire key to preserve correct semantics.
  *
+ * <p>
+ * Prefix mode can also be used when the map values (or some portion thereof) are contained in the key's "garbage" suffix.
+ * The {@link #decodeValue decodeValue()} takes a {@link KVPair} so it can read from both the key and the value.
+ * In particular, instances can be built from key/value data where all the values are empty.
+ *
  * <p><b>Key Restrictions</b></p>
  *
  * <p>

@@ -41,6 +41,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -646,7 +647,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * Equivalent to: <code>write(output, OutputOptions.builder().build())</code>.
      *
      * @param output XML output; will not be closed by this method
-     * @param options output options
      * @return the number of objects written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code output} is null
@@ -717,13 +717,15 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
         // Write <schemas>
         writer.writeStartElement(SCHEMAS_TAG.getNamespaceURI(), SCHEMAS_TAG.getLocalPart());
-        for (Schema schema : this.tx.getSchemaBundle().getSchemasBySchemaIndex().values())
-            schema.getSchemaModel(true).writeXML(writer, options.isIncludeStorageIds(), options.isPrettyPrint());
+        try (Stream<? extends SchemaModel> schemaModels = options.schemaGenerator().apply(this.tx)) {
+            for (Iterator<? extends SchemaModel> i = schemaModels.iterator(); i.hasNext(); )
+                i.next().writeXML(writer, options.isIncludeStorageIds(), options.isPrettyPrint());
+        }
         writer.writeEndElement();       // </schemas>
 
         // Write <objects>
         final long count;
-        try (Stream<ObjId> objIds = this.tx.getAll().stream()) {
+        try (Stream<? extends ObjId> objIds = options.objectGenerator().apply(this.tx)) {
             count = this.writeObjects(writer, options, objIds);
         }
 
@@ -1031,18 +1033,37 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      */
     public static final class OutputOptions {
 
+        private final Function<? super Transaction, ? extends Stream<? extends SchemaModel>> schemaGenerator;
+        private final Function<? super Transaction, ? extends Stream<? extends ObjId>> objectGenerator;
         private final boolean elementsAsNames;
         private final boolean includeStorageIds;
         private final boolean prettyPrint;
 
         private OutputOptions(Builder builder) {
+            this.schemaGenerator = builder.schemaGenerator;
+            this.objectGenerator = builder.objectGenerator;
             this.elementsAsNames = builder.elementsAsNames;
             this.includeStorageIds = builder.includeStorageIds;
             this.prettyPrint = builder.prettyPrint;
         }
 
-        public static Builder builder() {
-            return new Builder();
+        /**
+         * Get the function that streams the {@link SchemaModel}s to include in the output.
+         *
+         * @return {@link SchemaModel} streaming function, never null
+         */
+        public Function<? super Transaction, ? extends Stream<? extends SchemaModel>> schemaGenerator() {
+            return this.schemaGenerator != null ? this.schemaGenerator :
+              tx -> tx.getSchemaBundle().getSchemasBySchemaIndex().values().stream().map(schema -> schema.getSchemaModel(true));
+        }
+
+        /**
+         * Get the function that streams the objects to include in the output (identified by {@link ObjId}).
+         *
+         * @return {@link ObjId} streaming function, never null
+         */
+        public Function<? super Transaction, ? extends Stream<? extends ObjId>> objectGenerator() {
+            return this.objectGenerator != null ? this.objectGenerator : tx -> tx.getAll().stream();
         }
 
         /**
@@ -1072,6 +1093,26 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             return this.prettyPrint;
         }
 
+    // Other Methods
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /**
+         * Create a {@link Builder} that is pre-configured as a copy of this instance.
+         *
+         * @return new pre-configured builder
+         */
+        public Builder copy() {
+            return new Builder()
+              .schemaGenerator(this.schemaGenerator)
+              .objectGenerator(this.objectGenerator)
+              .elementsAsNames(this.elementsAsNames)
+              .includeStorageIds(this.includeStorageIds)
+              .prettyPrint(this.prettyPrint);
+        }
+
     // Builder
 
         /**
@@ -1079,11 +1120,37 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
          */
         public static final class Builder implements Cloneable {
 
+            private Function<? super Transaction, ? extends Stream<? extends SchemaModel>> schemaGenerator;
+            private Function<? super Transaction, ? extends Stream<? extends ObjId>> objectGenerator;
             private boolean elementsAsNames = true;
             private boolean includeStorageIds;
             private boolean prettyPrint = true;
 
             private Builder() {
+            }
+
+            /**
+             * Configure a custom function that streams the {@link SchemaModel}s to include in the output.
+             *
+             * <p>
+             * The generated {@link SchemaModel}s should always include storage ID's, so that the {@link #includeStorageIds}
+             * option can decide whether they are expressed in the output.
+             *
+             * @param schemaGenerator custom {@link SchemaModel} streaming function, or null to stream all schemas in the database
+             */
+            public Builder schemaGenerator(Function<? super Transaction, ? extends Stream<? extends SchemaModel>> schemaGenerator) {
+                this.schemaGenerator = schemaGenerator;
+                return this;
+            }
+
+            /**
+             * Configure a custom function that streams the objects to include in the output (identified by {@link ObjId}).
+             *
+             * @return custom {@link ObjId} streaming function, or null to stream all objects in the database
+             */
+            public Builder objectGenerator(Function<? super Transaction, ? extends Stream<? extends ObjId>> objectGenerator) {
+                this.objectGenerator = objectGenerator;
+                return this;
             }
 
             /**
@@ -1106,7 +1173,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
              * <p>
              * The default value is false.
              *
-             * @param elementsAsNames whether to include storage ID's
+             * @param includeStorageIds whether to include storage ID's
              * @return this instance
              */
             public Builder includeStorageIds(boolean includeStorageIds) {

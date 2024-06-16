@@ -14,6 +14,7 @@ import io.permazen.util.ImmutableNavigableMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.BiPredicate;
 
 /**
  * Configuration for a {@link Transaction}.
@@ -22,7 +23,7 @@ public final class TransactionConfig {
 
     private final SchemaModel schemaModel;
     private final boolean allowNewSchema;
-    private final boolean garbageCollectSchemas;
+    private final SchemaRemoval schemaRemoval;
     private final Map<String, ?> kvoptions;
 
     private TransactionConfig(Builder builder) {
@@ -40,7 +41,7 @@ public final class TransactionConfig {
 
         // Initialize other stuff
         this.allowNewSchema = builder.allowNewSchema;
-        this.garbageCollectSchemas = builder.garbageCollectSchemas;
+        this.schemaRemoval = builder.schemaRemoval;
         this.kvoptions = this.copyOptions(builder.kvoptions);
     }
 
@@ -69,13 +70,13 @@ public final class TransactionConfig {
     }
 
     /**
-     * Configure whether automatic schema garbage collection should be enabled.
+     * Get when to automatically detect and remove unused schemas.
      *
-     * @return whether automatically garbage collect obsolete schemas
-     * @see Builder#garbageCollectSchemas
+     * @return if and when to remove unused schemas
+     * @see Builder#schemaRemoval
      */
-    public boolean isGarbageCollectSchemas() {
-        return this.garbageCollectSchemas;
+    public SchemaRemoval getSchemaRemoval() {
+        return this.schemaRemoval;
     }
 
     /**
@@ -101,6 +102,19 @@ public final class TransactionConfig {
     }
 
     /**
+     * Create a {@link Builder} that is pre-configured as a copy of this instance.
+     *
+     * @return new pre-configured transaction config builder
+     */
+    public Builder copy() {
+        return new Builder()
+          .schemaModel(this.schemaModel)
+          .allowNewSchema(this.allowNewSchema)
+          .schemaRemoval(this.schemaRemoval)
+          .kvOptions(this.kvoptions);
+    }
+
+    /**
      * Convenience method that uses this instance to create a new transaction in the given database.
      *
      * @param db database in which to open a new transaction
@@ -113,6 +127,18 @@ public final class TransactionConfig {
         return db.createTransaction(this);
     }
 
+// Object
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+          + "[schema=" + this.schemaModel.getSchemaId()
+          + ",allowNewSchema=" + this.allowNewSchema
+          + ",schemaRemoval=" + this.schemaRemoval
+          + (this.kvoptions != null ? ",kvoptions=" + this.kvoptions : "")
+          + "]";
+    }
+
 // Builder
 
     /**
@@ -122,7 +148,7 @@ public final class TransactionConfig {
 
         private SchemaModel schemaModel;
         private boolean allowNewSchema = true;
-        private boolean garbageCollectSchemas;
+        private SchemaRemoval schemaRemoval = SchemaRemoval.CONFIG_CHANGE;
         private Map<String, ?> kvoptions;
 
     // Constructors
@@ -162,21 +188,22 @@ public final class TransactionConfig {
         }
 
         /**
-         * Configure whether automatic schema garbage collection should be enabled.
+         * Configure when to automatically detect and remove unused schemas from the database.
          *
          * <p>
-         * When automatic schema garbage collection is enabled, unused schemas are garbage collected
-         * at the start of each transaction. This adds a small amount of overhead to transaction startup,
-         * but only when a new schema set is encountered.
+         * When schema removal is enabled, unused schemas (i.e., those for which zero objects exist) are automatically detected
+         * and removed at the beginning certain transactions. This operation adds a small amount of overhead.
          *
          * <p>
-         * The default value is false.
+         * The default value is {@link SchemaRemoval#CONFIG_CHANGE}.
          *
-         * @param garbageCollectSchemas whether to enable automatic schema garbage collection
+         * @param schemaRemoval if and when to automatically detect and remove unused schemas
          * @return this instance
+         * @throws IllegalArgumentException if {@code schemaRemoval} is null
          */
-        public Builder garbageCollectSchemas(boolean garbageCollectSchemas) {
-            this.garbageCollectSchemas = garbageCollectSchemas;
+        public Builder schemaRemoval(SchemaRemoval schemaRemoval) {
+            Preconditions.checkArgument(schemaRemoval != null, "null schemaRemoval");
+            this.schemaRemoval = schemaRemoval;
             return this;
         }
 
@@ -217,6 +244,50 @@ public final class TransactionConfig {
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+// SchemaRemoval
+
+    /**
+     * Configures if and when to automatically detect and remove unused schemas from a database.
+     *
+     * <p>
+     * When enabled, schema removal occurs at the beginning of a transaction.
+     *
+     * @see TransactionConfig.Builder#schemaRemoval
+     */
+    public enum SchemaRemoval {
+
+        /**
+         * Disable automatic schema removal.
+         */
+        NEVER((firstTransaction, newConfig) -> false),
+
+        /**
+         * Perform automatic schema removal only during the very first transaction.
+         */
+        ONCE((firstTransaction, newConfig) -> firstTransaction),
+
+        /**
+         * Perform automatic schema removal during the very first transaction, and during any subsequent transaction
+         * configured differently from the previous transaction.
+         */
+        CONFIG_CHANGE((firstTransaction, newConfig) -> firstTransaction || newConfig),
+
+        /**
+         * Perform automatic schema removal only during every transaction.
+         */
+        ALWAYS((firstTransaction, newConfig) -> true);
+
+        private final BiPredicate<Boolean, Boolean> tester;
+
+        SchemaRemoval(BiPredicate<Boolean, Boolean> tester) {
+            this.tester = tester;
+        }
+
+        public boolean shouldRemove(boolean firstTransaction, boolean newConfig) {
+            return this.tester.test(firstTransaction, newConfig);
         }
     }
 }

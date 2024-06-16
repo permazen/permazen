@@ -12,6 +12,7 @@ import io.permazen.annotation.ValuesList;
 import io.permazen.core.CompositeIndex;
 import io.permazen.core.Database;
 import io.permazen.core.ObjType;
+import io.permazen.core.StaleTransactionException;
 import io.permazen.index.Index2;
 import io.permazen.index.Index3;
 import io.permazen.schema.SchemaCompositeIndex;

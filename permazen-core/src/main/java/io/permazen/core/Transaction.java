@@ -203,10 +203,16 @@ public class Transaction {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    // Meta-data
+    // Database
     final Database db;
+
+    // Underlying transaction
     final KVTransaction kvt;
-    final Schema schema;
+
+    // Schema state
+    @GuardedBy("this")
+    Schema schema;
+    @GuardedBy("this")
     SchemaBundle schemaBundle;
 
     // TX state
@@ -311,19 +317,23 @@ public class Transaction {
     }
 
     /**
-     * Manually add the given schema to the database.
+     * Manually record the given non-empty schema in the database.
      *
      * <p>
      * If successful, {@linkplain #getSchemaBundle this transaction's schema bundle} will be updated.
      *
      * <p>
+     * This transaction's current schema does not change.
+     *
+     * <p>
      * This method is dangerous and should normally not be used except by low-level tools.
      *
      * @return true if the schema was added, false if it was already in the schema bundle
-     * @throws InvalidSchemaException if the given schema is invalid (i.e., does not pass validation checks)
-     * @throws SchemaMismatchException if the given schema has any explicit storage ID assignments
+     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if {@code schemaModel} has explicit storage ID assignments
      *  that conflict with other schemas already recorded in the database
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code schemaModel} is empty
      * @throws IllegalArgumentException if {@code schemaModel} is null
      */
     public boolean addSchema(SchemaModel schemaModel) {
@@ -335,24 +345,18 @@ public class Transaction {
             schemaModel.lockDown(true);
         }
         schemaModel.validate();
-        final SchemaId schemaId = schemaModel.getSchemaId();
+        Preconditions.checkArgument(!schemaModel.isEmpty(), "empty schema");
 
         // Add new schema
         synchronized (this) {
 
-            // Already added?
-            if (this.schemaBundle.getSchemasBySchemaId().containsKey(schemaId))
+            // Encode new schema bundle with the schema added
+            final SchemaBundle.Encoded newEncoded = this.schemaBundle.withSchemaAdded(0, schemaModel);
+            if (newEncoded == null)
                 return false;
 
-            // Integrate the new schema into the existing bundle
-            final SchemaBundle.Encoded newEncoded = this.schemaBundle.withSchemaAdded(0, schemaModel);
-            final SchemaBundle newSchemaBundle = new SchemaBundle(newEncoded, this.db.getEncodingRegistry());
-
-            // Update key/value store
-            newEncoded.writeTo(this.kvt);
-
-            // Update our bundle
-            this.schemaBundle = newSchemaBundle;
+            // Update our current bundle
+            this.updateSchemaBundle(true, newEncoded);
         }
 
         // Done
@@ -366,9 +370,14 @@ public class Transaction {
      * If successful, {@linkplain #getSchemaBundle this transaction's schema bundle} will be updated.
      *
      * <p>
+     * If the removed schema is also this transaction's current schema, then this transaction's schema reverts to the
+     * empty schema. The empty schema itself is never recorded in a database, so it will never be found by this method.
+     *
+     * <p>
      * This method is dangerous and should normally not be used except by low-level tools.
      *
      * @return true if the schema was removed, false if it was not found
+     * @throws IllegalArgumentException if any objects in the schema still exist
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code schemaId} is null
      */
@@ -380,23 +389,46 @@ public class Transaction {
         // Remove schema
         synchronized (this) {
 
-            // Already removed?
-            if (!this.schemaBundle.getSchemasBySchemaId().containsKey(schemaId))
+            // Find the old schema
+            final Schema oldSchema = this.schemaBundle.getSchemasBySchemaId().get(schemaId);
+            if (oldSchema == null)
                 return false;
 
-            // Remove the new schema from the existing bundle
+            // Verify no objects in this schema still exist
+            final int schemaIndex = oldSchema.getSchemaIndex();
+            if (Layout.getSchemaIndex(this.kvt).asMap().containsKey(schemaIndex))
+                throw new IllegalArgumentException(String.format("one or more objects in schema \"%s\" still exist", schemaId));
+
+            // Encode new schema bundle with the schema removed
             final SchemaBundle.Encoded newEncoded = this.schemaBundle.withSchemaRemoved(schemaId);
-            final SchemaBundle newSchemaBundle = new SchemaBundle(newEncoded, this.db.getEncodingRegistry());
 
-            // Update key/value store
-            newEncoded.writeTo(this.kvt);
-
-            // Update our bundle
-            this.schemaBundle = newSchemaBundle;
+            // Update our current bundle
+            this.updateSchemaBundle(false, newEncoded);
         }
 
         // Done
         return true;
+    }
+
+    private synchronized void updateSchemaBundle(boolean added, SchemaBundle.Encoded encoded) {
+        Preconditions.checkArgument(encoded != null, "null encoded");
+
+        // Update the schemas recorded in the database
+        encoded.writeTo(this.kvt);
+
+        // Update this transaction's schema bundle
+        this.schemaBundle = new SchemaBundle(encoded, this.db.getEncodingRegistry());
+
+        // Update this transaction's schema
+        final SchemaModel currentSchemaModel = this.schema.getSchemaModel();
+        final SchemaId currentSchemaId = currentSchemaModel.getSchemaId();
+        final Schema newSchema = this.schemaBundle.getSchemasBySchemaId().get(currentSchemaId);
+        if (newSchema != null)
+            this.schema = newSchema;
+        else if (currentSchemaModel.isEmpty() || !added)
+            this.schema = new Schema(this.schemaBundle);
+        else
+            throw new IllegalArgumentException(String.format("internal error: current schema \"%s\" not found", currentSchemaId));
     }
 
 // Transaction Lifecycle
@@ -774,7 +806,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public boolean create(ObjId id) {
-        return this.create(id, this.schema.getSchemaId());
+        return this.create(id, this.getSchema().getSchemaId());
     }
 
     /**
@@ -831,7 +863,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public ObjId create(String typeName) {
-        return this.create(typeName, this.schema.getSchemaId());
+        return this.create(typeName, this.getSchema().getSchemaId());
     }
 
     /**
@@ -1262,17 +1294,19 @@ public class Transaction {
         assert Thread.holdsLock(srcTx);
         assert Thread.holdsLock(dstTx);
 
-        // Get source info
+        // Get info
         final ObjId srcId = srcInfo.getId();
         final Schema srcSchema = srcInfo.getSchema();
         final SchemaId schemaId = srcSchema.getSchemaId();
         final ObjType srcType = srcInfo.getObjType();
         final String typeName = srcType.getName();
+        final SchemaBundle srcSchemaBundle = srcTx.getSchemaBundle();
+        final SchemaBundle dstSchemaBundle = dstTx.getSchemaBundle();
 
         // Find the same schema in the destination transaction
         final Schema dstSchema;
         try {
-            dstSchema = dstTx.schemaBundle.getSchema(schemaId);
+            dstSchema = dstSchemaBundle.getSchema(schemaId);
         } catch (IllegalArgumentException e) {
             throw new SchemaMismatchException(schemaId, String.format("destination transaction has no schema \"%s\"", schemaId));
         }
@@ -1310,7 +1344,7 @@ public class Transaction {
         // Do field-by-field copy if we have to for various reasons, otherwise do fast direct copy of key/value pairs
         if (objectIdMap != null
           || srcSchema.getSchemaIndex() != dstSchema.getSchemaIndex()
-          || !dstTx.schemaBundle.matches(srcTx.schemaBundle)
+          || !dstSchemaBundle.matches(srcSchemaBundle)
           || (!dstTx.disableListenerNotifications && dstTx.hasFieldMonitor(dstType))) {
 
             // Create destination object if it does not exist yet
@@ -1518,7 +1552,7 @@ public class Transaction {
             return false;
 
         // Migrate schema
-        this.mutateAndNotify(() -> this.migrateSchema(info, this.schema));
+        this.mutateAndNotify(() -> this.migrateSchema(info, this.getSchema()));
 
         // Done
         return true;
@@ -2468,11 +2502,10 @@ public class Transaction {
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
      */
-    private ObjInfo getObjInfo(ObjId id, boolean update) {
+    private synchronized ObjInfo getObjInfo(ObjId id, boolean update) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
-        assert Thread.holdsLock(this);
 
         // Load object info into cache, if not already there
         ObjInfo info = this.objInfoCache.get(id);
@@ -2491,7 +2524,7 @@ public class Transaction {
 
         // Migrate schema
         final ObjInfo info2 = info;
-        this.mutateAndNotify(() -> this.migrateSchema(info2, this.schema));
+        this.mutateAndNotify(() -> this.migrateSchema(info2, this.getSchema()));
 
         // Load (updated) object info into cache
         return this.loadIntoCache(id);

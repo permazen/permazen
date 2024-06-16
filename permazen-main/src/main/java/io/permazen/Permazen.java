@@ -775,7 +775,7 @@ public class Permazen {
         return TransactionConfig.builder()
           .schemaModel(txModel)
           .allowNewSchema(true)
-          .garbageCollectSchemas(true)
+          .schemaRemoval(TransactionConfig.SchemaRemoval.CONFIG_CHANGE)
           .kvOptions(kvoptions)
           .build();
     }

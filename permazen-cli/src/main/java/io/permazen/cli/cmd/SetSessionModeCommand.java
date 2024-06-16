@@ -12,6 +12,8 @@ import io.permazen.cli.parse.Parser;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SetSessionModeCommand extends AbstractCommand {
 
@@ -26,7 +28,10 @@ public class SetSessionModeCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Changes the current CLI session mode. Specify PERMAZEN, CORE_API, or KEY_VALUE.";
+        return "Changes the current CLI session mode. One of: "
+          + Stream.of(SessionMode.values())
+              .map(m -> String.format("\"%s\"", m))
+              .collect(Collectors.joining(", "));
     }
 
     @Override

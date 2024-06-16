@@ -47,7 +47,7 @@ public class KVRemoveCommand extends AbstractKVCommand {
         return new RemoveAction(range, key, maxKey);
     }
 
-    private static class RemoveAction implements Session.RetryableTransactionalAction {
+    private static class RemoveAction implements KVAction {
 
         private final boolean range;
         private final byte[] key;

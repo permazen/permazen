@@ -11,6 +11,7 @@ import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.core.Database;
 import io.permazen.core.InvalidSchemaException;
+import io.permazen.core.TransactionConfig;
 import io.permazen.encoding.EncodingRegistry;
 import io.permazen.schema.SchemaModel;
 
@@ -36,7 +37,7 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
     protected OptionSpec<File> schemaFileOption;
     protected OptionSpec<SessionMode> sessionModeOption;
     protected OptionSpec<Void> noNewSchemaOption;
-    protected OptionSpec<Void> gcSchemasOption;
+    protected OptionSpec<TransactionConfig.SchemaRemoval> schemaRemovalOption;
     protected OptionSpec<String> encodingRegistryOption;
 
     // Database
@@ -47,7 +48,7 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
     protected EncodingRegistry encodingRegistry;
     protected SessionMode sessionMode;
     protected boolean disableNewSchema;
-    protected boolean enableGcScemas;
+    protected TransactionConfig.SchemaRemoval schemaRemoval;
 
 // Options
 
@@ -93,6 +94,13 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
     }
 
     /**
+     * Get the default {@link TransactionConfig.SchemaRemoval}.
+     */
+    protected TransactionConfig.SchemaRemoval getDefaultSchemaRemoval() {
+        return TransactionConfig.SchemaRemoval.CONFIG_CHANGE;
+    }
+
+    /**
      * Add Core API layer command line flags to the given option parser.
      *
      * @param parser command line flag parser
@@ -102,14 +110,23 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
     protected void addCoreApiOptions(OptionParser parser) {
         Preconditions.checkArgument(parser != null, "null parser");
         Preconditions.checkState(this.schemaFileOption == null, "duplicate option");
-        Preconditions.checkState(this.gcSchemasOption == null, "duplicate option");
+        Preconditions.checkState(this.schemaRemovalOption == null, "duplicate option");
         Preconditions.checkState(this.noNewSchemaOption == null, "duplicate option");
         Preconditions.checkState(this.encodingRegistryOption == null, "duplicate option");
         this.schemaFileOption = parser.accepts("schema-file", "Specify core API database schema from XML file")
           .withRequiredArg()
           .describedAs("file")
           .ofType(File.class);
-        this.gcSchemasOption = parser.accepts("gc-schemas", "Enable garbage collection of obsolete schemas");
+        this.schemaRemovalOption = parser.accepts("schema-removal",
+            String.format("Schema removal, one of: %s (default \"%s\")",
+              Stream.of(TransactionConfig.SchemaRemoval.values())
+                .map(TransactionConfig.SchemaRemoval::name)
+                .map(s -> String.format("\"%s\"", s))
+                .collect(Collectors.joining(", ")),
+              this.getDefaultSchemaRemoval()))
+          .withRequiredArg()
+          .ofType(TransactionConfig.SchemaRemoval.class)
+          .describedAs("removal");
         this.noNewSchemaOption = parser.accepts("no-new-schema", "Disallow recording of new database schemas");
         this.encodingRegistryOption = parser.accepts("encoding-registry", "Specify an EncodingRegistry for custom field encodings")
           .withRequiredArg()
@@ -138,7 +155,9 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
           .map(options::valueOf)
           .orElseGet(this::getDefaultSessionMode);
         this.disableNewSchema = this.noNewSchemaOption != null && options.has(this.noNewSchemaOption);
-        this.enableGcScemas = this.gcSchemasOption != null && options.has(this.gcSchemasOption);
+        this.schemaRemoval = Optional.ofNullable(this.schemaRemovalOption)
+          .map(options::valueOf)
+          .orElseGet(this::getDefaultSchemaRemoval);
     }
 
 // Database
@@ -175,7 +194,6 @@ public class CoreApiCliConfig extends KeyValueCliConfig {
         session.setMode(this.sessionMode);
         if (this.disableNewSchema)
             session.setAllowNewSchema(false);
-        if (this.enableGcScemas)
-            session.setGarbageCollectSchemas(true);
+        session.setSchemaRemoval(this.schemaRemoval);
     }
 }

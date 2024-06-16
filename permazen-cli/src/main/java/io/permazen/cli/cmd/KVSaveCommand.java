@@ -70,7 +70,7 @@ public class KVSaveCommand extends AbstractKVCommand {
         return new SaveAction(file, indent, weak, minKey, maxKey);
     }
 
-    private static class SaveAction implements Session.RetryableTransactionalAction, Session.TransactionalActionWithOptions {
+    private static class SaveAction implements KVAction, Session.TransactionalActionWithOptions {
 
         private final File file;
         private final boolean indent;

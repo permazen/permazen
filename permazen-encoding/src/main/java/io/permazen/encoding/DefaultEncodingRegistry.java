@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
  * Permazen provides built-in {@link Encoding}s covering the following Java types:
  * <ul>
  *  <li>Primitive types ({@code boolean}, {@code int}, etc.)</li>
- *  <li>Primitive array types ({@link boolean[]}, {@link int[]}, etc.)</li>
+ *  <li>Primitive array types ({@code boolean[]}, {@code int[]}, etc.)</li>
  *  <li>Primitive wrapper types ({@link Boolean}, {@link Integer}, etc.)</li>
  *  <li>{@link String}</li>
  *  <li>{@link java.math.BigDecimal}</li>

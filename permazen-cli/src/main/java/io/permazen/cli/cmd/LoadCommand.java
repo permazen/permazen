@@ -6,9 +6,11 @@
 package io.permazen.cli.cmd;
 
 import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.cli.parse.Parser;
 import io.permazen.core.ObjId;
 import io.permazen.core.Transaction;
+import io.permazen.core.TransactionConfig;
 import io.permazen.core.util.XMLObjectSerializer;
 
 import java.io.BufferedInputStream;
@@ -53,6 +55,19 @@ public class LoadCommand extends AbstractCommand {
         LoadAction(File file, boolean reset) {
             this.file = file;
             this.reset = reset;
+        }
+
+        @Override
+        public SessionMode getTransactionMode(Session session) {
+            return SessionMode.CORE_API;
+        }
+
+        @Override
+        public TransactionConfig getTransactionConfig(Session session) {
+            return Session.RetryableTransactionalAction.super.getTransactionConfig(session).copy()
+              .schemaRemoval(TransactionConfig.SchemaRemoval.NEVER)
+              .schemaModel(null)
+              .build();
         }
 
         @Override

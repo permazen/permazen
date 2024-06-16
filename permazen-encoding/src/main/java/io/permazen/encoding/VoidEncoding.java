@@ -11,7 +11,7 @@ import io.permazen.util.ByteWriter;
 import org.dellroad.stuff.java.Primitive;
 
 /**
- * {@link void} primitive type.
+ * Encoding for {@code void} primitive type.
  *
  * <p>
  * Doesn't support any values.

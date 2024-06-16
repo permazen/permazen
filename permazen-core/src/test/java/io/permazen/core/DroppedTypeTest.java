@@ -50,7 +50,7 @@ public class DroppedTypeTest extends CoreAPITestSupport {
         tx.commit();
 
         final TransactionConfig config2 = TransactionConfig.builder()
-          .garbageCollectSchemas(false)
+          .schemaRemoval(TransactionConfig.SchemaRemoval.NEVER)
           .schemaModel(schema2)
           .build();
         tx = db.createTransaction(config2);

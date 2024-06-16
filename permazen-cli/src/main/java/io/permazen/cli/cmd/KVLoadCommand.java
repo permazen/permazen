@@ -50,7 +50,7 @@ public class KVLoadCommand extends AbstractKVCommand {
         return new LoadAction(params.containsKey("reset"), (File)params.get("file.xml"));
     }
 
-    private static class LoadAction implements Session.RetryableTransactionalAction {
+    private static class LoadAction implements KVAction {
 
         private final boolean reset;
         private final File file;

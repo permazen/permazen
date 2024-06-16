@@ -6,13 +6,15 @@
 package io.permazen.cli.cmd;
 
 import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 import io.permazen.util.Diffs;
 
+import java.util.EnumSet;
 import java.util.Map;
 
-public class CompareSchemasCommand extends AbstractSchemaCommand {
+public class CompareSchemasCommand extends AbstractCommand {
 
     public CompareSchemasCommand() {
         super("compare-schemas schemaId1 schemaId2");
@@ -38,6 +40,11 @@ public class CompareSchemasCommand extends AbstractSchemaCommand {
         return new CompareAction(schemaId1, schemaId2);
     }
 
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
+    }
+
     private static class CompareAction implements Session.Action {
 
         private final SchemaId schemaId1;
@@ -50,8 +57,10 @@ public class CompareSchemasCommand extends AbstractSchemaCommand {
 
         @Override
         public void run(Session session) throws Exception {
-            final SchemaModel schema1 = AbstractSchemaCommand.getSchemaModel(session, this.schemaId1);
-            final SchemaModel schema2 = AbstractSchemaCommand.getSchemaModel(session, this.schemaId2);
+
+            // Get schemas
+            final SchemaModel schema1 = SchemaUtil.getSchemaModel(session, this.schemaId1);
+            final SchemaModel schema2 = SchemaUtil.getSchemaModel(session, this.schemaId2);
             if (schema1 == null || schema2 == null)
                 return;
             final String desc1 = this.schemaId1 == null ?

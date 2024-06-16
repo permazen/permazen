@@ -7,49 +7,64 @@ package io.permazen.schema;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.core.Schema;
+import io.permazen.core.SchemaMismatchException;
 
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A unique identifier that corresponds to the structure and encoding of an individual {@link SchemaItem} component,
- * or an entire {@link SchemaModel}.
+ * A unique identifier that corresponds to the structure and encoding of an individual {@link SchemaItem} component
+ * of a {@link SchemaModel}, or an entire {@link SchemaModel}.
  *
  * <p>
- * {@link SchemaId}'s are calculated by taking a secure hash over the structural components of some schema
- * item such as an object type, a field, or an index. They provide a simple way to determine whether two schema
- * items are structurally compatible. Two schema items are structurally compatibile if they are identified and encoded
- * in the same way and therefore can and should share the same storage ID assignment in the database. The {@link String}
- * form of a {@link SchemaId} looks like {@code SimpleField_12e983a72e72ed56741ddc45e47d3377}, where the prefix indicates
- * the schema item type.
+ * {@link SchemaId}'s are calculated by taking a secure hash over the structural components of some schema item such as
+ * an object type, a field, or an index, or over an entire {@link SchemaModel}.
  *
  * <p>
- * {@link SchemaId}'s are also used to quickly determine whether two {@link SchemaModel}s are identical except for
- * explicit storage ID assignments. If so, and assuming they don't have any conflicting explicit storage ID's,
- * then they can map to the same {@link Schema} in the database. In other words, they can share the same schema index,
- * analogous to how two {@link SchemaItem}s with the same {@link SchemaId} can share the same storage ID.
+ * For {@link SchemaItem}s, they provide a simple way to determine whether two schema items have the same structure,
+ * meaning they are <i>identified</i> and <i>encoded</i> in the same way. Two {@link SchemaItem} that have the same
+ * {@link SchemaId} will always have the same storage ID assigned when they are recorded in a database.
  *
  * <p>
- * Note that {@linkplain SchemaModel#equals SchemaModel equality} is a stronger condition that includes
- * {@linkplain SchemaItem#getStorageId storage ID's}.
+ * For an entire {@link SchemaModel}, the {@link SchemaId} serves the same purpose by encompassing all of the
+ * {@link SchemaItem} components of the {@link SchemaModel}. Two {@link SchemaModel}s that have the same {@link SchemaId}
+ * will always have the same schema index assigned when they are recorded in a database (that is, they are considered
+ * the same schema).
  *
  * <p>
- * For {@link SchemaItem}s, a {@link SchemaId} covers its "structure", where that is defined as:
+ * The {@link String} form of a {@link SchemaId} looks like {@code SimpleField_12e983a72e72ed56741ddc45e47d3377},
+ * where the prefix before the underscore indicates the thing being identified.
+ *
+ * <p><b>{@link SchemaId}s for {@link SchemaItem}s</b>
+ *
+ * <p>
+ * For {@link SchemaItem}s, the {@link SchemaId} hash function covers its "structure", which is defined as:
  * <ul>
  *  <li>For each {@link SchemaObjectType}, its object type name.
- *  <li>For each {@link ComplexSchemaField}, it's field name, complex field type (list, set, or map),
+ *  <li>For each {@link ComplexSchemaField}, its field name, complex field type (list, set, or map),
  *      and the structures of its sub-field(s).
- *  <li>For counter fields, it's name and field type (i.e., counter).
- *  <li>For simple fields, it's name, field type (i.e., simple), and {@linkplain SimpleSchemaField#getEncodingId encoding}.
+ *  <li>For counter fields, its name and field type (i.e., counter).
+ *  <li>For simple fields, its name field type (i.e., simple), and {@linkplain SimpleSchemaField#getEncodingId encoding}.
  *  <li>For enum and enum array fields, also the enum's {@linkplain AbstractEnumSchemaField#getIdentifiers identifier list}.
  *  <li>For {@link SchemaCompositeIndex}s, the structure(s) of the indexed field(s).
  * </ul>
  *
+ * <p><b>{@link SchemaId}s for {@link SchemaModel}s</b>
+ *
  * <p>
- * {@link SchemaId} calculations do not include storage ID's; instead, storage ID's are assigned when a {@link SchemaModel}
- * is recorded in a database.
+ * {@link SchemaId}'s are also used to determine whether two {@link SchemaModel}s are structurally compatible.
+ * Two {@link SchemaModel}s with the same {@link SchemaId} will always share the same schema index in a database.
+ *
+ * <p>
+ * The {@link SchemaId} hash of a {@link SchemaModel} includes all of its {@link SchemaItem} components. This hash does
+ * <i>not</i> include any explicit storage ID assignments. As a result, attempting to register a {@link SchemaModel}
+ * having explicit storage ID assignments that disagree with assignments already recorded in a database will result
+ * in a {@link SchemaMismatchException}. For this reason, explicit storage ID assignments are discouraged.
+ *
+ * <p>
+ * Note that {@link SchemaModel#equals equals()} includes explicit storage ID assignments, so in the case that any exist
+ * this is a stronger test than just comparing {@link SchemaId}s.
  */
 public class SchemaId implements Serializable {
 

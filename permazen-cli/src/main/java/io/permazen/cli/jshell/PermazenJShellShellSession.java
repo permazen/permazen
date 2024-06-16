@@ -144,7 +144,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
      */
     public void commit() {
         this.endTransaction(true);
-        this.session.openTransaction(null);
+        this.session.openTransaction(null, null);
     }
 
     /**
@@ -157,7 +157,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
      */
     public void rollback() {
         this.endTransaction(false);
-        this.session.openTransaction(null);
+        this.session.openTransaction(null, null);
     }
 
     private void endTransaction(boolean commit) {
@@ -206,7 +206,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
      */
     public void branch(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
         this.endTransaction(true);
-        this.session.openBranchedTransaction(openOptions, syncOptions);
+        this.session.openBranchedTransaction(null, openOptions, syncOptions);
         this.extended = true;
     }
 
@@ -229,7 +229,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
             this.session.getError().println("Warning: unexpected extended transaction encountered; joining it");
             this.extended = true;
         } else
-            this.session.openTransaction(null);
+            this.session.openTransaction(null, null);
         this.associateTransactionToCurrentThread();
     }
 

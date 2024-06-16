@@ -8,6 +8,7 @@ package io.permazen.cli.cmd;
 import com.google.common.base.Preconditions;
 
 import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.cli.parse.Parser;
 import io.permazen.util.ByteUtil;
 
@@ -200,6 +201,16 @@ public abstract class AbstractKVCommand extends AbstractCommand {
                 // failed
             }
             throw new IllegalArgumentException("invalid byte array value");
+        }
+    }
+
+// KVAction
+
+    public interface KVAction extends Session.RetryableTransactionalAction {
+
+        @Override
+        default SessionMode getTransactionMode(Session session) {
+            return SessionMode.KEY_VALUE;
         }
     }
 }

@@ -16,6 +16,7 @@ import io.permazen.core.Layout;
 import io.permazen.core.ObjId;
 import io.permazen.core.Schema;
 import io.permazen.core.SchemaBundle;
+import io.permazen.core.SchemaMismatchException;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;

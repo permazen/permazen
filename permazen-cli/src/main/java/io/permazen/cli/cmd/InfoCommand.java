@@ -8,6 +8,7 @@ package io.permazen.cli.cmd;
 import io.permazen.ValidationMode;
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
+import io.permazen.encoding.EncodingRegistry;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
 
@@ -41,21 +42,31 @@ public class InfoCommand extends AbstractCommand implements Session.Action {
     @Override
     public void run(Session session) throws Exception {
         final PrintStream writer = session.getOutput();
-        writer.println("  CLI Mode: " + session.getMode());
-        writer.println("  Database: " + session.getDatabaseDescription());
-        writer.println("  Access Mode: " + (session.isReadOnly() ? "Read-Only" : "Read/Write"));
-        writer.println("  Verbose Mode: " + session.isVerbose());
+
+        // KEY_VALUE mode
+        writer.println(String.format("  Database: %s", session.getDatabaseDescription()));
+        writer.println(String.format("  Session Mode: %s", session.getMode()));
+        writer.println(String.format("  Access: %s", session.isReadOnly() ? "Read-Only" : "Read/Write"));
+        writer.println(String.format("  Verbose Mode: %s", session.isVerbose()));
         if (session.getMode().equals(SessionMode.KEY_VALUE))
             return;
+
+        // CORE_API mode
+        final EncodingRegistry encodingRegistry = session.getDatabase().getEncodingRegistry();
+        writer.println(String.format("  Encoding Registry: %s", encodingRegistry.getClass().getName()));
         final SchemaId schemaId = InfoCommand.getSchemaId(session);
-        writer.println("  Schema ID: " + (schemaId != null ? schemaId : "Undefined"));
+        writer.println(String.format("  Schema ID: %s", schemaId != null ? schemaId : "Undefined"));
         final SchemaModel schemaModel = InfoCommand.getSchemaModel(session);
-        writer.println("  Schema Model: " + (schemaModel != null ?
-          (schemaModel.isEmpty() ? "Empty" : schemaModel.getSchemaObjectTypes().size() + " object type(s)") :
-          "Undefined"));
-        writer.println("  New Schema Allowed: " + (session.isAllowNewSchema() ? "Yes" : "No"));
+        writer.println(String.format("  Schema Model: %s",
+          schemaModel != null ?
+            (schemaModel.isEmpty() ? "Empty" : schemaModel.getSchemaObjectTypes().size() + " object type(s)") :
+            "Undefined"));
+        writer.println(String.format("  Schema Removal: %s", session.getSchemaRemoval()));
+        writer.println(String.format("  New Schema Allowed: %s", session.isAllowNewSchema() ? "Yes" : "No"));
+
+        // PERMAZEN mode
         if (session.getPermazen() != null) {
-            writer.println("  Validation Mode: " + (session.getValidationMode() != null ?
+            writer.println(String.format("  Validation Mode: %s", session.getValidationMode() != null ?
               session.getValidationMode() : ValidationMode.AUTOMATIC));
         }
     }

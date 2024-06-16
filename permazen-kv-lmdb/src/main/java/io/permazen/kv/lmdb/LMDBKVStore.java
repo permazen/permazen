@@ -184,7 +184,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     /**
-     * Wrap the given {@link byte[]} array in a buffer appropriate for this instance.
+     * Wrap the given {@code byte[]} array in a buffer appropriate for this instance.
      *
      * @param buf byte array data, or possibly null
      * @param copy if true, then changes to the data in either {@code buf} or the returned buffer must not affect the other
@@ -193,7 +193,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     protected abstract T wrap(byte[] buf, boolean copy);
 
     /**
-     * Unwrap the given buffer, returning its contents as a {@link byte[]} array.
+     * Unwrap the given buffer, returning its contents as a {@code byte[]} array.
      *
      * @param buf a buffer containing {@code byte[]} array data, or possibly null
      * @param copy if true, then changes to the data in either {@code buf} or the returned array must not affect the other

@@ -42,6 +42,7 @@ import io.permazen.core.StaleTransactionException;
 import io.permazen.core.Transaction;
 import io.permazen.core.TypeNotInSchemaException;
 import io.permazen.core.UnknownFieldException;
+import io.permazen.core.UnknownTypeException;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.core.util.ObjIdSet;
 import io.permazen.encoding.Encoding;

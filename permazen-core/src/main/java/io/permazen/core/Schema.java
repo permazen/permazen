@@ -22,7 +22,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
- * Reflects one {@link Schema} recorded in a {@link Database} as seen by a particular {@link Transaction}.
+ * Reflects a {@link SchemaModel} as recorded in a {@link Database} as seen by a particular {@link Transaction}.
  *
  * <p>
  * Instances are immutable and thread safe.

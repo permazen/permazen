@@ -15,6 +15,7 @@ import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.EnumValue;
 import io.permazen.core.ObjId;
 import io.permazen.core.SimpleField;
+import io.permazen.core.StaleTransactionException;
 import io.permazen.encoding.Encoding;
 import io.permazen.index.Index1;
 import io.permazen.schema.SimpleSchemaField;

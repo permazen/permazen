@@ -23,7 +23,6 @@ import io.permazen.util.ParseException;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -84,7 +83,7 @@ public class Session {
     private volatile ValidationMode validationMode = ValidationMode.AUTOMATIC;
     private volatile String databaseDescription;
     private volatile boolean allowNewSchema;
-    private volatile boolean garbageCollectSchemas;
+    private volatile TransactionConfig.SchemaRemoval schemaRemoval = TransactionConfig.SchemaRemoval.CONFIG_CHANGE;
     private volatile boolean readOnly;
 
     // Error handling settings
@@ -351,19 +350,23 @@ public class Session {
     }
 
     /**
-     * Get whether the garbage collection of old schemas is enabled.
-     * Default value is false.
+     * Get the obsolete schema removal policy.
+     *
+     * <p>
+     * Default value is {@link TransactionConfig.SchemaRemoval#CONFIG_CHANGE}
      *
      * <p>
      * This setting is ignored except in {@link SessionMode#CORE_API}.
      *
-     * @return whether this session allows recording a new schema version
+     * @return if and when to automatically remove unused schemas
      */
-    public boolean isGarbageCollectSchemas() {
-        return this.garbageCollectSchemas;
+    public TransactionConfig.SchemaRemoval getSchemaRemoval() {
+        return this.schemaRemoval;
     }
-    public void setGarbageCollectSchemas(boolean garbageCollectSchemas) {
-        this.garbageCollectSchemas = garbageCollectSchemas;
+    public void setSchemaRemoval(TransactionConfig.SchemaRemoval schemaRemoval) {
+        if (schemaRemoval == null)
+            schemaRemoval = TransactionConfig.SchemaRemoval.CONFIG_CHANGE;
+        this.schemaRemoval = schemaRemoval;
     }
 
     /**
@@ -516,6 +519,21 @@ public class Session {
 // Transactions
 
     /**
+     * Build a new Core API {@link TransactionConfig} based on this instance.
+     *
+     * @return core API transaction configuration
+     * @throws IllegalStateException if no {@link Database} was provided at construction
+     */
+    public synchronized TransactionConfig newTransactionConfig() {
+        Preconditions.checkState(this.db != null, "session is not configured with a Core API Database instance");
+        return TransactionConfig.builder()
+          .schemaModel(this.schemaModel)
+          .allowNewSchema(this.allowNewSchema)
+          .schemaRemoval(this.schemaRemoval)
+          .build();
+    }
+
+    /**
      * Perform the given action in the context of this session and (optionally) an open transaction.
      *
      * <p>
@@ -566,12 +584,26 @@ public class Session {
             return true;
         }
 
+        // Get required mode
+        final TransactionalAction txAction = (TransactionalAction)action;
+        final SessionMode txMode = txAction.getTransactionMode(this);
+        Preconditions.checkArgument(txMode != null, "null transaction mode");
+        final SessionMode sessionMode = this.getMode();
+        if (txMode.compareTo(sessionMode) > 0) {
+            throw new IllegalArgumentException(String.format(
+              "action requires mode %s > %s provided by %s", txMode, sessionMode, "session"));
+        }
+
         // Do we already have a transaction open? Just use it.
         final TxInfo info;
         synchronized (this) {
             info = this.txInfo;
         }
         if (info != null) {
+            if (txMode.compareTo(info.getMode()) > 0) {
+                throw new IllegalArgumentException(String.format(
+                  "action requires mode %s > %s provided by %s", txMode, info.getMode(), "the current transaction"));
+            }
             try {
                 info.runWithTx(this, action);
             } catch (InterruptedException e) {
@@ -583,11 +615,22 @@ public class Session {
             return true;
         }
 
+        // Get key/value transaction options, if any
+        final Map<String, ?> kvoptions = action instanceof TransactionalActionWithOptions ?
+          ((TransactionalActionWithOptions)action).getTransactionOptions() : null;
+
+        // Get Core API transaction config (if needed)
+        TransactionConfig txConfig0 = null;
+        if (txMode.equals(SessionMode.CORE_API)) {
+            txConfig0 = txAction.getTransactionConfig(this);
+            if (kvoptions != null)
+                txConfig0 = txConfig0.copy().kvOptions(kvoptions).build();
+        }
+        final TransactionConfig txConfig = txConfig0;
+
         // Create new transaction and retry as necessary
         int retryNumber = 0;
         int retryDelay = Math.min(this.maximumRetryDelay, this.initialRetryDelay);
-        final Map<String, ?> options = action instanceof TransactionalActionWithOptions ?
-          ((TransactionalActionWithOptions)action).getTransactionOptions() : null;
         while (true) {
 
             // If this is not the first attempt, sleep for a while before retrying
@@ -599,7 +642,10 @@ public class Session {
             // Perform transactional action within a newly created transaction
             boolean shouldRetry = false;
             try {
-                this.openTransaction(options);
+                this.openTransaction(txMode,
+                  () -> this.kvdb.createTransaction(kvoptions),
+                  () -> this.db.createTransaction(txConfig),
+                  () -> this.pdb.createTransaction(this.validationMode, kvoptions));
                 boolean success = false;
                 try {
                     shouldRetry = action instanceof RetryableTransactionalAction;
@@ -634,56 +680,61 @@ public class Session {
     }
 
     /**
-     * Open a new transaction and associate it with this instance.
+     * Open a new transaction in the specified mode and associate it with this instance.
      *
-     * @param options transaction options, or null for none
+     * @param txMode transaction session mode, or null for this session's mode
+     * @param kvoptions key/value transaction options, or null for none
      * @return the newly created {@link TxInfo}
      * @throws IllegalStateException if there is already a transaction associated with this instance
      * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
      */
-    public TxInfo openTransaction(Map<String, ?> options) {
-        return this.openTransaction(
-          ()  -> this.kvdb.createTransaction(options),
-          builder -> builder.kvOptions(options).build().newTransaction(this.db),
-          ()  -> this.pdb.createTransaction(this.validationMode, options));
+    public TxInfo openTransaction(SessionMode txMode, Map<String, ?> kvoptions) {
+        return this.openTransaction(txMode,
+          () -> this.kvdb.createTransaction(kvoptions),
+          () -> this.db.createTransaction(this.newTransactionConfig().copy().kvOptions(kvoptions).build()),
+          () -> this.pdb.createTransaction(this.validationMode, kvoptions));
     }
 
     /**
      * Open a new branched transaction and associate it with this instance.
      *
+     * @param txMode transaction session mode, or null for this session's mode
      * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
      * @param syncOptions {@link KVDatabase}-specific transaction options for the branch's commit transaction, or null for none
      * @return the newly created {@link TxInfo}
      * @throws IllegalStateException if there is already a transaction associated with this instance
      * @throws IllegalStateException if there is already a {@link PermazenTransaction} associated with the current thread
      */
-    public TxInfo openBranchedTransaction(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
-        return this.openTransaction(
+    public TxInfo openBranchedTransaction(SessionMode txMode, Map<String, ?> openOptions, Map<String, ?> syncOptions) {
+        return this.openTransaction(txMode,
           () -> new BranchedKVTransaction(this.kvdb, openOptions, syncOptions),
-          builder -> this.db.createTransaction(new BranchedKVTransaction(this.kvdb, openOptions, syncOptions), builder.build()),
+          () -> this.db.createTransaction(
+            new BranchedKVTransaction(this.kvdb, openOptions, syncOptions), this.newTransactionConfig()),
           () -> this.pdb.createBranchedTransaction(this.validationMode, openOptions, syncOptions));
     }
 
     // Internal transaction opener
-    private synchronized TxInfo openTransaction(Supplier<KVTransaction> kvtCreator,
-      Function<TransactionConfig.Builder, Transaction> txCreator, Supplier<PermazenTransaction> ptxCreator) {
+    private synchronized TxInfo openTransaction(SessionMode txMode, Supplier<KVTransaction> kvtCreator,
+      Supplier<Transaction> txCreator, Supplier<PermazenTransaction> ptxCreator) {
+        if (txMode == null)
+            txMode = this.mode;
+        Preconditions.checkArgument(txMode.compareTo(this.mode) <= 0, "incompatible transaction session mode");
         Preconditions.checkState(this.txInfo == null, "a transaction is already associated with this session");
         TxInfo info = null;
         try {
 
             // Open transaction at the appropriate level
-            switch (this.mode) {
+            switch (txMode) {
             case KEY_VALUE:
+                Preconditions.checkArgument(kvtCreator != null, "null kvtCreator");
                 info = new TxInfo(kvtCreator.get());
                 break;
             case CORE_API:
-                final TransactionConfig.Builder builder = TransactionConfig.builder()
-                  .schemaModel(this.schemaModel)
-                  .allowNewSchema(this.allowNewSchema)
-                  .garbageCollectSchemas(this.garbageCollectSchemas);
-                info = new TxInfo(txCreator.apply(builder));
+                Preconditions.checkArgument(txCreator != null, "null txCreator");
+                info = new TxInfo(txCreator.get());
                 break;
             case PERMAZEN:
+                Preconditions.checkArgument(ptxCreator != null, "null ptxCreator");
                 info = new TxInfo(ptxCreator.get());
                 break;
             default:
@@ -691,7 +742,7 @@ public class Session {
             }
 
             // Infer some settings and apply some settings
-            if (this.mode.compareTo(SessionMode.CORE_API) >= 0) {
+            if (txMode.compareTo(SessionMode.CORE_API) >= 0) {
                 final Transaction tx = info.getTransaction();
                 this.setSchemaModel(tx.getSchema().getSchemaModel());
                 if (this.readOnly)
@@ -725,8 +776,7 @@ public class Session {
      */
     public synchronized void closeTransaction(boolean commit) {
         if (this.txInfo == null) {
-            if (commit)
-                throw new IllegalStateException("there is no transaction associated with this session");
+            Preconditions.checkState(!commit, "there is no transaction associated with this session");
             return;
         }
         try {
@@ -793,6 +843,45 @@ public class Session {
      * If a transaction already exists, it will be (re)used.
      */
     public interface TransactionalAction extends Action {
+
+        /**
+         * Get the {@link SessionMode} corresponding to the transaction that should be opened.
+         *
+         * <p>
+         * This must be at or below the mode of the given session.
+         *
+         * <p>
+         * The implementation in {@link TransactionalAction} returns {@code session.}{@link Session#getMode}{@code ()}.
+         *
+         * @param session current session
+         * @return transaction mode
+         * @throws IllegalArgumentException if {@code session} is null
+         */
+        default SessionMode getTransactionMode(Session session) {
+            Preconditions.checkArgument(session != null, "null session");
+            return session.getMode();
+        }
+
+        /**
+         * Get the configuration for the new Core API transaction.
+         *
+         * <p>
+         * This method is only invoked when the {@link #getTransactionMode} returns {@link SessionMode#CORE_API}.
+         * Note if this {@link Action} also implements {@link TransactionalActionWithOptions}, then a non-null
+         * return value from {@link TransactionalActionWithOptions#getTransactionOptions} replaces the options
+         * configured in the {@link TransactionConfig} returned here, if any.
+         *
+         * <p>
+         * The implementation in {@link TransactionalAction} returns {@code session.}{@link Session#newTransactionConfig}{@code ()}.
+         *
+         * @param session current session
+         * @return Core API transaction config
+         * @throws IllegalArgumentException if {@code session} is null
+         */
+        default TransactionConfig getTransactionConfig(Session session) {
+            Preconditions.checkArgument(session != null, "null session");
+            return session.newTransactionConfig();
+        }
     }
 
     /**
@@ -849,7 +938,7 @@ public class Session {
         }
 
         /**
-         * Get the {@link SessionMode} that the {@link Session} was in when the transaction was opened.
+         * Get the {@link SessionMode} that the transaction was opened with.
          *
          * @return associated session mode
          */

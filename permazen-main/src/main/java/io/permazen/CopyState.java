@@ -46,7 +46,7 @@ public class CopyState {
      * No object ID's will be remapped.
      *
      * <p>
-     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap) CopyState(new ObjIdSet(), null, suppressNotifications)}.
+     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap, boolean) CopyState(new ObjIdSet(), null, suppressNotifications)}.
      *
      * @param suppressNotifications true to suppress create and change notifications, otherwise false
      */
@@ -58,7 +58,8 @@ public class CopyState {
      * Remapping constructor.
      *
      * <p>
-     * Equivalent to: {@link #CopyState(ObjIdSet, ObjIdMap) CopyState(new ObjIdSet(), objectIdMap, boolean suppressNotifications)}.
+     * Equivalent to:
+     * {@link #CopyState(ObjIdSet, ObjIdMap, boolean) CopyState(new ObjIdSet(), objectIdMap, boolean suppressNotifications)}.
      *
      * @param objectIdMap mapping from source object ID to destination object ID
      * @param suppressNotifications true to suppress create and change notifications, otherwise false

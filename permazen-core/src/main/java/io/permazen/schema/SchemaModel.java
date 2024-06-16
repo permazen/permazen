@@ -477,7 +477,6 @@ public class SchemaModel extends SchemaSupport implements DiffGenerating<SchemaM
     /**
      * Returns this schema model in XML form.
      *
-     * @param writer XML output
      * @param includeStorageIds true to include storage ID's
      * @param prettyPrint true to indent and include {@link SchemaId} comments
      */

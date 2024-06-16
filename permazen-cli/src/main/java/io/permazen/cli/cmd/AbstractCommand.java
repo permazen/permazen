@@ -12,7 +12,6 @@ import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.cli.parse.EncodingParser;
 import io.permazen.cli.parse.ObjIdParser;
-import io.permazen.cli.parse.ObjTypeParser;
 import io.permazen.cli.parse.Parser;
 import io.permazen.core.ObjId;
 import io.permazen.encoding.Encoding;
@@ -20,7 +19,6 @@ import io.permazen.encoding.Encoding;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -131,12 +129,11 @@ public abstract class AbstractCommand implements Command {
         Preconditions.checkArgument(params != null, "null params");
 
         // Parse command line arguments and ask the command for an action to perform
-        final AtomicReference<Session.Action> ref = new AtomicReference<>();
-        if (!session.performSessionAction(s -> ref.set(this.getAction(s, this.paramParser.parse(s, params)))))
-            return 1;
+        final Session.Action action = this.getAction(session, this.paramParser.parse(session, params));
+        Preconditions.checkArgument(action != null, "null action");
 
         // Perform the action
-        if (!session.performSessionAction(ref.get()))
+        if (!session.performSessionAction(action))
             return 1;
 
         // Done
@@ -160,7 +157,6 @@ public abstract class AbstractCommand implements Command {
      * The implementation in {@link AbstractCommand} supports all {@link Encoding}s registered with the
      * database, plus:
      * <ul>
-     *  <li>{@code type} for an object type name (returns {@link Integer})</li>
      *  <li>{@code objid} for an object ID of the form {@code 64e8f29755302fe1} (returns {@link ObjId})</li>
      * </ul>
      *
@@ -169,8 +165,6 @@ public abstract class AbstractCommand implements Command {
      */
     protected Parser<?> getParser(String typeName) {
         Preconditions.checkArgument(typeName != null, "null typeName");
-        if (typeName.equals("type"))
-            return new ObjTypeParser();
         if (typeName.equals("objid"))
             return new ObjIdParser();
         return EncodingParser.getEncodingParser(typeName);

@@ -9,6 +9,10 @@ import javax.xml.namespace.QName;
 
 /**
  * The various types of items that constitute a {@link SchemaModel}.
+ *
+ * <p>
+ * Note there is a value {@link #SCHEMA_MODEL} for {@link SchemaModel}, even though a {@link SchemaModel}
+ * is technically not a {@link SchemaItem}.
  */
 public enum ItemType {
     SCHEMA_MODEL("Schema", XMLConstants.SCHEMA_MODEL_TAG, false),

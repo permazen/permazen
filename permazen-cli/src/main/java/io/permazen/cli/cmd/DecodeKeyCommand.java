@@ -8,6 +8,7 @@ package io.permazen.cli.cmd;
 import com.google.common.base.Preconditions;
 
 import io.permazen.cli.Session;
+import io.permazen.cli.SessionMode;
 import io.permazen.cli.parse.Parser;
 import io.permazen.core.ComplexField;
 import io.permazen.core.CompositeIndex;
@@ -300,6 +301,11 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
         DecodeKeyAction(List<byte[]> bytesList) {
             this.bytesList = bytesList;
+        }
+
+        @Override
+        public SessionMode getTransactionMode(Session session) {
+            return SessionMode.CORE_API;
         }
 
         @Override

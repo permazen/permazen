@@ -15,12 +15,17 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Support superclass for classes that serialize and deserialize via XML.
  */
 public abstract class AbstractXMLStreaming {
 
     private static final String CDATA_END = "]]>";
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected AbstractXMLStreaming() {
     }

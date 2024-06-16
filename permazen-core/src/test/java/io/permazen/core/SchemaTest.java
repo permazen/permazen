@@ -45,7 +45,7 @@ public class SchemaTest extends CoreAPITestSupport {
         // Validate schema
         try {
             final TransactionConfig config = TransactionConfig.builder()
-              .garbageCollectSchemas(false)
+              .schemaRemoval(TransactionConfig.SchemaRemoval.NEVER)
               .schemaModel(schema)
               .build();
             db.createTransaction(config).rollback();
@@ -74,7 +74,7 @@ public class SchemaTest extends CoreAPITestSupport {
             final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes(StandardCharsets.UTF_8)));
             try {
                 final TransactionConfig config = TransactionConfig.builder()
-                  .garbageCollectSchemas(false)
+                  .schemaRemoval(TransactionConfig.SchemaRemoval.NEVER)
                   .schemaModel(schema2)
                   .build();
                 db.createTransaction(config).rollback();
@@ -137,7 +137,7 @@ public class SchemaTest extends CoreAPITestSupport {
         try {
             for (SchemaModel schema : schemas) {
                 final TransactionConfig config = TransactionConfig.builder()
-                  .garbageCollectSchemas(false)
+                  .schemaRemoval(TransactionConfig.SchemaRemoval.NEVER)
                   .schemaModel(schema)
                   .build();
                 db.createTransaction(config).commit();

@@ -27,6 +27,7 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.io.Closeable;
 import java.util.Arrays;
 import java.util.NavigableSet;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,10 @@ import org.slf4j.LoggerFactory;
  * When creating a new transaction, the caller provides a {@link SchemaModel} to use for accessing objects in the transaction.
  * If the schema is not already registered in the database, it is automatically registered if at the start of the transaction
  * assuming {@link TransactionConfig#isAllowNewSchema} is true (otherwise a {@link SchemaMismatchException} is thrown).
+ *
+ * <p>
+ * Transactions can be opened with an {@linkplain SchemaModel#isEmpty empty} {@link SchemaModel} when no particular schema
+ * is needed. In any case, the empty {@link SchemaModel} is never recorded in a database.
  *
  * <p>
  * <b>Schema Migration</b>
@@ -141,6 +146,8 @@ public class Database {
     private EncodingRegistry encodingRegistry;
     @GuardedBy("this")
     private SchemaCache schemaCache;
+
+    private volatile boolean firstTransaction = true;
 
     /**
      * Constructor.
@@ -339,7 +346,7 @@ public class Database {
 
         // Debug
         if (this.log.isTraceEnabled())
-            this.log.trace("creating transaction using schema \"{}\"", schemaId);
+            this.log.trace("creating transaction using {}", emptySchema ? "empty schema" : "schema \"" + schemaId + "\"");
 
         // We will pretend user meta-data is invisible
         final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(userPrefix, key);
@@ -443,7 +450,8 @@ public class Database {
         }
 
         // Read the schema and storage ID tables
-        SchemaBundle.Encoded encodedBundle = SchemaBundle.Encoded.readFrom(kvstore);
+        final EncodingRegistry txEncodingRegistry = this.getEncodingRegistry();
+        final BundleState bundleState = new BundleState(txEncodingRegistry, SchemaBundle.Encoded.readFrom(kvstore));
 
         // There should not be any meta data between the storage ID table and the object version index
         try (CloseableIterator<KVPair> i = kvstore.getRange(endOfStorageIdTable, schemaIndexPrefix)) {
@@ -453,86 +461,125 @@ public class Database {
             }
         }
 
-        // Grab the EncodingRegistry and also decode bundle data
-        final EncodingRegistry txEncodingRegistry;
-        SchemaBundle schemaBundle;
+        // Determine if we've seen this same overall configuration before
+        Schema previousMatchingSchema = null;
         synchronized (this) {
-
-            // Snapshot EncodingRegistry
-            txEncodingRegistry = this.getEncodingRegistry();
-
-            // Optimization: if everything is the same as last time, re-use the previous schema bundle
-            if (this.schemaCache != null && this.schemaCache.matches(txConfig, txEncodingRegistry, encodedBundle))
-                return this.schemaCache.getSchema();
-
-            // Decode schema and storage ID tables
-            schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
+            if (this.schemaCache != null && this.schemaCache.matches(txConfig, txEncodingRegistry, bundleState.getEncodedBundle()))
+                previousMatchingSchema = this.schemaCache.getSchema();
         }
 
-        // Garbage collect unused schemas, if so configured
-        boolean modifiedBundle = false;
-        if (txConfig.isGarbageCollectSchemas()) {
-            final NavigableSet<Integer> listedIndexes = schemaBundle.getSchemasBySchemaIndex().navigableKeySet();
-            final NavigableSet<Integer> activeIndexes = Layout.getSchemaIndex(kvstore).asMap().navigableKeySet();
-            final NavigableSet<Integer> unusedIndexes = NavigableSets.difference(listedIndexes, activeIndexes);
-            for (int oldSchemaIndex : unusedIndexes) {
+        // Remove unused schemas, if configured
+        if (txConfig.getSchemaRemoval().shouldRemove(this.firstTransaction, previousMatchingSchema == null)) {
+            if (this.removeUnusedSchemas(bundleState, kvstore))
+                previousMatchingSchema = null;
+        }
+
+        // If the schema we're using is not already registered, we need to add it (unless empty)
+        if (emptySchema)
+            this.log.debug("using empty schema");
+        else if (previousMatchingSchema == null) {
+
+            // Merge configured schema into database schema bundle
+            if (bundleState.update(schemaBundle -> schemaBundle.withSchemaAdded(0, schemaModel))) {
+
+                // We are adding a new schema; check whether that is allowed
+                String schemaList = bundleState.getSchemaBundle().getSchemasBySchemaId().keySet().stream()
+                  .map(id -> String.format("\"%s\"", id))
+                  .collect(Collectors.joining(", "));
+                if (schemaList.isEmpty())
+                    schemaList = "none";
+                this.log.debug("schema \"{}\" not found in database (recorded schemas: {})", schemaId, schemaList);
+                this.checkAddNewSchema(schemaId, txConfig);
 
                 // Log it
-                final SchemaId oldSchemaId = schemaBundle.getSchema(oldSchemaIndex).getSchemaId();
-                this.log.debug("removing old schema \"{}\" from database at schema index {}", oldSchemaId, oldSchemaIndex);
-
-                // Remove old schema
-                encodedBundle = schemaBundle.withSchemaRemoved(oldSchemaId);
-                schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
-                modifiedBundle = true;
+                final int schemaIndex = bundleState.getSchemaBundle().getSchema(schemaId).getSchemaIndex();
+                this.log.info("recording new schema \"{}\" at schema index {}", schemaId, schemaIndex);
             }
         }
 
-        // If the schema we're using is not registered, we need to add it (unless empty)
-        Schema schema;
-        if (emptySchema) {
-            schema = new Schema(schemaBundle);
-            this.log.debug("using empty schema");
-        } else if ((schema = schemaBundle.getSchemasBySchemaId().get(schemaId)) == null) {
+        // Do we need to write back the modified schema bundle?
+        if (bundleState.isModified())
+            bundleState.writeTo(kvstore);
 
-            // Check whether we can add a new schema
-            String schemaList = schemaBundle.getSchemasBySchemaId().keySet().stream()
-              .map(id -> String.format("\"%s\"", id))
-              .collect(Collectors.joining(", "));
-            if (schemaList.isEmpty())
-                schemaList = "none";
-            this.log.debug("schema \"{}\" not found in database (recorded schemas: {})", schemaId, schemaList);
-            this.checkAddNewSchema(schemaId, txConfig);
+        // Get the Schema object from the bundle
+        final SchemaBundle schemaBundle = bundleState.getSchemaBundle();
+        final Schema schema = emptySchema ? new Schema(schemaBundle) : schemaBundle.getSchema(schemaId);
+        assert schema != null;
 
-            // Build new bundle containing new schema
-            encodedBundle = schemaBundle.withSchemaAdded(0, schemaModel);
-            schemaBundle = new SchemaBundle(encodedBundle, txEncodingRegistry);
-            modifiedBundle = true;
-            schema = schemaBundle.getSchema(schemaId);
-            assert schema != null;
-
-            // Log it
-            final int schemaIndex = schemaBundle.getSchema(schemaId).getSchemaIndex();
-            this.log.debug("adding new schema \"{}\" to database at schema index {}", schemaId, schemaIndex);
-        }
-
-        // Do we need to write back schema updates?
-        if (modifiedBundle)
-            encodedBundle.writeTo(kvstore);
-
-        // Save for possible reuse next time
+        // Save schema for possible reuse next time
         synchronized (this) {
-            this.schemaCache = new SchemaCache(schema, txConfig, txEncodingRegistry, encodedBundle);
+            this.schemaCache = new SchemaCache(schema, txConfig, txEncodingRegistry, bundleState.getEncodedBundle());
         }
 
         // Done
+        this.firstTransaction = false;
         return schema;
+    }
+
+    // Garbage collect unused schemas
+    private boolean removeUnusedSchemas(BundleState bundleState, KVStore kvstore) {
+        final NavigableSet<Integer> listedIndexes = bundleState.getSchemaBundle().getSchemasBySchemaIndex().navigableKeySet();
+        final NavigableSet<Integer> activeIndexes = Layout.getSchemaIndex(kvstore).asMap().navigableKeySet();
+        final NavigableSet<Integer> unusedIndexes = NavigableSets.difference(listedIndexes, activeIndexes);
+        boolean modified = false;
+        for (int oldSchemaIndex : unusedIndexes) {
+            final SchemaId oldSchemaId = bundleState.getSchemaBundle().getSchema(oldSchemaIndex).getSchemaId();
+            this.log.info("removing unused schema \"{}\" (at schema index {})", oldSchemaId, oldSchemaIndex);
+            modified |= bundleState.update(schemaBundle -> schemaBundle.withSchemaRemoved(oldSchemaId));
+            assert modified;
+        }
+        return modified;
     }
 
     private void checkAddNewSchema(SchemaId schemaId, TransactionConfig txConfig) {
         if (!txConfig.isAllowNewSchema()) {
             throw new SchemaMismatchException(schemaId, String.format(
               "schema \"%s\" was not found in the database and recording new schemas is disabled", schemaId));
+        }
+    }
+
+// BundleState
+
+    // Holds the current schema bundle state
+    private static class BundleState {
+
+        private final EncodingRegistry encodingRegistry;
+
+        private SchemaBundle.Encoded encodedBundle;
+        private SchemaBundle schemaBundle;
+        private boolean modified;
+
+        BundleState(EncodingRegistry encodingRegistry, SchemaBundle.Encoded encodedBundle) {
+            this.encodingRegistry = encodingRegistry;
+            this.encodedBundle = encodedBundle;
+        }
+
+       public SchemaBundle.Encoded getEncodedBundle() {
+           return this.encodedBundle;
+       }
+
+        public SchemaBundle getSchemaBundle() {
+            if (this.schemaBundle == null)
+                this.schemaBundle = new SchemaBundle(this.encodedBundle, this.encodingRegistry);
+            return this.schemaBundle;
+        }
+
+        public boolean isModified() {
+            return this.modified;
+        }
+
+        public void writeTo(KVStore kvstore) {
+            this.encodedBundle.writeTo(kvstore);
+        }
+
+        public boolean update(Function<SchemaBundle, SchemaBundle.Encoded> updater) {
+            final SchemaBundle.Encoded newEncodedBundle = updater.apply(this.getSchemaBundle());
+            if (newEncodedBundle == null)
+                return false;
+            this.encodedBundle = newEncodedBundle;
+            this.schemaBundle = null;
+            this.modified = true;
+            return true;
         }
     }
 
@@ -560,7 +607,7 @@ public class Database {
         public boolean matches(TransactionConfig txConfig, EncodingRegistry encodingRegistry, SchemaBundle.Encoded encoded) {
             if (!txConfig.getSchemaModel().equals(this.txConfig.getSchemaModel()))
                 return false;
-            if (txConfig.isGarbageCollectSchemas() && !this.txConfig.isGarbageCollectSchemas())
+            if (!txConfig.getSchemaRemoval().equals(this.txConfig.getSchemaRemoval()))
                 return false;
             if (!encodingRegistry.equals(this.encodingRegistry))
                 return false;

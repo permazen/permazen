@@ -11,7 +11,7 @@ class OutputFileParser extends AbstractFileParser {
 
     @Override
     protected boolean validateFile(File file) {
-        return !file.isDirectory() && file.getParentFile().exists();
+        return !file.isDirectory() && (file.getParentFile() == null || file.getParentFile().exists());
     }
 
     @Override

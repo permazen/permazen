@@ -66,7 +66,7 @@ public class KVGetCommand extends AbstractKVCommand {
         return new GetAction(cstrings, range, novals, key, maxKey, limit);
     }
 
-    private static class GetAction implements Session.TransactionalAction {
+    private static class GetAction implements KVAction {
 
         private final boolean cstrings;
         private final boolean range;
@@ -80,7 +80,8 @@ public class KVGetCommand extends AbstractKVCommand {
             this.range = range;
             this.novals = novals;
             this.key = key;
-            this.maxKey = maxKey != null || !range ? maxKey : ByteUtil.getKeyAfterPrefix(key);
+            this.maxKey = maxKey != null || !range ? maxKey :
+              key.length > 0 ? ByteUtil.getKeyAfterPrefix(key) : null;
             this.limit = limit;
         }
 
