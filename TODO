@@ -1,6 +1,10 @@
 SHORT TERM
 ==========
 
+- Session variables:
+    - In jshell: session.set("foo", new Foo())
+    - In CLI: some-command --flag $foo
+
 - Allow non-static inner classes ?
     - Auto-generate "_parent" reference field with DeleteAction.DELETE
     - Add method <T> T JTransaction.create(JObject parent, Class<T> childType);
