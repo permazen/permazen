@@ -30,7 +30,7 @@ public class ShowSchemaCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "If \"--active\" is given, shows the schema configured for the current CLI session. Otheriwse, shows\n"
-          + " the specified schema, or all schemas if no schema ID is specified, currently recorded in the database.\n"
+          + "the specified schema, or all schemas if no schema ID is specified, currently recorded in the database.\n"
           + "\n"
           + "With \"--xml\", the XML representation of each schema version is displayed including any explicit storage\n"
           + "ID's. You can use \"--no-storage-ids\" to omit them.";
