@@ -90,7 +90,6 @@ public class SaveCommand extends AbstractCommand {
         public TransactionConfig getTransactionConfig(Session session) {
             return Session.RetryableTransactionalAction.super.getTransactionConfig(session).copy()
               .schemaRemoval(TransactionConfig.SchemaRemoval.NEVER)
-              .schemaModel(null)
               .build();
         }
 
