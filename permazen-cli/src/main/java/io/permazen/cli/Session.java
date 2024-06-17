@@ -741,15 +741,12 @@ public class Session {
                 throw new RuntimeException("internal error");
             }
 
-            // Infer some settings and apply some settings
-            if (txMode.compareTo(SessionMode.CORE_API) >= 0) {
-                final Transaction tx = info.getTransaction();
-                this.setSchemaModel(tx.getSchema().getSchemaModel());
-                if (this.readOnly)
-                    tx.setReadOnly(true);
-            }
-            if (this.readOnly)
+            // Enforce "read-only" setting
+            if (this.readOnly) {
+                if (txMode.compareTo(SessionMode.CORE_API) >= 0)
+                    info.getTransaction().setReadOnly(true);
                 info.getKVTransaction().setReadOnly(true);
+            }
 
             // We're good to go
             this.txInfo = info;
