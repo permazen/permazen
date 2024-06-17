@@ -20,7 +20,7 @@ public @interface ValuesList {
      * Get the matching criteria for each field in the list.
      *
      * <p>
-     * The i<super>th</super> {@link Values &#64;Values} in the returned array corresponds to the i<super>th</super> field
+     * The i<sup>th</sup> {@link Values &#64;Values} in the returned array corresponds to the i<sup>th</sup> field
      * in the list. In order for the list of fields to match, <b>all</b> of the fields in the list must match their
      * respective {@link Values &#64;Values} annotation.
      *
