@@ -270,8 +270,9 @@ public class Jsck {
           .map(ObjectType.class::cast)
           .iterator().forEachRemaining(objectType -> {
             final String rangeDescription = "the key range of " + objectType;
-            info.info("checking %s", rangeDescription);
-            try (CloseableIterator<KVPair> ci = kv.getRange(objectType.getKeyRange())) {
+            final KeyRange objectTypeKeyRange = objectType.getKeyRange();
+            info.info("checking %s %s", rangeDescription, objectTypeKeyRange);
+            try (CloseableIterator<KVPair> ci = kv.getRange(objectTypeKeyRange)) {
                 for (final PeekingIterator<KVPair> i = Iterators.peekingIterator(ci); i.hasNext(); ) {
                     final KVPair pair = i.next();
                     final byte[] idKey = pair.getKey();
@@ -376,8 +377,9 @@ public class Jsck {
           .filter(index -> visitedStorageIds.add(index.getStorageId()))
           .iterator().forEachRemaining(index -> {
             final String rangeDescription = "the key range of " + index;
-            info.info("checking %s", rangeDescription);
-            try (CloseableIterator<KVPair> i = kv.getRange(index.getKeyRange())) {
+            final KeyRange indexKeyRange = index.getKeyRange();
+            info.info("checking %s %s", rangeDescription, indexKeyRange);
+            try (CloseableIterator<KVPair> i = kv.getRange(indexKeyRange)) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
 
@@ -402,11 +404,12 @@ public class Jsck {
         final String schemaList = info.getSchemaBundle().getSchemasBySchemaIndex().entrySet().stream()
            .map(entry -> String.format("  [%d] \"%s\"", entry.getKey(), entry.getValue().getSchemaId()))
            .collect(Collectors.joining("\n"));
+        final KeyRange schemaIndexKeyRange = KeyRange.forPrefix(schemaIndexKeyPrefix);
         if (!schemaList.isEmpty())
-            info.info("checking object schema index; recorded schemas are:\n%s", schemaList);
+            info.info("checking object schema index %s; recorded schemas are:\n%s", schemaIndexKeyRange, schemaList);
         else
-            info.info("checking object schema index (there are zero recorded schemas)");
-        try (CloseableIterator<KVPair> i = kv.getRange(KeyRange.forPrefix(schemaIndexKeyPrefix))) {
+            info.info("checking object schema index %s (there are zero recorded schemas)", schemaIndexKeyRange);
+        try (CloseableIterator<KVPair> i = kv.getRange(schemaIndexKeyRange)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
 
