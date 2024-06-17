@@ -190,7 +190,7 @@ abstract class SchemaSupport extends AbstractXMLStreaming implements Cloneable {
 // XML
 
     void writeSchemaIdComment(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeComment(String.format(" \"%s\" ", this.getSchemaId()));
+        writer.writeComment(String.format(" \"%s\" ", this.lockedDown1 ? this.getSchemaId() : this.computeSchemaId()));
     }
 
 // Cloneable
