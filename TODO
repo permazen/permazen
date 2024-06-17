@@ -13,10 +13,6 @@ SHORT TERM
 
 - Option to override collection setters (if they exist) with clear() + addAll()/putAll() implementation ?
 
-- Parser enhancements
-    - "this" -> current session ?
-    - compound statements
-
 - SQLView.adjustCounter() ?
 
 - ByteBuffer cleanup for ArrayKVStore ?
@@ -61,12 +57,6 @@ SHORT TERM
         - Try to build JObjectContainer+table first
         - If that fails, build ObjectContainer+table instead
     - Make more modular/pluggable
-
-- Auto-garbage collect old schemas ?
-    - Keep track of highest and lowest version index entries for each schema version
-    - After object delete/upgrade, update if deleted object has highest/lowest entry
-    - On last object delete/upgrade for a schema version, GC that version
-    - Can start doing this "on demand" only after the first object is deleted
 
 - Ability to programmatically add FieldChangeListeners at the JTransaction level
     - Listener via @Functional interface
