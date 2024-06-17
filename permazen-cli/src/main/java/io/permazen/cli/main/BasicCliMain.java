@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.cli.PermazenShell;
 import io.permazen.cli.PermazenShellSession;
+import io.permazen.cli.config.CliConfig;
 import io.permazen.cli.config.PermazenCliConfig;
 import io.permazen.cli.jshell.PermazenJShellCommand;
 
@@ -62,7 +63,7 @@ public class BasicCliMain {
         this.showErrorStackTraces |= Stream.of(args).anyMatch(s -> s.matches("-v|--verbose"));
 
         // Build CLI config
-        final PermazenCliConfig config = this.buildCliConfig();
+        final CliConfig config = this.buildCliConfig();
         try {
             if (!config.startup(System.out, System.err, -1, args))
                 return 0;
@@ -127,15 +128,16 @@ public class BasicCliMain {
 // Subclass Hooks
 
     /**
-     * Build a {@link PermazenCliConfig} to use.
+     * Build a {@link CliConfig} to use.
      *
      * <p>
      * The implementation in {@link BasicCliMain} returns a new {@link PermazenCliConfig}.
-     * Subclasses can override this method to add additional command-line flags, etc.
+     * Subclasses can override this method to restrict to lower layers (e.g., Core API),
+     * add additional command-line flags, etc.
      *
      * @return CLI configuration
      */
-    protected PermazenCliConfig buildCliConfig() {
+    protected CliConfig buildCliConfig() {
         return new PermazenCliConfig();
     }
 
