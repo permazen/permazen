@@ -762,9 +762,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());
 
-        // Write default schema ID
-        final SchemaId defaultSchemaId = this.tx.getSchema().getSchemaId();
-        this.writeAttribute(writer, SCHEMA_ATTR, defaultSchemaId);
+        // Set default schema ID (ony if default schema is non-empty)
+        final SchemaId defaultSchemaId = Optional.of(this.tx.getSchema().getSchemaModel())
+          .filter(schemaModel -> !schemaModel.isEmpty())
+          .map(SchemaModel::getSchemaId)
+          .orElse(null);
+        if (defaultSchemaId != null)
+            this.writeAttribute(writer, SCHEMA_ATTR, defaultSchemaId);
 
         // Write objects
         long count = 0;
