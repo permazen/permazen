@@ -181,6 +181,14 @@ import java.lang.annotation.Target;
  * when the validation queue is processed, and is affected by the transaction's configured {@link ValidationMode}.
  *
  * <p>
+ * A uniqueness constraint applies to all objects that are instances of the class in which the field is declared. For example,
+ * if classes {@code Dog} and {@code Cat} both implement {@code Pet}, then a uniqueness constraint on a field declared in
+ * {@code Pet} would apply across all dogs and cats, whereas unique constraints on fields declared in {@code Dog} and/or
+ * {@code Cat} would only apply to that specific animal. Note this remains true even when {@code Dog} and {@code Cat} declare
+ * the same field; for example, if {@code Dog} and {@code Cat} both declare a {@code "name"} field, then you could have two pets
+ * with the same name, but only if one is a {@code Dog} and one is a {@code Cat}.
+ *
+ * <p>
  * Optionally, specific values may be marked as excluded from the uniqueness constraint via {@link #uniqueExcludes}.
  * If so, the specified values may appear in more than one object without violating the constraint.
  *

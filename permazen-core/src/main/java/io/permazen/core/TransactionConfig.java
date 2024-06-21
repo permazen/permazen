@@ -265,18 +265,18 @@ public final class TransactionConfig {
         NEVER((firstTransaction, newConfig) -> false),
 
         /**
-         * Perform automatic schema removal only during the very first transaction.
+         * Perform automatic schema removal only at the start of the very first transaction.
          */
         ONCE((firstTransaction, newConfig) -> firstTransaction),
 
         /**
-         * Perform automatic schema removal during the very first transaction, and during any subsequent transaction
+         * Perform automatic schema removal at the start of the very first transaction, and any other transaction
          * configured differently from the previous transaction.
          */
         CONFIG_CHANGE((firstTransaction, newConfig) -> firstTransaction || newConfig),
 
         /**
-         * Perform automatic schema removal only during every transaction.
+         * Perform automatic schema removal at the start of every transaction.
          */
         ALWAYS((firstTransaction, newConfig) -> true);
 
