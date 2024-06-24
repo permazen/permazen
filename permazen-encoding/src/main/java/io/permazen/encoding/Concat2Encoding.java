@@ -42,11 +42,10 @@ public abstract class Concat2Encoding<T, V1, V2> extends ConvertedEncoding<T, Tu
       Encoding<V1> encoding1, Encoding<V2> encoding2,
       Function<? super T, ? extends V1> splitter1, Function<? super T, ? extends V2> splitter2,
       BiFunction<? super V1, ? super V2, ? extends T> joiner) {
-        super(null, type, null, new Tuple2Encoding<>(encoding1, encoding2),
+        super(null, type, new Tuple2Encoding<>(encoding1, encoding2),
           Converter.from(
             value -> new Tuple2<>(splitter1.apply(value), splitter2.apply(value)),
-            tuple -> joiner.apply(tuple.getValue1(), tuple.getValue2())),
-          false);
+            tuple -> joiner.apply(tuple.getValue1(), tuple.getValue2())));
         Preconditions.checkArgument(splitter1 != null, "null splitter1");
         Preconditions.checkArgument(splitter2 != null, "null splitter2");
         Preconditions.checkArgument(joiner != null, "null joiner");

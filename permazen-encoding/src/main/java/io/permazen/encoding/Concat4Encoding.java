@@ -53,11 +53,10 @@ public abstract class Concat4Encoding<T, V1, V2, V3, V4> extends ConvertedEncodi
       Function<? super T, ? extends V3> splitter3,
       Function<? super T, ? extends V4> splitter4,
       Function<? super Tuple4<V1, V2, V3, V4>, ? extends T> joiner) {
-        super(null, type, null, new Tuple4Encoding<>(encoding1, encoding2, encoding3, encoding4),
+        super(null, type, new Tuple4Encoding<>(encoding1, encoding2, encoding3, encoding4),
           Converter.from(
             value -> new Tuple4<>(splitter1.apply(value), splitter2.apply(value), splitter3.apply(value), splitter4.apply(value)),
-            joiner::apply),
-          false);
+            joiner::apply));
         Preconditions.checkArgument(splitter1 != null, "null splitter1");
         Preconditions.checkArgument(splitter2 != null, "null splitter2");
         Preconditions.checkArgument(splitter3 != null, "null splitter3");

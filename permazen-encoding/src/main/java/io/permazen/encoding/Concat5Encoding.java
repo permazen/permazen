@@ -58,12 +58,11 @@ public abstract class Concat5Encoding<T, V1, V2, V3, V4, V5> extends ConvertedEn
       Function<? super T, ? extends V4> splitter4,
       Function<? super T, ? extends V5> splitter5,
       Function<? super Tuple5<V1, V2, V3, V4, V5>, ? extends T> joiner) {
-        super(null, type, null, new Tuple5Encoding<>(encoding1, encoding2, encoding3, encoding4, encoding5),
+        super(null, type, new Tuple5Encoding<>(encoding1, encoding2, encoding3, encoding4, encoding5),
           Converter.from(
             value -> new Tuple5<>(splitter1.apply(value),
               splitter2.apply(value), splitter3.apply(value), splitter4.apply(value), splitter5.apply(value)),
-            joiner::apply),
-          false);
+            joiner::apply));
         Preconditions.checkArgument(splitter1 != null, "null splitter1");
         Preconditions.checkArgument(splitter2 != null, "null splitter2");
         Preconditions.checkArgument(splitter3 != null, "null splitter3");

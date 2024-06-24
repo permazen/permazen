@@ -30,6 +30,13 @@ import java.util.function.Supplier;
  * Null values are supported by this encoding when the delegate supports them; if so, null always converts to/from null.
  *
  * <p>
+ * This encoding has a default value when the delegate has one, namely, the conversion of the delegate's default value.
+ *
+ * <p>
+ * By default, the {@link String} form of a value is just the {@link String} form of its conversion. Subclasses may
+ * therefore want to override {@link #toString(T) toString()} and {@link #fromString fromString()}.
+ *
+ * <p>
  * The {@link Converter} must be {@link java.io.Serializable} in order for an instance of this class to also be
  * {@link java.io.Serializable}.
  *
@@ -53,18 +60,14 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param typeToken represented Java type
-     * @param defaultValueSupplier supplies the default value for this encoding; must supply null if this encoding supports nulls;
-     *  may be null if this encoding has no default value
      * @param delegate delegate encoder
      * @param converter value converter
      * @param sortsNaturally true if this encoding {@linkplain Encoding#sortsNaturally sorts naturally}, otherwise false
      * @throws IllegalArgumentException if any parameter other than {@code defaultValueSupplier} is null
      */
-    public ConvertedEncoding(EncodingId encodingId, TypeToken<T> typeToken, Supplier<? extends T> defaultValueSupplier,
+    public ConvertedEncoding(EncodingId encodingId, TypeToken<T> typeToken,
       Encoding<S> delegate, Converter<T, S> converter, boolean sortsNaturally) {
-        super(encodingId, typeToken, defaultValueSupplier);
-        Preconditions.checkArgument(delegate != null, "null delegate");
-        Preconditions.checkArgument(converter != null, "null converter");
+        super(encodingId, typeToken, ConvertedEncoding.convertedDefault(delegate, converter));
         Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
           "converter does not convert null to null");
         this.delegate = delegate;
@@ -77,17 +80,40 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
      *
      * @param encodingId encoding ID for this encoding, or null to be anonymous
      * @param type represented Java type
-     * @param defaultValueSupplier supplies the default value for this encoding; must supply null if this encoding supports nulls;
-     *  may be null if this encoding has no default value
      * @param delegate delegate encoder
      * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @param sortsNaturally true if this encoding {@linkplain Encoding#sortsNaturally sorts naturally}, otherwise false
      * @throws IllegalArgumentException if any parameter other than {@code defaultValueSupplier} is null
      */
-    public ConvertedEncoding(EncodingId encodingId, Class<T> type, Supplier<? extends T> defaultValueSupplier,
+    public ConvertedEncoding(EncodingId encodingId, Class<T> type,
       Encoding<S> delegate, Converter<T, S> converter, boolean sortsNaturally) {
-        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")),
-          defaultValueSupplier, delegate, converter, sortsNaturally);
+        this(encodingId, TypeToken.of(AbstractEncoding.noNull(type, "type")), delegate, converter, sortsNaturally);
+    }
+
+    /**
+     * Convenience constructor for when the new {@link ConvertedEncoding} does not sort naturally.
+     *
+     * @param encodingId encoding ID for this encoding, or null to be anonymous
+     * @param type represented Java type
+     * @param delegate delegate encoder
+     * @param converter value converter
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public ConvertedEncoding(EncodingId encodingId, Class<T> type, Encoding<S> delegate, Converter<T, S> converter) {
+        this(encodingId, type, delegate, converter, false);
+    }
+
+    private static <T, S> Supplier<? extends T> convertedDefault(Encoding<S> delegate, Converter<T, S> converter) {
+        Preconditions.checkArgument(delegate != null, "null delegate");
+        Preconditions.checkArgument(converter != null, "null converter");
+        final S defaultValue;
+        try {
+            defaultValue = delegate.getDefaultValue();
+        } catch (UnsupportedOperationException e) {
+            return null;
+        }
+        final Converter<S, T> reverseConverter = converter.reverse();
+        return () -> reverseConverter.convert(defaultValue);
     }
 
 // Encoding
