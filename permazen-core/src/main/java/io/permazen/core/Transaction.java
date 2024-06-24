@@ -68,9 +68,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}</li>
  *  <li>{@link #getKVTransaction getKVTransaction()} -  Get the underlying key/value store transaction.</li>
  *  <li>{@link #getSchema getSchema()} - Get the {@link Schema} that will be used by this transaction</li>
- *  <li>{@link #getSchemaBundle getSchemaBundle()} - Get all {@link Schema}s registered in the database</li>
- *  <li>{@link #addSchema addSchema()} - Register a new {@link Schema} in the database</li>
- *  <li>{@link #removeSchema removeSchema()} - Remove a registered {@link Schema} from the database</li>
  *  <li>{@link #getUserObject} - Get user object associated with this instance</li>
  *  <li>{@link #setUserObject setUserObject()} - Set user object associated with this instance</li>
  * </ul>
@@ -92,12 +89,15 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
- * <b>Object Schema</b>
+ * <b>Schema Management</b>
  * <ul>
  *  <li>{@link #getObjType(ObjId) getObjType()} - Get an object's database object type</li>
- *  <li>{@link #migrateSchema migrateSchema()} - Update an object's schema</li>
+ *  <li>{@link #migrateSchema migrateSchema()} - Migrate an object's schema to match this transaction's schema</li>
  *  <li>{@link #addSchemaChangeListener addSchemaChangeListener()} - Receive notifications about object schema migrations</li>
  *  <li>{@link #removeSchemaChangeListener removeSchemaChangeListener()} - Unregister a schema migration listener</li>
+ *  <li>{@link #getSchemaBundle getSchemaBundle()} - Get all {@link Schema}s registered in the database</li>
+ *  <li>{@link #addSchema addSchema()} - Register a new {@link Schema} in the database</li>
+ *  <li>{@link #removeSchema removeSchema()} - Remove a registered {@link Schema} from the database</li>
  * </ul>
  *
  * <p>
@@ -105,7 +105,6 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #create(String) create()} - Create a database object</li>
  *  <li>{@link #delete delete()} - Delete a database object</li>
- *  <li>{@link #exists exists()} - Test whether a database object exists</li>
  *  <li>{@link #copy copy()} - Copy an object into a (possibly different) transaction</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
@@ -115,21 +114,27 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * <p>
- * <b>Object Access</b>
+ * <b>Object Queries</b>
  * <ul>
  *  <li>{@link #getAll getAll()} - Get all objects</li>
  *  <li>{@link #getAll getAll(String)} - Get all objects of a specific object type</li>
+ *  <li>{@link #exists exists()} - Test whether a database object exists</li>
+ * </ul>
+ *
+ * <p>
+ * <b>Index Queries</b>
+ * <ul>
  *  <li>{@link #querySimpleIndex querySimpleIndex()} - Query an index on a {@link SimpleField}
  *      or a {@link ComplexField} sub-field</li>
  *  <li>{@link #queryListElementIndex queryListElementIndex()}
- *      - Query an index on {@link ListField} elements, including the corresponding list index</li>
+ *      - Query an index on a {@link ListField}'s elements, also returning their corresponding list indexes</li>
  *  <li>{@link #queryMapValueIndex queryMapValueIndex()}
- *      - Query an index on {@link MapField} values, including the corresponding key</li>
+ *      - Query an index on a {@link MapField}'s values, also returning their corresponding keys</li>
  *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
  *  <li>{@link #queryCompositeIndex3 queryCompositeIndex3()} - Query a composite index on three fields</li>
  *  <li>{@link #queryCompositeIndex3 queryCompositeIndex4()} - Query a composite index on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
- *  <li>{@link #querySchemaIndex querySchemaIndex()} - Query the index that groups objects by schema</li>
+ *  <li>{@link #querySchemaIndex querySchemaIndex()} - Query the index that groups objects by their schema</li>
  * </ul>
  *
  * <p>
