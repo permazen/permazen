@@ -115,7 +115,7 @@ loadScripts(document, 'script');</script>
  When a <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/FileStreamRepository.html" title="class or interface in org.dellroad.stuff.io" class="external-link"><code>FileStreamRepository</code></a> is used, instances support "out-of-band" updates of the XML file. In that case,
  each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been
  updated by some external process since the time the transaction was created, the database will be reloaded from
- the XML file and the transaction will fail with a <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>.
+ the XML file and the transaction will fail with a <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>.
 
  <p>
  Note that "out-of-band" updates are not without race conditions: e.g., it's possible for an external process to update
@@ -295,9 +295,9 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>file</code> - persistent XML file</dd>
-<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
-<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>waitTimeout</code> or <code>holdTimeout</code> is negative</dd>
@@ -335,9 +335,9 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>repository</code> - XML file storage</dd>
-<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
-<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>waitTimeout</code> or <code>holdTimeout</code> is negative</dd>

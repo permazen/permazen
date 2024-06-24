@@ -498,6 +498,22 @@ V&gt;&nbsp;void</code></div>
 <li>
 <section class="detail" id="io.permazen.core.util">
 <h2>Uses of <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a> in <a href="../util/package-summary.html">io.permazen.core.util</a></h2>
+<div class="caption"><span>Methods in <a href="../util/package-summary.html">io.permazen.core.util</a> that return types with arguments of type <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.</span><code><a href="../util/XMLObjectSerializer.OutputOptions.html#objectGenerator()" class="member-name-link">objectGenerator</a>()</code></div>
+<div class="col-last even-row-color">
+<div class="block">Get the function that streams the objects to include in the output (identified by <a href="../ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>).</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&gt;&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.</span><code><a href="../util/XMLObjectSerializer.OutputOptions.html#schemaGenerator()" class="member-name-link">schemaGenerator</a>()</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Get the function that streams the <a href="../../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s to include in the output.</div>
+</div>
+</div>
 <div class="caption"><span>Methods in <a href="../util/package-summary.html">io.permazen.core.util</a> with parameters of type <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -524,6 +540,22 @@ V&gt;&nbsp;void</code></div>
  int&nbsp;maxCollectionEntries)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Helper for Java model object <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link"><code>Object.toString()</code></a> methods that wish to display all fields in the object.</div>
+</div>
+</div>
+<div class="caption"><span>Method parameters in <a href="../util/package-summary.html">io.permazen.core.util</a> with type arguments of type <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="../util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.Builder.</span><code><a href="../util/XMLObjectSerializer.OutputOptions.Builder.html#objectGenerator(java.util.function.Function)" class="member-name-link">objectGenerator</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&gt;&nbsp;objectGenerator)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Configure a custom function that streams the objects to include in the output (identified by <a href="../ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>).</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="../util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.Builder.</span><code><a href="../util/XMLObjectSerializer.OutputOptions.Builder.html#schemaGenerator(java.util.function.Function)" class="member-name-link">schemaGenerator</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&gt;&gt;&nbsp;schemaGenerator)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Configure a custom function that streams the <a href="../../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s to include in the output.</div>
 </div>
 </div>
 <div class="caption"><span>Constructors in <a href="../util/package-summary.html">io.permazen.core.util</a> with parameters of type <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a></span></div>

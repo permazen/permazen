@@ -239,8 +239,8 @@ loadScripts(document, 'script');</script>
 <dd>value associated with key, or null if not found</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>key</code> starts with <code>0xff</code> and such keys are not supported</dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>key</code> is null</dd>
 </dl>
 </section>
@@ -269,8 +269,8 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>smallest key/value pair with <code>key &gt;= minKey</code> and <code>key &lt; maxKey</code>, or null if none exists</dd>
 <dt>Throws:</dt>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -298,8 +298,8 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>largest key/value pair with <code>key &lt; maxKey</code> and <code>key &gt;= minKey</code>, or null if none exists</dd>
 <dt>Throws:</dt>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -347,8 +347,8 @@ loadScripts(document, 'script');</script>
 <dd>iteration of key/value pairs in the range <code>minKey</code> (inclusive) to <code>maxKey</code> (exclusive)</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>minKey &gt; maxKey</code></dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -370,8 +370,8 @@ loadScripts(document, 'script');</script>
 <dd>iteration of key/value pairs in the range <code>minKey</code> (inclusive) to <code>maxKey</code> (exclusive)</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>minKey &gt; maxKey</code></dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -390,8 +390,8 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>iteration of key/value pairs in <code>range</code></dd>
 <dt>Throws:</dt>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>range</code> is null</dd>
 </dl>
 </section>
@@ -408,8 +408,8 @@ loadScripts(document, 'script');</script>
 <dd><code>value</code> - value</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>key</code> starts with <code>0xff</code> and such keys are not supported</dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>key</code> or <code>value</code> is null</dd>
 </dl>
 </section>
@@ -424,8 +424,8 @@ loadScripts(document, 'script');</script>
 <dd><code>key</code> - key</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>key</code> starts with <code>0xff</code> and such keys are not supported</dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>key</code> is null</dd>
 </dl>
 </section>
@@ -453,8 +453,8 @@ loadScripts(document, 'script');</script>
 <dd><code>maxKey</code> - maximum key (exclusive), or null for no maximum</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>minKey &gt; maxKey</code></dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -471,8 +471,8 @@ loadScripts(document, 'script');</script>
 <dd><code>range</code> - range to remove</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>range</code> is null</dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -488,8 +488,8 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>encoded counter value</dd>
 <dt>Throws:</dt>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -505,8 +505,8 @@ loadScripts(document, 'script');</script>
 <dd>decoded counter value</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>value</code> is not a valid counter value</dd>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>value</code> is null</dd>
 </dl>
 </section>
@@ -531,8 +531,8 @@ loadScripts(document, 'script');</script>
 <dd><code>key</code> - key</dd>
 <dd><code>amount</code> - amount to adjust counter value by</dd>
 <dt>Throws:</dt>
-<dd><code><a href="StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>key</code> is null</dd>
 </dl>
 </section>

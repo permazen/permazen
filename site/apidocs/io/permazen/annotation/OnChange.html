@@ -296,7 +296,7 @@ loadScripts(document, 'script');</script>
  <p><b>Depenedent Objects</b></p>
 
  <p>
- <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> annotations can be used to automatically garbage collect dependent objects.
+ <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> annotations can be used to automatically garbage collect <i>dependent</i> objects.
  A dependent object is one that is only useful or meaningful in the context of some other object(s) that reference it.
  You can combine <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> with <a href="OnDelete.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnDelete</code></a> and <a href="../ReferencePath.html" title="class in io.permazen"><code>&#64;ReferencePath</code></a>
  to keep track of incoming references.
@@ -331,12 +331,8 @@ loadScripts(document, 'script');</script>
    public abstract class Address implements PermazenObject {
 
        &#64;NotNull
-       public abstract String getAddress();
-       public abstract void setAddress(String adddress);
-
-       &#64;NotNull
-       public abstract String getCity();
-       public abstract void setCity(String city);
+       public abstract String getNumberAndStreet();
+       public abstract void setNumberAndStreet(String ns);
 
        &#64;NotNull
        public abstract String getZip();
@@ -347,10 +343,15 @@ loadScripts(document, 'script');</script>
        &#64;ReferencePath("&lt;-Person.address")
        public abstract NavigableSet&lt;Person&gt; getOccupants();
 
-   // &#64;OnChange methods
+   // Dependent Object Checks
 
        &#64;OnChange(path = "&lt;-Person.address", value = "address")
-       private void referenceChange(SimpleFieldChange&lt;Person, Address&gt; change) {
+       private void occupantChange(SimpleFieldChange&lt;Person, Address&gt; change) {
+           this.revalidate();
+       }
+
+       &#64;OnValidate(early = true)
+       private void deleteIfOrphan() {
            if (this.getOccupants().isEmpty())
                this.delete();
        }

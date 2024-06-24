@@ -73,15 +73,15 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">io.permazen.cli.cmd.<a href="CompareSchemasCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">CompareSchemasCommand</a></li>
-<li class="circle">io.permazen.cli.cmd.<a href="DeleteSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="InfoCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">InfoCommand</a> (implements io.permazen.cli.<a href="../Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>)</li>
 <li class="circle">io.permazen.cli.cmd.<a href="LoadCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">LoadCommand</a></li>
+<li class="circle">io.permazen.cli.cmd.<a href="RemoveSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="SaveCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SaveCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="SetAllowNewSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetAllowNewSchemaCommand</a></li>
+<li class="circle">io.permazen.cli.cmd.<a href="SetSchemaRemovalCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="SetSessionModeCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="SetValidationModeCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="SetVerboseCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetVerboseCommand</a></li>
-<li class="circle">io.permazen.cli.cmd.<a href="ShowAllSchemasCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="ShowSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></li>
 </ul>
 </li>
@@ -107,6 +107,19 @@ loadScripts(document, 'script');</script>
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
 <li class="circle">io.permazen.cli.cmd.<a href="Command.html" class="type-name-link" title="interface in io.permazen.cli.cmd">Command</a></li>
+<li class="circle">io.permazen.cli.<a href="../Session.Action.html" class="type-name-link" title="interface in io.permazen.cli">Session.Action</a>
+<ul>
+<li class="circle">io.permazen.cli.<a href="../Session.TransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.TransactionalAction</a>
+<ul>
+<li class="circle">io.permazen.cli.<a href="../Session.RetryableTransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a>
+<ul>
+<li class="circle">io.permazen.cli.cmd.<a href="AbstractKVCommand.KVAction.html" class="type-name-link" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </section>
 </main>

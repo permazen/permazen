@@ -259,13 +259,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../../CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdMap)" class="member-name-link">CopyState</a><wbr>(<a href="../util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap)</code></div>
+<div class="col-second even-row-color"><code><a href="../../CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdMap,boolean)" class="member-name-link">CopyState</a><wbr>(<a href="../util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap,
+ boolean&nbsp;suppressNotifications)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Default remapping constructor.</div>
+<div class="block">Remapping constructor.</div>
 </div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../../CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap)" class="member-name-link">CopyState</a><wbr>(<a href="../util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a>&nbsp;copied,
- <a href="../util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap)</code></div>
+<div class="col-second odd-row-color"><code><a href="../../CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap,boolean)" class="member-name-link">CopyState</a><wbr>(<a href="../util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a>&nbsp;copied,
+ <a href="../util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap,
+ boolean&nbsp;suppressNotifications)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Primary constructor.</div>
 </div>
@@ -1187,14 +1189,19 @@ V&gt;&nbsp;void</code></div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html" title="class or interface in java.util" class="external-link">Iterator</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">ObjIdSet.</span><code><a href="../util/ObjIdSet.html#iterator()" class="member-name-link">iterator</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.Entry.html" title="class or interface in java.util" class="external-link">Map.Entry</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>,<wbr><a href="../util/ObjIdMap.html" title="type parameter in ObjIdMap">V</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">ObjIdMap.</span><code><a href="../util/ObjIdMap.html#removeOne()" class="member-name-link">removeOne</a>()</code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.</span><code><a href="../util/XMLObjectSerializer.OutputOptions.html#objectGenerator()" class="member-name-link">objectGenerator</a>()</code></div>
 <div class="col-last even-row-color">
+<div class="block">Get the function that streams the objects to include in the output (identified by <a href="../ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>).</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.Entry.html" title="class or interface in java.util" class="external-link">Map.Entry</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>,<wbr><a href="../util/ObjIdMap.html" title="type parameter in ObjIdMap">V</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ObjIdMap.</span><code><a href="../util/ObjIdMap.html#removeOne()" class="member-name-link">removeOne</a>()</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Remove a single, arbitrary entry from this instance and return it.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="../../util/ImmutableNavigableSet.html" title="class in io.permazen.util">ImmutableNavigableSet</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">ObjIdSet.</span><code><a href="../util/ObjIdSet.html#sortedSnapshot()" class="member-name-link">sortedSnapshot</a>()</code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code><a href="../../util/ImmutableNavigableSet.html" title="class in io.permazen.util">ImmutableNavigableSet</a>&lt;<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">ObjIdSet.</span><code><a href="../util/ObjIdSet.html#sortedSnapshot()" class="member-name-link">sortedSnapshot</a>()</code></div>
+<div class="col-last even-row-color">
 <div class="block">Create a sorted, immutable snapshot of this instance.</div>
 </div>
 </div>
@@ -1296,17 +1303,22 @@ V&gt;&nbsp;void</code></div>
 <div class="col-last even-row-color">
 <div class="block">Add multiple associations with a given source.</div>
 </div>
-<div class="col-first odd-row-color"><code>boolean</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">ObjIdBiMultiMap.</span><code><a href="../util/ObjIdBiMultiMap.html#removeAll(io.permazen.core.ObjId,java.lang.Iterable)" class="member-name-link">removeAll</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;source,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html" title="class or interface in java.lang" class="external-link">Iterable</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;targets)</code></div>
+<div class="col-first odd-row-color"><code><a href="../util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.Builder.</span><code><a href="../util/XMLObjectSerializer.OutputOptions.Builder.html#objectGenerator(java.util.function.Function)" class="member-name-link">objectGenerator</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&gt;&nbsp;objectGenerator)</code></div>
 <div class="col-last odd-row-color">
+<div class="block">Configure a custom function that streams the objects to include in the output (identified by <a href="../ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>).</div>
+</div>
+<div class="col-first even-row-color"><code>boolean</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">ObjIdBiMultiMap.</span><code><a href="../util/ObjIdBiMultiMap.html#removeAll(io.permazen.core.ObjId,java.lang.Iterable)" class="member-name-link">removeAll</a><wbr>(<a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&nbsp;source,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html" title="class or interface in java.lang" class="external-link">Iterable</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;targets)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Remove multiple associations with a given source.</div>
 </div>
-<div class="col-first even-row-color"><code>int</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">XMLObjectSerializer.</span><code><a href="../util/XMLObjectSerializer.html#write(javax.xml.stream.XMLStreamWriter,boolean,java.util.stream.Stream)" class="member-name-link">write</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
- boolean&nbsp;customFormat,
+<div class="col-first odd-row-color"><code>long</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">XMLObjectSerializer.</span><code><a href="../util/XMLObjectSerializer.html#writeObjects(javax.xml.stream.XMLStreamWriter,io.permazen.core.util.XMLObjectSerializer.OutputOptions,java.util.stream.Stream)" class="member-name-link">writeObjects</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="../util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a>&nbsp;options,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objIds)</code></div>
-<div class="col-last even-row-color">
+<div class="col-last odd-row-color">
 <div class="block">Export the specified objects from the <a href="../Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given XML output.</div>
 </div>
 </div>

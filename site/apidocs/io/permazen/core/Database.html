@@ -126,6 +126,10 @@ loadScripts(document, 'script');</script>
  assuming <a href="TransactionConfig.html#isAllowNewSchema()"><code>TransactionConfig.isAllowNewSchema()</code></a> is true (otherwise a <a href="SchemaMismatchException.html" title="class in io.permazen.core"><code>SchemaMismatchException</code></a> is thrown).
 
  <p>
+ Transactions can be opened with an <a href="../schema/SchemaModel.html#isEmpty()">empty</a> <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> when no particular schema
+ is needed. In any case, the empty <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> is never recorded in a database.
+
+ <p>
  <b>Schema Migration</b>
 
  <p>

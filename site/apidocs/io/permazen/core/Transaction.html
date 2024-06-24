@@ -100,9 +100,6 @@ loadScripts(document, 'script');</script>
   <li><a href="#getDatabase()"><code>getDatabase()</code></a> - Get the associated <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a></li>
   <li><a href="#getKVTransaction()"><code>getKVTransaction()</code></a> -  Get the underlying key/value store transaction.</li>
   <li><a href="#getSchema()"><code>getSchema()</code></a> - Get the <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> that will be used by this transaction</li>
-  <li><a href="#getSchemaBundle()"><code>getSchemaBundle()</code></a> - Get all <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a>s registered in the database</li>
-  <li><a href="#addSchema(io.permazen.schema.SchemaModel)"><code>addSchema()</code></a> - Register a new <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> in the database</li>
-  <li><a href="#removeSchema(io.permazen.schema.SchemaId)"><code>removeSchema()</code></a> - Remove a registered <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> from the database</li>
   <li><a href="#getUserObject()"><code>getUserObject()</code></a> - Get user object associated with this instance</li>
   <li><a href="#setUserObject(java.lang.Object)"><code>setUserObject()</code></a> - Set user object associated with this instance</li>
  </ul>
@@ -124,12 +121,15 @@ loadScripts(document, 'script');</script>
  </ul>
 
  <p>
- <b>Object Schema</b>
+ <b>Schema Management</b>
  <ul>
   <li><a href="#getObjType(io.permazen.core.ObjId)"><code>getObjType()</code></a> - Get an object's database object type</li>
-  <li><a href="#migrateSchema(io.permazen.core.ObjId)"><code>migrateSchema()</code></a> - Update an object's schema</li>
+  <li><a href="#migrateSchema(io.permazen.core.ObjId)"><code>migrateSchema()</code></a> - Migrate an object's schema to match this transaction's schema</li>
   <li><a href="#addSchemaChangeListener(io.permazen.core.SchemaChangeListener)"><code>addSchemaChangeListener()</code></a> - Receive notifications about object schema migrations</li>
   <li><a href="#removeSchemaChangeListener(io.permazen.core.SchemaChangeListener)"><code>removeSchemaChangeListener()</code></a> - Unregister a schema migration listener</li>
+  <li><a href="#getSchemaBundle()"><code>getSchemaBundle()</code></a> - Get all <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a>s registered in the database</li>
+  <li><a href="#addSchema(io.permazen.schema.SchemaModel)"><code>addSchema()</code></a> - Register a new <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> in the database</li>
+  <li><a href="#removeSchema(io.permazen.schema.SchemaId)"><code>removeSchema()</code></a> - Remove a registered <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> from the database</li>
  </ul>
 
  <p>
@@ -137,7 +137,6 @@ loadScripts(document, 'script');</script>
  <ul>
   <li><a href="#create(java.lang.String)"><code>create()</code></a> - Create a database object</li>
   <li><a href="#delete(io.permazen.core.ObjId)"><code>delete()</code></a> - Delete a database object</li>
-  <li><a href="#exists(io.permazen.core.ObjId)"><code>exists()</code></a> - Test whether a database object exists</li>
   <li><a href="#copy(io.permazen.core.ObjId,io.permazen.core.Transaction,boolean,boolean,io.permazen.core.util.ObjIdMap,io.permazen.core.util.ObjIdMap)"><code>copy()</code></a> - Copy an object into a (possibly different) transaction</li>
   <li><a href="#addCreateListener(io.permazen.core.CreateListener)"><code>addCreateListener()</code></a> - Register a <a href="CreateListener.html" title="interface in io.permazen.core"><code>CreateListener</code></a> for notifications about new objects</li>
   <li><a href="#removeCreateListener(io.permazen.core.CreateListener)"><code>removeCreateListener()</code></a> - Unregister a <a href="CreateListener.html" title="interface in io.permazen.core"><code>CreateListener</code></a></li>
@@ -147,21 +146,27 @@ loadScripts(document, 'script');</script>
  </ul>
 
  <p>
- <b>Object Access</b>
+ <b>Object Queries</b>
  <ul>
   <li><a href="#getAll()"><code>getAll()</code></a> - Get all objects</li>
   <li><a href="#getAll()"><code>getAll(String)</code></a> - Get all objects of a specific object type</li>
+  <li><a href="#exists(io.permazen.core.ObjId)"><code>exists()</code></a> - Test whether a database object exists</li>
+ </ul>
+
+ <p>
+ <b>Index Queries</b>
+ <ul>
   <li><a href="#querySimpleIndex(int)"><code>querySimpleIndex()</code></a> - Query an index on a <a href="SimpleField.html" title="class in io.permazen.core"><code>SimpleField</code></a>
       or a <a href="ComplexField.html" title="class in io.permazen.core"><code>ComplexField</code></a> sub-field</li>
   <li><a href="#queryListElementIndex(int)"><code>queryListElementIndex()</code></a>
-      - Query an index on <a href="ListField.html" title="class in io.permazen.core"><code>ListField</code></a> elements, including the corresponding list index</li>
+      - Query an index on a <a href="ListField.html" title="class in io.permazen.core"><code>ListField</code></a>'s elements, also returning their corresponding list indexes</li>
   <li><a href="#queryMapValueIndex(int)"><code>queryMapValueIndex()</code></a>
-      - Query an index on <a href="MapField.html" title="class in io.permazen.core"><code>MapField</code></a> values, including the corresponding key</li>
+      - Query an index on a <a href="MapField.html" title="class in io.permazen.core"><code>MapField</code></a>'s values, also returning their corresponding keys</li>
   <li><a href="#queryCompositeIndex2(int)"><code>queryCompositeIndex2()</code></a> - Query a composite index on two fields</li>
   <li><a href="#queryCompositeIndex3(int)"><code>queryCompositeIndex3()</code></a> - Query a composite index on three fields</li>
   <li><a href="#queryCompositeIndex3(int)"><code>queryCompositeIndex4()</code></a> - Query a composite index on four fields</li>
   <!-- COMPOSITE-INDEX -->
-  <li><a href="#querySchemaIndex()"><code>querySchemaIndex()</code></a> - Query the index that groups objects by schema</li>
+  <li><a href="#querySchemaIndex()"><code>querySchemaIndex()</code></a> - Query the index that groups objects by their schema</li>
  </ul>
 
  <p>
@@ -324,7 +329,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addSchema(io.permazen.schema.SchemaModel)" class="member-name-link">addSchema</a><wbr>(<a href="../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manually add the given schema to the database.</div>
+<div class="block">Manually record the given non-empty schema in the database.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addSchemaChangeListener(io.permazen.core.SchemaChangeListener)" class="member-name-link">addSchemaChangeListener</a><wbr>(<a href="SchemaChangeListener.html" title="interface in io.permazen.core">SchemaChangeListener</a>&nbsp;listener)</code></div>
@@ -818,10 +823,13 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="addSchema(io.permazen.schema.SchemaModel)">
 <h3>addSchema</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">addSchema</span><wbr><span class="parameters">(<a href="../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</span></div>
-<div class="block">Manually add the given schema to the database.
+<div class="block">Manually record the given non-empty schema in the database.
 
  <p>
  If successful, <a href="#getSchemaBundle()">this transaction's schema bundle</a> will be updated.
+
+ <p>
+ This transaction's current schema does not change.
 
  <p>
  This method is dangerous and should normally not be used except by low-level tools.</div>
@@ -829,10 +837,11 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>true if the schema was added, false if it was already in the schema bundle</dd>
 <dt>Throws:</dt>
-<dd><code><a href="InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if the given schema is invalid (i.e., does not pass validation checks)</dd>
-<dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if the given schema has any explicit storage ID assignments
+<dd><code><a href="InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if <code>schemaModel</code> is invalid (i.e., does not pass validation checks)</dd>
+<dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if <code>schemaModel</code> has explicit storage ID assignments
   that conflict with other schemas already recorded in the database</dd>
 <dd><code><a href="StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaModel</code> is empty</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaModel</code> is null</dd>
 </dl>
 </section>
@@ -847,11 +856,16 @@ loadScripts(document, 'script');</script>
  If successful, <a href="#getSchemaBundle()">this transaction's schema bundle</a> will be updated.
 
  <p>
+ If the removed schema is also this transaction's current schema, then this transaction's schema reverts to the
+ empty schema. The empty schema itself is never recorded in a database, so it will never be found by this method.
+
+ <p>
  This method is dangerous and should normally not be used except by low-level tools.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if the schema was removed, false if it was not found</dd>
 <dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any objects in the schema still exist</dd>
 <dd><code><a href="StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaId</code> is null</dd>
 </dl>
@@ -865,7 +879,7 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="../kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - from <a href="../kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
+<dd><code><a href="../kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - from <a href="../kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
 <dd><code><a href="RollbackOnlyTransactionException.html" title="class in io.permazen.core">RollbackOnlyTransactionException</a></code> - if this instance has been <a href="#setRollbackOnly()">marked</a> rollback only;
   this instance will be automatically rolled back</dd>
 </dl>
@@ -984,7 +998,7 @@ loadScripts(document, 'script');</script>
  <p>
  Note: if you are using Spring for transaction demarcation (via <a href="../spring/PermazenTransactionManager.html" title="class in io.permazen.spring"><code>PermazenTransactionManager</code></a>),
  then you may also use Spring's
- <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/TransactionSynchronizationManager.html#registerSynchronization(org.springframework.transaction.support.TransactionSynchronization)" title="class or interface in org.springframework.transaction.support" class="external-link"><code>TransactionSynchronizationManager.registerSynchronization()</code></a> instead of this method.</div>
+ <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/support/TransactionSynchronizationManager.html#registerSynchronization(org.springframework.transaction.support.TransactionSynchronization)" title="class or interface in org.springframework.transaction.support" class="external-link"><code>TransactionSynchronizationManager.registerSynchronization()</code></a> instead of this method.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>callback</code> - callback to invoke</dd>

@@ -301,7 +301,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="Schema.html" title="class in io.permazen.core">Schema</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Reflects one <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> recorded in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
+<div class="block">Reflects a <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> as recorded in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
@@ -309,7 +309,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="SchemaBundle.Encoded.html" title="class in io.permazen.core">SchemaBundle.Encoded</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Holder the for <code>byte[]</code>-encoded <a href="SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> data that is stored in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
+<div class="block">The <code>byte[]</code>-encoded version of a <a href="SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> that is actually stored in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab1"><a href="SchemaChangeListener.html" title="interface in io.permazen.core">SchemaChangeListener</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab1">
@@ -382,24 +382,28 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Builder for <a href="TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a>s.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="TransactionException.html" title="class in io.permazen.core">TransactionException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
+<div class="block">Configures if and when to automatically detect and remove unused schemas from a database.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="TransactionException.html" title="class in io.permazen.core">TransactionException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Superclass of exceptions associated with a specific <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="TypeNotInSchemaException.html" title="class in io.permazen.core">TypeNotInSchemaException</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="TypeNotInSchemaException.html" title="class in io.permazen.core">TypeNotInSchemaException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">Thrown when attempting to migrate a database object to a new schema in which the object's type no longer exists.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UnknownFieldException.html" title="class in io.permazen.core">UnknownFieldException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="UnknownFieldException.html" title="class in io.permazen.core">UnknownFieldException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Thrown when an unknown field is accessed.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="UnknownIndexException.html" title="class in io.permazen.core">UnknownIndexException</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UnknownIndexException.html" title="class in io.permazen.core">UnknownIndexException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">Thrown when an unknown index is accessed.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UnknownTypeException.html" title="class in io.permazen.core">UnknownTypeException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="UnknownTypeException.html" title="class in io.permazen.core">UnknownTypeException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Thrown when attempting to access an unknown type.</div>
 </div>
 </div>

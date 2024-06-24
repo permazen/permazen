@@ -71,12 +71,16 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Core classes for the Permazen Java persistence layer.</div>
 </div>
-<div class="col-first even-row-color"><a href="#io.permazen.jsck">io.permazen.jsck</a></div>
+<div class="col-first even-row-color"><a href="#io.permazen.core.util">io.permazen.core.util</a></div>
 <div class="col-last even-row-color">
+<div class="block">Permazen core API utility classes.</div>
+</div>
+<div class="col-first odd-row-color"><a href="#io.permazen.jsck">io.permazen.jsck</a></div>
+<div class="col-last odd-row-color">
 <div class="block">Classes associated with <a href="../../jsck/Jsck.html" title="class in io.permazen.jsck"><code>Jsck</code></a>, the Permazen key/value database consistency checker.</div>
 </div>
-<div class="col-first odd-row-color"><a href="#io.permazen.schema">io.permazen.schema</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="#io.permazen.schema">io.permazen.schema</a></div>
+<div class="col-last even-row-color">
 <div class="block">Classes for modeling Permazen <a href="../../core/Database.html" title="class in io.permazen.core"><code>Database</code></a> schemas.</div>
 </div>
 </div>
@@ -180,7 +184,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>boolean</code></div>
 <div class="col-second even-row-color"><span class="type-name-label">Transaction.</span><code><a href="../../core/Transaction.html#addSchema(io.permazen.schema.SchemaModel)" class="member-name-link">addSchema</a><wbr>(<a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Manually add the given schema to the database.</div>
+<div class="block">Manually record the given non-empty schema in the database.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../../core/Transaction.html" title="class in io.permazen.core">Transaction</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">Database.</span><code><a href="../../core/Database.html#createTransaction(io.permazen.schema.SchemaModel)" class="member-name-link">createTransaction</a><wbr>(<a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
@@ -204,6 +208,33 @@ loadScripts(document, 'script');</script>
  <a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Build an <a href="../../core/SchemaBundle.Encoded.html" title="class in io.permazen.core"><code>SchemaBundle.Encoded</code></a> instance with the specified schema added.</div>
+</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="io.permazen.core.util">
+<h2>Uses of <a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a> in <a href="../../core/util/package-summary.html">io.permazen.core.util</a></h2>
+<div class="caption"><span>Methods in <a href="../../core/util/package-summary.html">io.permazen.core.util</a> that return types with arguments of type <a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../../core/Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&gt;&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.</span><code><a href="../../core/util/XMLObjectSerializer.OutputOptions.html#schemaGenerator()" class="member-name-link">schemaGenerator</a>()</code></div>
+<div class="col-last even-row-color">
+<div class="block">Get the function that streams the <a href="../SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s to include in the output.</div>
+</div>
+</div>
+<div class="caption"><span>Method parameters in <a href="../../core/util/package-summary.html">io.permazen.core.util</a> with type arguments of type <a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="../../core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XMLObjectSerializer.OutputOptions.Builder.</span><code><a href="../../core/util/XMLObjectSerializer.OutputOptions.Builder.html#schemaGenerator(java.util.function.Function)" class="member-name-link">schemaGenerator</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="../../core/Transaction.html" title="class in io.permazen.core">Transaction</a>,<wbr>? extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="../SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&gt;&gt;&nbsp;schemaGenerator)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Configure a custom function that streams the <a href="../SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s to include in the output.</div>
 </div>
 </div>
 </section>

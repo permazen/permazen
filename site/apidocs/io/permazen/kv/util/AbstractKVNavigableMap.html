@@ -148,6 +148,11 @@ loadScripts(document, 'script');</script>
  number of bytes produced by <a href="#encodeKey(io.permazen.util.ByteWriter,java.lang.Object)"><code>encodeKey()</code></a> or consumed by <a href="#decodeKey(io.permazen.util.ByteReader)"><code>decodeKey()</code></a>.
  When not in prefix mode, <a href="#decodeKey(io.permazen.util.ByteReader)"><code>decodeKey()</code></a> <b>must</b> consume the entire key to preserve correct semantics.
 
+ <p>
+ Prefix mode can also be used when the map values (or some portion thereof) are contained in the key's "garbage" suffix.
+ The <a href="#decodeValue(io.permazen.kv.KVPair)"><code>decodeValue()</code></a> takes a <a href="../KVPair.html" title="class in io.permazen.kv"><code>KVPair</code></a> so it can read from both the key and the value.
+ In particular, instances can be built from key/value data where all the values are empty.
+
  <p><b>Key Restrictions</b></p>
 
  <p>

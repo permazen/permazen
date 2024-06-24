@@ -120,19 +120,19 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="block">Clone this instance.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#garbageCollectSchemas(boolean)" class="member-name-link">garbageCollectSchemas</a><wbr>(boolean&nbsp;garbageCollectSchemas)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kvOptions(java.util.Map)" class="member-name-link">kvOptions</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Configure whether automatic schema garbage collection should be enabled.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kvOptions(java.util.Map)" class="member-name-link">kvOptions</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Configure <a href="../kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> transaction options.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#schemaModel(io.permazen.schema.SchemaModel)" class="member-name-link">schemaModel</a><wbr>(<a href="../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#schemaModel(io.permazen.schema.SchemaModel)" class="member-name-link">schemaModel</a><wbr>(<a href="../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Configure the schema to use.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#schemaRemoval(io.permazen.core.TransactionConfig.SchemaRemoval)" class="member-name-link">schemaRemoval</a><wbr>(<a href="TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a>&nbsp;schemaRemoval)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Configure when to automatically detect and remove unused schemas from the database.</div>
 </div>
 </div>
 </div>
@@ -185,23 +185,24 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 </section>
 </li>
 <li>
-<section class="detail" id="garbageCollectSchemas(boolean)">
-<h3>garbageCollectSchemas</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></span>&nbsp;<span class="element-name">garbageCollectSchemas</span><wbr><span class="parameters">(boolean&nbsp;garbageCollectSchemas)</span></div>
-<div class="block">Configure whether automatic schema garbage collection should be enabled.
+<section class="detail" id="schemaRemoval(io.permazen.core.TransactionConfig.SchemaRemoval)">
+<h3>schemaRemoval</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></span>&nbsp;<span class="element-name">schemaRemoval</span><wbr><span class="parameters">(<a href="TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a>&nbsp;schemaRemoval)</span></div>
+<div class="block">Configure when to automatically detect and remove unused schemas from the database.
 
  <p>
- When automatic schema garbage collection is enabled, unused schemas are garbage collected
- at the start of each transaction. This adds a small amount of overhead to transaction startup,
- but only when a new schema set is encountered.
+ When schema removal is enabled, unused schemas (i.e., those for which zero objects exist) are automatically detected
+ and removed at the beginning certain transactions. This operation adds a small amount of overhead.
 
  <p>
- The default value is false.</div>
+ The default value is <a href="TransactionConfig.SchemaRemoval.html#CONFIG_CHANGE"><code>TransactionConfig.SchemaRemoval.CONFIG_CHANGE</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>garbageCollectSchemas</code> - whether to enable automatic schema garbage collection</dd>
+<dd><code>schemaRemoval</code> - if and when to automatically detect and remove unused schemas</dd>
 <dt>Returns:</dt>
 <dd>this instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaRemoval</code> is null</dd>
 </dl>
 </section>
 </li>

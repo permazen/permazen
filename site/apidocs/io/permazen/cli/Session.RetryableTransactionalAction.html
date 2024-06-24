@@ -74,6 +74,10 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a></code>, <code><a href="Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a></code></dd>
 </dl>
 <dl class="notes">
+<dt>All Known Subinterfaces:</dt>
+<dd><code><a href="cmd/AbstractKVCommand.KVAction.html" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a></code></dd>
+</dl>
+<dl class="notes">
 <dt>All Known Implementing Classes:</dt>
 <dd><code><a href="../kv/raft/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in io.permazen.kv.raft.cmd">AbstractTransactionRaftCommand.RaftTransactionAction</a></code></dd>
 </dl>
@@ -85,7 +89,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public static interface </span><span class="element-name type-name-label">Session.RetryableTransactionalAction</span><span class="extends-implements">
 extends <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a></span></div>
 <div class="block">Extension of <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the transaction should be retried if a
- <a href="../kv/RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> is thrown.</div>
+ <a href="../kv/RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> is thrown.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -96,6 +100,9 @@ extends <a href="Session.TransactionalAction.html" title="interface in io.permaz
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.cli.Session.Action">Methods inherited from interface&nbsp;io.permazen.cli.<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a></h3>
 <code><a href="Session.Action.html#run(io.permazen.cli.Session)">run</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-io.permazen.cli.Session.TransactionalAction">Methods inherited from interface&nbsp;io.permazen.cli.<a href="Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a></h3>
+<code><a href="Session.TransactionalAction.html#getTransactionConfig(io.permazen.cli.Session)">getTransactionConfig</a>, <a href="Session.TransactionalAction.html#getTransactionMode(io.permazen.cli.Session)">getTransactionMode</a></code></div>
 </section>
 </li>
 </ul>

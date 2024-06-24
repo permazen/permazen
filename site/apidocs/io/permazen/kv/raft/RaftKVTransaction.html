@@ -496,7 +496,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>readOnly</code> is false and
   <a href="#getConsistency()">this transaction's consistency</a> is not <a href="Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a></dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>readOnly</code> is false and this transaction is currently read-only</dd>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if this transaction is no longer open</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if this transaction is no longer open</dd>
 </dl>
 </section>
 </li>
@@ -844,7 +844,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <p>
  <a href="RaftKVTransaction.html" title="class in io.permazen.kv.raft"><code>RaftKVTransaction</code></a>s do not block while the transaction is open; the configured value is used
  as a timeout for the <a href="#commit()"><code>commit()</code></a> operation only. If <a href="#commit()"><code>commit()</code></a> takes longer than <code>timeout</code>
- milliseconds, a <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> is thrown.
+ milliseconds, a <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> is thrown.
 
  <p>
  The default value for all transactions is configured by <a href="RaftKVDatabase.html#setCommitTimeout(int)"><code>RaftKVDatabase.setCommitTimeout(int)</code></a>.</div>
@@ -855,7 +855,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dd><code>timeout</code> - transaction commit timeout in milliseconds, or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>timeout</code> is negative</dd>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if this transaction is no longer open</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if this transaction is no longer open</dd>
 </dl>
 </section>
 </li>
@@ -904,7 +904,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <p>
  Note: many <a href="../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementations actually return a
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>. However, listeners must not perform any
- long running or blocking operations. Also, because the semantics of <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> allow for
+ long running or blocking operations. Also, because the semantics of <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> allow for
  the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
 
  <p>
@@ -933,8 +933,8 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dt>Returns:</dt>
 <dd>a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Future.html" title="class or interface in java.util.concurrent" class="external-link"><code>Future</code></a> that returns <code>key</code> when the value associated with <code>key</code> is modified</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd>
 <dd><code><a href="../KVDatabaseException.html" title="class in io.permazen.kv">KVDatabaseException</a></code> - if an unexpected error occurs</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="external-link">UnsupportedOperationException</a></code> - if this instance does not support key watches</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>key</code> is null</dd>
@@ -956,7 +956,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <div class="block">Commit this transaction.
 
  <p>
- Note that if this method throws a <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>,
+ Note that if this method throws a <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>,
  the transaction was either successfully committed or rolled back. In either case,
  this instance is no longer usable.
 
@@ -986,7 +986,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <p>
  This method may be invoked at any time, even after a previous invocation of
  <a href="../KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.
- In particular, this method must <b>not</b> throw <a href="../StaleTransactionException.html" title="class in io.permazen.kv"><code>StaleTransactionException</code></a>.</div>
+ In particular, this method must <b>not</b> throw <a href="../StaleKVTransactionException.html" title="class in io.permazen.kv"><code>StaleKVTransactionException</code></a>.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../KVTransaction.html#rollback()">rollback</a></code>&nbsp;in interface&nbsp;<code><a href="../KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></code></dd>
@@ -1057,8 +1057,8 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <dd>independent, read-only copy of this transaction's entire database content</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="external-link">UnsupportedOperationException</a></code> - if this method is not supported</dd>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>

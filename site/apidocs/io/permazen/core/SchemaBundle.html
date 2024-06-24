@@ -83,7 +83,7 @@ loadScripts(document, 'script');</script>
  This includes any <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a>s that may have been added or deleted during the transaction.
 
  <p>
- This class also captures the current Storage ID table.
+ This class also captures the current storage ID and schema index tables.
 
  <p>
  Instances are immutable and thread safe.</div>
@@ -102,7 +102,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static class&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="SchemaBundle.Encoded.html" class="type-name-link" title="class in io.permazen.core">SchemaBundle.Encoded</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Holder the for <code>byte[]</code>-encoded <a href="SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> data that is stored in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
+<div class="block">The <code>byte[]</code>-encoded version of a <a href="SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> that is actually stored in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
 </div>
 </div>
 </section>
@@ -115,9 +115,13 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.SchemaBundle.Encoded,io.permazen.encoding.EncodingRegistry)" class="member-name-link">SchemaBundle</a><wbr>(<a href="SchemaBundle.Encoded.html" title="class in io.permazen.core">SchemaBundle.Encoded</a>&nbsp;encoded,
- <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.SchemaBundle.Encoded)" class="member-name-link">SchemaBundle</a><wbr>(<a href="SchemaBundle.Encoded.html" title="class in io.permazen.core">SchemaBundle.Encoded</a>&nbsp;encoded)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Partial constructor for debugging and tooling purposes.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.SchemaBundle.Encoded,io.permazen.encoding.EncodingRegistry)" class="member-name-link">SchemaBundle</a><wbr>(<a href="SchemaBundle.Encoded.html" title="class in io.permazen.core">SchemaBundle.Encoded</a>&nbsp;encoded,
+ <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
 </div>
 </div>
@@ -207,6 +211,24 @@ loadScripts(document, 'script');</script>
 <section class="constructor-details" id="constructor-detail">
 <h2>Constructor Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="&lt;init&gt;(io.permazen.core.SchemaBundle.Encoded)">
+<h3>SchemaBundle</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">SchemaBundle</span><wbr><span class="parameters">(<a href="SchemaBundle.Encoded.html" title="class in io.permazen.core">SchemaBundle.Encoded</a>&nbsp;encoded)</span></div>
+<div class="block">Partial constructor for debugging and tooling purposes.
+
+ <p>
+ This constructor does not create a functional instance (no <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> provided).
+ However, it does perform enough initialization to allow schema-related meta-data to be discovered.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>encoded</code> - encoded schema and storage ID tables</dd>
+<dt>Throws:</dt>
+<dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if the encoded data is invalid</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>encoded</code> is null</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="&lt;init&gt;(io.permazen.core.SchemaBundle.Encoded,io.permazen.encoding.EncodingRegistry)">
 <h3>SchemaBundle</h3>
@@ -354,15 +376,21 @@ loadScripts(document, 'script');</script>
 <div class="block">Build an <a href="SchemaBundle.Encoded.html" title="class in io.permazen.core"><code>SchemaBundle.Encoded</code></a> instance with the specified schema added.
 
  <p>
- Any required storage ID assignments will be added automatically.</div>
+ The schema may already be registered in this bundle. If so, null is returned, reflecting that no change is needed.
+ Otherwise, an encoding of this instance with <code>schemaModel</code> is returned.
+
+ <p>
+ In either case, any explicit storage ID assignments in <code>schemaModel</code> are checked for conflicts with the schemas
+ already registered in this bundle, and any unassigned storage ID's in <code>schemaModel</code> are automatically assigned.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>schemaIndex</code> - schema table index at which to add the schema or zero for next available</dd>
 <dd><code>schemaModel</code> - the new schema to add</dd>
+<dt>Returns:</dt>
+<dd>an encoding of this instance with <code>schemaModel</code> added, or null if <code>schemaModel</code> is already registered</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the schema already exists</dd>
-<dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if <code>schemaModel</code> has any explicit storage ID assignments
-  that conflict with other schemas in this bundle</dd>
+<dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if <code>schemaModel</code> has one or more explicit storage ID assignments
+  and one of them conflicts with a storage ID assignment already registered in this bundle</dd>
 <dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if <code>schemaIndex</code> is non-zero and some schema already exists at that index</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaModel</code> is not locked down</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaModel</code> does not validate</dd>

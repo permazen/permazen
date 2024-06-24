@@ -128,10 +128,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config">PermazenCliConfig</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../config/CliConfig.html" title="class in io.permazen.cli.config">CliConfig</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buildCliConfig()" class="member-name-link">buildCliConfig</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Build a <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a> to use.</div>
+<div class="block">Build a <a href="../config/CliConfig.html" title="class in io.permazen.cli.config"><code>CliConfig</code></a> to use.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.dellroad.jct.jshell.command.JShellCommand</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buildJShellCommand()" class="member-name-link">buildJShellCommand</a>()</code></div>
@@ -231,12 +231,13 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="buildCliConfig()">
 <h3>buildCliConfig</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config">PermazenCliConfig</a></span>&nbsp;<span class="element-name">buildCliConfig</span>()</div>
-<div class="block">Build a <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a> to use.
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../config/CliConfig.html" title="class in io.permazen.cli.config">CliConfig</a></span>&nbsp;<span class="element-name">buildCliConfig</span>()</div>
+<div class="block">Build a <a href="../config/CliConfig.html" title="class in io.permazen.cli.config"><code>CliConfig</code></a> to use.
 
  <p>
  The implementation in <a href="BasicCliMain.html" title="class in io.permazen.cli.main"><code>BasicCliMain</code></a> returns a new <a href="../config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a>.
- Subclasses can override this method to add additional command-line flags, etc.</div>
+ Subclasses can override this method to restrict to lower layers (e.g., Core API),
+ add additional command-line flags, etc.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>CLI configuration</dd>

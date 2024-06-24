@@ -98,16 +98,21 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code><a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">Session.TxInfo.</span><code><a href="../Session.TxInfo.html#getMode()" class="member-name-link">getMode</a>()</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Get the <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> that the <a href="../Session.html" title="class in io.permazen.cli"><code>Session</code></a> was in when the transaction was opened.</div>
+<div class="block">Get the <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> that the transaction was opened with.</div>
 </div>
-<div class="col-first even-row-color"><code>static <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SessionMode.</span><code><a href="../SessionMode.html#valueOf(java.lang.String)" class="member-name-link">valueOf</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
+<div class="col-first even-row-color"><code>default <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Session.TransactionalAction.</span><code><a href="../Session.TransactionalAction.html#getTransactionMode(io.permazen.cli.Session)" class="member-name-link">getTransactionMode</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Get the <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> corresponding to the transaction that should be opened.</div>
+</div>
+<div class="col-first odd-row-color"><code>static <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">SessionMode.</span><code><a href="../SessionMode.html#valueOf(java.lang.String)" class="member-name-link">valueOf</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </div>
-<div class="col-first odd-row-color"><code>static <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>[]</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SessionMode.</span><code><a href="../SessionMode.html#values()" class="member-name-link">values</a>()</code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>[]</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SessionMode.</span><code><a href="../SessionMode.html#values()" class="member-name-link">values</a>()</code></div>
+<div class="col-last even-row-color">
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
 </div>
@@ -117,6 +122,19 @@ the order they are declared.</div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="../Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#openBranchedTransaction(io.permazen.cli.SessionMode,java.util.Map,java.util.Map)" class="member-name-link">openBranchedTransaction</a><wbr>(<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;txMode,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Open a new branched transaction and associate it with this instance.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="../Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#openTransaction(io.permazen.cli.SessionMode,java.util.Map)" class="member-name-link">openTransaction</a><wbr>(<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;txMode,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Open a new transaction in the specified mode and associate it with this instance.</div>
+</div>
 <div class="col-first even-row-color"><code>void</code></div>
 <div class="col-second even-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#setMode(io.permazen.cli.SessionMode)" class="member-name-link">setMode</a><wbr>(<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;mode)</code></div>
 <div class="col-last even-row-color">
@@ -142,6 +160,15 @@ the order they are declared.</div>
 <li>
 <section class="detail" id="io.permazen.cli.cmd">
 <h2>Uses of <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a> in <a href="../cmd/package-summary.html">io.permazen.cli.cmd</a></h2>
+<div class="caption"><span>Methods in <a href="../cmd/package-summary.html">io.permazen.cli.cmd</a> that return <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>default <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractKVCommand.KVAction.</span><code><a href="../cmd/AbstractKVCommand.KVAction.html#getTransactionMode(io.permazen.cli.Session)" class="member-name-link">getTransactionMode</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
 <div class="caption"><span>Methods in <a href="../cmd/package-summary.html">io.permazen.cli.cmd</a> that return types with arguments of type <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -158,28 +185,34 @@ the order they are declared.</div>
 <div class="block">Get the <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>(s) supported by this command.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">InfoCommand.</span><code><a href="../cmd/InfoCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">CompareSchemasCommand.</span><code><a href="../cmd/CompareSchemasCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">KVGetCommand.</span><code><a href="../cmd/KVGetCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">InfoCommand.</span><code><a href="../cmd/InfoCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">KVLoadCommand.</span><code><a href="../cmd/KVLoadCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">KVGetCommand.</span><code><a href="../cmd/KVGetCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">KVPutCommand.</span><code><a href="../cmd/KVPutCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">KVLoadCommand.</span><code><a href="../cmd/KVLoadCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">KVRemoveCommand.</span><code><a href="../cmd/KVRemoveCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">KVPutCommand.</span><code><a href="../cmd/KVPutCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">KVSaveCommand.</span><code><a href="../cmd/KVSaveCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">KVRemoveCommand.</span><code><a href="../cmd/KVRemoveCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">SetSessionModeCommand.</span><code><a href="../cmd/SetSessionModeCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">KVSaveCommand.</span><code><a href="../cmd/KVSaveCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">SetValidationModeCommand.</span><code><a href="../cmd/SetValidationModeCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">SetSessionModeCommand.</span><code><a href="../cmd/SetSessionModeCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">SetValidationModeCommand.</span><code><a href="../cmd/SetValidationModeCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ShowSchemaCommand.</span><code><a href="../cmd/ShowSchemaCommand.html#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>

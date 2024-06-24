@@ -84,42 +84,57 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SchemaId</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></span></div>
-<div class="block">A unique identifier that corresponds to the structure and encoding of an individual <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> component,
- or an entire <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.
+<div class="block">A unique identifier that corresponds to the structure and encoding of an individual <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> component
+ of a <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>, or an entire <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.
 
  <p>
- <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>'s are calculated by taking a secure hash over the structural components of some schema
- item such as an object type, a field, or an index. They provide a simple way to determine whether two schema
- items are structurally compatible. Two schema items are structurally compatibile if they are identified and encoded
- in the same way and therefore can and should share the same storage ID assignment in the database. The <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>
- form of a <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> looks like <code>SimpleField_12e983a72e72ed56741ddc45e47d3377</code>, where the prefix indicates
- the schema item type.
+ <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>'s are calculated by taking a secure hash over the structural components of some schema item such as
+ an object type, a field, or an index, or over an entire <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.
 
  <p>
- <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>'s are also used to quickly determine whether two <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s are identical except for
- explicit storage ID assignments. If so, and assuming they don't have any conflicting explicit storage ID's,
- then they can map to the same <a href="../core/Schema.html" title="class in io.permazen.core"><code>Schema</code></a> in the database. In other words, they can share the same schema index,
- analogous to how two <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a>s with the same <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> can share the same storage ID.
+ For <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a>s, they provide a simple way to determine whether two schema items have the same structure,
+ meaning they are <i>identified</i> and <i>encoded</i> in the same way. Two <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> that have the same
+ <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> will always have the same storage ID assigned when they are recorded in a database.
 
  <p>
- Note that <a href="SchemaModel.html#equals(java.lang.Object)">SchemaModel equality</a> is a stronger condition that includes
- <a href="SchemaItem.html#getStorageId()">storage ID's</a>.
+ For an entire <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>, the <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> serves the same purpose by encompassing all of the
+ <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> components of the <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>. Two <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s that have the same <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>
+ will always have the same schema index assigned when they are recorded in a database (that is, they are considered
+ the same schema).
 
  <p>
- For <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a>s, a <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> covers its "structure", where that is defined as:
+ The <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> form of a <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> looks like <code>SimpleField_12e983a72e72ed56741ddc45e47d3377</code>,
+ where the prefix before the underscore indicates the thing being identified.
+
+ <p><b><a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>s for <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a>s</b>
+
+ <p>
+ For <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a>s, the <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> hash function covers its "structure", which is defined as:
  <ul>
   <li>For each <a href="SchemaObjectType.html" title="class in io.permazen.schema"><code>SchemaObjectType</code></a>, its object type name.
-  <li>For each <a href="ComplexSchemaField.html" title="class in io.permazen.schema"><code>ComplexSchemaField</code></a>, it's field name, complex field type (list, set, or map),
+  <li>For each <a href="ComplexSchemaField.html" title="class in io.permazen.schema"><code>ComplexSchemaField</code></a>, its field name, complex field type (list, set, or map),
       and the structures of its sub-field(s).
-  <li>For counter fields, it's name and field type (i.e., counter).
-  <li>For simple fields, it's name, field type (i.e., simple), and <a href="SimpleSchemaField.html#getEncodingId()">encoding</a>.
+  <li>For counter fields, its name and field type (i.e., counter).
+  <li>For simple fields, its name field type (i.e., simple), and <a href="SimpleSchemaField.html#getEncodingId()">encoding</a>.
   <li>For enum and enum array fields, also the enum's <a href="AbstractEnumSchemaField.html#getIdentifiers()">identifier list</a>.
   <li>For <a href="SchemaCompositeIndex.html" title="class in io.permazen.schema"><code>SchemaCompositeIndex</code></a>s, the structure(s) of the indexed field(s).
  </ul>
 
+ <p><b><a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>s for <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s</b>
+
  <p>
- <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> calculations do not include storage ID's; instead, storage ID's are assigned when a <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>
- is recorded in a database.</div>
+ <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>'s are also used to determine whether two <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s are structurally compatible.
+ Two <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s with the same <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> will always share the same schema index in a database.
+
+ <p>
+ The <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> hash of a <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> includes all of its <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> components. This hash does
+ <i>not</i> include any explicit storage ID assignments. As a result, attempting to register a <a href="SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>
+ having explicit storage ID assignments that disagree with assignments already recorded in a database will result
+ in a <a href="../core/SchemaMismatchException.html" title="class in io.permazen.core"><code>SchemaMismatchException</code></a>. For this reason, explicit storage ID assignments are discouraged.
+
+ <p>
+ Note that <a href="SchemaModel.html#equals(java.lang.Object)"><code>equals()</code></a> includes explicit storage ID assignments, so in the case that any exist
+ this is a stronger test than just comparing <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a>s.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>

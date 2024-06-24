@@ -764,7 +764,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <p>
  Note: many <a href="../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementations actually return a
  <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>. However, listeners must not perform any
- long running or blocking operations. Also, because the semantics of <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> allow for
+ long running or blocking operations. Also, because the semantics of <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> allow for
  the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
 
  <p>
@@ -798,7 +798,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 <div class="block">Commit this transaction.
 
  <p>
- Note that if this method throws a <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>,
+ Note that if this method throws a <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>,
  the transaction was either successfully committed or rolled back. In either case,
  this instance is no longer usable.
 
@@ -828,7 +828,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
  <p>
  This method may be invoked at any time, even after a previous invocation of
  <a href="../KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.
- In particular, this method must <b>not</b> throw <a href="../StaleTransactionException.html" title="class in io.permazen.kv"><code>StaleTransactionException</code></a>.</div>
+ In particular, this method must <b>not</b> throw <a href="../StaleKVTransactionException.html" title="class in io.permazen.kv"><code>StaleKVTransactionException</code></a>.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../KVTransaction.html#rollback()">rollback</a></code>&nbsp;in interface&nbsp;<code><a href="../KVTransaction.html" title="interface in io.permazen.kv">KVTransaction</a></code></dd>

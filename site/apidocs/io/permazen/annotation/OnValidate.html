@@ -80,9 +80,6 @@ loadScripts(document, 'script');</script>
  of an instance is actually performed.
 
  <p>
- When validating an object, validation via <a href="OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> methods occurs after JSR 303 validation, if any.
-
- <p>
  An optional list of validation <a href="#groups()"><code>groups()</code></a> may be specified; if so, the annotated method will only be invoked when
  one or more of specified validation groups (or a superclass thereof) is being validated. In particular, if <a href="#groups()"><code>groups()</code></a>
  is non-empty and does not contain a class that extends <code>Default</code>, then the method will
@@ -91,6 +88,24 @@ loadScripts(document, 'script');</script>
  <p>
  The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  If validation fails, the method should throw a <a href="../ValidationException.html" title="class in io.permazen"><code>ValidationException</code></a>.
+
+ <p><b>"Fixup" Validations</b></p>
+
+ <p>
+ Annotated methods are not restricted from performing additional mutating operations in the transaction.
+ Therefore, in some cases, it may be possible for an annotated method to actually fix a validation problem,
+ by modifying a field or even deleting the object.
+
+ <p>
+ However, by default Permazen invokes <a href="OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> methods after the other validation checks
+ (i.e., JSR 303 and uniqueness constraints). This makes it easier to write <a href="OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> methods
+ because one can assume those checks have already passed, but it also means it is too late fix any violations
+ of those checks.
+
+ <p>
+ To have an <a href="OnValidate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnValidate</code></a> method inovked prior to the other validation checks instead of
+ after them, set <a href="#early()"><code>early()</code></a><code> = true</code>. When doing this, be careful not to trigger infinite loops, as
+ <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications and <a href="OnDelete.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnDelete</code></a> notifications will still occur.
 
  <p><b>Meta-Annotations</b></p>
 
@@ -120,9 +135,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Optional Element</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;[]</code></div>
-<div class="col-second even-row-color"><code><a href="#groups()" class="member-name-link">groups</a></code></div>
+<div class="col-first even-row-color"><code>boolean</code></div>
+<div class="col-second even-row-color"><code><a href="#early()" class="member-name-link">early</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Specify when to invoke the annotated method relative to JSR 303 and uniqueness constraint validation.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;[]</code></div>
+<div class="col-second odd-row-color"><code><a href="#groups()" class="member-name-link">groups</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Specify the validation group(s) for which the annotated method should be invoked.</div>
 </div>
 </div>
@@ -149,6 +169,25 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Default:</dt>
 <dd>{}</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="early()">
+<h3>early</h3>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">early</span></div>
+<div class="block">Specify when to invoke the annotated method relative to JSR 303 and uniqueness constraint validation.
+
+ <p>
+ If true, the annotated method will be invoked prior to JSR 303 and uniqueness constraint validation;
+ if false, afterward.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true to invoke the annotated method prior other validation checks</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>false</dd>
 </dl>
 </section>
 </li>

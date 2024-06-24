@@ -59,8 +59,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Components that support integrating Permazen into a Java Console Toolkit console.</div>
 </div>
-<div class="col-first odd-row-color"><a href="#io.permazen.kv.raft.cmd">io.permazen.kv.raft.cmd</a></div>
+<div class="col-first odd-row-color"><a href="#io.permazen.cli.cmd">io.permazen.cli.cmd</a></div>
 <div class="col-last odd-row-color">
+<div class="block">Permazen CLI <a href="../cmd/Command.html" title="interface in io.permazen.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+</div>
+<div class="col-first even-row-color"><a href="#io.permazen.kv.raft.cmd">io.permazen.kv.raft.cmd</a></div>
+<div class="col-last even-row-color">
 <div class="block">Raft-related CLI <a href="../cmd/Command.html" title="interface in io.permazen.cli.cmd"><code>Command</code></a>s.</div>
 </div>
 </div>
@@ -78,13 +82,27 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="../Session.RetryableTransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">Extension of <a href="../Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the transaction should be retried if a
- <a href="../../kv/RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> is thrown.</div>
+ <a href="../../kv/RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> is thrown.</div>
 </div>
 <div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="../Session.TransactionalActionWithOptions.html" class="type-name-link" title="interface in io.permazen.cli">Session.TransactionalActionWithOptions</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">Extension of <a href="../Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the action provides custom transaction options.</div>
 </div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="io.permazen.cli.cmd">
+<h2>Uses of <a href="../Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a> in <a href="../cmd/package-summary.html">io.permazen.cli.cmd</a></h2>
+<div class="caption"><span>Subinterfaces of <a href="../Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a> in <a href="../cmd/package-summary.html">io.permazen.cli.cmd</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Interface</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../cmd/AbstractKVCommand.KVAction.html" class="type-name-link" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

@@ -46,13 +46,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -87,6 +87,21 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>protected final <a href="https://www.slf4j.org/apidocs/org/slf4j/Logger.html" title="class or interface in org.slf4j" class="external-link">Logger</a></code></div>
+<div class="col-second even-row-color"><code><a href="#log" class="member-name-link">log</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -210,11 +225,24 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;value)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Write out an attribute.</div>
+<div class="block">Write out an attribute, and also verify that no illegal characters are written.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeCData(javax.xml.stream.XMLStreamWriter,java.lang.String)" class="member-name-link">writeCData</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Write out CDATA text with proper escaping of nested <code>]]&gt;</code> sequences,
+ and also verify that no illegal characters are written.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeCharacters(javax.xml.stream.XMLStreamWriter,java.lang.String)" class="member-name-link">writeCharacters</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Write out text, and also verify that no illegal characters are written.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.String)" class="member-name-link">writeElement</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;element,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;content)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Write out a simple XML element containing the given content.</div>
@@ -243,6 +271,20 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="log">
+<h3>log</h3>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://www.slf4j.org/apidocs/org/slf4j/Logger.html" title="class or interface in org.slf4j" class="external-link">Logger</a></span>&nbsp;<span class="element-name">log</span></div>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -330,74 +372,6 @@ loadScripts(document, 'script');</script>
 <dd><code>reader</code> - XML input</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if something other than a closing tag is encountered</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="writeElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.String)">
-<h3>writeElement</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeElement</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;element,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;content)</span>
-                     throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
-<div class="block">Write out a simple XML element containing the given content.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>writer</code> - XML output</dd>
-<dd><code>element</code> - element name</dd>
-<dd><code>content</code> - simple content</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="writeEmptyElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">
-<h3>writeEmptyElement</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeEmptyElement</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name)</span>
-                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
-<div class="block">Start an empty XML element.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>writer</code> - XML output</dd>
-<dd><code>name</code> - element name</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="writeStartElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">
-<h3>writeStartElement</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeStartElement</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name)</span>
-                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
-<div class="block">Start a non-empty XML element.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>writer</code> - XML output</dd>
-<dd><code>name</code> - element name</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="writeAttr(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.Object)">
-<h3>writeAttr</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeAttr</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;value)</span>
-                  throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
-<div class="block">Write out an attribute.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>writer</code> - XML output</dd>
-<dd><code>name</code> - attribute qualified name</dd>
-<dd><code>value</code> - attribute value</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
 </dl>
 </section>
 </li>
@@ -606,6 +580,124 @@ loadScripts(document, 'script');</script>
 <dd><code>args</code> - format arguments for <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html#format(java.lang.String,java.lang.Object...)" title="class or interface in java.lang" class="external-link"><code>String.format()</code></a></dd>
 <dt>Returns:</dt>
 <dd>exception to throw</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="writeElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.String)">
+<h3>writeElement</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeElement</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;content)</span>
+                     throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
+<div class="block">Write out a simple XML element containing the given content.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>writer</code> - XML output</dd>
+<dd><code>name</code> - element name</dd>
+<dd><code>content</code> - simple content</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>name</code> is invalid</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="writeEmptyElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">
+<h3>writeEmptyElement</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeEmptyElement</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name)</span>
+                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
+<div class="block">Start an empty XML element.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>writer</code> - XML output</dd>
+<dd><code>name</code> - element name</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>name</code> is invalid</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="writeStartElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">
+<h3>writeStartElement</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeStartElement</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name)</span>
+                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
+<div class="block">Start a non-empty XML element.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>writer</code> - XML output</dd>
+<dd><code>name</code> - element name</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>name</code> is invalid</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="writeAttr(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.Object)">
+<h3>writeAttr</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeAttr</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/namespace/QName.html" title="class or interface in javax.xml.namespace" class="external-link">QName</a>&nbsp;name,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;value)</span>
+                  throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
+<div class="block">Write out an attribute, and also verify that no illegal characters are written.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>writer</code> - XML output</dd>
+<dd><code>name</code> - attribute qualified name</dd>
+<dd><code>value</code> - attribute value</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>name</code> is invalid</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> value of <code>value</code> contains an illegal character</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="writeCharacters(javax.xml.stream.XMLStreamWriter,java.lang.String)">
+<h3>writeCharacters</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeCharacters</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</span>
+                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
+<div class="block">Write out text, and also verify that no illegal characters are written.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>writer</code> - XML output</dd>
+<dd><code>text</code> - text to output</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>text</code> contains an illegal character</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="writeCData(javax.xml.stream.XMLStreamWriter,java.lang.String)">
+<h3>writeCData</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeCData</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;text)</span>
+                   throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
+<div class="block">Write out CDATA text with proper escaping of nested <code>]]&gt;</code> sequences,
+ and also verify that no illegal characters are written.
+
+ <p>
+ Note: The method <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html#writeCData(java.lang.String)" title="class or interface in javax.xml.stream" class="external-link"><code>XMLStreamWriter.writeCData(java.lang.String)</code></a> does not escape nested <code>]]&gt;</code> sequences.
+ This method handles them.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>writer</code> - XML output</dd>
+<dd><code>text</code> - text to output</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if error occurs writing output</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>text</code> contains an illegal character</dd>
 </dl>
 </section>
 </li>

@@ -110,20 +110,22 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">CopyState</a>()</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(boolean)" class="member-name-link">CopyState</a><wbr>(boolean&nbsp;suppressNotifications)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Default constructor.</div>
+<div class="block">Simple constructor.</div>
 </div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.CopyState)" class="member-name-link">CopyState</a><wbr>(<a href="CopyState.html" title="class in io.permazen">CopyState</a>&nbsp;original)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Copy constructor.</div>
 </div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.util.ObjIdMap)" class="member-name-link">CopyState</a><wbr>(<a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.util.ObjIdMap,boolean)" class="member-name-link">CopyState</a><wbr>(<a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap,
+ boolean&nbsp;suppressNotifications)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Default remapping constructor.</div>
+<div class="block">Remapping constructor.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap)" class="member-name-link">CopyState</a><wbr>(<a href="core/util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a>&nbsp;copied,
- <a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap)</code></div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap,boolean)" class="member-name-link">CopyState</a><wbr>(<a href="core/util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a>&nbsp;copied,
+ <a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap,
+ boolean&nbsp;suppressNotifications)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Primary constructor.</div>
 </div>
@@ -167,12 +169,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine if an object has already been copied, and if not mark it so.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSuppressNotifications(boolean)" class="member-name-link">setSuppressNotifications</a><wbr>(boolean&nbsp;suppressNotifications)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Configure whether to suppress <a href="annotation/OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> and
- <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
-</div>
 </div>
 </div>
 </div>
@@ -191,39 +187,47 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;()">
+<section class="detail" id="&lt;init&gt;(boolean)">
 <h3>CopyState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CopyState</span>()</div>
-<div class="block">Default constructor.
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CopyState</span><wbr><span class="parameters">(boolean&nbsp;suppressNotifications)</span></div>
+<div class="block">Simple constructor.
 
  <p>
  No object ID's will be remapped.
 
  <p>
- Equivalent to: <a href="#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap)"><code>CopyState(new ObjIdSet(), null)</code></a>.</div>
+ Equivalent to: <a href="#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap,boolean)"><code>CopyState(new ObjIdSet(), null, suppressNotifications)</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>suppressNotifications</code> - true to suppress create and change notifications, otherwise false</dd>
+</dl>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.core.util.ObjIdMap)">
+<section class="detail" id="&lt;init&gt;(io.permazen.core.util.ObjIdMap,boolean)">
 <h3>CopyState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CopyState</span><wbr><span class="parameters">(<a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap)</span></div>
-<div class="block">Default remapping constructor.
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CopyState</span><wbr><span class="parameters">(<a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap,
+ boolean&nbsp;suppressNotifications)</span></div>
+<div class="block">Remapping constructor.
 
  <p>
- Equivalent to: <a href="#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap)"><code>CopyState(new ObjIdSet(), objectIdMap)</code></a>.</div>
+ Equivalent to:
+ <a href="#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap,boolean)"><code>CopyState(new ObjIdSet(), objectIdMap, boolean suppressNotifications)</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>objectIdMap</code> - mapping from source object ID to destination object ID</dd>
+<dd><code>suppressNotifications</code> - true to suppress create and change notifications, otherwise false</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>objectIdMap</code> is null</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap)">
+<section class="detail" id="&lt;init&gt;(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap,boolean)">
 <h3>CopyState</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CopyState</span><wbr><span class="parameters">(<a href="core/util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a>&nbsp;copied,
- <a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap)</span></div>
+ <a href="core/util/ObjIdMap.html" title="class in io.permazen.core.util">ObjIdMap</a>&lt;<a href="core/ObjId.html" title="class in io.permazen.core">ObjId</a>&gt;&nbsp;objectIdMap,
+ boolean&nbsp;suppressNotifications)</span></div>
 <div class="block">Primary constructor.
 
  <p>
@@ -240,6 +244,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>copied</code> - the ID's of objects that have already been copied</dd>
 <dd><code>objectIdMap</code> - optional mapping from source object ID to remapped destination object ID</dd>
+<dd><code>suppressNotifications</code> - true to suppress create and change notifications, otherwise false</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if either parameter is null</dd>
 </dl>
@@ -299,26 +304,10 @@ loadScripts(document, 'script');</script>
 <h3>isSuppressNotifications</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isSuppressNotifications</span>()</div>
 <div class="block">Determine whether to suppress <a href="annotation/OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> and
- <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.
-
- <p>
- Default is false.</div>
+ <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if <a href="annotation/OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> and
-  <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications should be suppressed, otherwise false</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setSuppressNotifications(boolean)">
-<h3>setSuppressNotifications</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSuppressNotifications</span><wbr><span class="parameters">(boolean&nbsp;suppressNotifications)</span></div>
-<div class="block">Configure whether to suppress <a href="annotation/OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> and
- <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>suppressNotifications</code> - true if <a href="annotation/OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> and
   <a href="annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications should be suppressed, otherwise false</dd>
 </dl>
 </section>

@@ -98,7 +98,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
  transactions do not contend for any locks until commit time. During each transaction, reads are noted and derive from the
  snapshot, while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
  snapshot was created, and any of those writes <a href="Reads.html#isConflict(io.permazen.kv.mvcc.Mutations)">conflict</a> with any of the committing
- transaction's reads, a <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> is thrown. Otherwise, the transaction is committed and its
+ transaction's reads, a <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> is thrown. Otherwise, the transaction is committed and its
  writes are applied.
 
  <p>

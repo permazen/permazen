@@ -87,9 +87,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Clone this instance.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">TransactionConfig.Builder.</span><code><a href="../TransactionConfig.Builder.html#garbageCollectSchemas(boolean)" class="member-name-link">garbageCollectSchemas</a><wbr>(boolean&nbsp;garbageCollectSchemas)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">TransactionConfig.</span><code><a href="../TransactionConfig.html#copy()" class="member-name-link">copy</a>()</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Configure whether automatic schema garbage collection should be enabled.</div>
+<div class="block">Create a <a href="../TransactionConfig.Builder.html" title="class in io.permazen.core"><code>TransactionConfig.Builder</code></a> that is pre-configured as a copy of this instance.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="../TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">TransactionConfig.Builder.</span><code><a href="../TransactionConfig.Builder.html#kvOptions(java.util.Map)" class="member-name-link">kvOptions</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
@@ -100,6 +100,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><span class="type-name-label">TransactionConfig.Builder.</span><code><a href="../TransactionConfig.Builder.html#schemaModel(io.permazen.schema.SchemaModel)" class="member-name-link">schemaModel</a><wbr>(<a href="../../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a>&nbsp;schemaModel)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Configure the schema to use.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="../TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">TransactionConfig.Builder.</span><code><a href="../TransactionConfig.Builder.html#schemaRemoval(io.permazen.core.TransactionConfig.SchemaRemoval)" class="member-name-link">schemaRemoval</a><wbr>(<a href="../TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a>&nbsp;schemaRemoval)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Configure when to automatically detect and remove unused schemas from the database.</div>
 </div>
 </div>
 </section>

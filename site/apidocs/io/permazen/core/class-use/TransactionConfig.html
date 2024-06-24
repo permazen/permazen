@@ -59,8 +59,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Abstraction layer allowing access to a <a href="../Database.html" title="class in io.permazen.core"><code>Database</code></a> using normal Java objects.</div>
 </div>
-<div class="col-first odd-row-color"><a href="#io.permazen.core">io.permazen.core</a></div>
+<div class="col-first odd-row-color"><a href="#io.permazen.cli">io.permazen.cli</a></div>
 <div class="col-last odd-row-color">
+<div class="block">Components that support integrating Permazen into a Java Console Toolkit console.</div>
+</div>
+<div class="col-first even-row-color"><a href="#io.permazen.core">io.permazen.core</a></div>
+<div class="col-last even-row-color">
 <div class="block">Core classes for the Permazen Java persistence layer.</div>
 </div>
 </div>
@@ -78,6 +82,27 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><span class="type-name-label">Permazen.</span><code><a href="../../Permazen.html#buildTransactionConfig(java.util.Map)" class="member-name-link">buildTransactionConfig</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Build the <a href="../TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a> for a new core API transaction.</div>
+</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="io.permazen.cli">
+<h2>Uses of <a href="../TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a> in <a href="../../cli/package-summary.html">io.permazen.cli</a></h2>
+<div class="caption"><span>Methods in <a href="../../cli/package-summary.html">io.permazen.cli</a> that return <a href="../TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>default <a href="../TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Session.TransactionalAction.</span><code><a href="../../cli/Session.TransactionalAction.html#getTransactionConfig(io.permazen.cli.Session)" class="member-name-link">getTransactionConfig</a><wbr>(<a href="../../cli/Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Get the configuration for the new Core API transaction.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="../TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">Session.</span><code><a href="../../cli/Session.html#newTransactionConfig()" class="member-name-link">newTransactionConfig</a>()</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Build a new Core API <a href="../TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a> based on this instance.</div>
 </div>
 </div>
 </section>

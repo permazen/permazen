@@ -225,8 +225,7 @@ loadScripts(document, 'script');</script>
 <dd>this field's value in <code>pobj</code></dd>
 <dt>Throws:</dt>
 <dd><code><a href="core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></code> - if <code>pobj</code> does not exist in its associated <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a></dd>
-<dd><code><a href="kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if the <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with <code>pobj</code>
-  is no longer usable</dd>
+<dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if the <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with <code>pobj</code> is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>pobj</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if this field is a sub-field of a complex field</dd>
 </dl>

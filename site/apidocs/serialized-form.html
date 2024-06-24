@@ -1519,21 +1519,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="serialized-class-details" id="io.permazen.kv.RetryTransactionException">
-<h3>Exception&nbsp;<a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.RetryTransactionException</a></h3>
-<div class="type-signature">class RetryTransactionException extends <a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<section class="serialized-class-details" id="io.permazen.kv.KVTransactionTimeoutException">
+<h3>Exception&nbsp;<a href="io/permazen/kv/KVTransactionTimeoutException.html" title="class in io.permazen.kv">io.permazen.kv.KVTransactionTimeoutException</a></h3>
+<div class="type-signature">class KVTransactionTimeoutException extends <a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 </section>
 </li>
 <li>
-<section class="serialized-class-details" id="io.permazen.kv.StaleTransactionException">
-<h3>Exception&nbsp;<a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.StaleTransactionException</a></h3>
-<div class="type-signature">class StaleTransactionException extends <a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<section class="serialized-class-details" id="io.permazen.kv.RetryKVTransactionException">
+<h3>Exception&nbsp;<a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.RetryKVTransactionException</a></h3>
+<div class="type-signature">class RetryKVTransactionException extends <a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 </section>
 </li>
 <li>
-<section class="serialized-class-details" id="io.permazen.kv.TransactionTimeoutException">
-<h3>Exception&nbsp;<a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">io.permazen.kv.TransactionTimeoutException</a></h3>
-<div class="type-signature">class TransactionTimeoutException extends <a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<section class="serialized-class-details" id="io.permazen.kv.StaleKVTransactionException">
+<h3>Exception&nbsp;<a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.StaleKVTransactionException</a></h3>
+<div class="type-signature">class StaleKVTransactionException extends <a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 </section>
 </li>
 </ul>
@@ -1569,7 +1569,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.kv.mvcc.TransactionConflictException">
 <h3>Exception&nbsp;<a href="io/permazen/kv/mvcc/TransactionConflictException.html" title="class in io.permazen.kv.mvcc">io.permazen.kv.mvcc.TransactionConflictException</a></h3>
-<div class="type-signature">class TransactionConflictException extends <a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class TransactionConflictException extends <a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <ul class="block-list">
 <li>
 <section class="detail">
@@ -1761,7 +1761,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="serialized-class-details" id="io.permazen.spring.PermazenTransactionManager">
 <h3>Class&nbsp;<a href="io/permazen/spring/PermazenTransactionManager.html" title="class in io.permazen.spring">io.permazen.spring.PermazenTransactionManager</a></h3>
-<div class="type-signature">class PermazenTransactionManager extends <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/AbstractPlatformTransactionManager.html" title="class or interface in org.springframework.transaction.support" class="external-link">AbstractPlatformTransactionManager</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
+<div class="type-signature">class PermazenTransactionManager extends <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/support/AbstractPlatformTransactionManager.html" title="class or interface in org.springframework.transaction.support" class="external-link">AbstractPlatformTransactionManager</a> implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a></div>
 <ul class="block-list">
 <li>
 <section class="detail">
@@ -1801,7 +1801,7 @@ loadScripts(document, 'script');</script>
 <ul class="block-list">
 <li class="block-list">
 <h5>initialContentResource</h5>
-<pre><a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link">Resource</a> initialContentResource</pre>
+<pre><a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link">Resource</a> initialContentResource</pre>
 </li>
 </ul>
 </section>

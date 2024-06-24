@@ -95,8 +95,8 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
  <p>
  Transaction isolation is implemented via key range locking using a <a href="LockManager.html" title="class in io.permazen.kv.simple"><code>LockManager</code></a>. Conflicting access
  will block, subject to the <a href="#getWaitTimeout()">wait timeout</a> and <a href="#getHoldTimeout()">hold timeout</a>.
- If the wait timeout is exceeded, a <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> is thrown. If the hold timeout is exceeded,
- a <a href="../TransactionTimeoutException.html" title="class in io.permazen.kv"><code>TransactionTimeoutException</code></a> is thrown.
+ If the wait timeout is exceeded, a <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> is thrown. If the hold timeout is exceeded,
+ a <a href="../KVTransactionTimeoutException.html" title="class in io.permazen.kv"><code>KVTransactionTimeoutException</code></a> is thrown.
 
  <p>
  Instances wrap an underlying <a href="../mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> which from which committed data is read and written.
@@ -340,9 +340,9 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kv</code> - <a href="../mvcc/AtomicKVStore.html" title="interface in io.permazen.kv.mvcc"><code>AtomicKVStore</code></a> for the committed data</dd>
-<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
-<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>waitTimeout</code> or <code>holdTimeout</code> is negative</dd>
@@ -366,7 +366,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 
  <p>
  The wait timeout limits how long a thread will wait for a contested lock before giving up and throwing
- <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>.</div>
+ <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>wait timeout in milliseconds</dd>
@@ -380,7 +380,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 <div class="block">Set the wait timeout for newly created transactions. Default is <a href="#DEFAULT_WAIT_TIMEOUT"><code>DEFAULT_WAIT_TIMEOUT</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds (default), or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>waitTimeout</code> is negative</dd>
@@ -395,7 +395,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 
  <p>
  The hold timeout limits how long a thread may hold on to a contested lock before being forced to release
- all of its locks; after that, the next attempted operation will fail with <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>.</div>
+ all of its locks; after that, the next attempted operation will fail with <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>hold timeout in milliseconds</dd>
@@ -409,7 +409,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 <div class="block">Set the hold timeout for this instance. Default is <a href="#DEFAULT_HOLD_TIMEOUT"><code>DEFAULT_HOLD_TIMEOUT</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>holdTimeout</code> - how long a thread may hold a contested lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>holdTimeout</code> - how long a thread may hold a contested lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>holdTimeout</code> is negative</dd>
@@ -497,7 +497,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 <dt>Parameters:</dt>
 <dd><code>tx</code> - the transaction about to be committed</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd>
+<dd><code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd>
 </dl>
 </section>
 </li>
@@ -544,9 +544,9 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
 <dt>Parameters:</dt>
 <dd><code>tx</code> - the transaction being accessed</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if this instance is no longer usable</dd>
-<dd><code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if this transaction should be retried</dd>
-<dd><code><a href="../TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></code> - if the transaction has timed out</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if this instance is no longer usable</dd>
+<dd><code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if this transaction should be retried</dd>
+<dd><code><a href="../KVTransactionTimeoutException.html" title="class in io.permazen.kv">KVTransactionTimeoutException</a></code> - if the transaction has timed out</dd>
 </dl>
 </section>
 </li>

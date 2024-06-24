@@ -171,9 +171,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Primary constructor.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
-<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a>
+<dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>waitTimeout</code> or <code>holdTimeout</code> is negative</dd>

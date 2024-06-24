@@ -118,6 +118,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Parses a <code>byte[]</code> array as hexadecimal or doubly-quoted "C" style string.</div>
 </dd>
+<dt><a href="io/permazen/cli/cmd/AbstractKVCommand.KVAction.html" class="type-name-link" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a> - Interface in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/util/AbstractKVIterator.html" class="type-name-link" title="class in io.permazen.kv.util">AbstractKVIterator</a>&lt;<a href="io/permazen/kv/util/AbstractKVIterator.html" title="type parameter in AbstractKVIterator">E</a>&gt; - Class in <a href="io/permazen/kv/util/package-summary.html">io.permazen.kv.util</a></dt>
 <dd>
 <div class="block"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html" title="class or interface in java.util" class="external-link"><code>Iterator</code></a> implementation whose values derive from key/value <code>byte[]</code> pairs in a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
@@ -418,7 +420,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/core/Transaction.html#addSchema(io.permazen.schema.SchemaModel)" class="member-name-link">addSchema(SchemaModel)</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
 <dd>
-<div class="block">Manually add the given schema to the database.</div>
+<div class="block">Manually record the given non-empty schema in the database.</div>
 </dd>
 <dt><a href="io/permazen/core/Transaction.html#addSchemaChangeListener(io.permazen.core.SchemaChangeListener)" class="member-name-link">addSchemaChangeListener(SchemaChangeListener)</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
 <dd>
@@ -529,6 +531,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/test/KVDatabaseTest.html#allowsWriteSkewAnomaly()" class="member-name-link">allowsWriteSkewAnomaly()</a> - Method in class io.permazen.kv.test.<a href="io/permazen/kv/test/KVDatabaseTest.html" title="class in io.permazen.kv.test">KVDatabaseTest</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#ALWAYS" class="member-name-link">ALWAYS</a> - Enum constant in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
+<dd>
+<div class="block">Perform automatic schema removal at the start of every transaction.</div>
+</dd>
 <dt><a href="io/permazen/spring/AnnotatedClassScanner.html" class="type-name-link" title="class in io.permazen.spring">AnnotatedClassScanner</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
 <div class="block">Scans the classpath for classes having one or more configured type annotations.</div>
@@ -1183,6 +1189,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Create a new <a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a> from this instance.</div>
 </dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#build()" class="member-name-link">build()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Create a new <a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util"><code>XMLObjectSerializer.OutputOptions</code></a> from this instance.</div>
+</dd>
 <dt><a href="io/permazen/PermazenConfig.Builder.html#build()" class="member-name-link">build()</a> - Method in class io.permazen.<a href="io/permazen/PermazenConfig.Builder.html" title="class in io.permazen">PermazenConfig.Builder</a></dt>
 <dd>
 <div class="block">Create a new <a href="io/permazen/PermazenConfig.html" title="class in io.permazen"><code>PermazenConfig</code></a> from this instance.</div>
@@ -1195,7 +1205,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/main/BasicCliMain.html#buildCliConfig()" class="member-name-link">buildCliConfig()</a> - Method in class io.permazen.cli.main.<a href="io/permazen/cli/main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></dt>
 <dd>
-<div class="block">Build a <a href="io/permazen/cli/config/PermazenCliConfig.html" title="class in io.permazen.cli.config"><code>PermazenCliConfig</code></a> to use.</div>
+<div class="block">Build a <a href="io/permazen/cli/config/CliConfig.html" title="class in io.permazen.cli.config"><code>CliConfig</code></a> to use.</div>
 </dd>
 <dt><a href="io/permazen/kv/array/ArrayKVImplementation.html#buildConfig(joptsimple.OptionSet)" class="member-name-link">buildConfig(OptionSet)</a> - Method in class io.permazen.kv.array.<a href="io/permazen/kv/array/ArrayKVImplementation.html" title="class in io.permazen.kv.array">ArrayKVImplementation</a></dt>
 <dd>&nbsp;</dd>
@@ -1241,6 +1251,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Create a <a href="io/permazen/core/TransactionConfig.Builder.html" title="class in io.permazen.core"><code>TransactionConfig.Builder</code></a>.</div>
 </dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#builder()" class="member-name-link">builder()</a> - Static method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/PermazenConfig.html#builder()" class="member-name-link">builder()</a> - Static method in class io.permazen.<a href="io/permazen/PermazenConfig.html" title="class in io.permazen">PermazenConfig</a></dt>
 <dd>
 <div class="block">Create a <a href="io/permazen/PermazenConfig.Builder.html" title="class in io.permazen"><code>PermazenConfig.Builder</code></a>.</div>
@@ -1913,6 +1925,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/ObjIdSet.html#clone()" class="member-name-link">clone()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/ObjIdSet.html" title="class in io.permazen.core.util">ObjIdSet</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#clone()" class="member-name-link">clone()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Clone this instance.</div>
+</dd>
 <dt><a href="io/permazen/kv/KeyRanges.html#clone()" class="member-name-link">clone()</a> - Method in class io.permazen.kv.<a href="io/permazen/kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a></dt>
 <dd>
 <div class="block">Clone this instance.</div>
@@ -2112,7 +2128,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/cli/Session.html#closeTransaction(boolean)" class="member-name-link">closeTransaction(boolean)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
 <dd>
-<div class="block">Closed the transaction previously opened and associated with this instance by <a href="io/permazen/cli/Session.html#openTransaction(java.util.Map)"><code>openTransaction()</code></a>.</div>
+<div class="block">Closed the transaction previously opened and associated with this instance by <a href="io/permazen/cli/Session.html#openTransaction(io.permazen.cli.SessionMode,java.util.Map)"><code>openTransaction()</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/kv/mvcc/SnapshotKVDatabase.html#closeTransactions()" class="member-name-link">closeTransactions()</a> - Method in class io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/SnapshotKVDatabase.html" title="class in io.permazen.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>
@@ -2445,6 +2461,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/sql/SQLDriverKVImplementation.Config.html#%3Cinit%3E(java.net.URI)" class="member-name-link">Config(URI)</a> - Constructor for class io.permazen.kv.sql.<a href="io/permazen/kv/sql/SQLDriverKVImplementation.Config.html" title="class in io.permazen.kv.sql">SQLDriverKVImplementation.Config</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#CONFIG_CHANGE" class="member-name-link">CONFIG_CHANGE</a> - Enum constant in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
+<dd>
+<div class="block">Perform automatic schema removal at the start of the very first transaction, and any other transaction
+ configured differently from the previous transaction.</div>
+</dd>
 <dt><a href="io/permazen/kv/raft/RaftKVTransaction.html#configChange(java.lang.String,java.lang.String)" class="member-name-link">configChange(String, String)</a> - Method in class io.permazen.kv.raft.<a href="io/permazen/kv/raft/RaftKVTransaction.html" title="class in io.permazen.kv.raft">RaftKVTransaction</a></dt>
 <dd>
 <div class="block">Include a cluster configuration change when this transaction is committed.</div>
@@ -2674,6 +2695,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Coordination servers have changed.</div>
 </dd>
+<dt><a href="io/permazen/core/TransactionConfig.html#copy()" class="member-name-link">copy()</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></dt>
+<dd>
+<div class="block">Create a <a href="io/permazen/core/TransactionConfig.Builder.html" title="class in io.permazen.core"><code>TransactionConfig.Builder</code></a> that is pre-configured as a copy of this instance.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#copy()" class="member-name-link">copy()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>
+<div class="block">Create a <a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util"><code>XMLObjectSerializer.OutputOptions.Builder</code></a> that is pre-configured as a copy of this instance.</div>
+</dd>
 <dt><a href="io/permazen/core/Transaction.html#copy(io.permazen.core.ObjId,io.permazen.core.Transaction,boolean,boolean,io.permazen.core.util.ObjIdMap,io.permazen.core.util.ObjIdMap)" class="member-name-link">copy(ObjId, Transaction, boolean, boolean, ObjIdMap&lt;ReferenceField&gt;, ObjIdMap&lt;ObjId&gt;)</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
 <dd>
 <div class="block">Copy an object into a (possibly different) transaction.</div>
@@ -2700,19 +2729,19 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Holds state during a multi-object copy operation.</div>
 </dd>
-<dt><a href="io/permazen/CopyState.html#%3Cinit%3E()" class="member-name-link">CopyState()</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
+<dt><a href="io/permazen/CopyState.html#%3Cinit%3E(boolean)" class="member-name-link">CopyState(boolean)</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
 <dd>
-<div class="block">Default constructor.</div>
+<div class="block">Simple constructor.</div>
 </dd>
 <dt><a href="io/permazen/CopyState.html#%3Cinit%3E(io.permazen.CopyState)" class="member-name-link">CopyState(CopyState)</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
 <dd>
 <div class="block">Copy constructor.</div>
 </dd>
-<dt><a href="io/permazen/CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdMap)" class="member-name-link">CopyState(ObjIdMap&lt;ObjId&gt;)</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
+<dt><a href="io/permazen/CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdMap,boolean)" class="member-name-link">CopyState(ObjIdMap&lt;ObjId&gt;, boolean)</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
 <dd>
-<div class="block">Default remapping constructor.</div>
+<div class="block">Remapping constructor.</div>
 </dd>
-<dt><a href="io/permazen/CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap)" class="member-name-link">CopyState(ObjIdSet, ObjIdMap&lt;ObjId&gt;)</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
+<dt><a href="io/permazen/CopyState.html#%3Cinit%3E(io.permazen.core.util.ObjIdSet,io.permazen.core.util.ObjIdMap,boolean)" class="member-name-link">CopyState(ObjIdSet, ObjIdMap&lt;ObjId&gt;, boolean)</a> - Constructor for class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
 <dd>
 <div class="block">Primary constructor.</div>
 </dd>
@@ -3697,10 +3726,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Delete all object and index data from the given <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a> - Class in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html#%3Cinit%3E()" class="member-name-link">DeleteSchemaCommand()</a> - Constructor for class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/mvcc/DeltaKVStore.html" class="type-name-link" title="interface in io.permazen.kv.mvcc">DeltaKVStore</a> - Interface in <a href="io/permazen/kv/mvcc/package-summary.html">io.permazen.kv.mvcc</a></dt>
 <dd>
 <div class="block">Presents a mutable view of an underlying read-only <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> and records the mutations in memory.</div>
@@ -3741,7 +3766,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/spring/DetachedPermazenTransactionHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
  encoding and decoding a graph of <a href="io/permazen/PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="io/permazen/DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> that is
  backed by a <a href="io/permazen/kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
 </dd>
@@ -3930,9 +3955,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/mvcc/TransactionConflictException.html#duplicate()" class="member-name-link">duplicate()</a> - Method in exception io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/TransactionConflictException.html" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/RetryTransactionException.html#duplicate()" class="member-name-link">duplicate()</a> - Method in exception io.permazen.kv.<a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></dt>
+<dt><a href="io/permazen/kv/RetryKVTransactionException.html#duplicate()" class="member-name-link">duplicate()</a> - Method in exception io.permazen.kv.<a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/StaleTransactionException.html#duplicate()" class="member-name-link">duplicate()</a> - Method in exception io.permazen.kv.<a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></dt>
+<dt><a href="io/permazen/kv/StaleKVTransactionException.html#duplicate()" class="member-name-link">duplicate()</a> - Method in exception io.permazen.kv.<a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/DurationEncoding.html" class="type-name-link" title="class in io.permazen.encoding">DurationEncoding</a> - Class in <a href="io/permazen/encoding/package-summary.html">io.permazen.encoding</a></dt>
 <dd>
@@ -3943,6 +3968,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:E">E</h2>
 <dl class="index">
+<dt><a href="io/permazen/annotation/OnValidate.html#early()" class="member-name-link">early()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/OnValidate.html" title="annotation interface in io.permazen.annotation">OnValidate</a></dt>
+<dd>
+<div class="block">Specify when to invoke the annotated method relative to JSR 303 and uniqueness constraint validation.</div>
+</dd>
 <dt><a href="io/permazen/annotation/PermazenListField.html#element()" class="member-name-link">element()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenListField.html" title="annotation interface in io.permazen.annotation">PermazenListField</a></dt>
 <dd>
 <div class="block">Configuration for the field's elements.</div>
@@ -3955,6 +3984,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#ELEMENT_TAG" class="member-name-link">ELEMENT_TAG</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#elementsAsNames(boolean)" class="member-name-link">elementsAsNames(boolean)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Configure whether to output XML element names that are based on the corresponding object or field name.</div>
+</dd>
 <dt><a href="io/permazen/kv/KeyRanges.html#empty()" class="member-name-link">empty()</a> - Static method in class io.permazen.kv.<a href="io/permazen/kv/KeyRanges.html" title="class in io.permazen.kv">KeyRanges</a></dt>
 <dd>
 <div class="block">Create an empty instance containing zero ranges.</div>
@@ -3979,8 +4012,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Return an empty <a href="io/permazen/util/CloseableIterator.html" title="interface in io.permazen.util"><code>CloseableIterator</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#enableGcScemas" class="member-name-link">enableGcScemas</a> - Variable in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/ByteArrayEncoding.html#encode(byte%5B%5D,java.io.DataOutputStream)" class="member-name-link">encode(byte[], DataOutputStream)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/ByteArrayEncoding.html" title="class in io.permazen.encoding">ByteArrayEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/DoubleArrayEncoding.html#encode(double%5B%5D,java.io.DataOutputStream)" class="member-name-link">encode(double[], DataOutputStream)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/DoubleArrayEncoding.html" title="class in io.permazen.encoding">DoubleArrayEncoding</a></dt>
@@ -4889,12 +4920,6 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
-<dt><a href="io/permazen/core/TransactionConfig.Builder.html#garbageCollectSchemas(boolean)" class="member-name-link">garbageCollectSchemas(boolean)</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></dt>
-<dd>
-<div class="block">Configure whether automatic schema garbage collection should be enabled.</div>
-</dd>
-<dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#gcSchemasOption" class="member-name-link">gcSchemasOption</a> - Variable in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/Bounds.html#ge(T)" class="member-name-link">ge(T)</a> - Static method in class io.permazen.util.<a href="io/permazen/util/Bounds.html" title="class in io.permazen.util">Bounds</a></dt>
 <dd>
 <div class="block">Create an instance with an inclusive lower bound.</div>
@@ -5050,8 +5075,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/DecodeKeyCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DecodeKeyCommand.html" title="class in io.permazen.cli.cmd">DecodeKeyCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/InfoCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/InfoCommand.html" title="class in io.permazen.cli.cmd">InfoCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/KVGetCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVGetCommand.html" title="class in io.permazen.cli.cmd">KVGetCommand</a></dt>
@@ -5066,17 +5089,19 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/LoadCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/LoadCommand.html" title="class in io.permazen.cli.cmd">LoadCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/RemoveSchemaCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/RemoveSchemaCommand.html" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SaveCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SaveCommand.html" title="class in io.permazen.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html" title="class in io.permazen.cli.cmd">SetAllowNewSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetValidationModeCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetValidationModeCommand.html" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetVerboseCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetVerboseCommand.html" title="class in io.permazen.cli.cmd">SetVerboseCommand</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/ShowSchemaCommand.html#getAction(io.permazen.cli.Session,java.util.Map)" class="member-name-link">getAction(Session, Map&lt;String, Object&gt;)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowSchemaCommand.html" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -5679,6 +5704,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the default <code>DBFactory</code>.</div>
 </dd>
+<dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#getDefaultSchemaRemoval()" class="member-name-link">getDefaultSchemaRemoval()</a> - Method in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
+<dd>
+<div class="block">Get the default <a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core"><code>TransactionConfig.SchemaRemoval</code></a>.</div>
+</dd>
 <dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#getDefaultSessionMode()" class="member-name-link">getDefaultSessionMode()</a> - Method in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
 <dd>
 <div class="block">Get the default <a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>.</div>
@@ -6169,8 +6198,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/DecodeKeyCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DecodeKeyCommand.html" title="class in io.permazen.cli.cmd">DecodeKeyCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/KVGetCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVGetCommand.html" title="class in io.permazen.cli.cmd">KVGetCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/KVLoadCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVLoadCommand.html" title="class in io.permazen.cli.cmd">KVLoadCommand</a></dt>
@@ -6183,13 +6210,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/LoadCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/LoadCommand.html" title="class in io.permazen.cli.cmd">LoadCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/RemoveSchemaCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/RemoveSchemaCommand.html" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SaveCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SaveCommand.html" title="class in io.permazen.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetValidationModeCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetValidationModeCommand.html" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></dt>
+<dt><a href="io/permazen/cli/cmd/ShowSchemaCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowSchemaCommand.html" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/jsck/cmd/JsckCommand.html#getHelpDetail()" class="member-name-link">getHelpDetail()</a> - Method in class io.permazen.jsck.cmd.<a href="io/permazen/jsck/cmd/JsckCommand.html" title="class in io.permazen.jsck.cmd">JsckCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -6217,8 +6246,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/DecodeKeyCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DecodeKeyCommand.html" title="class in io.permazen.cli.cmd">DecodeKeyCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/DeleteSchemaCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/InfoCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/InfoCommand.html" title="class in io.permazen.cli.cmd">InfoCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/KVGetCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVGetCommand.html" title="class in io.permazen.cli.cmd">KVGetCommand</a></dt>
@@ -6233,17 +6260,19 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/LoadCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/LoadCommand.html" title="class in io.permazen.cli.cmd">LoadCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/RemoveSchemaCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/RemoveSchemaCommand.html" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SaveCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SaveCommand.html" title="class in io.permazen.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html" title="class in io.permazen.cli.cmd">SetAllowNewSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetValidationModeCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetValidationModeCommand.html" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetVerboseCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetVerboseCommand.html" title="class in io.permazen.cli.cmd">SetVerboseCommand</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/ShowSchemaCommand.html#getHelpSummary()" class="member-name-link">getHelpSummary()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowSchemaCommand.html" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -6971,7 +7000,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/cli/Session.TxInfo.html#getMode()" class="member-name-link">getMode()</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></dt>
 <dd>
-<div class="block">Get the <a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> that the <a href="io/permazen/cli/Session.html" title="class in io.permazen.cli"><code>Session</code></a> was in when the transaction was opened.</div>
+<div class="block">Get the <a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> that the transaction was opened with.</div>
 </dd>
 <dt><a href="io/permazen/PermazenObject.html#getModelClass()" class="member-name-link">getModelClass()</a> - Method in interface io.permazen.<a href="io/permazen/PermazenObject.html" title="interface in io.permazen">PermazenObject</a></dt>
 <dd>
@@ -7293,6 +7322,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/cli/cmd/LoadCommand.html#getParser(java.lang.String)" class="member-name-link">getParser(String)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/LoadCommand.html" title="class in io.permazen.cli.cmd">LoadCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SaveCommand.html#getParser(java.lang.String)" class="member-name-link">getParser(String)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SaveCommand.html" title="class in io.permazen.cli.cmd">SaveCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html#getParser(java.lang.String)" class="member-name-link">getParser(String)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#getParser(java.lang.String)" class="member-name-link">getParser(String)</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -7686,8 +7717,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> associated with this instance derived from the annotations on the scanned classes.</div>
 </dd>
-<dt><a href="io/permazen/cli/cmd/CompareSchemasCommand.html#getSchemaModel(io.permazen.cli.Session,io.permazen.schema.SchemaId)" class="member-name-link">getSchemaModel(Session, SchemaId)</a> - Static method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/CompareSchemasCommand.html" title="class in io.permazen.cli.cmd">CompareSchemasCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/schema/SchemaModel.html#getSchemaObjectTypes()" class="member-name-link">getSchemaObjectTypes()</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
 <dd>
 <div class="block">Get the object types defined in this schema.</div>
@@ -7695,6 +7724,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/jsck/JsckConfig.html#getSchemaOverrides()" class="member-name-link">getSchemaOverrides()</a> - Method in class io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></dt>
 <dd>
 <div class="block">Configure schemas to forcibly apply into the schema table.</div>
+</dd>
+<dt><a href="io/permazen/cli/Session.html#getSchemaRemoval()" class="member-name-link">getSchemaRemoval()</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
+<dd>
+<div class="block">Get the obsolete schema removal policy.</div>
+</dd>
+<dt><a href="io/permazen/core/TransactionConfig.html#getSchemaRemoval()" class="member-name-link">getSchemaRemoval()</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></dt>
+<dd>
+<div class="block">Get when to automatically detect and remove unused schemas.</div>
 </dd>
 <dt><a href="io/permazen/core/SchemaBundle.html#getSchemasBySchemaId()" class="member-name-link">getSchemasBySchemaId()</a> - Method in class io.permazen.core.<a href="io/permazen/core/SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></dt>
 <dd>
@@ -7724,6 +7761,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the <a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>(s) supported by this command.</div>
 </dd>
+<dt><a href="io/permazen/cli/cmd/CompareSchemasCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/CompareSchemasCommand.html" title="class in io.permazen.cli.cmd">CompareSchemasCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/InfoCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/InfoCommand.html" title="class in io.permazen.cli.cmd">InfoCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/KVGetCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/KVGetCommand.html" title="class in io.permazen.cli.cmd">KVGetCommand</a></dt>
@@ -7739,6 +7778,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetValidationModeCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetValidationModeCommand.html" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/ShowSchemaCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowSchemaCommand.html" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/jsck/cmd/JsckCommand.html#getSessionModes()" class="member-name-link">getSessionModes()</a> - Method in class io.permazen.jsck.cmd.<a href="io/permazen/jsck/cmd/JsckCommand.html" title="class in io.permazen.jsck.cmd">JsckCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -8003,6 +8044,16 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/bdb/BerkeleyKVDatabase.html#getTransactionConfig()" class="member-name-link">getTransactionConfig()</a> - Method in class io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVDatabase.html" title="class in io.permazen.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>
 <div class="block">Get the default <code>TransactionConfig</code> to be used by this instance.</div>
+</dd>
+<dt><a href="io/permazen/cli/Session.TransactionalAction.html#getTransactionConfig(io.permazen.cli.Session)" class="member-name-link">getTransactionConfig(Session)</a> - Method in interface io.permazen.cli.<a href="io/permazen/cli/Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a></dt>
+<dd>
+<div class="block">Get the configuration for the new Core API transaction.</div>
+</dd>
+<dt><a href="io/permazen/cli/cmd/AbstractKVCommand.KVAction.html#getTransactionMode(io.permazen.cli.Session)" class="member-name-link">getTransactionMode(Session)</a> - Method in interface io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.KVAction.html" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/Session.TransactionalAction.html#getTransactionMode(io.permazen.cli.Session)" class="member-name-link">getTransactionMode(Session)</a> - Method in interface io.permazen.cli.<a href="io/permazen/cli/Session.TransactionalAction.html" title="interface in io.permazen.cli">Session.TransactionalAction</a></dt>
+<dd>
+<div class="block">Get the <a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> corresponding to the transaction that should be opened.</div>
 </dd>
 <dt><a href="io/permazen/cli/Session.TransactionalActionWithOptions.html#getTransactionOptions()" class="member-name-link">getTransactionOptions()</a> - Method in interface io.permazen.cli.<a href="io/permazen/cli/Session.TransactionalActionWithOptions.html" title="interface in io.permazen.cli">Session.TransactionalActionWithOptions</a></dt>
 <dd>
@@ -8371,6 +8422,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/cli/SessionMode.html#hasCoreAPI()" class="member-name-link">hasCoreAPI()</a> - Method in enum class io.permazen.cli.<a href="io/permazen/cli/SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></dt>
 <dd>
 <div class="block">Determine whether the core API (e.g., <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>) is available in this mode.</div>
+</dd>
+<dt><a href="io/permazen/PermazenTransaction.html#hasCurrent()" class="member-name-link">hasCurrent()</a> - Static method in class io.permazen.<a href="io/permazen/PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></dt>
+<dd>
+<div class="block">Determine if there is a <a href="io/permazen/PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with the current thread.</div>
 </dd>
 <dt><a href="io/permazen/Util.html#hasDefaultValidationAnnotation(java.lang.reflect.AnnotatedElement)" class="member-name-link">hasDefaultValidationAnnotation(AnnotatedElement)</a> - Static method in class io.permazen.<a href="io/permazen/Util.html" title="class in io.permazen">Util</a></dt>
 <dd>
@@ -8813,6 +8868,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/ImportContext.html#importPlain(java.lang.Object)" class="member-name-link">importPlain(Object)</a> - Method in class io.permazen.<a href="io/permazen/ImportContext.html" title="class in io.permazen">ImportContext</a></dt>
 <dd>
 <div class="block">Import a plain Java object (POJO), along with all other objects reachable from it via copied reference fields.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#includeStorageIds(boolean)" class="member-name-link">includeStorageIds(boolean)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Configure whether to include storage ID's in the output.</div>
 </dd>
 <dt><a href="io/permazen/util/BoundType.html#INCLUSIVE" class="member-name-link">INCLUSIVE</a> - Enum constant in enum class io.permazen.util.<a href="io/permazen/util/BoundType.html" title="enum class in io.permazen.util">BoundType</a></dt>
 <dd>
@@ -9477,6 +9536,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Determine whether explicit logging of transaction conflicts is enabled.</div>
 </dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#isElementsAsNames()" class="member-name-link">isElementsAsNames()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>
+<div class="block">Determine whether to output XML element names that are based on the corresponding object or field name.</div>
+</dd>
 <dt><a href="io/permazen/core/Schema.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class io.permazen.core.<a href="io/permazen/core/Schema.html" title="class in io.permazen.core">Schema</a></dt>
 <dd>
 <div class="block">Determine whether this schema is empty, i.e., contains zero object types.</div>
@@ -9579,14 +9642,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Determine whether this instance is "full", i.e., contains all keys.</div>
 </dd>
-<dt><a href="io/permazen/cli/Session.html#isGarbageCollectSchemas()" class="member-name-link">isGarbageCollectSchemas()</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
-<dd>
-<div class="block">Get whether the garbage collection of old schemas is enabled.</div>
-</dd>
-<dt><a href="io/permazen/core/TransactionConfig.html#isGarbageCollectSchemas()" class="member-name-link">isGarbageCollectSchemas()</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></dt>
-<dd>
-<div class="block">Configure whether automatic schema garbage collection should be enabled.</div>
-</dd>
 <dt><a href="io/permazen/jsck/JsckConfig.html#isGarbageCollectSchemas()" class="member-name-link">isGarbageCollectSchemas()</a> - Method in class io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></dt>
 <dd>
 <div class="block">Determine whether to garbage collect unused schema versions.</div>
@@ -9603,6 +9658,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/raft/RaftKVTransaction.html#isHighPriority()" class="member-name-link">isHighPriority()</a> - Method in class io.permazen.kv.raft.<a href="io/permazen/kv/raft/RaftKVTransaction.html" title="class in io.permazen.kv.raft">RaftKVTransaction</a></dt>
 <dd>
 <div class="block">Determine whether this transaction is the high priority transaction for this node.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#isIncludeStorageIds()" class="member-name-link">isIncludeStorageIds()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>
+<div class="block">Determine whether to include storage ID's in the output.</div>
 </dd>
 <dt><a href="io/permazen/util/BoundType.html#isInclusive()" class="member-name-link">isInclusive()</a> - Method in enum class io.permazen.util.<a href="io/permazen/util/BoundType.html" title="enum class in io.permazen.util">BoundType</a></dt>
 <dd>
@@ -9686,7 +9745,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">The name of the transaction option passed to
  <a href="io/permazen/kv/KVDatabase.html#createTransaction(java.util.Map)"><code>KVDatabase.createTransaction()</code></a>
- containing the <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/TransactionDefinition.html#getIsolationLevel()" title="class or interface in org.springframework.transaction" class="external-link">isolation level</a> from the
+ containing the <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/TransactionDefinition.html#getIsolationLevel()" title="class or interface in org.springframework.transaction" class="external-link">isolation level</a> from the
  transaction definition.</div>
 </dd>
 <dt><a href="io/permazen/kv/sql/SQLKVDatabase.html#isolationLevel" class="member-name-link">isolationLevel</a> - Variable in class io.permazen.kv.sql.<a href="io/permazen/kv/sql/SQLKVDatabase.html" title="class in io.permazen.kv.sql">SQLKVDatabase</a></dt>
@@ -9726,6 +9785,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/KeyRange.html#isPrefixRange()" class="member-name-link">isPrefixRange()</a> - Method in class io.permazen.kv.<a href="io/permazen/kv/KeyRange.html" title="class in io.permazen.kv">KeyRange</a></dt>
 <dd>
 <div class="block">Determine whether this instance contains all keys having some common prefix.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#isPrettyPrint()" class="member-name-link">isPrettyPrint()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>
+<div class="block">Determine whether to pretty-print the XML, i.e., indent and include storage ID comments.</div>
 </dd>
 <dt><a href="io/permazen/kv/raft/msg/AppendRequest.html#isProbe()" class="member-name-link">isProbe()</a> - Method in class io.permazen.kv.raft.msg.<a href="io/permazen/kv/raft/msg/AppendRequest.html" title="class in io.permazen.kv.raft.msg">AppendRequest</a></dt>
 <dd>&nbsp;</dd>
@@ -9868,6 +9931,22 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/encoding/EncodingIds.html#isValidBuiltinSuffix(java.lang.String)" class="member-name-link">isValidBuiltinSuffix(String)</a> - Static method in class io.permazen.encoding.<a href="io/permazen/encoding/EncodingIds.html" title="class in io.permazen.encoding">EncodingIds</a></dt>
 <dd>
 <div class="block">Determine if the given string is a valid Permazen built-in encoding ID suffix.</div>
+</dd>
+<dt><a href="io/permazen/util/XMLUtil.html#isValidChar(int)" class="member-name-link">isValidChar(int)</a> - Static method in class io.permazen.util.<a href="io/permazen/util/XMLUtil.html" title="class in io.permazen.util">XMLUtil</a></dt>
+<dd>
+<div class="block">Determine if the given character may appear in an XML document.</div>
+</dd>
+<dt><a href="io/permazen/util/XMLUtil.html#isValidName(java.lang.String)" class="member-name-link">isValidName(String)</a> - Static method in class io.permazen.util.<a href="io/permazen/util/XMLUtil.html" title="class in io.permazen.util">XMLUtil</a></dt>
+<dd>
+<div class="block">Determine if the given string is a valid XML name.</div>
+</dd>
+<dt><a href="io/permazen/util/XMLUtil.html#isValidNamePart(int)" class="member-name-link">isValidNamePart(int)</a> - Static method in class io.permazen.util.<a href="io/permazen/util/XMLUtil.html" title="class in io.permazen.util">XMLUtil</a></dt>
+<dd>
+<div class="block">Determine if a character may appear in an XML name.</div>
+</dd>
+<dt><a href="io/permazen/util/XMLUtil.html#isValidNameStart(int)" class="member-name-link">isValidNameStart(int)</a> - Static method in class io.permazen.util.<a href="io/permazen/util/XMLUtil.html" title="class in io.permazen.util">XMLUtil</a></dt>
+<dd>
+<div class="block">Determine if a character may appear in an XML name as the first character.</div>
 </dd>
 <dt><a href="io/permazen/cli/Session.html#isVerbose()" class="member-name-link">isVerbose()</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
 <dd>
@@ -10348,7 +10427,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/spring/KVStoreHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>
  capable of encoding and decoding a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/spring/KVStoreHttpMessageConverter.html#%3Cinit%3E()" class="member-name-link">KVStoreHttpMessageConverter()</a> - Constructor for class io.permazen.spring.<a href="io/permazen/spring/KVStoreHttpMessageConverter.html" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></dt>
@@ -10380,6 +10459,18 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/KVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">KVTransactionException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/KVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">KVTransactionException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/KVTransactionException.html" title="class in io.permazen.kv">KVTransactionException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/KVTransactionTimeoutException.html" class="type-name-link" title="class in io.permazen.kv">KVTransactionTimeoutException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
+<dd>
+<div class="block">Thrown when a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> is kept open for too long.</div>
+</dd>
+<dt><a href="io/permazen/kv/KVTransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction)" class="member-name-link">KVTransactionTimeoutException(KVTransaction)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/KVTransactionTimeoutException.html" title="class in io.permazen.kv">KVTransactionTimeoutException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/KVTransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String)" class="member-name-link">KVTransactionTimeoutException(KVTransaction, String)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/KVTransactionTimeoutException.html" title="class in io.permazen.kv">KVTransactionTimeoutException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/KVTransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">KVTransactionTimeoutException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/KVTransactionTimeoutException.html" title="class in io.permazen.kv">KVTransactionTimeoutException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/KVTransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">KVTransactionTimeoutException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/KVTransactionTimeoutException.html" title="class in io.permazen.kv">KVTransactionTimeoutException</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:L">L</h2>
@@ -10712,6 +10803,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/xodus/XodusKVDatabase.html#log" class="member-name-link">log</a> - Variable in class io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/XodusKVDatabase.html" title="class in io.permazen.kv.xodus">XodusKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/test/TestSupport.html#log" class="member-name-link">log</a> - Variable in class io.permazen.test.<a href="io/permazen/test/TestSupport.html" title="class in io.permazen.test">TestSupport</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/util/AbstractXMLStreaming.html#log" class="member-name-link">log</a> - Variable in class io.permazen.util.<a href="io/permazen/util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/CloseableTracker.html#log" class="member-name-link">log</a> - Variable in class io.permazen.util.<a href="io/permazen/util/CloseableTracker.html" title="class in io.permazen.util">CloseableTracker</a></dt>
 <dd>&nbsp;</dd>
@@ -11345,6 +11438,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Action not possible before the network is configured.</div>
 </dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#NEVER" class="member-name-link">NEVER</a> - Enum constant in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
+<dd>
+<div class="block">Disable automatic schema removal.</div>
+</dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#NEW_COORDINATORS_TIMED_OUT" class="member-name-link">NEW_COORDINATORS_TIMED_OUT</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
 <div class="block">New coordination servers did not respond in a timely way.</div>
@@ -11390,6 +11487,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/core/TransactionConfig.html#newTransaction(io.permazen.core.Database)" class="member-name-link">newTransaction(Database)</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></dt>
 <dd>
 <div class="block">Convenience method that uses this instance to create a new transaction in the given database.</div>
+</dd>
+<dt><a href="io/permazen/cli/Session.html#newTransactionConfig()" class="member-name-link">newTransactionConfig()</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
+<dd>
+<div class="block">Build a new Core API <a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a> based on this instance.</div>
 </dd>
 <dt><a href="io/permazen/core/util/ObjIdQueue.html#next()" class="member-name-link">next()</a> - Method in interface io.permazen.core.util.<a href="io/permazen/core/util/ObjIdQueue.html" title="interface in io.permazen.core.util">ObjIdQueue</a></dt>
 <dd>
@@ -11571,6 +11672,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#objectGenerator()" class="member-name-link">objectGenerator()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>
+<div class="block">Get the function that streams the objects to include in the output (identified by <a href="io/permazen/core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>).</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#objectGenerator(java.util.function.Function)" class="member-name-link">objectGenerator(Function&lt;? super Transaction, ? extends Stream&lt;? extends ObjId&gt;&gt;)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Configure a custom function that streams the objects to include in the output (identified by <a href="io/permazen/core/ObjId.html" title="class in io.permazen.core"><code>ObjId</code></a>).</div>
+</dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#OBJECTS_TAG" class="member-name-link">OBJECTS_TAG</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/ObjId.html" class="type-name-link" title="class in io.permazen.core">ObjId</a> - Class in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
@@ -11671,12 +11780,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Represents a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a> object type.</div>
 </dd>
-<dt><a href="io/permazen/cli/parse/ObjTypeParser.html" class="type-name-link" title="class in io.permazen.cli.parse">ObjTypeParser</a> - Class in <a href="io/permazen/cli/parse/package-summary.html">io.permazen.cli.parse</a></dt>
-<dd>
-<div class="block">Parses an object type name.</div>
-</dd>
-<dt><a href="io/permazen/cli/parse/ObjTypeParser.html#%3Cinit%3E()" class="member-name-link">ObjTypeParser()</a> - Constructor for class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjTypeParser.html" title="class in io.permazen.cli.parse">ObjTypeParser</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/BoundType.html#of(boolean)" class="member-name-link">of(boolean)</a> - Static method in enum class io.permazen.util.<a href="io/permazen/util/BoundType.html" title="enum class in io.permazen.util">BoundType</a></dt>
 <dd>
 <div class="block">Returns <a href="io/permazen/util/BoundType.html#INCLUSIVE"><code>BoundType.INCLUSIVE</code></a> or <a href="io/permazen/util/BoundType.html#EXCLUSIVE"><code>BoundType.EXCLUSIVE</code></a> based on the given boolean.</div>
@@ -11713,6 +11816,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/ant/OldSchemas.html#%3Cinit%3E(org.apache.tools.ant.types.FileSet)" class="member-name-link">OldSchemas(FileSet)</a> - Constructor for class io.permazen.ant.<a href="io/permazen/ant/OldSchemas.html" title="class in io.permazen.ant">OldSchemas</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#ONCE" class="member-name-link">ONCE</a> - Enum constant in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
+<dd>
+<div class="block">Perform automatic schema removal only at the start of the very first transaction.</div>
+</dd>
 <dt><a href="io/permazen/annotation/OnChange.html" class="type-name-link" title="annotation interface in io.permazen.annotation">OnChange</a> - Annotation Interface in <a href="io/permazen/annotation/package-summary.html">io.permazen.annotation</a></dt>
 <dd>
 <div class="block">Annotates methods to be invoked whenever some target field in some target object changes during a transaction.</div>
@@ -11798,13 +11905,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Open this transaction.</div>
 </dd>
-<dt><a href="io/permazen/cli/Session.html#openBranchedTransaction(java.util.Map,java.util.Map)" class="member-name-link">openBranchedTransaction(Map&lt;String, ?&gt;, Map&lt;String, ?&gt;)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
+<dt><a href="io/permazen/cli/Session.html#openBranchedTransaction(io.permazen.cli.SessionMode,java.util.Map,java.util.Map)" class="member-name-link">openBranchedTransaction(SessionMode, Map&lt;String, ?&gt;, Map&lt;String, ?&gt;)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
 <dd>
 <div class="block">Open a new branched transaction and associate it with this instance.</div>
 </dd>
-<dt><a href="io/permazen/cli/Session.html#openTransaction(java.util.Map)" class="member-name-link">openTransaction(Map&lt;String, ?&gt;)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
+<dt><a href="io/permazen/cli/Session.html#openTransaction(io.permazen.cli.SessionMode,java.util.Map)" class="member-name-link">openTransaction(SessionMode, Map&lt;String, ?&gt;)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
 <dd>
-<div class="block">Open a new transaction and associate it with this instance.</div>
+<div class="block">Open a new transaction in the specified mode and associate it with this instance.</div>
 </dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#OPERATION_CANCELLED" class="member-name-link">OPERATION_CANCELLED</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
@@ -11873,8 +11980,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/cli/parse/EnumNameParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/EnumNameParser.html" title="class in io.permazen.cli.parse">EnumNameParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/parse/ObjIdParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjIdParser.html" title="class in io.permazen.cli.parse">ObjIdParser</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/parse/ObjTypeParser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in class io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjTypeParser.html" title="class in io.permazen.cli.parse">ObjTypeParser</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/parse/Parser.html#parse(io.permazen.cli.Session,java.lang.String)" class="member-name-link">parse(Session, String)</a> - Method in interface io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a></dt>
 <dd>
@@ -11985,6 +12090,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/PermazenTransaction.html#performAction(java.lang.Runnable)" class="member-name-link">performAction(Runnable)</a> - Method in class io.permazen.<a href="io/permazen/PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></dt>
 <dd>
 <div class="block">Invoke the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link"><code>Runnable</code></a> with this instance as the <a href="io/permazen/PermazenTransaction.html#getCurrent()">current transaction</a>.</div>
+</dd>
+<dt><a href="io/permazen/PermazenTransaction.html#performAction(java.util.function.Supplier)" class="member-name-link">performAction(Supplier&lt;T&gt;)</a> - Method in class io.permazen.<a href="io/permazen/PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></dt>
+<dd>
+<div class="block">Invoke the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link"><code>Supplier</code></a> with this instance as the <a href="io/permazen/PermazenTransaction.html#getCurrent()">current transaction</a>.</div>
 </dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#PERFORMANCE_COUNTER_ERROR" class="member-name-link">PERFORMANCE_COUNTER_ERROR</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
@@ -12102,7 +12211,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/spring/PermazenExceptionTranslator.html" class="type-name-link" title="class in io.permazen.spring">PermazenExceptionTranslator</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block">Permazen implementation of Spring's <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a> interface.</div>
+<div class="block">Permazen implementation of Spring's <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a> interface.</div>
 </dd>
 <dt><a href="io/permazen/spring/PermazenExceptionTranslator.html#%3Cinit%3E()" class="member-name-link">PermazenExceptionTranslator()</a> - Constructor for class io.permazen.spring.<a href="io/permazen/spring/PermazenExceptionTranslator.html" title="class in io.permazen.spring">PermazenExceptionTranslator</a></dt>
 <dd>&nbsp;</dd>
@@ -12203,7 +12312,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/spring/PermazenNamespaceHandler.html" class="type-name-link" title="class in io.permazen.spring">PermazenNamespaceHandler</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link"><code>NamespaceHandler</code></a>
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link"><code>NamespaceHandler</code></a>
  for the <code>permazen</code> XML namespace.</div>
 </dd>
 <dt><a href="io/permazen/spring/PermazenNamespaceHandler.html#%3Cinit%3E()" class="member-name-link">PermazenNamespaceHandler()</a> - Constructor for class io.permazen.spring.<a href="io/permazen/spring/PermazenNamespaceHandler.html" title="class in io.permazen.spring">PermazenNamespaceHandler</a></dt>
@@ -12214,7 +12323,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/spring/PermazenObjectHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">PermazenObjectHttpMessageConverter</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
  encoding and decoding one or more <a href="io/permazen/PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="io/permazen/DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/spring/PermazenObjectHttpMessageConverter.html#%3Cinit%3E(io.permazen.Permazen)" class="member-name-link">PermazenObjectHttpMessageConverter(Permazen)</a> - Constructor for class io.permazen.spring.<a href="io/permazen/spring/PermazenObjectHttpMessageConverter.html" title="class in io.permazen.spring">PermazenObjectHttpMessageConverter</a></dt>
@@ -12280,15 +12389,15 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/spring/PermazenTransactionManager.html" class="type-name-link" title="class in io.permazen.spring">PermazenTransactionManager</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
 <div class="block">Permazen implementation of Spring's
- <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link"><code>PlatformTransactionManager</code></a> interface,
- allowing methods annotated with Spring's <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a>
+ <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link"><code>PlatformTransactionManager</code></a> interface,
+ allowing methods annotated with Spring's <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a>
  annotation to perform transactions on a <a href="io/permazen/Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database.</div>
 </dd>
 <dt><a href="io/permazen/spring/PermazenTransactionManager.html#%3Cinit%3E()" class="member-name-link">PermazenTransactionManager()</a> - Constructor for class io.permazen.spring.<a href="io/permazen/spring/PermazenTransactionManager.html" title="class in io.permazen.spring">PermazenTransactionManager</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/spring/PermazenTransactionManager.TransactionSynchronizationCallback.html" class="type-name-link" title="class in io.permazen.spring">PermazenTransactionManager.TransactionSynchronizationCallback</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block">Adapter class that wraps a Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html" title="class or interface in org.springframework.transaction.support" class="external-link"><code>TransactionSynchronization</code></a> in the
+<div class="block">Adapter class that wraps a Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html" title="class or interface in org.springframework.transaction.support" class="external-link"><code>TransactionSynchronization</code></a> in the
  <a href="io/permazen/core/Transaction.Callback.html" title="interface in io.permazen.core"><code>Transaction.Callback</code></a> interface.</div>
 </dd>
 <dt><a href="io/permazen/annotation/PermazenTransient.html" class="type-name-link" title="annotation interface in io.permazen.annotation">PermazenTransient</a> - Annotation Interface in <a href="io/permazen/annotation/package-summary.html">io.permazen.annotation</a></dt>
@@ -12436,6 +12545,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/spring/PermazenTransactionManager.html#prepareForCommit(org.springframework.transaction.support.DefaultTransactionStatus)" class="member-name-link">prepareForCommit(DefaultTransactionStatus)</a> - Method in class io.permazen.spring.<a href="io/permazen/spring/PermazenTransactionManager.html" title="class in io.permazen.spring">PermazenTransactionManager</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#prettyPrint(boolean)" class="member-name-link">prettyPrint(boolean)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Configure whether to pretty-print the XML, i.e., indent and include storage ID comments.</div>
+</dd>
 <dt><a href="io/permazen/util/NavigableSetPager.html#prevPage()" class="member-name-link">prevPage()</a> - Method in class io.permazen.util.<a href="io/permazen/util/NavigableSetPager.html" title="class in io.permazen.util">NavigableSetPager</a></dt>
 <dd>
 <div class="block">Advance backward to the previous page of results, if any.</div>
@@ -13482,6 +13595,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Remove an <a href="io/permazen/core/SchemaChangeListener.html" title="interface in io.permazen.core"><code>SchemaChangeListener</code></a> from this transaction.</div>
 </dd>
+<dt><a href="io/permazen/cli/cmd/RemoveSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a> - Class in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/RemoveSchemaCommand.html#%3Cinit%3E()" class="member-name-link">RemoveSchemaCommand()</a> - Constructor for class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/RemoveSchemaCommand.html" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/Transaction.html#removeSetFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SetFieldChangeListener)" class="member-name-link">removeSetFieldChangeListener(int, int[], KeyRanges[], SetFieldChangeListener)</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
 <dd>
 <div class="block">Remove a field monitor previously added via <a href="io/permazen/core/Transaction.html#addSetFieldChangeListener(int,int%5B%5D,io.permazen.kv.KeyRanges%5B%5D,io.permazen.core.SetFieldChangeListener)"><code>addSetFieldChangeListener()</code></a>
@@ -13660,18 +13777,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Transaction option for a <a href="https://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/spring/RetryTransactionProvider.html" title="class or interface in org.dellroad.stuff.spring" class="external-link"><code>RetryTransactionProvider</code></a> to use with the underlying open and/or commit transactions.</div>
 </dd>
-<dt><a href="io/permazen/kv/RetryTransactionException.html" class="type-name-link" title="class in io.permazen.kv">RetryTransactionException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
+<dt><a href="io/permazen/kv/RetryKVTransactionException.html" class="type-name-link" title="class in io.permazen.kv">RetryKVTransactionException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
 <dd>
 <div class="block">Exception thrown when an attempt to access a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> results
  in a conflict or other condition requiring that the transaction be retried.</div>
 </dd>
-<dt><a href="io/permazen/kv/RetryTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction)" class="member-name-link">RetryTransactionException(KVTransaction)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></dt>
+<dt><a href="io/permazen/kv/RetryKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction)" class="member-name-link">RetryKVTransactionException(KVTransaction)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/RetryTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String)" class="member-name-link">RetryTransactionException(KVTransaction, String)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></dt>
+<dt><a href="io/permazen/kv/RetryKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String)" class="member-name-link">RetryKVTransactionException(KVTransaction, String)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/RetryTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">RetryTransactionException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></dt>
+<dt><a href="io/permazen/kv/RetryKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">RetryKVTransactionException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/RetryTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">RetryTransactionException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></dt>
+<dt><a href="io/permazen/kv/RetryKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">RetryKVTransactionException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/PermazenTransaction.html#revalidate(io.permazen.core.ObjId,java.lang.Class...)" class="member-name-link">revalidate(ObjId, Class&lt;?&gt;...)</a> - Method in class io.permazen.<a href="io/permazen/PermazenTransaction.html" title="class in io.permazen">PermazenTransaction</a></dt>
 <dd>
@@ -13801,8 +13918,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/test/KVDatabaseTest.RandomTask.html#runRandomAccess(io.permazen.kv.KVStore)" class="member-name-link">runRandomAccess(KVStore)</a> - Method in class io.permazen.kv.test.<a href="io/permazen/kv/test/KVDatabaseTest.RandomTask.html" title="class in io.permazen.kv.test">KVDatabaseTest.RandomTask</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/CompareSchemasCommand.html#runWithoutSchema(io.permazen.cli.Session,io.permazen.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)" class="member-name-link">runWithoutSchema(Session, AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;)</a> - Static method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/CompareSchemasCommand.html" title="class in io.permazen.cli.cmd">CompareSchemasCommand</a></dt>
-<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:S">S</h2>
 <dl class="index">
@@ -13827,7 +13942,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/core/Schema.html" class="type-name-link" title="class in io.permazen.core">Schema</a> - Class in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
 <dd>
-<div class="block">Reflects one <a href="io/permazen/core/Schema.html" title="class in io.permazen.core"><code>Schema</code></a> recorded in a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
+<div class="block">Reflects a <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> as recorded in a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#SCHEMA_ATTR" class="member-name-link">SCHEMA_ATTR</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
@@ -13839,13 +13954,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Reflects the Schema table currently recorded in a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </dd>
+<dt><a href="io/permazen/core/SchemaBundle.html#%3Cinit%3E(io.permazen.core.SchemaBundle.Encoded)" class="member-name-link">SchemaBundle(SchemaBundle.Encoded)</a> - Constructor for class io.permazen.core.<a href="io/permazen/core/SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></dt>
+<dd>
+<div class="block">Partial constructor for debugging and tooling purposes.</div>
+</dd>
 <dt><a href="io/permazen/core/SchemaBundle.html#%3Cinit%3E(io.permazen.core.SchemaBundle.Encoded,io.permazen.encoding.EncodingRegistry)" class="member-name-link">SchemaBundle(SchemaBundle.Encoded, EncodingRegistry)</a> - Constructor for class io.permazen.core.<a href="io/permazen/core/SchemaBundle.html" title="class in io.permazen.core">SchemaBundle</a></dt>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
 <dt><a href="io/permazen/core/SchemaBundle.Encoded.html" class="type-name-link" title="class in io.permazen.core">SchemaBundle.Encoded</a> - Class in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
 <dd>
-<div class="block">Holder the for <code>byte[]</code>-encoded <a href="io/permazen/core/SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> data that is stored in a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
+<div class="block">The <code>byte[]</code>-encoded version of a <a href="io/permazen/core/SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> that is actually stored in a <a href="io/permazen/core/Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/core/SchemaChangeListener.html" class="type-name-link" title="interface in io.permazen.core">SchemaChangeListener</a> - Interface in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
 <dd>
@@ -13873,6 +13992,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#schemaFileOption" class="member-name-link">schemaFileOption</a> - Variable in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html#schemaGenerator()" class="member-name-link">schemaGenerator()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></dt>
+<dd>
+<div class="block">Get the function that streams the <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s to include in the output.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html#schemaGenerator(java.util.function.Function)" class="member-name-link">schemaGenerator(Function&lt;? super Transaction, ? extends Stream&lt;? extends SchemaModel&gt;&gt;)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a></dt>
+<dd>
+<div class="block">Configure a custom function that streams the <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>s to include in the output.</div>
+</dd>
 <dt><a href="io/permazen/ant/SchemaGeneratorTask.html" class="type-name-link" title="class in io.permazen.ant">SchemaGeneratorTask</a> - Class in <a href="io/permazen/ant/package-summary.html">io.permazen.ant</a></dt>
 <dd>
 <div class="block">Ant task for schema XML generation and/or verification.</div>
@@ -13881,8 +14008,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/schema/SchemaId.html" class="type-name-link" title="class in io.permazen.schema">SchemaId</a> - Class in <a href="io/permazen/schema/package-summary.html">io.permazen.schema</a></dt>
 <dd>
-<div class="block">A unique identifier that corresponds to the structure and encoding of an individual <a href="io/permazen/schema/SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> component,
- or an entire <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.</div>
+<div class="block">A unique identifier that corresponds to the structure and encoding of an individual <a href="io/permazen/schema/SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> component
+ of a <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>, or an entire <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/schema/SchemaId.html#%3Cinit%3E(io.permazen.schema.ItemType,byte%5B%5D)" class="member-name-link">SchemaId(ItemType, byte[])</a> - Constructor for class io.permazen.schema.<a href="io/permazen/schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a></dt>
 <dd>
@@ -13930,6 +14057,14 @@ loadScripts(document, 'script');</script>
 <div class="block">One object type in a <a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/schema/SchemaObjectType.html#%3Cinit%3E()" class="member-name-link">SchemaObjectType()</a> - Constructor for class io.permazen.schema.<a href="io/permazen/schema/SchemaObjectType.html" title="class in io.permazen.schema">SchemaObjectType</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#schemaRemoval" class="member-name-link">schemaRemoval</a> - Variable in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/TransactionConfig.Builder.html#schemaRemoval(io.permazen.core.TransactionConfig.SchemaRemoval)" class="member-name-link">schemaRemoval(TransactionConfig.SchemaRemoval)</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.Builder.html" title="class in io.permazen.core">TransactionConfig.Builder</a></dt>
+<dd>
+<div class="block">Configure when to automatically detect and remove unused schemas from the database.</div>
+</dd>
+<dt><a href="io/permazen/cli/config/CoreApiCliConfig.html#schemaRemovalOption" class="member-name-link">schemaRemovalOption</a> - Variable in class io.permazen.cli.config.<a href="io/permazen/cli/config/CoreApiCliConfig.html" title="class in io.permazen.cli.config">CoreApiCliConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#SCHEMAS_TAG" class="member-name-link">SCHEMAS_TAG</a> - Static variable in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>&nbsp;</dd>
@@ -14030,7 +14165,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/cli/Session.RetryableTransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a> - Interface in <a href="io/permazen/cli/package-summary.html">io.permazen.cli</a></dt>
 <dd>
 <div class="block">Extension of <a href="io/permazen/cli/Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> that indicates the transaction should be retried if a
- <a href="io/permazen/kv/RetryTransactionException.html" title="class in io.permazen.kv"><code>RetryTransactionException</code></a> is thrown.</div>
+ <a href="io/permazen/kv/RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> is thrown.</div>
 </dd>
 <dt><a href="io/permazen/cli/Session.TransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.TransactionalAction</a> - Interface in <a href="io/permazen/cli/package-summary.html">io.permazen.cli</a></dt>
 <dd>
@@ -14357,8 +14492,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Set the whether to forward cascade delete operations.</div>
 </dd>
-<dt><a href="io/permazen/cli/Session.html#setGarbageCollectSchemas(boolean)" class="member-name-link">setGarbageCollectSchemas(boolean)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/jsck/JsckConfig.html#setGarbageCollectSchemas(boolean)" class="member-name-link">setGarbageCollectSchemas(boolean)</a> - Method in class io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/XMLObjectSerializer.html#setGeneratedIdCache(io.permazen.core.util.GeneratedIdCache)" class="member-name-link">setGeneratedIdCache(GeneratedIdCache)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
@@ -14399,11 +14532,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/spring/SpringXMLKVDatabase.html#setInitialContentFile(java.io.File)" class="member-name-link">setInitialContentFile(File)</a> - Method in class io.permazen.spring.<a href="io/permazen/spring/SpringXMLKVDatabase.html" title="class in io.permazen.spring">SpringXMLKVDatabase</a></dt>
 <dd>
-<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database from the specified file.</div>
+<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database from the specified file.</div>
 </dd>
 <dt><a href="io/permazen/spring/SpringXMLKVDatabase.html#setInitialContentResource(org.springframework.core.io.Resource)" class="member-name-link">setInitialContentResource(Resource)</a> - Method in class io.permazen.spring.<a href="io/permazen/spring/SpringXMLKVDatabase.html" title="class in io.permazen.spring">SpringXMLKVDatabase</a></dt>
 <dd>
-<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database.</div>
+<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database.</div>
 </dd>
 <dt><a href="io/permazen/cli/Session.html#setInitialRetryDelay(int)" class="member-name-link">setInitialRetryDelay(int)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
 <dd>&nbsp;</dd>
@@ -14733,6 +14866,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/jsck/JsckConfig.html#setSchemaOverrides(java.util.Map)" class="member-name-link">setSchemaOverrides(Map&lt;Integer, SchemaModel&gt;)</a> - Method in class io.permazen.jsck.<a href="io/permazen/jsck/JsckConfig.html" title="class in io.permazen.jsck">JsckConfig</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/Session.html#setSchemaRemoval(io.permazen.core.TransactionConfig.SchemaRemoval)" class="member-name-link">setSchemaRemoval(TransactionConfig.SchemaRemoval)</a> - Method in class io.permazen.cli.<a href="io/permazen/cli/Session.html" title="class in io.permazen.cli">Session</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a> - Class in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html#%3Cinit%3E()" class="member-name-link">SetSchemaRemovalCommand()</a> - Constructor for class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a> - Class in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/cmd/SetSessionModeCommand.html#%3Cinit%3E()" class="member-name-link">SetSessionModeCommand()</a> - Constructor for class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></dt>
@@ -14765,11 +14904,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/xodus/XodusKVImplementation.Config.html#setStoreName(java.lang.String)" class="member-name-link">setStoreName(String)</a> - Method in class io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/XodusKVImplementation.Config.html" title="class in io.permazen.kv.xodus">XodusKVImplementation.Config</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/CopyState.html#setSuppressNotifications(boolean)" class="member-name-link">setSuppressNotifications(boolean)</a> - Method in class io.permazen.<a href="io/permazen/CopyState.html" title="class in io.permazen">CopyState</a></dt>
-<dd>
-<div class="block">Configure whether to suppress <a href="io/permazen/annotation/OnCreate.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnCreate</code></a> and
- <a href="io/permazen/annotation/OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
-</dd>
 <dt><a href="io/permazen/kv/spanner/SpannerKVDatabase.html#setTableName(java.lang.String)" class="member-name-link">setTableName(String)</a> - Method in class io.permazen.kv.spanner.<a href="io/permazen/kv/spanner/SpannerKVDatabase.html" title="class in io.permazen.kv.spanner">SpannerKVDatabase</a></dt>
 <dd>
 <div class="block">Set Spanner table name.</div>
@@ -14940,11 +15074,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/encoding/ShortEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId)" class="member-name-link">ShortEncoding(EncodingId)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/ShortEncoding.html" title="class in io.permazen.encoding">ShortEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#shouldRemove(boolean,boolean)" class="member-name-link">shouldRemove(boolean, boolean)</a> - Method in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/test/TestSupport.html#show(java.lang.Throwable)" class="member-name-link">show(Throwable)</a> - Method in class io.permazen.test.<a href="io/permazen/test/TestSupport.html" title="class in io.permazen.test">TestSupport</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a> - Class in <a href="io/permazen/cli/cmd/package-summary.html">io.permazen.cli.cmd</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html#%3Cinit%3E()" class="member-name-link">ShowAllSchemasCommand()</a> - Constructor for class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/main/BasicCliMain.html#showErrorStackTraces" class="member-name-link">showErrorStackTraces</a> - Variable in class io.permazen.cli.main.<a href="io/permazen/cli/main/BasicCliMain.html" title="class in io.permazen.cli.main">BasicCliMain</a></dt>
 <dd>
@@ -15345,7 +15477,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/spring/SpringXMLKVDatabase.html" class="type-name-link" title="class in io.permazen.spring">SpringXMLKVDatabase</a> - Class in <a href="io/permazen/spring/package-summary.html">io.permazen.spring</a></dt>
 <dd>
-<div class="block"><a href="io/permazen/kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.</div>
+<div class="block"><a href="io/permazen/kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/spring/SpringXMLKVDatabase.html#%3Cinit%3E(java.io.File)" class="member-name-link">SpringXMLKVDatabase(File)</a> - Constructor for class io.permazen.spring.<a href="io/permazen/spring/SpringXMLKVDatabase.html" title="class in io.permazen.spring">SpringXMLKVDatabase</a></dt>
 <dd>
@@ -15401,13 +15533,21 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Used internally to build SQL statements.</div>
 </dd>
+<dt><a href="io/permazen/kv/StaleKVTransactionException.html" class="type-name-link" title="class in io.permazen.kv">StaleKVTransactionException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
+<dd>
+<div class="block">Thrown when an operation is attempted on a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is no longer usable.</div>
+</dd>
+<dt><a href="io/permazen/kv/StaleKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction)" class="member-name-link">StaleKVTransactionException(KVTransaction)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/StaleKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String)" class="member-name-link">StaleKVTransactionException(KVTransaction, String)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/StaleKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">StaleKVTransactionException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/permazen/kv/StaleKVTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">StaleKVTransactionException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/StaleTransactionException.html" class="type-name-link" title="class in io.permazen.core">StaleTransactionException</a> - Exception in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
 <dd>
 <div class="block">Thrown when a transaction that has been committed, rolled back, or otherwise invalidated is accessed.</div>
-</dd>
-<dt><a href="io/permazen/kv/StaleTransactionException.html" class="type-name-link" title="class in io.permazen.kv">StaleTransactionException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
-<dd>
-<div class="block">Thrown when an operation is attempted on a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> that is no longer usable.</div>
 </dd>
 <dt><a href="io/permazen/core/StaleTransactionException.html#%3Cinit%3E(io.permazen.core.Transaction)" class="member-name-link">StaleTransactionException(Transaction)</a> - Constructor for exception io.permazen.core.<a href="io/permazen/core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></dt>
 <dd>
@@ -15417,14 +15557,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
-<dt><a href="io/permazen/kv/StaleTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction)" class="member-name-link">StaleTransactionException(KVTransaction)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/StaleTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String)" class="member-name-link">StaleTransactionException(KVTransaction, String)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/StaleTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">StaleTransactionException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/StaleTransactionException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">StaleTransactionException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/array/AtomicArrayKVStore.html#start()" class="member-name-link">start()</a> - Method in class io.permazen.kv.array.<a href="io/permazen/kv/array/AtomicArrayKVStore.html" title="class in io.permazen.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/bdb/BerkeleyKVDatabase.html#start()" class="member-name-link">start()</a> - Method in class io.permazen.kv.bdb.<a href="io/permazen/kv/bdb/BerkeleyKVDatabase.html" title="class in io.permazen.kv.bdb">BerkeleyKVDatabase</a></dt>
@@ -15880,6 +16012,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/SimpleField.html#toString()" class="member-name-link">toString()</a> - Method in class io.permazen.core.<a href="io/permazen/core/SimpleField.html" title="class in io.permazen.core">SimpleField</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/TransactionConfig.html#toString()" class="member-name-link">toString()</a> - Method in class io.permazen.core.<a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/util/ObjIdBiMultiMap.html#toString()" class="member-name-link">toString()</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/ObjIdBiMultiMap.html" title="class in io.permazen.core.util">ObjIdBiMultiMap</a></dt>
 <dd>
 <div class="block">Create a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> representation.</div>
@@ -16020,6 +16154,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ParseContext.html#toString()" class="member-name-link">toString()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ParseContext.html" title="class in io.permazen.util">ParseContext</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/schema/SchemaModel.html#toString(boolean,boolean)" class="member-name-link">toString(boolean, boolean)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
+<dd>
+<div class="block">Returns this schema model in XML form.</div>
+</dd>
 <dt><a href="io/permazen/util/ByteUtil.html#toString(byte%5B%5D)" class="member-name-link">toString(byte[])</a> - Static method in class io.permazen.util.<a href="io/permazen/util/ByteUtil.html" title="class in io.permazen.util">ByteUtil</a></dt>
 <dd>
 <div class="block">Convert a byte array into a string of hex digits, or <code>"null"</code> if <code>buf</code> is null.</div>
@@ -16096,7 +16234,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="io/permazen/encoding/Base64ArrayEncoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/schema/SchemaModel.html#toXML(java.io.OutputStream,boolean)" class="member-name-link">toXML(OutputStream, boolean)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
+<dt><a href="io/permazen/schema/SchemaModel.html#toXML(java.io.OutputStream,boolean,boolean)" class="member-name-link">toXML(OutputStream, boolean, boolean)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
 <dd>
 <div class="block">Serialize this instance to the given XML output.</div>
 </dd>
@@ -16154,6 +16292,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Builder for <a href="io/permazen/core/TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a>s.</div>
 </dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" class="type-name-link" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a> - Enum Class in <a href="io/permazen/core/package-summary.html">io.permazen.core</a></dt>
+<dd>
+<div class="block">Configures if and when to automatically detect and remove unused schemas from a database.</div>
+</dd>
 <dt><a href="io/permazen/kv/mvcc/TransactionConflictException.html" class="type-name-link" title="class in io.permazen.kv.mvcc">TransactionConflictException</a> - Exception in <a href="io/permazen/kv/mvcc/package-summary.html">io.permazen.kv.mvcc</a></dt>
 <dd>
 <div class="block">Exception thrown when a transaction fails because of an MVCC conflict.</div>
@@ -16176,18 +16318,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
-<dt><a href="io/permazen/kv/TransactionTimeoutException.html" class="type-name-link" title="class in io.permazen.kv">TransactionTimeoutException</a> - Exception in <a href="io/permazen/kv/package-summary.html">io.permazen.kv</a></dt>
-<dd>
-<div class="block">Thrown when a <a href="io/permazen/kv/KVTransaction.html" title="interface in io.permazen.kv"><code>KVTransaction</code></a> is kept open for too long.</div>
-</dd>
-<dt><a href="io/permazen/kv/TransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction)" class="member-name-link">TransactionTimeoutException(KVTransaction)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/TransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String)" class="member-name-link">TransactionTimeoutException(KVTransaction, String)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/TransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.String,java.lang.Throwable)" class="member-name-link">TransactionTimeoutException(KVTransaction, String, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/TransactionTimeoutException.html#%3Cinit%3E(io.permazen.kv.KVTransaction,java.lang.Throwable)" class="member-name-link">TransactionTimeoutException(KVTransaction, Throwable)</a> - Constructor for exception io.permazen.kv.<a href="io/permazen/kv/TransactionTimeoutException.html" title="class in io.permazen.kv">TransactionTimeoutException</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/xodus/TransactionType.html" class="type-name-link" title="enum class in io.permazen.kv.xodus">TransactionType</a> - Enum Class in <a href="io/permazen/kv/xodus/package-summary.html">io.permazen.kv.xodus</a></dt>
 <dd>
 <div class="block">Xodus transaction types.</div>
@@ -16530,7 +16660,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/lmdb/LMDBKVStore.html#unwrap(T,boolean)" class="member-name-link">unwrap(T, boolean)</a> - Method in class io.permazen.kv.lmdb.<a href="io/permazen/kv/lmdb/LMDBKVStore.html" title="class in io.permazen.kv.lmdb">LMDBKVStore</a></dt>
 <dd>
-<div class="block">Unwrap the given buffer, returning its contents as a <code>byte</code> array.</div>
+<div class="block">Unwrap the given buffer, returning its contents as a <code>byte[]</code> array.</div>
 </dd>
 <dt><a href="io/permazen/encoding/IntegralEncoding.html#upCast(T)" class="member-name-link">upCast(T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/IntegralEncoding.html" title="class in io.permazen.encoding">IntegralEncoding</a></dt>
 <dd>&nbsp;</dd>
@@ -16538,7 +16668,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/sql/SQLKVTransaction.html#updateBatch(io.permazen.kv.sql.SQLKVTransaction.StmtType,java.util.List)" class="member-name-link">updateBatch(SQLKVTransaction.StmtType, List&lt;byte[]&gt;)</a> - Method in class io.permazen.kv.sql.<a href="io/permazen/kv/sql/SQLKVTransaction.html" title="class in io.permazen.kv.sql">SQLKVTransaction</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/kv/test/KVTestSupport.html#updateRetryStats(io.permazen.kv.RetryTransactionException)" class="member-name-link">updateRetryStats(RetryTransactionException)</a> - Method in class io.permazen.kv.test.<a href="io/permazen/kv/test/KVTestSupport.html" title="class in io.permazen.kv.test">KVTestSupport</a></dt>
+<dt><a href="io/permazen/kv/test/KVTestSupport.html#updateRetryStats(io.permazen.kv.RetryKVTransactionException)" class="member-name-link">updateRetryStats(RetryKVTransactionException)</a> - Method in class io.permazen.kv.test.<a href="io/permazen/kv/test/KVTestSupport.html" title="class in io.permazen.kv.test">KVTestSupport</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/annotation/PermazenField.html#upgradeConversion()" class="member-name-link">upgradeConversion()</a> - Element in annotation interface io.permazen.annotation.<a href="io/permazen/annotation/PermazenField.html" title="annotation interface in io.permazen.annotation">PermazenField</a></dt>
 <dd>
@@ -16705,6 +16835,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
@@ -16763,6 +16897,11 @@ loadScripts(document, 'script');</script>
 the order they are declared.</div>
 </dd>
 <dt><a href="io/permazen/core/DeleteAction.html#values()" class="member-name-link">values()</a> - Static method in enum class io.permazen.core.<a href="io/permazen/core/DeleteAction.html" title="enum class in io.permazen.core">DeleteAction</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="io/permazen/core/TransactionConfig.SchemaRemoval.html#values()" class="member-name-link">values()</a> - Static method in enum class io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
@@ -17000,7 +17139,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="io/permazen/encoding/VoidEncoding.html" class="type-name-link" title="class in io.permazen.encoding">VoidEncoding</a> - Class in <a href="io/permazen/encoding/package-summary.html">io.permazen.encoding</a></dt>
 <dd>
-<div class="block"><code>void</code> primitive type.</div>
+<div class="block">Encoding for <code>void</code> primitive type.</div>
 </dd>
 <dt><a href="io/permazen/encoding/VoidEncoding.html#%3Cinit%3E()" class="member-name-link">VoidEncoding()</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/VoidEncoding.html" title="class in io.permazen.encoding">VoidEncoding</a></dt>
 <dd>&nbsp;</dd>
@@ -17219,7 +17358,7 @@ the order they are declared.</div>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/lmdb/LMDBKVStore.html#wrap(byte%5B%5D,boolean)" class="member-name-link">wrap(byte[], boolean)</a> - Method in class io.permazen.kv.lmdb.<a href="io/permazen/kv/lmdb/LMDBKVStore.html" title="class in io.permazen.kv.lmdb">LMDBKVStore</a></dt>
 <dd>
-<div class="block">Wrap the given <code>byte</code> array in a buffer appropriate for this instance.</div>
+<div class="block">Wrap the given <code>byte[]</code> array in a buffer appropriate for this instance.</div>
 </dd>
 <dt><a href="io/permazen/util/CloseableIterator.html#wrap(java.util.Iterator)" class="member-name-link">wrap(Iterator&lt;E&gt;)</a> - Static method in interface io.permazen.util.<a href="io/permazen/util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a></dt>
 <dd>
@@ -17364,13 +17503,14 @@ the order they are declared.</div>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/TupleEncoding.html#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write(ByteWriter, T)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/TupleEncoding.html" title="class in io.permazen.encoding">TupleEncoding</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(java.io.OutputStream)" class="member-name-link">write(OutputStream)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
+<dd>
+<div class="block">Export all objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given output
+ using the default configuration.</div>
+</dd>
 <dt><a href="io/permazen/kv/util/XMLSerializer.html#write(java.io.OutputStream,boolean)" class="member-name-link">write(OutputStream, boolean)</a> - Method in class io.permazen.kv.util.<a href="io/permazen/kv/util/XMLSerializer.html" title="class in io.permazen.kv.util">XMLSerializer</a></dt>
 <dd>
 <div class="block">Export all key/value pairs from the <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> associated with this instance to the given output.</div>
-</dd>
-<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(java.io.OutputStream,boolean,boolean)" class="member-name-link">write(OutputStream, boolean, boolean)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
-<dd>
-<div class="block">Export all objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given output.</div>
 </dd>
 <dt><a href="io/permazen/kv/util/KeyListEncoder.html#write(java.io.OutputStream,byte%5B%5D,byte%5B%5D)" class="member-name-link">write(OutputStream, byte[], byte[])</a> - Static method in class io.permazen.kv.util.<a href="io/permazen/kv/util/KeyListEncoder.html" title="class in io.permazen.kv.util">KeyListEncoder</a></dt>
 <dd>
@@ -17384,11 +17524,20 @@ the order they are declared.</div>
 <dd>
 <div class="block">Encode the given value and write it to the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link"><code>OutputStream</code></a>.</div>
 </dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(java.io.OutputStream,io.permazen.core.util.XMLObjectSerializer.OutputOptions)" class="member-name-link">write(OutputStream, XMLObjectSerializer.OutputOptions)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
+<dd>
+<div class="block">Export all objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given output.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(java.io.Writer)" class="member-name-link">write(Writer)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
+<dd>
+<div class="block">Export all objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given writer
+ using the default configuration.</div>
+</dd>
 <dt><a href="io/permazen/kv/util/XMLSerializer.html#write(java.io.Writer,boolean)" class="member-name-link">write(Writer, boolean)</a> - Method in class io.permazen.kv.util.<a href="io/permazen/kv/util/XMLSerializer.html" title="class in io.permazen.kv.util">XMLSerializer</a></dt>
 <dd>
 <div class="block">Export all key/value pairs from the <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> associated with this instance to the given writer.</div>
 </dd>
-<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(java.io.Writer,boolean,boolean)" class="member-name-link">write(Writer, boolean, boolean)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(java.io.Writer,io.permazen.core.util.XMLObjectSerializer.OutputOptions)" class="member-name-link">write(Writer, XMLObjectSerializer.OutputOptions)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
 <dd>
 <div class="block">Export all objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given writer.</div>
 </dd>
@@ -17400,10 +17549,6 @@ the order they are declared.</div>
 <dd>
 <div class="block">Encode the given value and write it to the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="external-link"><code>ByteBuffer</code></a>.</div>
 </dd>
-<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#write(javax.xml.stream.XMLStreamWriter,boolean,java.util.stream.Stream)" class="member-name-link">write(XMLStreamWriter, boolean, Stream&lt;? extends ObjId&gt;)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
-<dd>
-<div class="block">Export the specified objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given XML output.</div>
-</dd>
 <dt><a href="io/permazen/kv/util/XMLSerializer.html#write(javax.xml.stream.XMLStreamWriter,byte%5B%5D,byte%5B%5D)" class="member-name-link">write(XMLStreamWriter, byte[], byte[])</a> - Method in class io.permazen.kv.util.<a href="io/permazen/kv/util/XMLSerializer.html" title="class in io.permazen.kv.util">XMLSerializer</a></dt>
 <dd>
 <div class="block">Export a range of key/value pairs from the <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> associated with this instance to the given XML output.</div>
@@ -17414,11 +17559,20 @@ the order they are declared.</div>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/AbstractXMLStreaming.html#writeAttr(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.Object)" class="member-name-link">writeAttr(XMLStreamWriter, QName, Object)</a> - Method in class io.permazen.util.<a href="io/permazen/util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></dt>
 <dd>
-<div class="block">Write out an attribute.</div>
+<div class="block">Write out an attribute, and also verify that no illegal characters are written.</div>
 </dd>
 <dt><a href="io/permazen/util/ByteWriter.html#writeByte(int)" class="member-name-link">writeByte(int)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a></dt>
 <dd>
 <div class="block">Write a single byte to this instance.</div>
+</dd>
+<dt><a href="io/permazen/util/AbstractXMLStreaming.html#writeCData(javax.xml.stream.XMLStreamWriter,java.lang.String)" class="member-name-link">writeCData(XMLStreamWriter, String)</a> - Method in class io.permazen.util.<a href="io/permazen/util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></dt>
+<dd>
+<div class="block">Write out CDATA text with proper escaping of nested <code>]]&gt;</code> sequences,
+ and also verify that no illegal characters are written.</div>
+</dd>
+<dt><a href="io/permazen/util/AbstractXMLStreaming.html#writeCharacters(javax.xml.stream.XMLStreamWriter,java.lang.String)" class="member-name-link">writeCharacters(XMLStreamWriter, String)</a> - Method in class io.permazen.util.<a href="io/permazen/util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></dt>
+<dd>
+<div class="block">Write out text, and also verify that no illegal characters are written.</div>
 </dd>
 <dt><a href="io/permazen/core/Transaction.html#writeCounterField(io.permazen.core.ObjId,java.lang.String,long,boolean)" class="member-name-link">writeCounterField(ObjId, String, long, boolean)</a> - Method in class io.permazen.core.<a href="io/permazen/core/Transaction.html" title="class in io.permazen.core">Transaction</a></dt>
 <dd>
@@ -17461,6 +17615,10 @@ the order they are declared.</div>
 <dt><a href="io/permazen/kv/array/ArrayKVWriter.html#writeMerged(io.permazen.kv.KVStore,java.util.Iterator,io.permazen.kv.mvcc.Mutations)" class="member-name-link">writeMerged(KVStore, Iterator&lt;KVPair&gt;, Mutations)</a> - Method in class io.permazen.kv.array.<a href="io/permazen/kv/array/ArrayKVWriter.html" title="class in io.permazen.kv.array">ArrayKVWriter</a></dt>
 <dd>
 <div class="block">Merge the given key/value pair iteration with the specified mutations and write out the merged combination.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.html#writeObjects(javax.xml.stream.XMLStreamWriter,io.permazen.core.util.XMLObjectSerializer.OutputOptions,java.util.stream.Stream)" class="member-name-link">writeObjects(XMLStreamWriter, XMLObjectSerializer.OutputOptions, Stream&lt;? extends ObjId&gt;)</a> - Method in class io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util">XMLObjectSerializer</a></dt>
+<dd>
+<div class="block">Export the specified objects from the <a href="io/permazen/core/Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a> associated with this instance to the given XML output.</div>
 </dd>
 <dt><a href="io/permazen/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator,java.io.OutputStream)" class="member-name-link">writePairs(Iterator&lt;KVPair&gt;, OutputStream)</a> - Static method in class io.permazen.kv.util.<a href="io/permazen/kv/util/KeyListEncoder.html" title="class in io.permazen.kv.util">KeyListEncoder</a></dt>
 <dd>
@@ -17518,7 +17676,7 @@ the order they are declared.</div>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/simple/XMLKVDatabase.html#writeXML()" class="member-name-link">writeXML()</a> - Method in class io.permazen.kv.simple.<a href="io/permazen/kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple">XMLKVDatabase</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/permazen/schema/SchemaModel.html#writeXML(javax.xml.stream.XMLStreamWriter,boolean)" class="member-name-link">writeXML(XMLStreamWriter, boolean)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
+<dt><a href="io/permazen/schema/SchemaModel.html#writeXML(javax.xml.stream.XMLStreamWriter,boolean,boolean)" class="member-name-link">writeXML(XMLStreamWriter, boolean, boolean)</a> - Method in class io.permazen.schema.<a href="io/permazen/schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></dt>
 <dd>
 <div class="block">Write this instance to the given XML output.</div>
 </dd>
@@ -17571,6 +17729,14 @@ the order they are declared.</div>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" class="type-name-link" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a> - Class in <a href="io/permazen/core/util/package-summary.html">io.permazen.core.util</a></dt>
+<dd>
+<div class="block">Options for the output XML format produced by <a href="io/permazen/core/util/XMLObjectSerializer.html" title="class in io.permazen.core.util"><code>XMLObjectSerializer</code></a>.</div>
+</dd>
+<dt><a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" class="type-name-link" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a> - Class in <a href="io/permazen/core/util/package-summary.html">io.permazen.core.util</a></dt>
+<dd>
+<div class="block">Builder for <a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" title="class in io.permazen.core.util"><code>XMLObjectSerializer.OutputOptions</code></a>.</div>
+</dd>
 <dt><a href="io/permazen/kv/util/XMLSerializer.html" class="type-name-link" title="class in io.permazen.kv.util">XMLSerializer</a> - Class in <a href="io/permazen/kv/util/package-summary.html">io.permazen.kv.util</a></dt>
 <dd>
 <div class="block">Utility methods for serializing and deserializing the contents of a <a href="io/permazen/kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a> to/from XML.</div>
@@ -17578,6 +17744,10 @@ the order they are declared.</div>
 <dt><a href="io/permazen/kv/util/XMLSerializer.html#%3Cinit%3E(io.permazen.kv.KVStore)" class="member-name-link">XMLSerializer(KVStore)</a> - Constructor for class io.permazen.kv.util.<a href="io/permazen/kv/util/XMLSerializer.html" title="class in io.permazen.kv.util">XMLSerializer</a></dt>
 <dd>
 <div class="block">Constructor.</div>
+</dd>
+<dt><a href="io/permazen/util/XMLUtil.html" class="type-name-link" title="class in io.permazen.util">XMLUtil</a> - Class in <a href="io/permazen/util/package-summary.html">io.permazen.util</a></dt>
+<dd>
+<div class="block">XML related utility methods.</div>
 </dd>
 <dt><a href="io/permazen/kv/xodus/XodusKVDatabase.html" class="type-name-link" title="class in io.permazen.kv.xodus">XodusKVDatabase</a> - Class in <a href="io/permazen/kv/xodus/package-summary.html">io.permazen.kv.xodus</a></dt>
 <dd>

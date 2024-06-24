@@ -168,19 +168,19 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/CompareSchemasCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">CompareSchemasCommand</a></li>
-<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/DeleteSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">DeleteSchemaCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/InfoCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">InfoCommand</a> (implements io.permazen.cli.<a href="io/permazen/cli/Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>)</li>
 <li class="circle">io.permazen.jsck.cmd.<a href="io/permazen/jsck/cmd/JsckCommand.html" class="type-name-link" title="class in io.permazen.jsck.cmd">JsckCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/LoadCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">LoadCommand</a></li>
 <li class="circle">io.permazen.kv.raft.cmd.<a href="io/permazen/kv/raft/cmd/RaftFallbackForceStandaloneCommand.html" class="type-name-link" title="class in io.permazen.kv.raft.cmd">RaftFallbackForceStandaloneCommand</a></li>
 <li class="circle">io.permazen.kv.raft.cmd.<a href="io/permazen/kv/raft/cmd/RaftFallbackStatusCommand.html" class="type-name-link" title="class in io.permazen.kv.raft.cmd">RaftFallbackStatusCommand</a></li>
+<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/RemoveSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">RemoveSchemaCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SaveCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SaveCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetAllowNewSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetAllowNewSchemaCommand</a></li>
 <li class="circle">io.permazen.cli.app.cmd.<a href="io/permazen/cli/app/cmd/SetLogLevelCommand.html" class="type-name-link" title="class in io.permazen.cli.app.cmd">SetLogLevelCommand</a></li>
+<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSchemaRemovalCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSchemaRemovalCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetSessionModeCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetSessionModeCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetValidationModeCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetValidationModeCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/SetVerboseCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">SetVerboseCommand</a></li>
-<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowAllSchemasCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">ShowAllSchemasCommand</a></li>
 <li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/ShowSchemaCommand.html" class="type-name-link" title="class in io.permazen.cli.cmd">ShowSchemaCommand</a></li>
 </ul>
 </li>
@@ -344,7 +344,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.encoding.<a href="io/permazen/encoding/ZoneOffsetEncoding.html" class="type-name-link" title="class in io.permazen.encoding">ZoneOffsetEncoding</a></li>
 </ul>
 </li>
-<li class="circle">org.springframework.http.converter.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/AbstractHttpMessageConverter.html" class="type-name-link external-link" title="class or interface in org.springframework.http.converter">AbstractHttpMessageConverter</a>&lt;T&gt; (implements org.springframework.http.converter.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link">HttpMessageConverter</a>&lt;T&gt;)
+<li class="circle">org.springframework.http.converter.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/http/converter/AbstractHttpMessageConverter.html" class="type-name-link external-link" title="class or interface in org.springframework.http.converter">AbstractHttpMessageConverter</a>&lt;T&gt; (implements org.springframework.http.converter.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link">HttpMessageConverter</a>&lt;T&gt;)
 <ul>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/DetachedPermazenTransactionHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a></li>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/KVStoreHttpMessageConverter.html" class="type-name-link" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></li>
@@ -428,9 +428,9 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-<li class="circle">org.springframework.transaction.support.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/AbstractPlatformTransactionManager.html" class="type-name-link external-link" title="class or interface in org.springframework.transaction.support">AbstractPlatformTransactionManager</a> (implements org.springframework.transaction.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link">PlatformTransactionManager</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
+<li class="circle">org.springframework.transaction.support.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/support/AbstractPlatformTransactionManager.html" class="type-name-link external-link" title="class or interface in org.springframework.transaction.support">AbstractPlatformTransactionManager</a> (implements org.springframework.transaction.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/ConfigurableTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link">ConfigurableTransactionManager</a>, org.springframework.transaction.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link">PlatformTransactionManager</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
 <ul>
-<li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenTransactionManager.html" class="type-name-link" title="class in io.permazen.spring">PermazenTransactionManager</a> (implements org.springframework.beans.factory.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/beans/factory/InitializingBean.html" title="class or interface in org.springframework.beans.factory" class="external-link">InitializingBean</a>, org.springframework.transaction.support.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/transaction/support/ResourceTransactionManager.html" title="class or interface in org.springframework.transaction.support" class="external-link">ResourceTransactionManager</a>)</li>
+<li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenTransactionManager.html" class="type-name-link" title="class in io.permazen.spring">PermazenTransactionManager</a> (implements org.springframework.beans.factory.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/beans/factory/InitializingBean.html" title="class or interface in org.springframework.beans.factory" class="external-link">InitializingBean</a>, org.springframework.transaction.support.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/transaction/support/ResourceTransactionManager.html" title="class or interface in org.springframework.transaction.support" class="external-link">ResourceTransactionManager</a>)</li>
 </ul>
 </li>
 <li class="circle">io.permazen.kv.raft.cmd.<a href="io/permazen/kv/raft/cmd/AbstractRaftCommand.RaftAction.html" class="type-name-link" title="class in io.permazen.kv.raft.cmd">AbstractRaftCommand.RaftAction</a> (implements io.permazen.cli.<a href="io/permazen/cli/Session.Action.html" title="interface in io.permazen.cli">Session.Action</a>)
@@ -562,7 +562,7 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-<li class="circle">org.springframework.context.annotation.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/context/annotation/ClassPathScanningCandidateComponentProvider.html" class="type-name-link external-link" title="class or interface in org.springframework.context.annotation">ClassPathScanningCandidateComponentProvider</a> (implements org.springframework.core.env.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/core/env/EnvironmentCapable.html" title="class or interface in org.springframework.core.env" class="external-link">EnvironmentCapable</a>, org.springframework.context.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/context/ResourceLoaderAware.html" title="class or interface in org.springframework.context" class="external-link">ResourceLoaderAware</a>)
+<li class="circle">org.springframework.context.annotation.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/context/annotation/ClassPathScanningCandidateComponentProvider.html" class="type-name-link external-link" title="class or interface in org.springframework.context.annotation">ClassPathScanningCandidateComponentProvider</a> (implements org.springframework.core.env.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/core/env/EnvironmentCapable.html" title="class or interface in org.springframework.core.env" class="external-link">EnvironmentCapable</a>, org.springframework.context.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/context/ResourceLoaderAware.html" title="class or interface in org.springframework.context" class="external-link">ResourceLoaderAware</a>)
 <ul>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/AnnotatedClassScanner.html" class="type-name-link" title="class in io.permazen.spring">AnnotatedClassScanner</a>
 <ul>
@@ -731,7 +731,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.util.<a href="io/permazen/util/MovingAverage.html" class="type-name-link" title="class in io.permazen.util">MovingAverage</a></li>
 <li class="circle">io.permazen.kv.mvstore.<a href="io/permazen/kv/mvstore/MVStoreKVImplementation.html" class="type-name-link" title="class in io.permazen.kv.mvstore">MVStoreKVImplementation</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv">KVImplementation</a>&lt;C&gt;)</li>
 <li class="circle">io.permazen.kv.mvstore.<a href="io/permazen/kv/mvstore/MVStoreKVImplementation.Config.html" class="type-name-link" title="class in io.permazen.kv.mvstore">MVStoreKVImplementation.Config</a></li>
-<li class="circle">org.springframework.beans.factory.xml.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandlerSupport.html" class="type-name-link external-link" title="class or interface in org.springframework.beans.factory.xml">NamespaceHandlerSupport</a> (implements org.springframework.beans.factory.xml.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link">NamespaceHandler</a>)
+<li class="circle">org.springframework.beans.factory.xml.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandlerSupport.html" class="type-name-link external-link" title="class or interface in org.springframework.beans.factory.xml">NamespaceHandlerSupport</a> (implements org.springframework.beans.factory.xml.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link">NamespaceHandler</a>)
 <ul>
 <li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenNamespaceHandler.html" class="type-name-link" title="class in io.permazen.spring">PermazenNamespaceHandler</a></li>
 </ul>
@@ -745,7 +745,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjIdParser.html" class="type-name-link" title="class in io.permazen.cli.parse">ObjIdParser</a> (implements io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;T&gt;)</li>
 <li class="circle">io.permazen.core.util.<a href="io/permazen/core/util/ObjIdQueues.html" class="type-name-link" title="class in io.permazen.core.util">ObjIdQueues</a></li>
 <li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjInfo.html" class="type-name-link" title="class in io.permazen.cli.parse">ObjInfo</a></li>
-<li class="circle">io.permazen.cli.parse.<a href="io/permazen/cli/parse/ObjTypeParser.html" class="type-name-link" title="class in io.permazen.cli.parse">ObjTypeParser</a> (implements io.permazen.cli.parse.<a href="io/permazen/cli/parse/Parser.html" title="interface in io.permazen.cli.parse">Parser</a>&lt;T&gt;)</li>
 <li class="circle">io.permazen.kv.raft.fallback.<a href="io/permazen/kv/raft/fallback/OverwriteMergeStrategy.html" class="type-name-link" title="class in io.permazen.kv.raft.fallback">OverwriteMergeStrategy</a> (implements io.permazen.kv.raft.fallback.<a href="io/permazen/kv/raft/fallback/MergeStrategy.html" title="interface in io.permazen.kv.raft.fallback">MergeStrategy</a>)</li>
 <li class="circle">io.permazen.cli.<a href="io/permazen/cli/ParamParser.html" class="type-name-link" title="class in io.permazen.cli">ParamParser</a></li>
 <li class="circle">io.permazen.cli.<a href="io/permazen/cli/ParamParser.Param.html" class="type-name-link" title="class in io.permazen.cli">ParamParser.Param</a></li>
@@ -754,7 +753,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.<a href="io/permazen/Permazen.html" class="type-name-link" title="class in io.permazen">Permazen</a></li>
 <li class="circle">io.permazen.<a href="io/permazen/PermazenConfig.html" class="type-name-link" title="class in io.permazen">PermazenConfig</a></li>
 <li class="circle">io.permazen.<a href="io/permazen/PermazenConfig.Builder.html" class="type-name-link" title="class in io.permazen">PermazenConfig.Builder</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Cloneable.html" title="class or interface in java.lang" class="external-link">Cloneable</a>)</li>
-<li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenExceptionTranslator.html" class="type-name-link" title="class in io.permazen.spring">PermazenExceptionTranslator</a> (implements org.springframework.dao.support.<a href="https://docs.spring.io/spring-framework/docs/6.0.15/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link">PersistenceExceptionTranslator</a>)</li>
+<li class="circle">io.permazen.spring.<a href="io/permazen/spring/PermazenExceptionTranslator.html" class="type-name-link" title="class in io.permazen.spring">PermazenExceptionTranslator</a> (implements org.springframework.dao.support.<a href="https://docs.spring.io/spring-framework/docs/6.1.6/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link">PersistenceExceptionTranslator</a>)</li>
 <li class="circle">io.permazen.<a href="io/permazen/PermazenSchemaItem.html" class="type-name-link" title="class in io.permazen">PermazenSchemaItem</a>
 <ul>
 <li class="circle">io.permazen.<a href="io/permazen/PermazenClass.html" class="type-name-link" title="class in io.permazen">PermazenClass</a>&lt;T&gt;</li>
@@ -1015,14 +1014,14 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">io.permazen.kv.<a href="io/permazen/kv/KVTransactionException.html" class="type-name-link" title="class in io.permazen.kv">KVTransactionException</a>
 <ul>
-<li class="circle">io.permazen.kv.<a href="io/permazen/kv/RetryTransactionException.html" class="type-name-link" title="class in io.permazen.kv">RetryTransactionException</a>
+<li class="circle">io.permazen.kv.<a href="io/permazen/kv/RetryKVTransactionException.html" class="type-name-link" title="class in io.permazen.kv">RetryKVTransactionException</a>
 <ul>
 <li class="circle">io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/TransactionConflictException.html" class="type-name-link" title="class in io.permazen.kv.mvcc">TransactionConflictException</a></li>
 </ul>
 </li>
-<li class="circle">io.permazen.kv.<a href="io/permazen/kv/StaleTransactionException.html" class="type-name-link" title="class in io.permazen.kv">StaleTransactionException</a>
+<li class="circle">io.permazen.kv.<a href="io/permazen/kv/StaleKVTransactionException.html" class="type-name-link" title="class in io.permazen.kv">StaleKVTransactionException</a>
 <ul>
-<li class="circle">io.permazen.kv.<a href="io/permazen/kv/TransactionTimeoutException.html" class="type-name-link" title="class in io.permazen.kv">TransactionTimeoutException</a></li>
+<li class="circle">io.permazen.kv.<a href="io/permazen/kv/KVTransactionTimeoutException.html" class="type-name-link" title="class in io.permazen.kv">KVTransactionTimeoutException</a></li>
 </ul>
 </li>
 </ul>
@@ -1074,6 +1073,9 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/Writes.html" class="type-name-link" title="class in io.permazen.kv.mvcc">Writes</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Cloneable.html" title="class or interface in java.lang" class="external-link">Cloneable</a>, io.permazen.kv.mvcc.<a href="io/permazen/kv/mvcc/Mutations.html" title="interface in io.permazen.kv.mvcc">Mutations</a>)</li>
 <li class="circle">io.permazen.schema.<a href="io/permazen/schema/XMLConstants.html" class="type-name-link" title="class in io.permazen.schema">XMLConstants</a></li>
 <li class="circle">io.permazen.kv.simple.<a href="io/permazen/kv/simple/XMLKVImplementation.html" class="type-name-link" title="class in io.permazen.kv.simple">XMLKVImplementation</a></li>
+<li class="circle">io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.html" class="type-name-link" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions</a></li>
+<li class="circle">io.permazen.core.util.<a href="io/permazen/core/util/XMLObjectSerializer.OutputOptions.Builder.html" class="type-name-link" title="class in io.permazen.core.util">XMLObjectSerializer.OutputOptions.Builder</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Cloneable.html" title="class or interface in java.lang" class="external-link">Cloneable</a>)</li>
+<li class="circle">io.permazen.util.<a href="io/permazen/util/XMLUtil.html" class="type-name-link" title="class in io.permazen.util">XMLUtil</a></li>
 <li class="circle">io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/XodusKVDatabase.html" class="type-name-link" title="class in io.permazen.kv.xodus">XodusKVDatabase</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVDatabase.html" title="interface in io.permazen.kv">KVDatabase</a>)</li>
 <li class="circle">io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/XodusKVImplementation.html" class="type-name-link" title="class in io.permazen.kv.xodus">XodusKVImplementation</a> (implements io.permazen.kv.<a href="io/permazen/kv/KVImplementation.html" title="interface in io.permazen.kv">KVImplementation</a>&lt;C&gt;)</li>
 <li class="circle">io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/XodusKVImplementation.Config.html" class="type-name-link" title="class in io.permazen.kv.xodus">XodusKVImplementation.Config</a></li>
@@ -1176,7 +1178,11 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">io.permazen.cli.<a href="io/permazen/cli/Session.TransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.TransactionalAction</a>
 <ul>
-<li class="circle">io.permazen.cli.<a href="io/permazen/cli/Session.RetryableTransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></li>
+<li class="circle">io.permazen.cli.<a href="io/permazen/cli/Session.RetryableTransactionalAction.html" class="type-name-link" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a>
+<ul>
+<li class="circle">io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.KVAction.html" class="type-name-link" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a></li>
+</ul>
+</li>
 <li class="circle">io.permazen.cli.<a href="io/permazen/cli/Session.TransactionalActionWithOptions.html" class="type-name-link" title="interface in io.permazen.cli">Session.TransactionalActionWithOptions</a></li>
 </ul>
 </li>
@@ -1227,6 +1233,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.permazen.kv.simple.<a href="io/permazen/kv/simple/LockManager.LockResult.html" class="type-name-link" title="enum class in io.permazen.kv.simple">LockManager.LockResult</a></li>
 <li class="circle">io.permazen.cli.<a href="io/permazen/cli/SessionMode.html" class="type-name-link" title="enum class in io.permazen.cli">SessionMode</a></li>
 <li class="circle">io.permazen.kv.sql.<a href="io/permazen/kv/sql/SQLKVTransaction.StmtType.html" class="type-name-link" title="enum class in io.permazen.kv.sql">SQLKVTransaction.StmtType</a></li>
+<li class="circle">io.permazen.core.<a href="io/permazen/core/TransactionConfig.SchemaRemoval.html" class="type-name-link" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></li>
 <li class="circle">io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/TransactionType.html" class="type-name-link" title="enum class in io.permazen.kv.xodus">TransactionType</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">io.permazen.kv.raft.<a href="io/permazen/kv/raft/TxState.html" class="type-name-link" title="enum class in io.permazen.kv.raft">TxState</a></li>
 <li class="circle">io.permazen.<a href="io/permazen/UpgradeConversionPolicy.html" class="type-name-link" title="enum class in io.permazen">UpgradeConversionPolicy</a></li>

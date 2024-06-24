@@ -279,8 +279,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.
 
  <p>
- Each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> must be one of the valid XML characters
- (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;ufffd</code>).</div>
+ Each of the characters in the returned <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a>, when decoded as 32-bit Unicode codepoints,
+ must contain only valid XML characters (see <a href="../util/XMLUtil.html#isValidChar(int)"><code>XMLUtil.isValidChar(int)</code></a>).</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>uuid</code> - actual value, never null</dd>

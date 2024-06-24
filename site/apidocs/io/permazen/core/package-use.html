@@ -212,6 +212,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">A Permazen <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> transaction.</div>
 </div>
+<div class="col-first even-row-color"><a href="class-use/TransactionConfig.html#io.permazen.cli">TransactionConfig</a></div>
+<div class="col-last even-row-color">
+<div class="block">Configuration for a <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
+</div>
+<div class="col-first odd-row-color"><a href="class-use/TransactionConfig.SchemaRemoval.html#io.permazen.cli">TransactionConfig.SchemaRemoval</a></div>
+<div class="col-last odd-row-color">
+<div class="block">Configures if and when to automatically detect and remove unused schemas from a database.</div>
+</div>
 </div>
 </section>
 </li>
@@ -238,6 +246,10 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Provides an object database abstraction on top of a key/value database.</div>
 </div>
+<div class="col-first odd-row-color"><a href="class-use/TransactionConfig.SchemaRemoval.html#io.permazen.cli.config">TransactionConfig.SchemaRemoval</a></div>
+<div class="col-last odd-row-color">
+<div class="block">Configures if and when to automatically detect and remove unused schemas from a database.</div>
+</div>
 </div>
 </section>
 </li>
@@ -262,7 +274,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Schema.html#io.permazen.cli.parse">Schema</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Reflects one <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> recorded in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
+<div class="block">Reflects a <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> as recorded in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/Transaction.html#io.permazen.cli.parse">Transaction</a></div>
 <div class="col-last even-row-color">
@@ -439,7 +451,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/Schema.html#io.permazen.core">Schema</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Reflects one <a href="Schema.html" title="class in io.permazen.core"><code>Schema</code></a> recorded in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
+<div class="block">Reflects a <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> as recorded in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a> as seen by a particular <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/SchemaBundle.html#io.permazen.core">SchemaBundle</a></div>
 <div class="col-last even-row-color">
@@ -447,7 +459,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><a href="class-use/SchemaBundle.Encoded.html#io.permazen.core">SchemaBundle.Encoded</a></div>
 <div class="col-last odd-row-color">
-<div class="block">Holder the for <code>byte[]</code>-encoded <a href="SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> data that is stored in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
+<div class="block">The <code>byte[]</code>-encoded version of a <a href="SchemaBundle.html" title="class in io.permazen.core"><code>SchemaBundle</code></a> that is actually stored in a <a href="Database.html" title="class in io.permazen.core"><code>Database</code></a>.</div>
 </div>
 <div class="col-first even-row-color"><a href="class-use/SchemaChangeListener.html#io.permazen.core">SchemaChangeListener</a></div>
 <div class="col-last even-row-color">
@@ -507,12 +519,16 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Builder for <a href="TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a>s.</div>
 </div>
-<div class="col-first even-row-color"><a href="class-use/TransactionException.html#io.permazen.core">TransactionException</a></div>
+<div class="col-first even-row-color"><a href="class-use/TransactionConfig.SchemaRemoval.html#io.permazen.core">TransactionConfig.SchemaRemoval</a></div>
 <div class="col-last even-row-color">
+<div class="block">Configures if and when to automatically detect and remove unused schemas from a database.</div>
+</div>
+<div class="col-first odd-row-color"><a href="class-use/TransactionException.html#io.permazen.core">TransactionException</a></div>
+<div class="col-last odd-row-color">
 <div class="block">Superclass of exceptions associated with a specific <a href="Transaction.html" title="class in io.permazen.core"><code>Transaction</code></a>.</div>
 </div>
-<div class="col-first odd-row-color"><a href="class-use/UnknownTypeException.html#io.permazen.core">UnknownTypeException</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="class-use/UnknownTypeException.html#io.permazen.core">UnknownTypeException</a></div>
+<div class="col-last even-row-color">
 <div class="block">Thrown when attempting to access an unknown type.</div>
 </div>
 </div>

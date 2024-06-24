@@ -347,32 +347,42 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the <a href="ValidationMode.html" title="enum class in io.permazen"><code>ValidationMode</code></a> configured for this instance.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#invertReferencePath(io.permazen.ReferencePath,java.util.stream.Stream)" class="member-name-link">invertReferencePath</a><wbr>(<a href="ReferencePath.html" title="class in io.permazen">ReferencePath</a>&nbsp;path,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#hasCurrent()" class="member-name-link">hasCurrent</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Determine if there is a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with the current thread.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/NavigableSet.html" title="class or interface in java.util" class="external-link">NavigableSet</a>&lt;<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#invertReferencePath(io.permazen.ReferencePath,java.util.stream.Stream)" class="member-name-link">invertReferencePath</a><wbr>(<a href="ReferencePath.html" title="class in io.permazen">ReferencePath</a>&nbsp;path,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;? extends <a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&gt;&nbsp;targetObjects)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Find all starting objects that refer to any object in the given target set through the specified <a href="ReferencePath.html" title="class in io.permazen"><code>ReferencePath</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDetached()" class="member-name-link">isDetached</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDetached()" class="member-name-link">isDetached</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this instance is a <a href="DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isOpen()" class="member-name-link">isOpen</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isOpen()" class="member-name-link">isOpen</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this transaction is still usable.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#migrateSchema(io.permazen.PermazenObject)" class="member-name-link">migrateSchema</a><wbr>(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#migrateSchema(io.permazen.PermazenObject)" class="member-name-link">migrateSchema</a><wbr>(<a href="PermazenObject.html" title="interface in io.permazen">PermazenObject</a>&nbsp;pobj)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Update the schema of the specified object, if necessary, so that it matches
  the schema associated with this instance's <a href="Permazen.html" title="class in io.permazen"><code>Permazen</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#performAction(java.lang.Runnable)" class="member-name-link">performAction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#performAction(java.lang.Runnable)" class="member-name-link">performAction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Invoke the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link"><code>Runnable</code></a> with this instance as the <a href="#getCurrent()">current transaction</a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;T</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#performAction(java.util.function.Supplier)" class="member-name-link">performAction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;T&gt;&nbsp;action)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Invoke the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link"><code>Supplier</code></a> with this instance as the <a href="#getCurrent()">current transaction</a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;V1,<wbr>
 V2,<wbr>
@@ -569,6 +579,17 @@ T&gt;&nbsp;<a href="index/Index1.html" title="interface in io.permazen.index">In
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>ptx</code> - transaction to associate with the current thread</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="hasCurrent()">
+<h3>hasCurrent</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasCurrent</span>()</div>
+<div class="block">Determine if there is a <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a> associated with the current thread.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true if there is a current <a href="PermazenTransaction.html" title="class in io.permazen"><code>PermazenTransaction</code></a>, otherwise false</dd>
 </dl>
 </section>
 </li>
@@ -881,7 +902,7 @@ T&gt;&nbsp;<a href="index/Index1.html" title="interface in io.permazen.index">In
 <dd><code><a href="core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></code> - if any object to be copied does not actually exist</dd>
 <dd><code><a href="core/DeletedObjectException.html" title="class in io.permazen.core">DeletedObjectException</a></code> - if any copied object ends up with a reference to an object that does not exist
   in <code>dest</code> through a reference field configured to disallow deleted assignment</dd>
-<dd><code>UnknownTypeException</code> - if any source object's type does not exist in <code>dest</code></dd>
+<dd><code><a href="core/UnknownTypeException.html" title="class in io.permazen.core">UnknownTypeException</a></code> - if any source object's type does not exist in <code>dest</code></dd>
 <dd><code><a href="core/SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if the schema corresponding to any copied object is not identical
   in both this instance and <code>dest</code></dd>
 <dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if this transaction or <code>dest</code> is no longer usable</dd>
@@ -1682,7 +1703,7 @@ T&gt;</span>&nbsp;<span class="return-type"><a href="index/Index4.html" title="i
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - from <a href="kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
+<dd><code><a href="kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - from <a href="kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
 <dd><code><a href="ValidationException.html" title="class in io.permazen">ValidationException</a></code> - if a validation error is detected</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this method is invoked re-entrantly from within a validation check</dd>
 </dl>
@@ -1732,7 +1753,7 @@ T&gt;</span>&nbsp;<span class="return-type"><a href="index/Index4.html" title="i
  <b>Note:</b> if the this transaction was created with <a href="ValidationMode.html#DISABLED"><code>ValidationMode.DISABLED</code></a>, then this method does nothing.</div>
 <dl class="notes">
 <dt>Throws:</dt>
-<dd><code><a href="kv/RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - from <a href="kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
+<dd><code><a href="kv/RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - from <a href="kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
 <dd><code><a href="ValidationException.html" title="class in io.permazen">ValidationException</a></code> - if a validation error is detected</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if transaction commit is already in progress</dd>
 <dd><code><a href="core/StaleTransactionException.html" title="class in io.permazen.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
@@ -1757,6 +1778,25 @@ T&gt;</span>&nbsp;<span class="return-type"><a href="index/Index4.html" title="i
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>action</code> - action to perform</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>action</code> is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="performAction(java.util.function.Supplier)">
+<h3>performAction</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name">performAction</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;T&gt;&nbsp;action)</span></div>
+<div class="block">Invoke the given <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link"><code>Supplier</code></a> with this instance as the <a href="#getCurrent()">current transaction</a>.
+
+ <p>
+ If another instance is currently associated with the current thread, it is set aside for the duration of
+ <code>action</code>'s execution, and then restored when <code>action</code> is finished (regardless of outcome).</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>action</code> - action to perform</dd>
+<dt>Returns:</dt>
+<dd>result from action</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>action</code> is null</dd>
 </dl>

@@ -115,7 +115,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
@@ -128,24 +128,26 @@ loadScripts(document, 'script');</script>
 <div class="block">Process command line parameters and return action.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHelpSummary()" class="member-name-link">getHelpSummary</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHelpDetail()" class="member-name-link">getHelpDetail</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get expanded help (typically multiple lines).</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHelpSummary()" class="member-name-link">getHelpSummary</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get summarized help (typically a single line).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static <a href="../../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getSchemaModel(io.permazen.cli.Session,io.permazen.schema.SchemaId)" class="member-name-link">getSchemaModel</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a>&nbsp;schemaId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static &lt;R&gt;&nbsp;R</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#runWithoutSchema(io.permazen.cli.Session,io.permazen.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)" class="member-name-link">runWithoutSchema</a><wbr>(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- io.permazen.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;&nbsp;action)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSessionModes()" class="member-name-link">getSessionModes</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>(s) supported by this command.</div>
+</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.cli.cmd.AbstractCommand">Methods inherited from class&nbsp;io.permazen.cli.cmd.<a href="AbstractCommand.html" title="class in io.permazen.cli.cmd">AbstractCommand</a></h3>
-<code><a href="AbstractCommand.html#execute(io.permazen.cli.Session,java.lang.String,java.util.List)">execute</a>, <a href="AbstractCommand.html#getHelpDetail()">getHelpDetail</a>, <a href="AbstractCommand.html#getName()">getName</a>, <a href="AbstractCommand.html#getParser(java.lang.String)">getParser</a>, <a href="AbstractCommand.html#getSessionModes()">getSessionModes</a>, <a href="AbstractCommand.html#getUsage()">getUsage</a></code></div>
+<code><a href="AbstractCommand.html#execute(io.permazen.cli.Session,java.lang.String,java.util.List)">execute</a>, <a href="AbstractCommand.html#getName()">getName</a>, <a href="AbstractCommand.html#getParser(java.lang.String)">getParser</a>, <a href="AbstractCommand.html#getUsage()">getUsage</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -191,6 +193,45 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getHelpDetail()">
+<h3>getHelpDetail</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getHelpDetail</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractCommand.html#getHelpDetail()">AbstractCommand</a></code></span></div>
+<div class="block">Get expanded help (typically multiple lines).
+
+ <p>
+ The implementation in <a href="AbstractCommand.html" title="class in io.permazen.cli.cmd"><code>AbstractCommand</code></a> delegates to <a href="AbstractCommand.html#getHelpSummary()"><code>getHelpSummary()</code></a>.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Command.html#getHelpDetail()">getHelpDetail</a></code>&nbsp;in interface&nbsp;<code><a href="Command.html" title="interface in io.permazen.cli.cmd">Command</a></code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="AbstractCommand.html#getHelpDetail()">getHelpDetail</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCommand.html" title="class in io.permazen.cli.cmd">AbstractCommand</a></code></dd>
+<dt>Returns:</dt>
+<dd>detailed command description</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getSessionModes()">
+<h3>getSessionModes</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link">EnumSet</a>&lt;<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&gt;</span>&nbsp;<span class="element-name">getSessionModes</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractCommand.html#getSessionModes()">AbstractCommand</a></code></span></div>
+<div class="block">Get the <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>(s) supported by this command.
+
+ <p>
+ The implementation in <a href="AbstractCommand.html" title="class in io.permazen.cli.cmd"><code>AbstractCommand</code></a> returns an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/EnumSet.html" title="class or interface in java.util" class="external-link"><code>EnumSet</code></a> containing
+ <a href="../SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> and <a href="../SessionMode.html#PERMAZEN"><code>SessionMode.PERMAZEN</code></a>.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="Command.html#getSessionModes()">getSessionModes</a></code>&nbsp;in interface&nbsp;<code><a href="Command.html" title="interface in io.permazen.cli.cmd">Command</a></code></dd>
+<dt>Overrides:</dt>
+<dd><code><a href="AbstractCommand.html#getSessionModes()">getSessionModes</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCommand.html" title="class in io.permazen.cli.cmd">AbstractCommand</a></code></dd>
+<dt>Returns:</dt>
+<dd>set of supported <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>s</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getAction(io.permazen.cli.Session,java.util.Map)">
 <h3>getAction</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../Session.Action.html" title="interface in io.permazen.cli">Session.Action</a></span>&nbsp;<span class="element-name">getAction</span><wbr><span class="parameters">(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
@@ -206,20 +247,6 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>action to perform for the parsed command</dd>
 </dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getSchemaModel(io.permazen.cli.Session,io.permazen.schema.SchemaId)">
-<h3>getSchemaModel</h3>
-<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type"><a href="../../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></span>&nbsp;<span class="element-name">getSchemaModel</span><wbr><span class="parameters">(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- <a href="../../schema/SchemaId.html" title="class in io.permazen.schema">SchemaId</a>&nbsp;schemaId)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="runWithoutSchema(io.permazen.cli.Session,io.permazen.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction)">
-<h3>runWithoutSchema</h3>
-<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="type-parameters">&lt;R&gt;</span>&nbsp;<span class="return-type">R</span>&nbsp;<span class="element-name">runWithoutSchema</span><wbr><span class="parameters">(<a href="../Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session,
- io.permazen.cli.cmd.AbstractSchemaCommand.SchemaAgnosticAction&lt;R&gt;&nbsp;action)</span></div>
 </section>
 </li>
 </ul>

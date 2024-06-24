@@ -105,6 +105,9 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <div class="block">The <a href="ItemType.html" title="enum class in io.permazen.schema"><code>ItemType</code></a> that this class represents.</div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-io.permazen.util.AbstractXMLStreaming">Fields inherited from class&nbsp;io.permazen.util.<a href="../util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></h3>
+<code><a href="../util/AbstractXMLStreaming.html#log">log</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -198,38 +201,46 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns this schema model in XML form.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toXML(java.io.OutputStream,boolean)" class="member-name-link">toXML</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(boolean,boolean)" class="member-name-link">toString</a><wbr>(boolean&nbsp;includeStorageIds,
  boolean&nbsp;prettyPrint)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns this schema model in XML form.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toXML(java.io.OutputStream,boolean,boolean)" class="member-name-link">toXML</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output,
+ boolean&nbsp;includeStorageIds,
+ boolean&nbsp;prettyPrint)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Serialize this instance to the given XML output.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate()" class="member-name-link">validate</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate()" class="member-name-link">validate</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Validate this instance.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validateWithEncodings(io.permazen.encoding.EncodingRegistry)" class="member-name-link">validateWithEncodings</a><wbr>(<a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validateWithEncodings(io.permazen.encoding.EncodingRegistry)" class="member-name-link">validateWithEncodings</a><wbr>(<a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a>&nbsp;encodingRegistry)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block"><a href="#validate()">Validate</a> this instance itself and also verify that all of its
  <a href="SimpleSchemaField.html#getEncodingId()">field encodings</a> can be found in the given <a href="../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final &lt;T extends <a href="SchemaItem.html" title="class in io.permazen.schema">SchemaItem</a>&gt;<br>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#visitSchemaItems(java.lang.Class,java.util.function.Consumer)" class="member-name-link">visitSchemaItems</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;nodeType,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final &lt;T extends <a href="SchemaItem.html" title="class in io.permazen.schema">SchemaItem</a>&gt;<br>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#visitSchemaItems(java.lang.Class,java.util.function.Consumer)" class="member-name-link">visitSchemaItems</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;nodeType,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super T&gt;&nbsp;visitor)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Visit this schema item and all of its descendents matching the given type with the given visitor.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#visitSchemaItems(java.util.function.Consumer)" class="member-name-link">visitSchemaItems</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="SchemaItem.html" title="class in io.permazen.schema">SchemaItem</a>&gt;&nbsp;visitor)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#visitSchemaItems(java.util.function.Consumer)" class="member-name-link">visitSchemaItems</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="SchemaItem.html" title="class in io.permazen.schema">SchemaItem</a>&gt;&nbsp;visitor)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Visit all <a href="SchemaItem.html" title="class in io.permazen.schema"><code>SchemaItem</code></a> descendents of this instance with the given visitor.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeXML(javax.xml.stream.XMLStreamWriter,boolean)" class="member-name-link">writeXML</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeXML(javax.xml.stream.XMLStreamWriter,boolean,boolean)" class="member-name-link">writeXML</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ boolean&nbsp;includeStorageIds,
  boolean&nbsp;prettyPrint)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Write this instance to the given XML output.</div>
 </div>
 </div>
@@ -237,7 +248,7 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.util.AbstractXMLStreaming">Methods inherited from class&nbsp;io.permazen.util.<a href="../util/AbstractXMLStreaming.html" title="class in io.permazen.util">AbstractXMLStreaming</a></h3>
-<code><a href="../util/AbstractXMLStreaming.html#expect(javax.xml.stream.XMLStreamReader,boolean,javax.xml.namespace.QName...)">expect</a>, <a href="../util/AbstractXMLStreaming.html#expectClose(javax.xml.stream.XMLStreamReader)">expectClose</a>, <a href="../util/AbstractXMLStreaming.html#getAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName)">getAttr</a>, <a href="../util/AbstractXMLStreaming.html#getAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getAttr</a>, <a href="../util/AbstractXMLStreaming.html#getBooleanAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName)">getBooleanAttr</a>, <a href="../util/AbstractXMLStreaming.html#getBooleanAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getBooleanAttr</a>, <a href="../util/AbstractXMLStreaming.html#getIntAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName)">getIntAttr</a>, <a href="../util/AbstractXMLStreaming.html#getIntAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getIntAttr</a>, <a href="../util/AbstractXMLStreaming.html#getLongAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getLongAttr</a>, <a href="../util/AbstractXMLStreaming.html#newInvalidAttributeException(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,java.lang.String,java.lang.Throwable...)">newInvalidAttributeException</a>, <a href="../util/AbstractXMLStreaming.html#newInvalidInputException(javax.xml.stream.XMLStreamReader,java.lang.String,java.lang.Object...)">newInvalidInputException</a>, <a href="../util/AbstractXMLStreaming.html#newInvalidInputException(javax.xml.stream.XMLStreamReader,java.lang.Throwable,java.lang.String,java.lang.Object...)">newInvalidInputException</a>, <a href="../util/AbstractXMLStreaming.html#next(javax.xml.stream.XMLStreamReader)">next</a>, <a href="../util/AbstractXMLStreaming.html#skip(javax.xml.stream.XMLStreamReader)">skip</a>, <a href="../util/AbstractXMLStreaming.html#writeAttr(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.Object)">writeAttr</a>, <a href="../util/AbstractXMLStreaming.html#writeElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.String)">writeElement</a>, <a href="../util/AbstractXMLStreaming.html#writeEmptyElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">writeEmptyElement</a>, <a href="../util/AbstractXMLStreaming.html#writeStartElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">writeStartElement</a></code></div>
+<code><a href="../util/AbstractXMLStreaming.html#expect(javax.xml.stream.XMLStreamReader,boolean,javax.xml.namespace.QName...)">expect</a>, <a href="../util/AbstractXMLStreaming.html#expectClose(javax.xml.stream.XMLStreamReader)">expectClose</a>, <a href="../util/AbstractXMLStreaming.html#getAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName)">getAttr</a>, <a href="../util/AbstractXMLStreaming.html#getAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getAttr</a>, <a href="../util/AbstractXMLStreaming.html#getBooleanAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName)">getBooleanAttr</a>, <a href="../util/AbstractXMLStreaming.html#getBooleanAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getBooleanAttr</a>, <a href="../util/AbstractXMLStreaming.html#getIntAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName)">getIntAttr</a>, <a href="../util/AbstractXMLStreaming.html#getIntAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getIntAttr</a>, <a href="../util/AbstractXMLStreaming.html#getLongAttr(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,boolean)">getLongAttr</a>, <a href="../util/AbstractXMLStreaming.html#newInvalidAttributeException(javax.xml.stream.XMLStreamReader,javax.xml.namespace.QName,java.lang.String,java.lang.Throwable...)">newInvalidAttributeException</a>, <a href="../util/AbstractXMLStreaming.html#newInvalidInputException(javax.xml.stream.XMLStreamReader,java.lang.String,java.lang.Object...)">newInvalidInputException</a>, <a href="../util/AbstractXMLStreaming.html#newInvalidInputException(javax.xml.stream.XMLStreamReader,java.lang.Throwable,java.lang.String,java.lang.Object...)">newInvalidInputException</a>, <a href="../util/AbstractXMLStreaming.html#next(javax.xml.stream.XMLStreamReader)">next</a>, <a href="../util/AbstractXMLStreaming.html#skip(javax.xml.stream.XMLStreamReader)">skip</a>, <a href="../util/AbstractXMLStreaming.html#writeAttr(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.Object)">writeAttr</a>, <a href="../util/AbstractXMLStreaming.html#writeCData(javax.xml.stream.XMLStreamWriter,java.lang.String)">writeCData</a>, <a href="../util/AbstractXMLStreaming.html#writeCharacters(javax.xml.stream.XMLStreamWriter,java.lang.String)">writeCharacters</a>, <a href="../util/AbstractXMLStreaming.html#writeElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName,java.lang.String)">writeElement</a>, <a href="../util/AbstractXMLStreaming.html#writeEmptyElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">writeEmptyElement</a>, <a href="../util/AbstractXMLStreaming.html#writeStartElement(javax.xml.stream.XMLStreamWriter,javax.xml.namespace.QName)">writeStartElement</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -339,9 +350,10 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 </section>
 </li>
 <li>
-<section class="detail" id="toXML(java.io.OutputStream,boolean)">
+<section class="detail" id="toXML(java.io.OutputStream,boolean,boolean)">
 <h3>toXML</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">toXML</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output,
+ boolean&nbsp;includeStorageIds,
  boolean&nbsp;prettyPrint)</span>
            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Serialize this instance to the given XML output.
@@ -351,9 +363,11 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>output</code> - XML output</dd>
+<dd><code>includeStorageIds</code> - true to include storage ID's</dd>
 <dd><code>prettyPrint</code> - true to indent the XML and add schema ID comments</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - if an I/O error occurs</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>output</code> is null</dd>
 </dl>
 </section>
 </li>
@@ -470,15 +484,17 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 </section>
 </li>
 <li>
-<section class="detail" id="writeXML(javax.xml.stream.XMLStreamWriter,boolean)">
+<section class="detail" id="writeXML(javax.xml.stream.XMLStreamWriter,boolean,boolean)">
 <h3>writeXML</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeXML</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamWriter</a>&nbsp;writer,
+ boolean&nbsp;includeStorageIds,
  boolean&nbsp;prettyPrint)</span>
               throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
 <div class="block">Write this instance to the given XML output.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>writer</code> - XML output</dd>
+<dd><code>includeStorageIds</code> - true to include storage ID's</dd>
 <dd><code>prettyPrint</code> - true to indent and include <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> comments</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if an XML error occurs</dd>
@@ -494,6 +510,19 @@ implements <a href="../util/DiffGenerating.html" title="interface in io.permazen
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="toString(boolean,boolean)">
+<h3>toString</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">toString</span><wbr><span class="parameters">(boolean&nbsp;includeStorageIds,
+ boolean&nbsp;prettyPrint)</span></div>
+<div class="block">Returns this schema model in XML form.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>includeStorageIds</code> - true to include storage ID's</dd>
+<dd><code>prettyPrint</code> - true to indent and include <a href="SchemaId.html" title="class in io.permazen.schema"><code>SchemaId</code></a> comments</dd>
 </dl>
 </section>
 </li>

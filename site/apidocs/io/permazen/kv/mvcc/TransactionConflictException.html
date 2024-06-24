@@ -79,7 +79,7 @@ loadScripts(document, 'script');</script>
 <div class="inheritance"><a href="../KVException.html" title="class in io.permazen.kv">io.permazen.kv.KVException</a>
 <div class="inheritance"><a href="../KVDatabaseException.html" title="class in io.permazen.kv">io.permazen.kv.KVDatabaseException</a>
 <div class="inheritance"><a href="../KVTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.KVTransactionException</a>
-<div class="inheritance"><a href="../RetryTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.RetryTransactionException</a>
+<div class="inheritance"><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">io.permazen.kv.RetryKVTransactionException</a>
 <div class="inheritance">io.permazen.kv.mvcc.TransactionConflictException</div>
 </div>
 </div>
@@ -96,7 +96,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">TransactionConflictException</span>
-<span class="extends-implements">extends <a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></span></div>
+<span class="extends-implements">extends <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></span></div>
 <div class="block">Exception thrown when a transaction fails because of an MVCC conflict.</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -223,7 +223,7 @@ loadScripts(document, 'script');</script>
  with different outer stack frames. The <a href="../KVException.html#clone()"><code>KVException.clone()</code></a> method is used to copy this instance.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="../RetryTransactionException.html#duplicate()">duplicate</a></code>&nbsp;in class&nbsp;<code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code></dd>
+<dd><code><a href="../RetryKVTransactionException.html#duplicate()">duplicate</a></code>&nbsp;in class&nbsp;<code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code></dd>
 <dt>Returns:</dt>
 <dd>duplicate of this exception with the current thread's stack frame context</dd>
 <dt>See Also:</dt>

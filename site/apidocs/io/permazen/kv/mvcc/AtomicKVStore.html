@@ -196,8 +196,8 @@ extends <a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a
 <dt>Returns:</dt>
 <dd>read-only, snapshot view of this instance</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance is not <a href="#start()"><code>start()</code></a>ed</dd>
 </dl>
 </section>
@@ -226,8 +226,8 @@ extends <a href="../KVStore.html" title="interface in io.permazen.kv">KVStore</a
 <dd><code>mutations</code> - the mutations to apply</dd>
 <dd><code>sync</code> - if true, caller requires that the changes be durably persisted</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../StaleTransactionException.html" title="class in io.permazen.kv">StaleTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
-<dd><code><a href="../RetryTransactionException.html" title="class in io.permazen.kv">RetryTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
+<dd><code><a href="../StaleKVTransactionException.html" title="class in io.permazen.kv">StaleKVTransactionException</a></code> - if an underlying transaction is no longer usable</dd>
+<dd><code><a href="../RetryKVTransactionException.html" title="class in io.permazen.kv">RetryKVTransactionException</a></code> - if an underlying transaction must be retried and is no longer usable</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="external-link">UnsupportedOperationException</a></code> - if <code>sync</code> is true and this implementation cannot guarantee durability</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>mutations</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this instance is not <a href="#start()"><code>start()</code></a>ed</dd>

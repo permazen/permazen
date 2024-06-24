@@ -106,17 +106,11 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>protected boolean</code></div>
 <div class="col-second odd-row-color"><code><a href="#disableNewSchema" class="member-name-link">disableNewSchema</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected boolean</code></div>
-<div class="col-second even-row-color"><code><a href="#enableGcScemas" class="member-name-link">enableGcScemas</a></code></div>
+<div class="col-first even-row-color"><code>protected <a href="../../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a></code></div>
+<div class="col-second even-row-color"><code><a href="#encodingRegistry" class="member-name-link">encodingRegistry</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected <a href="../../encoding/EncodingRegistry.html" title="interface in io.permazen.encoding">EncodingRegistry</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#encodingRegistry" class="member-name-link">encodingRegistry</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected joptsimple.OptionSpec&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#encodingRegistryOption" class="member-name-link">encodingRegistryOption</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected joptsimple.OptionSpec&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#gcSchemasOption" class="member-name-link">gcSchemasOption</a></code></div>
+<div class="col-first odd-row-color"><code>protected joptsimple.OptionSpec&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#encodingRegistryOption" class="member-name-link">encodingRegistryOption</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>protected joptsimple.OptionSpec&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#noNewSchemaOption" class="member-name-link">noNewSchemaOption</a></code></div>
@@ -126,6 +120,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>protected <a href="../../schema/SchemaModel.html" title="class in io.permazen.schema">SchemaModel</a></code></div>
 <div class="col-second even-row-color"><code><a href="#schemaModel" class="member-name-link">schemaModel</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>protected <a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#schemaRemoval" class="member-name-link">schemaRemoval</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>protected joptsimple.OptionSpec&lt;<a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#schemaRemovalOption" class="member-name-link">schemaRemovalOption</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#sessionMode" class="member-name-link">sessionMode</a></code></div>
@@ -189,24 +189,29 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../core/Database.html" title="class in io.permazen.core">Database</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDatabase()" class="member-name-link">getDatabase</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDefaultSessionMode()" class="member-name-link">getDefaultSessionMode</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDefaultSchemaRemoval()" class="member-name-link">getDefaultSchemaRemoval</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the default <a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core"><code>TransactionConfig.SchemaRemoval</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDefaultSessionMode()" class="member-name-link">getDefaultSessionMode</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the default <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#processOptions(joptsimple.OptionSet)" class="member-name-link">processOptions</a><wbr>(joptsimple.OptionSet&nbsp;options)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#processOptions(joptsimple.OptionSet)" class="member-name-link">processOptions</a><wbr>(joptsimple.OptionSet&nbsp;options)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Review parsed options and do any preprocessing before starting database.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shutdownDatabase()" class="member-name-link">shutdownDatabase</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shutdownDatabase()" class="member-name-link">shutdownDatabase</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Shutdown the database.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#startupDatabase(joptsimple.OptionSet)" class="member-name-link">startupDatabase</a><wbr>(joptsimple.OptionSet&nbsp;options)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#startupDatabase(joptsimple.OptionSet)" class="member-name-link">startupDatabase</a><wbr>(joptsimple.OptionSet&nbsp;options)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Configure and start up the database based on the parsed command line options.</div>
 </div>
 </div>
@@ -251,9 +256,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="gcSchemasOption">
-<h3>gcSchemasOption</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">joptsimple.OptionSpec&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">gcSchemasOption</span></div>
+<section class="detail" id="schemaRemovalOption">
+<h3>schemaRemovalOption</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">joptsimple.OptionSpec&lt;<a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a>&gt;</span>&nbsp;<span class="element-name">schemaRemovalOption</span></div>
 </section>
 </li>
 <li>
@@ -293,9 +298,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="enableGcScemas">
-<h3>enableGcScemas</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">enableGcScemas</span></div>
+<section class="detail" id="schemaRemoval">
+<h3>schemaRemoval</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></span>&nbsp;<span class="element-name">schemaRemoval</span></div>
 </section>
 </li>
 </ul>
@@ -354,6 +359,13 @@ loadScripts(document, 'script');</script>
 <h3>getDefaultSessionMode</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></span>&nbsp;<span class="element-name">getDefaultSessionMode</span>()</div>
 <div class="block">Get the default <a href="../SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getDefaultSchemaRemoval()">
+<h3>getDefaultSchemaRemoval</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core">TransactionConfig.SchemaRemoval</a></span>&nbsp;<span class="element-name">getDefaultSchemaRemoval</span>()</div>
+<div class="block">Get the default <a href="../../core/TransactionConfig.SchemaRemoval.html" title="enum class in io.permazen.core"><code>TransactionConfig.SchemaRemoval</code></a>.</div>
 </section>
 </li>
 <li>

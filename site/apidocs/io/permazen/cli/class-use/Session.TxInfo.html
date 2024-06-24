@@ -76,15 +76,17 @@ loadScripts(document, 'script');</script>
 <div class="block">Get information about the transaction currently associated with this instance.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#openBranchedTransaction(java.util.Map,java.util.Map)" class="member-name-link">openBranchedTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
+<div class="col-second odd-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#openBranchedTransaction(io.permazen.cli.SessionMode,java.util.Map,java.util.Map)" class="member-name-link">openBranchedTransaction</a><wbr>(<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;txMode,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;openOptions,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;syncOptions)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Open a new branched transaction and associate it with this instance.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="../Session.TxInfo.html" title="class in io.permazen.cli">Session.TxInfo</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#openTransaction(java.util.Map)" class="member-name-link">openTransaction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;options)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">Session.</span><code><a href="../Session.html#openTransaction(io.permazen.cli.SessionMode,java.util.Map)" class="member-name-link">openTransaction</a><wbr>(<a href="../SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a>&nbsp;txMode,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr>?&gt;&nbsp;kvoptions)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Open a new transaction and associate it with this instance.</div>
+<div class="block">Open a new transaction in the specified mode and associate it with this instance.</div>
 </div>
 </div>
 </section>

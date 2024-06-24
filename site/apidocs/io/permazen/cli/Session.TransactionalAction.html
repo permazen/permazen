@@ -15,7 +15,11 @@
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
-<script type="text/javascript">var pathtoroot = "../../../";
+<script type="text/javascript">var evenRowColor = "even-row-color";
+var oddRowColor = "odd-row-color";
+var tableTab = "table-tab";
+var activeTableTab = "active-table-tab";
+var pathtoroot = "../../../";
 loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -50,7 +54,7 @@ loadScripts(document, 'script');</script>
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method-detail">Method</a></li>
 </ul>
 </div>
 <div class="nav-list-search"><label for="search-input">SEARCH:</label>
@@ -75,7 +79,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="Session.RetryableTransactionalAction.html" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></code>, <code><a href="Session.TransactionalActionWithOptions.html" title="interface in io.permazen.cli">Session.TransactionalActionWithOptions</a></code></dd>
+<dd><code><a href="cmd/AbstractKVCommand.KVAction.html" title="interface in io.permazen.cli.cmd">AbstractKVCommand.KVAction</a></code>, <code><a href="Session.RetryableTransactionalAction.html" title="interface in io.permazen.cli">Session.RetryableTransactionalAction</a></code>, <code><a href="Session.TransactionalActionWithOptions.html" title="interface in io.permazen.cli">Session.TransactionalActionWithOptions</a></code></dd>
 </dl>
 <dl class="notes">
 <dt>All Known Implementing Classes:</dt>
@@ -100,9 +104,86 @@ extends <a href="Session.Action.html" title="interface in io.permazen.cli">Sessi
 <li>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
+<div id="method-summary-table">
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab5" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab5', 3)" class="table-tab">Default Methods</button></div>
+<div id="method-summary-table.tabpanel" role="tabpanel">
+<div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="../core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getTransactionConfig(io.permazen.cli.Session)" class="member-name-link">getTransactionConfig</a><wbr>(<a href="Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Get the configuration for the new Core API transaction.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#getTransactionMode(io.permazen.cli.Session)" class="member-name-link">getTransactionMode</a><wbr>(<a href="Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Get the <a href="SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> corresponding to the transaction that should be opened.</div>
+</div>
+</div>
+</div>
+</div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.cli.Session.Action">Methods inherited from interface&nbsp;io.permazen.cli.<a href="Session.Action.html" title="interface in io.permazen.cli">Session.Action</a></h3>
 <code><a href="Session.Action.html#run(io.permazen.cli.Session)">run</a></code></div>
+</section>
+</li>
+</ul>
+</section>
+<section class="details">
+<ul class="details-list">
+<!-- ============ METHOD DETAIL ========== -->
+<li>
+<section class="method-details" id="method-detail">
+<h2>Method Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="getTransactionMode(io.permazen.cli.Session)">
+<h3>getTransactionMode</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="SessionMode.html" title="enum class in io.permazen.cli">SessionMode</a></span>&nbsp;<span class="element-name">getTransactionMode</span><wbr><span class="parameters">(<a href="Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</span></div>
+<div class="block">Get the <a href="SessionMode.html" title="enum class in io.permazen.cli"><code>SessionMode</code></a> corresponding to the transaction that should be opened.
+
+ <p>
+ This must be at or below the mode of the given session.
+
+ <p>
+ The implementation in <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> returns <code>session.</code><a href="Session.html#getMode()"><code>Session.getMode()</code></a><code>()</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>session</code> - current session</dd>
+<dt>Returns:</dt>
+<dd>transaction mode</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>session</code> is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTransactionConfig(io.permazen.cli.Session)">
+<h3>getTransactionConfig</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="../core/TransactionConfig.html" title="class in io.permazen.core">TransactionConfig</a></span>&nbsp;<span class="element-name">getTransactionConfig</span><wbr><span class="parameters">(<a href="Session.html" title="class in io.permazen.cli">Session</a>&nbsp;session)</span></div>
+<div class="block">Get the configuration for the new Core API transaction.
+
+ <p>
+ This method is only invoked when the <a href="#getTransactionMode(io.permazen.cli.Session)"><code>getTransactionMode(io.permazen.cli.Session)</code></a> returns <a href="SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a>.
+ Note if this <a href="Session.Action.html" title="interface in io.permazen.cli"><code>Session.Action</code></a> also implements <a href="Session.TransactionalActionWithOptions.html" title="interface in io.permazen.cli"><code>Session.TransactionalActionWithOptions</code></a>, then a non-null
+ return value from <a href="Session.TransactionalActionWithOptions.html#getTransactionOptions()"><code>Session.TransactionalActionWithOptions.getTransactionOptions()</code></a> replaces the options
+ configured in the <a href="../core/TransactionConfig.html" title="class in io.permazen.core"><code>TransactionConfig</code></a> returned here, if any.
+
+ <p>
+ The implementation in <a href="Session.TransactionalAction.html" title="interface in io.permazen.cli"><code>Session.TransactionalAction</code></a> returns <code>session.</code><a href="Session.html#newTransactionConfig()"><code>Session.newTransactionConfig()</code></a><code>()</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>session</code> - current session</dd>
+<dt>Returns:</dt>
+<dd>Core API transaction config</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>session</code> is null</dd>
+</dl>
+</section>
+</li>
+</ul>
 </section>
 </li>
 </ul>
