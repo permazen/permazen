@@ -205,7 +205,7 @@ public class Database {
      * @return newly created transaction
      * @throws InvalidSchemaException if the configured schema is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if the configured {@link SchemaModel} has any explicit storage ID assignments
-     *  that conflict with other schemas already recorded in the database
+     *  that conflict with storage ID assignments already recorded in the database
      * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalArgumentException if {@code schemaModel} is null
@@ -224,7 +224,7 @@ public class Database {
      * @throws SchemaMismatchException if the configured schema is not registered in the database and
      *  {@link TransactionConfig#isAllowNewSchema} is false
      * @throws SchemaMismatchException if the configured {@link SchemaModel} has any explicit storage ID assignments
-     *  that conflict with other schemas already recorded in the database
+     *  that conflict with storage ID assignments already recorded in the database
      * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalArgumentException if {@code txConfig} is null
@@ -300,6 +300,11 @@ public class Database {
      * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Database}
      * @param txConfig transaction configuration
      * @return detached transaction based on {@code kvstore}
+     * @throws InvalidSchemaException if the configured schema is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if the configured {@link SchemaModel} has any explicit storage ID assignments
+     *  that conflict with storage ID assignments already recorded in the database
+     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalArgumentException if {@code kvstore} or {@code txConfig} is null
      */
     public DetachedTransaction createDetachedTransaction(KVStore kvstore, TransactionConfig txConfig) {

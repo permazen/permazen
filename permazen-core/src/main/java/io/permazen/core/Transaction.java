@@ -336,7 +336,7 @@ public class Transaction {
      * @return true if the schema was added, false if it was already in the schema bundle
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if {@code schemaModel} has explicit storage ID assignments
-     *  that conflict with other schemas already recorded in the database
+     *  that conflict with storage ID assignments already recorded in the database
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code schemaModel} is empty
      * @throws IllegalArgumentException if {@code schemaModel} is null
