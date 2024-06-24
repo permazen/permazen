@@ -104,8 +104,14 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     @Override
     public final T getDefaultValue() {
-        if (this.defaultValueSupplier == null)
-            throw new UnsupportedOperationException("encoding has no default value");
+        if (this.defaultValueSupplier == null) {
+            final StringBuilder buf = new StringBuilder();
+            buf.append("encoding");
+            if (this.encodingId != null)
+                buf.append(" \"").append(this.encodingId).append('"');
+            buf.append(" for ").append(this.typeToken).append(" has no default value");
+            throw new UnsupportedOperationException(buf.toString());
+        }
         return this.defaultValueSupplier.get();
     }
 
