@@ -75,31 +75,31 @@ Permazen redefines the "line of demarcation" between a Java application and its 
 
 *Key/Value Layer*
 
-  * [`KVStore`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVStore.html) - A thing that contains key/value pairs
-  * [`KVDatabase`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVDatabase.html) - A thing that persists key/value pairs
-  * [`KVTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
-  * [`RaftKVDatabase`](http://permazen.github.io/permazen/site/apidocs/io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/).
+  * [`KVStore`](https://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVStore.html) - A thing that contains key/value pairs
+  * [`KVDatabase`](https://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVDatabase.html) - A thing that persists key/value pairs
+  * [`KVTransaction`](https://permazen.github.io/permazen/site/apidocs/io/permazen/kv/KVTransaction.html) - A transaction for a `KVDatabase`
+  * [`RaftKVDatabase`](https://permazen.github.io/permazen/site/apidocs/io/permazen/kv/raft/RaftKVDatabase.html) - A distributed `KVDatabase` based on the [Raft consensus algorithm](https://raft.github.io/).
 
 *Core API Layer*
 
-  * [`Database`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/Database.html) - A Permazen core API database instance
-  * [`Transaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/core/Transaction.html) - A Permazen core API database transaction
-  * [`Encoding`](http://permazen.github.io/permazen/site/apidocs/io/permazen/encoding/Encoding.html) - Defines how simple database types are encoded/decoded
+  * [`Database`](https://permazen.github.io/permazen/site/apidocs/io/permazen/core/Database.html) - A Permazen core API database instance
+  * [`Transaction`](https://permazen.github.io/permazen/site/apidocs/io/permazen/core/Transaction.html) - A Permazen core API database transaction
+  * [`Encoding`](https://permazen.github.io/permazen/site/apidocs/io/permazen/encoding/Encoding.html) - Defines how simple database types are encoded/decoded
 
 *Java Layer*
 
-  * [`Permazen`](http://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html) - A Permazen database instance
-  * [`PermazenTransaction`](http://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenTransaction.html) - A Permazen database transaction
-  * [`PermazenObject`](http://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenObject.html) - Interface implemented by runtime-generated concrete model classes
-  * [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
-  * [`@PermazenField`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenField.html) - Annotation configuring your database fields
+  * [`Permazen`](https://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html) - A Permazen database instance
+  * [`PermazenTransaction`](https://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenTransaction.html) - A Permazen database transaction
+  * [`PermazenObject`](https://permazen.github.io/permazen/site/apidocs/io/permazen/PermazenObject.html) - Interface implemented by runtime-generated concrete model classes
+  * [`@PermazenType`](https://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) - Annotation identifying your database classes
+  * [`@PermazenField`](https://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenField.html) - Annotation configuring your database fields
 
 *Other*
 
-  * [`@OnChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnChange.html) - How change notifications are delivered
-  * [`ReferencePath`](http://permazen.github.io/permazen/site/apidocs/io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
-  * [`@OnSchemaChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) - How schema update "fixups" are defined
-  * [`PermazenObjectHttpMessageConverter`](http://permazen.github.io/permazen/site/apidocs/io/permazen/spring/PermazenObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
+  * [`@OnChange`](https://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnChange.html) - How change notifications are delivered
+  * [`ReferencePath`](https://permazen.github.io/permazen/site/apidocs/io/permazen/ReferencePath.html) - Describes a path between objects that hops through one or more forward and/or inverse references
+  * [`@OnSchemaChange`](https://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) - How schema update "fixups" are defined
+  * [`PermazenObjectHttpMessageConverter`](https://permazen.github.io/permazen/site/apidocs/io/permazen/spring/PermazenObjectHttpMessageConverter.html) - For sending/receiving versioned graphs of objects over the network using Spring
 
 ### How are Java object, data structures, and indexes mapped into key/value pairs?
 
@@ -125,7 +125,7 @@ Abstract:
 
 ### Installing Permazen
 
-Permazen is available from [Maven Central](http://search.maven.org/#search|ga|1|g%3Aio.permazen):
+Permazen is available from [Maven Central](https://search.maven.org/#search|ga|1|g%3Aio.permazen):
 
 ```xml
     <dependency>
@@ -143,17 +143,17 @@ You should also add the key/value store module(s) for whatever key/value store(s
     </dependency>
 ```
 
-There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line.
+There is a [demo distribution ZIP file](https://search.maven.org/#search|ga|1|permazen-demo) that lets you play with the Permazen command line.
 
 ### Maven Plugin
 
 The Permazen Maven plugin includes a `verify-schema` goal. This goal compares the Permazen schema generated from your Java model classes to an expected reference schema, and fails the build if there are any differences.
 
-A change in your schema is not a bad thing, but it does mean you should double-check that (a) the schema change was actually intended, and (b) that you've added any new [`@OnSchemaChange`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) logic that may be needed.
+A change in your schema is not a bad thing, but it does mean you should double-check that (a) the schema change was actually intended, and (b) that you've added any new [`@OnSchemaChange`](https://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/OnSchemaChange.html) logic that may be needed.
 
 All plugin configuration settings are optional; i.e., the plugin will run just fine using its default configuration.
 
-By default, it scans every class in `${project.build.directory}` looking for [`@PermazenType`](http://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) classes. Or you can tell it where to find your model classes via `<packages>` and/or `<classes>`. This will be required if you have multiple executions for multiple schemas, e.g., one for the database and another for serialized network messaging.
+By default, it scans every class in `${project.build.directory}` looking for [`@PermazenType`](https://permazen.github.io/permazen/site/apidocs/io/permazen/annotation/PermazenType.html) classes. Or you can tell it where to find your model classes via `<packages>` and/or `<classes>`. This will be required if you have multiple executions for multiple schemas, e.g., one for the database and another for serialized network messaging.
 
 ```xml
     <!-- Permazen schema verification -->
@@ -206,8 +206,8 @@ Documentation and links:
   * [Introduction](https://github.com/permazen/permazen/wiki/Introduction)
   * [Getting Started](https://github.com/permazen/permazen/wiki/GettingStarted)
   * [FAQ](https://github.com/permazen/permazen/wiki/FAQ)
-  * [API Javadocs](http://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html)
+  * [API Javadocs](https://permazen.github.io/permazen/site/apidocs/io/permazen/Permazen.html)
   * Bullet-point [JPA Comparison](https://github.com/permazen/permazen/wiki/JPA_Comparison)
   * [Key/value pair database layout](https://github.com/permazen/permazen/blob/master/LAYOUT.txt)
   * [Permazen Users](https://groups.google.com/forum/#!forum/permazen-users) discussion group
-  * Auto-generated [Maven Site](http://permazen.github.io/permazen/site/)
+  * Auto-generated [Maven Site](https://permazen.github.io/permazen/site/)
