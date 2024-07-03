@@ -1451,7 +1451,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/raft/msg/Message.html#calculateSize(int)" class="member-name-link">calculateSize(int)</a> - Method in class io.permazen.kv.raft.msg.<a href="io/permazen/kv/raft/msg/Message.html" title="class in io.permazen.kv.raft.msg">Message</a></dt>
 <dd>
-<div class="block">Calculate an upper bound on the number of bytes required by <a href="io/permazen/kv/raft/msg/Message.html#writeTo(java.nio.ByteBuffer,int)"><code>writeTo()</code></a>.</div>
+<div class="block">Calculate the number of bytes required by <a href="io/permazen/kv/raft/msg/Message.html#writeTo(java.nio.ByteBuffer,int)"><code>writeTo()</code></a>.</div>
 </dd>
 <dt><a href="io/permazen/kv/raft/msg/RequestVote.html#calculateSize(int)" class="member-name-link">calculateSize(int)</a> - Method in class io.permazen.kv.raft.msg.<a href="io/permazen/kv/raft/msg/RequestVote.html" title="class in io.permazen.kv.raft.msg">RequestVote</a></dt>
 <dd>&nbsp;</dd>
@@ -2617,11 +2617,15 @@ loadScripts(document, 'script');</script>
 <div class="block">An <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> that relies on some other <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>, converting values to/from
  the other <a href="io/permazen/encoding/Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s Java type.</div>
 </dd>
-<dt><a href="io/permazen/encoding/ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,java.util.function.Supplier,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding(EncodingId, TypeToken&lt;T&gt;, Supplier&lt;? extends T&gt;, Encoding&lt;S&gt;, Converter&lt;T, S&gt;, boolean)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></dt>
+<dt><a href="io/permazen/encoding/ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding(EncodingId, TypeToken&lt;T&gt;, Encoding&lt;S&gt;, Converter&lt;T, S&gt;, boolean)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></dt>
 <dd>
 <div class="block">Primary constructor.</div>
 </dd>
-<dt><a href="io/permazen/encoding/ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,java.util.function.Supplier,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding(EncodingId, Class&lt;T&gt;, Supplier&lt;? extends T&gt;, Encoding&lt;S&gt;, Converter&lt;T, S&gt;, boolean)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></dt>
+<dt><a href="io/permazen/encoding/ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,io.permazen.encoding.Encoding,com.google.common.base.Converter)" class="member-name-link">ConvertedEncoding(EncodingId, Class&lt;T&gt;, Encoding&lt;S&gt;, Converter&lt;T, S&gt;)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></dt>
+<dd>
+<div class="block">Convenience constructor for when the new <a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding"><code>ConvertedEncoding</code></a> does not sort naturally.</div>
+</dd>
+<dt><a href="io/permazen/encoding/ConvertedEncoding.html#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding(EncodingId, Class&lt;T&gt;, Encoding&lt;S&gt;, Converter&lt;T, S&gt;, boolean)</a> - Constructor for class io.permazen.encoding.<a href="io/permazen/encoding/ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></dt>
 <dd>
 <div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 </dd>

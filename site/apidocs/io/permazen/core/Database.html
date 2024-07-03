@@ -380,7 +380,7 @@ loadScripts(document, 'script');</script>
 <dt>Throws:</dt>
 <dd><code><a href="InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if the configured schema is invalid (i.e., does not pass validation checks)</dd>
 <dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if the configured <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> has any explicit storage ID assignments
-  that conflict with other schemas already recorded in the database</dd>
+  that conflict with storage ID assignments already recorded in the database</dd>
 <dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if inconsistent or invalid meta-data is detected in the database</dd>
 <dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if an uninitialized database is encountered but the database is not empty</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>schemaModel</code> is null</dd>
@@ -402,7 +402,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if the configured schema is not registered in the database and
   <a href="TransactionConfig.html#isAllowNewSchema()"><code>TransactionConfig.isAllowNewSchema()</code></a> is false</dd>
 <dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if the configured <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> has any explicit storage ID assignments
-  that conflict with other schemas already recorded in the database</dd>
+  that conflict with storage ID assignments already recorded in the database</dd>
 <dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if inconsistent or invalid meta-data is detected in the database</dd>
 <dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if an uninitialized database is encountered but the database is not empty</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>txConfig</code> is null</dd>
@@ -463,6 +463,11 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>detached transaction based on <code>kvstore</code></dd>
 <dt>Throws:</dt>
+<dd><code><a href="InvalidSchemaException.html" title="class in io.permazen.core">InvalidSchemaException</a></code> - if the configured schema is invalid (i.e., does not pass validation checks)</dd>
+<dd><code><a href="SchemaMismatchException.html" title="class in io.permazen.core">SchemaMismatchException</a></code> - if the configured <a href="../schema/SchemaModel.html" title="class in io.permazen.schema"><code>SchemaModel</code></a> has any explicit storage ID assignments
+  that conflict with storage ID assignments already recorded in the database</dd>
+<dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if inconsistent or invalid meta-data is detected in the database</dd>
+<dd><code><a href="InconsistentDatabaseException.html" title="class in io.permazen.core">InconsistentDatabaseException</a></code> - if an uninitialized database is encountered but the database is not empty</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>kvstore</code> or <code>txConfig</code> is null</dd>
 </dl>
 </section>

@@ -116,8 +116,8 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
       Note that this is an additional requirement beyond what <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> strictly requires.
   <li>There is a <a href="#getDefaultValue()">default value</a>. For types that support null, the default value must be null,
       and for types that don't support null, obviously the default value must not be null; however, an exception can be made
-      for encodings that don't support null but don't need default values, e.g., encodings that are always wrapped within a
-      <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>.
+      for encodings that don't support null but don't need default values, e.g., anonymous encodings that are always wrapped
+      within a <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>.
   <li>All <i>non-null</i> values can be encoded/decoded into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> without losing information; see
       <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
   <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., <code>byte[]</code>
