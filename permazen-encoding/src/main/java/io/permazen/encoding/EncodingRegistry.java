@@ -81,8 +81,8 @@ public interface EncodingRegistry {
      * <p>
      * In Permazen's {@link DefaultEncodingRegistry}, the built-in encodings all have aliases;
      * for example, {@code "int"} is an alias for {@code "urn:fdc:permazen.io:2020:int"}.
-     * Permazen's aliases are available via {@link EncodingIds#aliasForId EncodingIds.aliasForId()}
-     * and {@link EncodingIds#idForAlias EncodingIds#idForAlias()}.
+     * Permazen's built-in encoding aliases are available via {@link EncodingIds#aliasForId EncodingIds.aliasForId()}
+     * and {@link EncodingIds#idForAlias EncodingIds.idForAlias()}.
      *
      * <p>
      * If no alias is known for {@code encodingId}, this method should return {@link EncodingId#getId}.

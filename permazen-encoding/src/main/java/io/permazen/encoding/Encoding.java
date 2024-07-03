@@ -49,8 +49,8 @@ import java.util.Comparator;
  *      Note that this is an additional requirement beyond what {@link Comparator} strictly requires.
  *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null,
  *      and for types that don't support null, obviously the default value must not be null; however, an exception can be made
- *      for encodings that don't support null but don't need default values, e.g., encodings that are always wrapped within a
- *      {@link NullSafeEncoding}.
+ *      for encodings that don't support null but don't need default values, e.g., anonymous encodings that are always wrapped
+ *      within a {@link NullSafeEncoding}.
  *  <li>All <i>non-null</i> values can be encoded/decoded into a {@link String} without losing information; see
  *      {@link #toString(Object) toString()} and {@link #fromString fromString()}.
  *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]}

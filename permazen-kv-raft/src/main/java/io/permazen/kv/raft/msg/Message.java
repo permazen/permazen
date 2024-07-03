@@ -264,7 +264,7 @@ public abstract class Message {
     }
 
     /**
-     * Calculate an upper bound on the number of bytes required by {@link #writeTo writeTo()}.
+     * Calculate the number of bytes required by {@link #writeTo writeTo()}.
      *
      * @param version protocol encoding version
      * @return an upper bound on the number of encoded bytes
