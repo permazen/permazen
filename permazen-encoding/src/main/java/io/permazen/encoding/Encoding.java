@@ -19,6 +19,7 @@ import io.permazen.util.XMLUtil;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.OptionalInt;
 
 /**
  * A range of values of some Java type, along with string and binary encodings and a total ordering of those values.
@@ -319,6 +320,17 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @return true if an encoded value starting with {@code 0xff} exists
      */
     boolean hasPrefix0xff();
+
+    /**
+     * Get the fixed width of this encoding, if any.
+     *
+     * <p>
+     * Some encodings encode every value into the same number of bytes. For such encodings, this method returns
+     * that number. For variable width encodings, this method must return empty.
+     *
+     * @return the number of bytes of every encoded value, or empty if the encoding length varies
+     */
+    OptionalInt getFixedWidth();
 
     /**
      * Convenience method that both validates and encodes a value.

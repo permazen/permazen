@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.ZoneOffset;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link ZoneOffset} type.
@@ -88,5 +89,10 @@ public class ZoneOffsetEncoding extends AbstractEncoding<ZoneOffset> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

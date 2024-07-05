@@ -11,6 +11,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
 import java.net.InetAddress;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link InetAddress} type.
@@ -43,6 +44,11 @@ public class InetAddressEncoding extends AbstractInetAddressEncoding<InetAddress
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
     @Override

@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.LocalTime;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link LocalTime} type.
@@ -87,5 +88,10 @@ public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

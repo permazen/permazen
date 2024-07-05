@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
+
 /**
  * An {@link Encoding} that wraps any other {@link Encoding} not supporting null values and adds support for null values.
  *
@@ -182,6 +184,13 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
     @Override
     public boolean hasPrefix0x00() {
         return this.inline && this.inner.hasPrefix0x00();
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        final int requiredWidth = this.inline ? 1 : 0;
+        final OptionalInt width = this.inner.getFixedWidth();
+        return width.isPresent() && width.getAsInt() == requiredWidth ? OptionalInt.of(1) : OptionalInt.empty();
     }
 
 // Object

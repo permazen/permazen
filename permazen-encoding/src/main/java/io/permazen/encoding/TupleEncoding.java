@@ -15,6 +15,7 @@ import io.permazen.util.ByteWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 /**
@@ -137,6 +138,18 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     @Override
     public boolean hasPrefix0x00() {
         return this.encodings.get(0).hasPrefix0x00();
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        int total = 0;
+        for (Encoding<?> encoding : this.encodings) {
+            final OptionalInt width = encoding.getFixedWidth();
+            if (width.isEmpty())
+                return width;
+            total += width.getAsInt();
+        }
+        return OptionalInt.of(total);
     }
 
 // Internal methods

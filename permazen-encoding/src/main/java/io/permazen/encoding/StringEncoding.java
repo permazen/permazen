@@ -11,6 +11,8 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
+import java.util.OptionalInt;
+
 import org.dellroad.stuff.string.StringEncoder;
 
 /**
@@ -158,6 +160,11 @@ public class StringEncoding extends AbstractEncoding<String> {
     @Override
     public boolean sortsNaturally() {
         return true;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
 // Conversion

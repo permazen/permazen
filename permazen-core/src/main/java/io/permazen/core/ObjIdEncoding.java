@@ -11,6 +11,8 @@ import io.permazen.encoding.AbstractEncoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
+
 /**
  * Non-null encoding for {@link ObjId}s.
  *
@@ -86,5 +88,10 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
     @Override
     public boolean hasPrefix0x00() {
         return false;                       // ObjId's may not have a storage ID of zero
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.of(ObjId.NUM_BYTES);
     }
 }

@@ -11,6 +11,8 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
+
 import org.dellroad.stuff.java.Primitive;
 
 /**
@@ -71,6 +73,11 @@ public class FloatEncoding extends NumberEncoding<Float> {
     @Override
     public boolean hasPrefix0xff() {
         return true;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.of(4);
     }
 
 // Conversion

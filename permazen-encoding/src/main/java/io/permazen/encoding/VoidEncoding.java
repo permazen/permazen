@@ -8,6 +8,8 @@ package io.permazen.encoding;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
+
 import org.dellroad.stuff.java.Primitive;
 
 /**
@@ -50,5 +52,10 @@ public class VoidEncoding extends PrimitiveEncoding<Void> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.of(0);
     }
 }

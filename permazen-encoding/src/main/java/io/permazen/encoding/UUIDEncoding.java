@@ -11,6 +11,7 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
 import java.util.UUID;
 
 /**
@@ -91,5 +92,10 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
     @Override
     public boolean hasPrefix0xff() {
         return true;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

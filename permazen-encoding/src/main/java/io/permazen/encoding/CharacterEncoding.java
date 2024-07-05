@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
+
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
 
@@ -70,6 +72,11 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
     @Override
     public boolean hasPrefix0xff() {
         return true;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.of(2);
     }
 
 // Conversion

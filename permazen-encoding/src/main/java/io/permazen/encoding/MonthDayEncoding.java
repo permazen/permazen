@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.time.MonthDay;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link MonthDay} type.
@@ -90,5 +91,10 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

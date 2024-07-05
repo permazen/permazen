@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.Duration;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link Duration} type.
@@ -89,5 +90,10 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

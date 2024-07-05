@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.Year;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link Year} type.
@@ -94,5 +95,10 @@ public class YearEncoding extends AbstractEncoding<Year> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

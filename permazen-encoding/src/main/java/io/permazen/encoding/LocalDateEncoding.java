@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.LocalDate;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link LocalDate} type.
@@ -86,5 +87,10 @@ public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

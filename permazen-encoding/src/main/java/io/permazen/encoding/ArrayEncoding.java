@@ -12,6 +12,7 @@ import io.permazen.util.ParseContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 
 import org.dellroad.stuff.string.StringEncoder;
 
@@ -124,6 +125,11 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
     @Override
     public boolean sortsNaturally() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
 // Conversion

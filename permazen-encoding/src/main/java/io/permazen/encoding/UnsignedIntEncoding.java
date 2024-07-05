@@ -11,6 +11,8 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
+import java.util.OptionalInt;
+
 import org.dellroad.stuff.java.Primitive;
 
 /**
@@ -88,5 +90,10 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

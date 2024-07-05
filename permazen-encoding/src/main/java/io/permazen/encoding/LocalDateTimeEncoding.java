@@ -14,6 +14,7 @@ import io.permazen.util.LongEncoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link LocalDateTime} type.
@@ -92,5 +93,10 @@ public class LocalDateTimeEncoding extends AbstractEncoding<LocalDateTime> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

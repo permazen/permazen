@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.util.Date;
+import java.util.OptionalInt;
 
 import org.dellroad.stuff.string.DateEncoder;
 
@@ -84,5 +85,10 @@ public class DateEncoding extends AbstractEncoding<Date> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
+
 import org.dellroad.stuff.java.Primitive;
 
 public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
@@ -58,6 +60,11 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.of(1);
     }
 
 // Conversion

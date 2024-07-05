@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.Instant;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link Instant} type.
@@ -89,5 +90,10 @@ public class InstantEncoding extends AbstractEncoding<Instant> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

@@ -13,6 +13,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.BitSet;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link BitSet} type.
@@ -101,6 +102,11 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
                 return diff;
         }
         return 0;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
     private byte[] reverse(byte[] bytes) {

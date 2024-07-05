@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.Period;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link Period} type.
@@ -99,5 +100,10 @@ public class PeriodEncoding extends AbstractEncoding<Period> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

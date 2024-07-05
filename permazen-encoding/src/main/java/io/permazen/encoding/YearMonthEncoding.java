@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.time.YearMonth;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link YearMonth} type.
@@ -89,5 +90,10 @@ public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 }

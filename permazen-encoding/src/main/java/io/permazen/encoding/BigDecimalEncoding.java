@@ -15,6 +15,7 @@ import io.permazen.util.UnsignedIntEncoder;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link BigDecimal} type.
@@ -189,6 +190,11 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
             return diff;
         return value1.signum() < 0 ?
           Integer.compare(value2.scale(), value1.scale()) : Integer.compare(value1.scale(), value2.scale());
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
     @Override

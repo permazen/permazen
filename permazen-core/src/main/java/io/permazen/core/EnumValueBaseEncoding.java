@@ -17,6 +17,7 @@ import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Map;
 
 /**
@@ -122,6 +123,11 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
     @Override

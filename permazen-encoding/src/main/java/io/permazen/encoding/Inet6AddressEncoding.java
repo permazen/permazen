@@ -8,6 +8,7 @@ package io.permazen.encoding;
 import io.permazen.util.ByteReader;
 
 import java.net.Inet6Address;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link Inet6Address} type.
@@ -43,5 +44,10 @@ public class Inet6AddressEncoding extends AbstractInetAddressEncoding<Inet6Addre
     @Override
     public boolean hasPrefix0xff() {
         return true;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.of(LENGTH);
     }
 }

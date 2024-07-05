@@ -12,6 +12,7 @@ import io.permazen.util.ByteWriter;
 import io.permazen.util.LongEncoder;
 
 import java.math.BigInteger;
+import java.util.OptionalInt;
 
 /**
  * Non-null {@link BigInteger} type.
@@ -43,6 +44,11 @@ public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
     @Override
     public boolean hasPrefix0xff() {
         return false;
+    }
+
+    @Override
+    public OptionalInt getFixedWidth() {
+        return OptionalInt.empty();
     }
 
     @Override

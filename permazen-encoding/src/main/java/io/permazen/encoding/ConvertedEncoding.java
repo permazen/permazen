@@ -12,6 +12,7 @@ import com.google.common.reflect.TypeToken;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
@@ -153,6 +154,11 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
     @Override
     public final boolean supportsNull() {
         return this.delegate.supportsNull();
+    }
+
+    @Override
+    public final OptionalInt getFixedWidth() {
+        return this.delegate.getFixedWidth();
     }
 
     @Override
