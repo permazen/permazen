@@ -77,6 +77,11 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     }
 
     @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return this.floatType.hasPrefix0xff();
     }

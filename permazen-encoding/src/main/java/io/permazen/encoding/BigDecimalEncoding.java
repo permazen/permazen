@@ -45,6 +45,11 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
 // Encoding
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

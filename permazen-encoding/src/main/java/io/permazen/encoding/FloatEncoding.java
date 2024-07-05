@@ -63,6 +63,16 @@ public class FloatEncoding extends NumberEncoding<Float> {
         return super.validate(obj);
     }
 
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return true;
+    }
+
 // Conversion
 
     @Override

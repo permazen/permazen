@@ -60,6 +60,16 @@ public class DoubleEncoding extends NumberEncoding<Double> {
         return super.validate(obj);
     }
 
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return true;
+    }
+
 // Conversion
 
     @Override

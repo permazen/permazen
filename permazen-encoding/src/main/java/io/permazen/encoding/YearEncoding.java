@@ -77,6 +77,11 @@ public class YearEncoding extends AbstractEncoding<Year> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

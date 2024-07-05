@@ -8,7 +8,8 @@ package io.permazen.util;
 import java.util.Comparator;
 
 /**
- * Implemented by {@link Comparator} classes that know whether or not their ordering is idential to natural ordering.
+ * Implemented by {@link Comparator} classes that know whether or not their ordering is
+ * identical to the target Java type's natural ordering.
  */
 public interface NaturalSortAware {
 

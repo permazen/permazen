@@ -21,7 +21,8 @@ import java.util.UUID;
  *
  * <p>
  * Binary encoding is 16 bytes, consisting of the {@linkplain UUID#getMostSignificantBits eight high-order bytes} followed by the
- * {@linkplain UUID#getLeastSignificantBits eight low-order bytes}.
+ * {@linkplain UUID#getLeastSignificantBits eight low-order bytes}, with each of the 64 bit values having its highest order
+ * bit flipped so that the encoding {@link #sortsNaturally}.
  */
 public class UUIDEncoding extends AbstractEncoding<UUID> {
 
@@ -73,7 +74,22 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
         return true;
     }
 }

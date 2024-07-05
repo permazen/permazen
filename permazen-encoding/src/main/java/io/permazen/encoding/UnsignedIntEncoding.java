@@ -71,6 +71,11 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

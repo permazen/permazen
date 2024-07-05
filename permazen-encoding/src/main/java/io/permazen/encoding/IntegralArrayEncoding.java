@@ -77,6 +77,11 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
     }
 
     @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return this.elementEncoding.hasPrefix0xff();
     }

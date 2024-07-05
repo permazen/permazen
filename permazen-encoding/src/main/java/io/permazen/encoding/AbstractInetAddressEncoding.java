@@ -91,4 +91,14 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Abstra
             return diff;
         return ByteUtil.compare(bytes1, bytes2);
     }
+
+    @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
+    public boolean sortsNaturally() {
+        return false;
+    }
 }

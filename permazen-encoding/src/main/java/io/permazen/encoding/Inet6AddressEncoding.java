@@ -34,4 +34,14 @@ public class Inet6AddressEncoding extends AbstractInetAddressEncoding<Inet6Addre
     protected int getLength(ByteReader reader) {
         return LENGTH;
     }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return true;
+    }
 }

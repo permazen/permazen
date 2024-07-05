@@ -77,6 +77,11 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     }
 
     @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return this.doubleType.hasPrefix0xff();
     }

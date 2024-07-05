@@ -26,21 +26,29 @@ public class VoidEncoding extends PrimitiveEncoding<Void> {
 
     @Override
     public Void read(ByteReader reader) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public void write(ByteWriter writer, Void value) {
-        throw new IllegalArgumentException("null value");
     }
 
     @Override
     public void skip(ByteReader reader) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
     protected Void convertNumber(Number value) {
-        throw new UnsupportedOperationException();
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return false;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return false;
     }
 }

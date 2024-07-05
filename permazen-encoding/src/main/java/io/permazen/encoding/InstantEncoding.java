@@ -72,6 +72,11 @@ public class InstantEncoding extends AbstractEncoding<Instant> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

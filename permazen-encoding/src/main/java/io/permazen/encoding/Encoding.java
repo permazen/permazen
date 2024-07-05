@@ -42,8 +42,8 @@ import java.util.Comparator;
  *      is not required to support <i>every</i> instance of the Java type. For example, there can be an encoding of {@link Integer}
  *      that only supports non-negative values.
  *  <li>Instances totally order their supported Java values via {@link #compare compare()}. If the associated Java type itself
- *      implements {@link Comparable}, then the two orderings do not necessarily have to agree, but they should if possible;
- *      see also {@link #sortsNaturally}.
+ *      implements {@link Comparable}, then the two orderings do not necessarily have to agree, but they should if possible.
+ *      In that case, {@link #sortsNaturally} should return true.
  *  <li>{@code null} may or may not be a supported value; see {@link #supportsNull}. If so, it must be fully supported value just
  *      like any other; for example, it must be handled by {@link #compare compare()} (typically null values sort last).
  *      Note that this is an additional requirement beyond what {@link Comparator} strictly requires.
@@ -153,6 +153,12 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
 
     /**
      * Read and discard a {@code byte[]} encoded value from the given input.
+     *
+     * <p>
+     * If the value skipped over is invalid, this method may, but is not required to, throw {@link IllegalArgumentException}.
+     *
+     * <p>
+     * If the value skipped over is truncated, this method <i>must</i> throw {@link IndexOutOfBoundsException}.
      *
      * @param reader byte input
      * @throws IllegalArgumentException if invalid input is encountered
@@ -283,22 +289,12 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     @Override
     int compare(T value1, T value2);
 
-    @Override
-    default boolean sortsNaturally() {
-        return false;
-    }
-
     /**
      * Determine whether this encoding supports null values.
      *
-     * <p>
-     * The implementation in {@link Encoding} returns {@code false}.
-     *
      * @return true if null is a valid value, otherwise false
      */
-    default boolean supportsNull() {
-        return false;
-    }
+    boolean supportsNull();
 
     /**
      * Determine whether any of this encoding's encoded values start with a {@code 0x00} byte.
@@ -308,14 +304,9 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * Note: changing the result of this method may result in an incompatible encoding if this encoding
      * is wrapped in another class.
      *
-     * <p>
-     * The implementation in {@link Encoding} returns {@code true}.
-     *
      * @return true if an encoded value starting with {@code 0x00} exists
      */
-    default boolean hasPrefix0x00() {
-        return true;
-    }
+    boolean hasPrefix0x00();
 
     /**
      * Determine whether any of this encoding's encoded values start with a {@code 0xff} byte.
@@ -325,14 +316,9 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * Note: changing the result of this method may result in an incompatible encoding if this encoding
      * is wrapped in another class.
      *
-     * <p>
-     * The implementation in {@link Encoding} returns {@code true}.
-     *
      * @return true if an encoded value starting with {@code 0xff} exists
      */
-    default boolean hasPrefix0xff() {
-        return true;
-    }
+    boolean hasPrefix0xff();
 
     /**
      * Convenience method that both validates and encodes a value.

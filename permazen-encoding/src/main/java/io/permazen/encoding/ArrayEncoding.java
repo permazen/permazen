@@ -115,6 +115,17 @@ public abstract class ArrayEncoding<T, E> extends AbstractEncoding<T> {
         return this.elementEncoding.equals(that.elementEncoding);
     }
 
+    @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    // Array classes do not implement Comparable
+    @Override
+    public boolean sortsNaturally() {
+        return false;
+    }
+
 // Conversion
 
     @Override

@@ -72,6 +72,11 @@ public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

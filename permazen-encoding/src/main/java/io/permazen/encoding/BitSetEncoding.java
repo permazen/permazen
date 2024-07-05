@@ -35,6 +35,21 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
 // Encoding
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
+    public boolean sortsNaturally() {
+        return false;
+    }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return false;
     }

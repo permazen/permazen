@@ -34,4 +34,14 @@ public class Inet4AddressEncoding extends AbstractInetAddressEncoding<Inet4Addre
     protected int getLength(ByteReader reader) {
         return LENGTH;
     }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return true;
+    }
 }

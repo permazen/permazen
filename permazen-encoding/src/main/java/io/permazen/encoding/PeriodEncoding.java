@@ -82,6 +82,16 @@ public class PeriodEncoding extends AbstractEncoding<Period> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
+    public boolean sortsNaturally() {
+        return false;
+    }
+
+    @Override
     public boolean hasPrefix0x00() {
         return false;
     }

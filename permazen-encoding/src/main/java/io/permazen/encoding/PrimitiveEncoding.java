@@ -63,6 +63,11 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

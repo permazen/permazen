@@ -73,6 +73,11 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

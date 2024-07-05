@@ -119,6 +119,17 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    // Tuple classes do not implement Comparable
+    @Override
+    public boolean sortsNaturally() {
+        return false;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return this.encodings.get(0).hasPrefix0xff();
     }

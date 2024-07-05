@@ -69,6 +69,11 @@ public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

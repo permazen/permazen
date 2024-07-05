@@ -47,7 +47,12 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     @Override
     public void skip(ByteReader reader) {
         Preconditions.checkArgument(reader != null);
-        this.read(reader);
+        reader.skip(1);
+    }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
     }
 
     @Override

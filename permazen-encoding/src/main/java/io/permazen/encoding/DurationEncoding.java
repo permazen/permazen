@@ -72,6 +72,11 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

@@ -69,6 +69,11 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

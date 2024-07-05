@@ -93,6 +93,11 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
     }
 
     @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return this.inlineValue && this.elementEncoding.hasPrefix0xff();
     }

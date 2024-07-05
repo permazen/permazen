@@ -70,6 +70,11 @@ public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

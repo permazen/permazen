@@ -67,6 +67,11 @@ public class DateEncoding extends AbstractEncoding<Date> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
     public boolean sortsNaturally() {
         return true;
     }

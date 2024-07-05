@@ -62,6 +62,16 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
         return s.charAt(0);
     }
 
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
+    public boolean hasPrefix0xff() {
+        return true;
+    }
+
 // Conversion
 
     @Override

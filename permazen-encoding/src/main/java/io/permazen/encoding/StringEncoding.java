@@ -136,6 +136,16 @@ public class StringEncoding extends AbstractEncoding<String> {
     }
 
     @Override
+    public boolean supportsNull() {
+        return false;
+    }
+
+    @Override
+    public boolean hasPrefix0x00() {
+        return true;
+    }
+
+    @Override
     public boolean hasPrefix0xff() {
         return false;
     }
