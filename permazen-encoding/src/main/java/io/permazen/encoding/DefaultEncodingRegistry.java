@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * <p>
  * Because this class is a subclass of {@link SimpleEncodingRegistry}, encodings for array types
- * are created on demand, so they don't need to be explicitly registered.
+ * (other than primitive arrays) are created on demand, so they don't need to be explicitly registered.
  *
  * <p><b>Enum Types</b></p>
  *
@@ -44,16 +44,13 @@ import java.util.stream.Collectors;
  *
  * <p>
  * During construction, instances scan the class path for custom {@link EncodingRegistry} implementations
- * and will delegate to them when an encoding is not found.
+ * and will delegate to them when an encoding is not found. Custom {@link EncodingRegistry} implementations are specified via
+ * {@code META-INF/services/io.permazen.encoding.EncodingRegistry} files or by module exports; see {@link ServiceLoader}.
+ * Custom implementations are only queried for non-array types.
  *
  * <p>
  * If multiple custom {@link EncodingRegistry} implementations advertise the same encoding, one will be
  * chosen arbitrarily.
- *
- * <p>
- * Custom {@link EncodingRegistry} implemenations are specified via
- * {@code META-INF/services/io.permazen.encoding.EncodingRegistry} files or by module exports; see {@link ServiceLoader}.
- * Custom implementations are only queried for non-array types.
  *
  * <p><b>Built-in Encodings</b></p>
  *
