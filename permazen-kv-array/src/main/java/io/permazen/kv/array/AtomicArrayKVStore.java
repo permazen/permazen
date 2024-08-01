@@ -454,10 +454,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
                 // Create empty index, keys, and values files
                 try (
-                  final FileOutputStream indxOutput = new FileOutputStream(new File(this.directory, INDX_FILE_NAME_BASE + 0));
-                  final FileOutputStream keysOutput = new FileOutputStream(new File(this.directory, KEYS_FILE_NAME_BASE + 0));
-                  final FileOutputStream valsOutput = new FileOutputStream(new File(this.directory, VALS_FILE_NAME_BASE + 0));
-                  final ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
+                  FileOutputStream indxOutput = new FileOutputStream(new File(this.directory, INDX_FILE_NAME_BASE + 0));
+                  FileOutputStream keysOutput = new FileOutputStream(new File(this.directory, KEYS_FILE_NAME_BASE + 0));
+                  FileOutputStream valsOutput = new FileOutputStream(new File(this.directory, VALS_FILE_NAME_BASE + 0));
+                  ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
                     arrayWriter.flush();                                                        // avoid compiler warning
                     valsOutput.getChannel().force(false);
                     keysOutput.getChannel().force(false);
@@ -1261,10 +1261,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
                 // Merge existing compacted key/value data with uncompacted modifications
                 try (
-                  final FileOutputStream indxOutput = new FileOutputStream(newIndxFile);
-                  final FileOutputStream keysOutput = new FileOutputStream(newKeysFile);
-                  final FileOutputStream valsOutput = new FileOutputStream(newValsFile);
-                  final ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
+                  FileOutputStream indxOutput = new FileOutputStream(newIndxFile);
+                  FileOutputStream keysOutput = new FileOutputStream(newKeysFile);
+                  FileOutputStream valsOutput = new FileOutputStream(newValsFile);
+                  ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
 
                     // Write out merged key/value pairs
                     try (CloseableIterator<KVPair> i = this.kvstore.getRange(null, null)) {

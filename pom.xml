@@ -544,7 +544,6 @@
                         <phase>verify</phase>
                         <configuration>
                             <consoleOutput>true</consoleOutput>
-                            <encoding>UTF-8</encoding>
                             <failsOnError>true</failsOnError>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <linkXRef>false</linkXRef>

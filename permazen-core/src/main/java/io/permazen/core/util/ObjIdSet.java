@@ -146,10 +146,12 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializa
 
 // Object
 
+    // CHECKSTYLE OFF: EqualsHashCode
     @Override
     public int hashCode() {
         return this.set.hashCode();         // this works because ObjId.hashCode() == Long.hashCode(ObjId.asLong())
     }
+    // CHECKSTYLE ON: EqualsHashCode
 
 // Cloneable
 

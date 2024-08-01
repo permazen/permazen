@@ -134,10 +134,12 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable, Ser
 
 // Object
 
+    // CHECKSTYLE OFF: EqualsHashCode
     @Override
     public int hashCode() {
         return this.entrySet().hashCode();              // this is more efficient than what superclass does
     }
+    // CHECKSTYLE ON: EqualsHashCode
 
 // Cloneable
 
@@ -200,10 +202,12 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable, Ser
         }
 
         // This works because ObjId.hashCode() == ObjId.asLong().hashCode()
+        // CHECKSTYLE OFF: EqualsHashCode
         @Override
         public int hashCode() {
             return this.inner.hashCode();
         }
+        // CHECKSTYLE ON: EqualsHashCode
 
         private Map.Entry<?, ?> unwrapEntry(Object obj) {
             if (!(obj instanceof Map.Entry))

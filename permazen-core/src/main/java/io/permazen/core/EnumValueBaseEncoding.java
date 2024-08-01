@@ -17,8 +17,8 @@ import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.Map;
+import java.util.OptionalInt;
 
 /**
  * This is the inner, non-null supporting {@link Encoding} for {@link EnumValueEncoding}.
