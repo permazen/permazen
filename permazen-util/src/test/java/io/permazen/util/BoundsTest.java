@@ -95,10 +95,17 @@ public class BoundsTest extends TestSupport {
 
         Assert.assertEquals(b.withoutUpperBound().withoutLowerBound(), new Bounds<Integer>());
 
+        // Create one-sided bounds, both upper & lower, both inclusive & exclusive
+        final Bounds<Integer> lowerInc = new Bounds<Integer>(lowerBound, BoundType.INCLUSIVE, false);
+        final Bounds<Integer> lowerExc = new Bounds<Integer>(lowerBound, BoundType.EXCLUSIVE, false);
+        final Bounds<Integer> upperInc = new Bounds<Integer>(upperBound, BoundType.INCLUSIVE, true);
+        final Bounds<Integer> upperExc = new Bounds<Integer>(upperBound, BoundType.EXCLUSIVE, true);
+
         for (int i = lowerBound - 10; i <= upperBound + 10; i++) {
             final int lowerCompare = Integer.compare(i, lowerBound);
             final int upperCompare = Integer.compare(i, upperBound);
 
+            // Compare value to upper & lower bounds
             final boolean expectedInLower = lowerBoundType == BoundType.NONE ? true :
               lowerBoundType == BoundType.INCLUSIVE ? lowerCompare >= 0 : lowerCompare > 0;
             final boolean expectedInUpper = upperBoundType == BoundType.NONE ? true :
@@ -106,26 +113,30 @@ public class BoundsTest extends TestSupport {
             Assert.assertEquals(b.isWithinLowerBound(null, i), expectedInLower);
             Assert.assertEquals(b.isWithinUpperBound(null, i), expectedInUpper);
 
+            // Reverse the ordering and do the same thing
             Assert.assertEquals(b.reverse().isWithinLowerBound(Collections.<Integer>reverseOrder(), i), expectedInUpper);
             Assert.assertEquals(b.reverse().isWithinUpperBound(Collections.<Integer>reverseOrder(), i), expectedInLower);
 
+            // Check whether value is within both bounds
             Assert.assertEquals(b.isWithinBounds(null, i), expectedInLower && expectedInUpper);
+
+            // Reverse the ordering and do the same thing
             Assert.assertEquals(b.reverse().isWithinBounds(Collections.<Integer>reverseOrder(), i),
               expectedInLower && expectedInUpper);
 
+            // Check that value is within unbounded bounds
             Assert.assertTrue(b.isWithinBounds(null, new Bounds<Integer>()));
 
-            final Bounds<Integer> lowerInc = new Bounds<Integer>(i, BoundType.INCLUSIVE, false);
-            final Bounds<Integer> lowerExc = new Bounds<Integer>(i, BoundType.EXCLUSIVE, false);
-            final Bounds<Integer> upperInc = new Bounds<Integer>(i, BoundType.INCLUSIVE, true);
-            final Bounds<Integer> upperExc = new Bounds<Integer>(i, BoundType.EXCLUSIVE, true);
+            final boolean expectedLowerInc = lowerCompare >= 0;
+            final boolean expectedLowerExc = lowerCompare > 0;
+            final boolean expectedUpperInc = upperCompare <= 0;
+            final boolean expectedUpperExc = upperCompare < 0;
 
-            boolean expectedLowerInc = lowerBoundType == BoundType.NONE ? true :
-              lowerCompare < 0 ? false : lowerCompare == 0 ? lowerBoundType == BoundType.INCLUSIVE : true;
-            boolean expectedLowerExc = lowerBoundType == BoundType.NONE ? true : lowerCompare < 0 ? false : true;
-            boolean expectedUpperInc = upperBoundType == BoundType.NONE ? true :
-              upperCompare > 0 ? false : upperCompare == 0 ? upperBoundType == BoundType.INCLUSIVE : false;
-            boolean expectedUpperExc = upperBoundType == BoundType.NONE ? true : upperCompare > 0 ? false : true;
+            // Verify value vs. one-sided bounds
+            Assert.assertEquals(lowerInc.isWithinBounds(null, i), expectedLowerInc);
+            Assert.assertEquals(lowerExc.isWithinBounds(null, i), expectedLowerExc);
+            Assert.assertEquals(upperInc.isWithinBounds(null, i), expectedUpperInc);
+            Assert.assertEquals(upperExc.isWithinBounds(null, i), expectedUpperExc);
         }
     }
 
