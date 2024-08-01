@@ -99,10 +99,10 @@ loadScripts(document, 'script');</script>
 
  <p>
  This class provides a convenient way to implement custom <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s when the target values can be converted
- into some other form for which another <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> (the "delegate") already exists. A Guava <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>
+ into some other form for which another <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> (the "delegate") already exists. A Guava <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>
  converts values between the type supported by this encoding and the type supported by the delegate encoding.
- It's <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html#convert(A)" title="class or interface in com.google.common.base" class="external-link"><code>convert()</code></a> method must throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> if an unsupported
- value is encountered. The <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> should be <i>non-lossy</i> when supported values are round-tripped.
+ It's <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html#convert(A)" title="class or interface in com.google.common.base" class="external-link"><code>convert()</code></a> method must throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> if an unsupported
+ value is encountered. The <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> should be <i>non-lossy</i> when supported values are round-tripped.
 
  <p>
  This encoding will sort values in the same order as the delegate sorts the corresponding converted values.
@@ -116,7 +116,7 @@ loadScripts(document, 'script');</script>
  therefore want to override <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
 
  <p>
- The <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> must be <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a> in order for an instance of this class to also be
+ The <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> must be <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a> in order for an instance of this class to also be
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a>.</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -138,7 +138,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>protected final <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</code></div>
+<div class="col-first even-row-color"><code>protected final <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#converter" class="member-name-link">converter</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected final <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</code></div>
@@ -162,9 +162,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Primary constructor.</div>
@@ -172,17 +172,17 @@ loadScripts(document, 'script');</script>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,io.permazen.encoding.Encoding,com.google.common.base.Converter)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</code></div>
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Convenience constructor for when the new <a href="ConvertedEncoding.html" title="class in io.permazen.encoding"><code>ConvertedEncoding</code></a> does not sort naturally.</div>
 </div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
+<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 </div>
 </div>
 </section>
@@ -212,53 +212,58 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Parse a non-null value previously encoded by <a href="Encoding.html#toString(T)"><code>toString(T)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/OptionalInt.html" title="class or interface in java.util" class="external-link">OptionalInt</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFixedWidth()" class="member-name-link">getFixedWidth</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Get the fixed width of this encoding, if any.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether any of this encoding's encoded values start with a <code>0x00</code> byte.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether any of this encoding's encoded values start with a <code>0xff</code> byte.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read a value from the given input.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sortsNaturally()" class="member-name-link">sortsNaturally</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine if this instance sorts Java instances naturally.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#supportsNull()" class="member-name-link">supportsNull</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#supportsNull()" class="member-name-link">supportsNull</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether this encoding supports null values.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&nbsp;obj)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString(T)" class="member-name-link">toString</a><wbr>(<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&nbsp;obj)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> for later decoding by <a href="Encoding.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate(java.lang.Object)" class="member-name-link">validate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate(java.lang.Object)" class="member-name-link">validate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Verify the given object is a valid instance of this <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s Java type and cast it to that type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
  <a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&nbsp;obj)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Write a value to the given output.</div>
 </div>
 </div>
@@ -296,7 +301,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="converter">
 <h3>converter</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</span>&nbsp;<span class="element-name">converter</span></div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</span>&nbsp;<span class="element-name">converter</span></div>
 </section>
 </li>
 </ul>
@@ -311,9 +316,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)">
 <h3>ConvertedEncoding</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ConvertedEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</span></div>
 <div class="block">Primary constructor.</div>
 <dl class="notes">
@@ -322,7 +327,7 @@ loadScripts(document, 'script');</script>
 <dd><code>typeToken</code> - represented Java type</dd>
 <dd><code>delegate</code> - delegate encoder</dd>
 <dd><code>converter</code> - value converter</dd>
-<dd><code>sortsNaturally</code> - true if this encoding <a href="Encoding.html#sortsNaturally()">sorts naturally</a>, otherwise false</dd>
+<dd><code>sortsNaturally</code> - true if this encoding <a href="../util/NaturalSortAware.html#sortsNaturally()">sorts naturally</a>, otherwise false</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter other than <code>defaultValueSupplier</code> is null</dd>
 </dl>
@@ -334,16 +339,16 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ConvertedEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</span></div>
-<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
+<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>encodingId</code> - encoding ID for this encoding, or null to be anonymous</dd>
 <dd><code>type</code> - represented Java type</dd>
 <dd><code>delegate</code> - delegate encoder</dd>
 <dd><code>converter</code> - converts between native form and <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> form; should be <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a></dd>
-<dd><code>sortsNaturally</code> - true if this encoding <a href="Encoding.html#sortsNaturally()">sorts naturally</a>, otherwise false</dd>
+<dd><code>sortsNaturally</code> - true if this encoding <a href="../util/NaturalSortAware.html#sortsNaturally()">sorts naturally</a>, otherwise false</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any parameter other than <code>defaultValueSupplier</code> is null</dd>
 </dl>
@@ -355,7 +360,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ConvertedEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</span></div>
+ <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</span></div>
 <div class="block">Convenience constructor for when the new <a href="ConvertedEncoding.html" title="class in io.permazen.encoding"><code>ConvertedEncoding</code></a> does not sort naturally.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -409,7 +414,13 @@ loadScripts(document, 'script');</script>
 <h3>skip</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">skip</span><wbr><span class="parameters">(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#skip(io.permazen.util.ByteReader)">Encoding</a></code></span></div>
-<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.
+
+ <p>
+ If the value skipped over is invalid, this method may, but is not required to, throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a>.
+
+ <p>
+ If the value skipped over is truncated, this method <i>must</i> throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link"><code>IndexOutOfBoundsException</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>reader</code> - byte input</dd>
@@ -480,13 +491,26 @@ loadScripts(document, 'script');</script>
 <h3>supportsNull</h3>
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">supportsNull</span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#supportsNull()">Encoding</a></code></span></div>
-<div class="block">Determine whether this encoding supports null values.
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns <code>false</code>.</div>
+<div class="block">Determine whether this encoding supports null values.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if null is a valid value, otherwise false</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getFixedWidth()">
+<h3>getFixedWidth</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/OptionalInt.html" title="class or interface in java.util" class="external-link">OptionalInt</a></span>&nbsp;<span class="element-name">getFixedWidth</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#getFixedWidth()">Encoding</a></code></span></div>
+<div class="block">Get the fixed width of this encoding, if any.
+
+ <p>
+ Some encodings encode every value into the same number of bytes. For such encodings, this method returns
+ that number. For variable width encodings, this method must return empty.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the number of bytes of every encoded value, or empty if the encoding length varies</dd>
 </dl>
 </section>
 </li>
@@ -548,10 +572,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Note: changing the result of this method may result in an incompatible encoding if this encoding
- is wrapped in another class.
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns <code>true</code>.</div>
+ is wrapped in another class.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if an encoded value starting with <code>0x00</code> exists</dd>
@@ -568,10 +589,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Note: changing the result of this method may result in an incompatible encoding if this encoding
- is wrapped in another class.
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns <code>true</code>.</div>
+ is wrapped in another class.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if an encoded value starting with <code>0xff</code> exists</dd>

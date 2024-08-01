@@ -169,7 +169,7 @@ loadScripts(document, 'script');</script>
 <code><a href="Concat2Encoding.html#getTuple2Encoding()">getTuple2Encoding</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.ConvertedEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="ConvertedEncoding.html" title="class in io.permazen.encoding">ConvertedEncoding</a></h3>
-<code><a href="ConvertedEncoding.html#compare(T,T)">compare</a>, <a href="ConvertedEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ConvertedEncoding.html#hashCode()">hashCode</a>, <a href="ConvertedEncoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="ConvertedEncoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="ConvertedEncoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="ConvertedEncoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="ConvertedEncoding.html#supportsNull()">supportsNull</a>, <a href="ConvertedEncoding.html#validate(java.lang.Object)">validate</a>, <a href="ConvertedEncoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
+<code><a href="ConvertedEncoding.html#compare(T,T)">compare</a>, <a href="ConvertedEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ConvertedEncoding.html#getFixedWidth()">getFixedWidth</a>, <a href="ConvertedEncoding.html#hashCode()">hashCode</a>, <a href="ConvertedEncoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="ConvertedEncoding.html#hasPrefix0xff()">hasPrefix0xff</a>, <a href="ConvertedEncoding.html#read(io.permazen.util.ByteReader)">read</a>, <a href="ConvertedEncoding.html#skip(io.permazen.util.ByteReader)">skip</a>, <a href="ConvertedEncoding.html#supportsNull()">supportsNull</a>, <a href="ConvertedEncoding.html#validate(java.lang.Object)">validate</a>, <a href="ConvertedEncoding.html#write(io.permazen.util.ByteWriter,T)">write</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
 <code><a href="AbstractEncoding.html#getDefaultValue()">getDefaultValue</a>, <a href="AbstractEncoding.html#getDefaultValueBytes()">getDefaultValueBytes</a>, <a href="AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="AbstractEncoding.html#toString()">toString</a></code></div>
@@ -269,8 +269,6 @@ loadScripts(document, 'script');</script>
       identical to <code>T</code>'s natural ordering.
  </ul></div>
 <dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="Encoding.html#sortsNaturally()">sortsNaturally</a></code>&nbsp;in interface&nbsp;<code><a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html" title="class or interface in java.time" class="external-link">OffsetDateTime</a>&gt;</code></dd>
 <dt>Specified by:</dt>
 <dd><code><a href="../util/NaturalSortAware.html#sortsNaturally()">sortsNaturally</a></code>&nbsp;in interface&nbsp;<code><a href="../util/NaturalSortAware.html" title="interface in io.permazen.util">NaturalSortAware</a></code></dd>
 <dt>Overrides:</dt>

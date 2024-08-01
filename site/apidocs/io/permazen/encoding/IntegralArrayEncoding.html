@@ -153,24 +153,29 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0x00()" class="member-name-link">hasPrefix0x00</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Determine whether any of this encoding's encoded values start with a <code>0x00</code> byte.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasPrefix0xff()" class="member-name-link">hasPrefix0xff</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Determine whether any of this encoding's encoded values start with a <code>0xff</code> byte.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(io.permazen.util.ByteReader)" class="member-name-link">read</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read a value from the given input.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skip(io.permazen.util.ByteReader)" class="member-name-link">skip</a><wbr>(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(io.permazen.util.ByteWriter,T)" class="member-name-link">write</a><wbr>(<a href="../util/ByteWriter.html" title="class in io.permazen.util">ByteWriter</a>&nbsp;writer,
  <a href="IntegralArrayEncoding.html" title="type parameter in IntegralArrayEncoding">T</a>&nbsp;array)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Write a value to the given output.</div>
 </div>
 </div>
@@ -181,7 +186,7 @@ loadScripts(document, 'script');</script>
 <code><a href="Base64ArrayEncoding.html#checkDecodeLength(int)">checkDecodeLength</a>, <a href="Base64ArrayEncoding.html#decode(java.io.DataInputStream,int)">decode</a>, <a href="Base64ArrayEncoding.html#encode(T,java.io.DataOutputStream)">encode</a>, <a href="Base64ArrayEncoding.html#fromString(java.lang.String)">fromString</a>, <a href="Base64ArrayEncoding.html#toString(T)">toString</a>, <a href="Base64ArrayEncoding.html#toString(T,boolean)">toString</a>, <a href="Base64ArrayEncoding.html#useBase64Encoding(T)">useBase64Encoding</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.ArrayEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="ArrayEncoding.html" title="class in io.permazen.encoding">ArrayEncoding</a></h3>
-<code><a href="ArrayEncoding.html#compare(T,T)">compare</a>, <a href="ArrayEncoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="ArrayEncoding.html#createArray(java.util.List)">createArray</a>, <a href="ArrayEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ArrayEncoding.html#fromArrayString(java.lang.String)">fromArrayString</a>, <a href="ArrayEncoding.html#getArrayElement(T,int)">getArrayElement</a>, <a href="ArrayEncoding.html#getArrayLength(T)">getArrayLength</a>, <a href="ArrayEncoding.html#getElementEncoding()">getElementEncoding</a>, <a href="ArrayEncoding.html#hashCode()">hashCode</a>, <a href="ArrayEncoding.html#toArrayString(java.lang.String%5B%5D,boolean)">toArrayString</a></code></div>
+<code><a href="ArrayEncoding.html#compare(T,T)">compare</a>, <a href="ArrayEncoding.html#convert(io.permazen.encoding.Encoding,S)">convert</a>, <a href="ArrayEncoding.html#createArray(java.util.List)">createArray</a>, <a href="ArrayEncoding.html#equals(java.lang.Object)">equals</a>, <a href="ArrayEncoding.html#fromArrayString(java.lang.String)">fromArrayString</a>, <a href="ArrayEncoding.html#getArrayElement(T,int)">getArrayElement</a>, <a href="ArrayEncoding.html#getArrayLength(T)">getArrayLength</a>, <a href="ArrayEncoding.html#getElementEncoding()">getElementEncoding</a>, <a href="ArrayEncoding.html#getFixedWidth()">getFixedWidth</a>, <a href="ArrayEncoding.html#hashCode()">hashCode</a>, <a href="ArrayEncoding.html#sortsNaturally()">sortsNaturally</a>, <a href="ArrayEncoding.html#supportsNull()">supportsNull</a>, <a href="ArrayEncoding.html#toArrayString(java.lang.String%5B%5D,boolean)">toArrayString</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.AbstractEncoding">Methods inherited from class&nbsp;io.permazen.encoding.<a href="AbstractEncoding.html" title="class in io.permazen.encoding">AbstractEncoding</a></h3>
 <code><a href="AbstractEncoding.html#getDefaultValue()">getDefaultValue</a>, <a href="AbstractEncoding.html#getDefaultValueBytes()">getDefaultValueBytes</a>, <a href="AbstractEncoding.html#getEncodingId()">getEncodingId</a>, <a href="AbstractEncoding.html#getTypeToken()">getTypeToken</a>, <a href="AbstractEncoding.html#toString()">toString</a></code></div>
@@ -193,7 +198,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#reversed()" title="class or interface in java.util" class="external-link">reversed</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparing(java.util.function.Function,java.util.Comparator)" title="class or interface in java.util" class="external-link">thenComparing</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingDouble(java.util.function.ToDoubleFunction)" title="class or interface in java.util" class="external-link">thenComparingDouble</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingInt(java.util.function.ToIntFunction)" title="class or interface in java.util" class="external-link">thenComparingInt</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html#thenComparingLong(java.util.function.ToLongFunction)" title="class or interface in java.util" class="external-link">thenComparingLong</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.permazen.encoding.Encoding">Methods inherited from interface&nbsp;io.permazen.encoding.<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a></h3>
-<code><a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#hasPrefix0x00()">hasPrefix0x00</a>, <a href="Encoding.html#sortsNaturally()">sortsNaturally</a>, <a href="Encoding.html#supportsNull()">supportsNull</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
+<code><a href="Encoding.html#decode(byte%5B%5D)">decode</a>, <a href="Encoding.html#encode(T)">encode</a>, <a href="Encoding.html#getKeyRange(io.permazen.util.Bounds)">getKeyRange</a>, <a href="Encoding.html#validate(java.lang.Object)">validate</a>, <a href="Encoding.html#validateAndWrite(io.permazen.util.ByteWriter,java.lang.Object)">validateAndWrite</a></code></div>
 </section>
 </li>
 </ul>
@@ -253,10 +258,33 @@ loadScripts(document, 'script');</script>
 <h3>skip</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">skip</span><wbr><span class="parameters">(<a href="../util/ByteReader.html" title="class in io.permazen.util">ByteReader</a>&nbsp;reader)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#skip(io.permazen.util.ByteReader)">Encoding</a></code></span></div>
-<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.</div>
+<div class="block">Read and discard a <code>byte[]</code> encoded value from the given input.
+
+ <p>
+ If the value skipped over is invalid, this method may, but is not required to, throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a>.
+
+ <p>
+ If the value skipped over is truncated, this method <i>must</i> throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link"><code>IndexOutOfBoundsException</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>reader</code> - byte input</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="hasPrefix0x00()">
+<h3>hasPrefix0x00</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasPrefix0x00</span>()</div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#hasPrefix0x00()">Encoding</a></code></span></div>
+<div class="block">Determine whether any of this encoding's encoded values start with a <code>0x00</code> byte.
+ Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
+
+ <p>
+ Note: changing the result of this method may result in an incompatible encoding if this encoding
+ is wrapped in another class.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true if an encoded value starting with <code>0x00</code> exists</dd>
 </dl>
 </section>
 </li>
@@ -270,10 +298,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Note: changing the result of this method may result in an incompatible encoding if this encoding
- is wrapped in another class.
-
- <p>
- The implementation in <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> returns <code>true</code>.</div>
+ is wrapped in another class.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true if an encoded value starting with <code>0xff</code> exists</dd>

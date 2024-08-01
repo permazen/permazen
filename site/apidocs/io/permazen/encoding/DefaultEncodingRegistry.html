@@ -94,7 +94,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  Because this class is a subclass of <a href="SimpleEncodingRegistry.html" title="class in io.permazen.encoding"><code>SimpleEncodingRegistry</code></a>, encodings for array types
- are created on demand, so they don't need to be explicitly registered.
+ (other than primitive arrays) are created on demand, so they don't need to be explicitly registered.
 
  <p><b>Enum Types</b></p>
 
@@ -108,16 +108,13 @@ loadScripts(document, 'script');</script>
 
  <p>
  During construction, instances scan the class path for custom <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementations
- and will delegate to them when an encoding is not found.
+ and will delegate to them when an encoding is not found. Custom <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementations are specified via
+ <code>META-INF/services/io.permazen.encoding.EncodingRegistry</code> files or by module exports; see <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html" title="class or interface in java.util" class="external-link"><code>ServiceLoader</code></a>.
+ Custom implementations are only queried for non-array types.
 
  <p>
  If multiple custom <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implementations advertise the same encoding, one will be
  chosen arbitrarily.
-
- <p>
- Custom <a href="EncodingRegistry.html" title="interface in io.permazen.encoding"><code>EncodingRegistry</code></a> implemenations are specified via
- <code>META-INF/services/io.permazen.encoding.EncodingRegistry</code> files or by module exports; see <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html" title="class or interface in java.util" class="external-link"><code>ServiceLoader</code></a>.
- Custom implementations are only queried for non-array types.
 
  <p><b>Built-in Encodings</b></p>
 
@@ -230,7 +227,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Get the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> with the given encoding ID in this registry.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncodings(com.google.common.reflect.TypeToken)" class="member-name-link">getEncodings</a><wbr>(<a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get all of the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s in this registry that supports values of the given Java type.</div>
 </div>
@@ -397,7 +394,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getEncodings(com.google.common.reflect.TypeToken)">
 <h3>getEncodings</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</span>&nbsp;<span class="element-name">getEncodings</span><wbr><span class="parameters">(<a href="https://guava.dev/releases/33.0.0-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;T&gt;&gt;</span>&nbsp;<span class="element-name">getEncodings</span><wbr><span class="parameters">(<a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;T&gt;&nbsp;typeToken)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="EncodingRegistry.html#getEncodings(com.google.common.reflect.TypeToken)">EncodingRegistry</a></code></span></div>
 <div class="block">Get all of the <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s in this registry that supports values of the given Java type.
 
