@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.dellroad</groupId>
         <artifactId>dellroad-dependencies</artifactId>
-        <version>3.2.5.0</version>
+        <version>3.2.7.0</version>
     </parent>
     <groupId>io.permazen</groupId>
     <artifactId>permazen</artifactId>
@@ -24,10 +24,6 @@
         <module>permazen-cliapp</module>
         <module>permazen-core</module>
         <module>permazen-encoding</module>
-    <!--
-        <module>permazen-demo</module>
-        <module>permazen-guiapp</module>
-    -->
         <module>permazen-jsck</module>
         <module>permazen-kv-array</module>
         <module>permazen-kv-bdb</module>
@@ -52,7 +48,10 @@
         <module>permazen-spring</module>
         <module>permazen-test</module>
         <module>permazen-util</module>
-    <!--
+
+    <!-- To be updated/replaced...
+        <module>permazen-demo</module>
+        <module>permazen-guiapp</module>
         <module>permazen-vaadin</module>
     -->
     </modules>
