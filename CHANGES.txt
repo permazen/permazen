@@ -1,4 +1,4 @@
-Version 5.0.0
+Version 5.0.0 Released August 1, 2024
 
     - Update to the new generation:
         - Java 17
