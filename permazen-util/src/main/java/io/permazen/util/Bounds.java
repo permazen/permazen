@@ -449,8 +449,19 @@ public class Bounds<T> {
 
     @Override
     public String toString() {
-        return "Bounds[lower(" + this.lowerBoundType + ")=" + this.lowerBound
-          + ",upper(" + this.upperBoundType + ")=" + this.upperBound + "]";
+        StringBuilder buf = new StringBuilder();
+        buf.append(String.format("Bounds["));
+        final boolean hasLower = this.hasLowerBound();
+        final boolean hasUpper = this.hasUpperBound();
+        if (hasLower)
+            buf.append(String.format("lower(%s)=%s", this.lowerBoundType, this.lowerBound));
+        if (hasUpper) {
+            if (hasLower)
+                buf.append(',');
+            buf.append(String.format("upper(%s)=%s", this.upperBoundType, this.upperBound));
+        }
+        buf.append(']');
+        return buf.toString();
     }
 
     @Override
