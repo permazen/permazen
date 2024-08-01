@@ -4,8 +4,8 @@
  */
 
 /**
- * Classes associated with {@link Jsck}, the Permazen key/value database consistency checker.
+ * CLI commands relating to {@link io.permazen.jsck.Jsck}, the Permazen key/value database consistency checker.
  *
- * @see Jsck
+ * @see io.permazen.jsck.Jsck
  */
-package io.permazen.jsck;
+package io.permazen.jsck.cmd;
