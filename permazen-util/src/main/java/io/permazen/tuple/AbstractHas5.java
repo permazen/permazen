@@ -35,11 +35,6 @@ class AbstractHas5<V1, V2, V3, V4, V5> extends AbstractHas4<V1, V2, V3, V4> impl
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode() ^ Objects.hashCode(this.v5);
-    }
-
-    @Override
     void addValues(StringBuilder buf) {
         super.addValues(buf);
         buf.append(", ");

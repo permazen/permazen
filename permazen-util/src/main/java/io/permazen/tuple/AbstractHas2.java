@@ -35,11 +35,6 @@ class AbstractHas2<V1, V2> extends AbstractHas1<V1> implements Has2<V1, V2> {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode() ^ Objects.hashCode(this.v2);
-    }
-
-    @Override
     void addValues(StringBuilder buf) {
         super.addValues(buf);
         buf.append(", ");

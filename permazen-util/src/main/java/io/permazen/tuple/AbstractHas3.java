@@ -35,11 +35,6 @@ class AbstractHas3<V1, V2, V3> extends AbstractHas2<V1, V2> implements Has3<V1, 
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode() ^ Objects.hashCode(this.v3);
-    }
-
-    @Override
     void addValues(StringBuilder buf) {
         super.addValues(buf);
         buf.append(", ");
