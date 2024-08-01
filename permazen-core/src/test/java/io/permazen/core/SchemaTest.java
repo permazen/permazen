@@ -11,6 +11,7 @@ import io.permazen.encoding.ConvertedEncoding;
 import io.permazen.encoding.DefaultEncodingRegistry;
 import io.permazen.encoding.EncodingId;
 import io.permazen.encoding.EncodingRegistry;
+import io.permazen.encoding.NullSafeEncoding;
 import io.permazen.encoding.StringEncoding;
 import io.permazen.kv.simple.MemoryKVDatabase;
 import io.permazen.schema.SchemaModel;
@@ -166,8 +167,8 @@ public class SchemaTest extends CoreAPITestSupport {
     @SuppressWarnings("serial")
     public static class BarEncoding extends ConvertedEncoding<Bar, String> {
         public BarEncoding() {
-            super(new EncodingId("urn:foo:bar"), Bar.class, () -> new Bar(""),
-              new StringEncoding(), Converter.from(Bar::getValue, Bar::new), false);
+            super(new EncodingId("urn:foo:bar"), Bar.class,
+              new NullSafeEncoding<>(null, new StringEncoding()), Converter.from(Bar::getValue, Bar::new));
         }
     }
 
