@@ -1,7 +1,7 @@
 <FindBugsFilter>
     <Match>
         <Class name="~.*"/>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,CT_CONSTRUCTOR_THROW"/>
     </Match>
 
     <!-- https://github.com/spotbugs/spotbugs/issues/2121 -->
