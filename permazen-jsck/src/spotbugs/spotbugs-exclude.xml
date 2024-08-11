@@ -3,4 +3,8 @@
         <Class name="~.*"/>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,CT_CONSTRUCTOR_THROW"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.jsck.Jsck"/>
+        <Bug pattern="INT_VACUOUS_BIT_OPERATION"/>
+    </Match>
 </FindBugsFilter>

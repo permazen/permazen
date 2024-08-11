@@ -76,17 +76,12 @@ public final class Layout {
     public static final int METADATA_USER_META_DATA_BYTE = 0xff;
 
     /**
-     * Object meta-data flags byte: delete notified.
-     */
-    public static final int OBJECT_FLAG_DELETE_NOTIFIED = 0x01;
-
-    /**
      * Object meta-data flags byte valid bits.
      *
      * <p>
-     * All other bits must be zero.
+     * All bits must be zero.
      */
-    public static final int OBJECT_FLAGS_VALID_BITS = OBJECT_FLAG_DELETE_NOTIFIED;
+    public static final int OBJECT_FLAGS_VALID_BITS = 0x00;
 
     private static final byte[] METADATA_PREFIX = new byte[] { (byte)METADATA_PREFIX_BYTE };
 

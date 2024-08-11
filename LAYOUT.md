@@ -119,7 +119,7 @@ Under the Object ID itself is meta-data related to the object:
     ┃  Object ID  ┃ -> ┃  Schema Index  ┃ Flags ┃
     ┗━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━┻━━━━━━━┛
 
-The 'Flags' field is a single byte. The only flag currently defined is the "Delete Notified" flag (`0x01`) which is used to track [`DeleteListener`](https://permazen.github.io/permazen/site/apidocs/io/permazen/core/DeleteListener.html) notifications. All other bits must be zero.
+The 'Flags' field is a single byte. Currently, the flags byte must be zero. A mising flags byte is equivalent to zero.
 
 #### Simple and Counter Fields
 

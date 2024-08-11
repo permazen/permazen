@@ -248,6 +248,10 @@ public class Transaction {
     @GuardedBy("this")
     private LinkedHashSet<Callback> callbacks;
 
+    // Deletion
+    @GuardedBy("this")
+    private ObjIdSet deleteNotified;
+
     // Misc
     @GuardedBy("this")
     private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>>> pendingNotifications = new ThreadLocal<>();
@@ -966,7 +970,7 @@ public class Transaction {
         assert this.objInfoCache.get(id) == null;
 
         // Write object meta-data and update object info cache
-        this.updateObjInfo(id, schema.getSchemaIndex(), false, schema, objType);
+        this.updateObjInfo(id, schema.getSchemaIndex(), schema, objType);
 
         // Write object schema index entry
         this.kvt.put(Layout.buildSchemaIndexKey(id, schema.getSchemaIndex()), ByteUtil.EMPTY);
@@ -998,18 +1002,26 @@ public class Transaction {
      * <p>
      * This method does <i>not</i> change the object's schema if it is different from this transaction's schema.
      *
+     * <p><b>Notifications</b></p>
+     *
+     * <p>
+     * If the object exists, {@link DeleteListener}'s will be notified synchronously by this method before the object
+     * is actually deleted. Therefore it's possible for a {@link DeleteListener} to (perhaps indirectly) re-entrantly
+     * invoke this method with the same {@code id}. In such cases, {@link DeleteListener} notifications are not sent for
+     * the re-entrant invocation with the same {@code id}.
+     *
      * <p><b>Secondary Deletions</b></p>
      *
      * <p>
-     * Deleting an object can trigger additional secondary deletions. Specifically,
+     * Deleting an object can trigger additional automatic secondary deletions. Specifically,
      * (a) if the object contains reference fields with {@linkplain ReferenceField#forwardDelete forward delete cascade} enabled,
      * any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
      * through fields configured for {@link DeleteAction#DELETE}, those referring objects will be deleted.
      *
      * <p>
-     * In any case, deletions occur one at a time, and only when an object is actually deleted are any associated secondary
-     * deletions added to an internal deletion queue. However, the order in which objects on this deletion queue are
-     * processed is unspecified. For an example of where this ordering matters, consider an object {@code A} referring to objects
+     * In any case, deletions occur one at a time, and only after an object is actually deleted do any associated secondary
+     * deletions take place. However, the order in which secondary deletions occur is unspecified.
+     * For an example of where this ordering matters, consider an object {@code A} referring to objects
      * {@code B} and {@code C} with delete cascading references, where B also refers to C with a {@link DeleteAction#EXCEPTION}
      * reference. Then if {@code A} is deleted, it's indeterminate whether a {@link ReferencedObjectException} will be thrown,
      * as that depends on whether {@code B} or {@code C} is deleted first (with the answer being, respectively, no and yes).
@@ -1029,36 +1041,38 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
 
-        // Does object exist?
-        if (!this.exists(id))
-            return false;
-
-        // Handle delete cascade and recurive DeleteAction.DELETE without hogging Java stack
-        final ObjIdSet deletables = new ObjIdSet();
-        deletables.add(id);
+        // Track delete notifications in case of re-entrancy
+        final boolean topLevel = this.deleteNotified == null;
+        if (topLevel)
+            this.deleteNotified = new ObjIdSet();
         boolean found = false;
-        while (!deletables.isEmpty())
-            found |= this.doDelete(deletables.iterator().next(), deletables);
+        try {
+            final ObjIdSet deletables = new ObjIdSet();
+            deletables.add(id);
+            do
+                found |= this.delete(deletables);
+            while (!deletables.isEmpty());
+        } finally {
+            if (topLevel)
+                this.deleteNotified = null;
+        }
 
         // Done
         return found;
     }
 
-    private synchronized boolean doDelete(final ObjId id, ObjIdSet deletables) {
+    private synchronized boolean delete(ObjIdSet deletables) {
+
+        // Get the next deletable object ID
+        final ObjId id = deletables.removeOne();
 
         // Loop here to handle any mutations within delete notification listener callbacks
         ObjInfo info;
         while (true) {
 
-            // Get object info
-            try {
-                info = this.getObjInfo(id, false);
-            } catch (DeletedObjectException e) {                    // possibly due to a cycle of DeleteAction.DELETE references
-                deletables.remove(id);
+            // See if object (still) exists
+            if ((info = this.getObjInfoIfExists(id, false)) == null)
                 return false;
-            } catch (UnknownTypeException e) {
-                throw new InconsistentDatabaseException("encountered reference with unknown type during delete cascade: " + id, e);
-            }
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
             for (Map.Entry<Integer, NavigableSet<ObjId>> entry : this.findReferrers(id, DeleteAction.EXCEPTION).entrySet()) {
@@ -1073,17 +1087,15 @@ public class Transaction {
             }
 
             // Do we need to issue delete notifications for the object being deleted?
-            if (info.isDeleteNotified() || this.deleteListeners == null || this.deleteListeners.isEmpty())
+            if (!this.deleteNotified.add(id)
+              || this.deleteListeners == null
+              || this.deleteListeners.isEmpty()
+              || this.disableListenerNotifications)
                 break;
 
-            // Set "delete notified" flag and update object info cache
-            info = this.updateObjInfo(id, info.getSchemaIndex(), true, info.schema, info.objType);
-
             // Issue delete notifications and retry
-            if (!this.disableListenerNotifications) {
-                for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
-                    listener.onDelete(this, id);
-            }
+            for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
+                listener.onDelete(this, id);
         }
 
         // Find all objects referred to by a reference field with forwardDelete = true and add them to deletables
@@ -1100,7 +1112,7 @@ public class Transaction {
 
         // Actually delete the object
         this.deleteObjectData(info);
-        deletables.remove(id);
+        this.deleteNotified.remove(id);
 
         // Find all NULLIFY references and nullify them, and then find all REMOVE references and remove them
         for (boolean remove : new boolean[] { false, true }) {
@@ -1114,7 +1126,8 @@ public class Transaction {
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
-        this.findReferrers(id, DeleteAction.DELETE).values().forEach(deletables::addAll);
+        this.findReferrers(id, DeleteAction.DELETE).values()
+          .forEach(deletables::addAll);
 
         // Done
         return true;
@@ -1801,7 +1814,7 @@ public class Transaction {
 
         // Change object schema and update object info cache
         final int newSchemaIndex = newSchema.getSchemaIndex();
-        this.updateObjInfo(id, newSchemaIndex, info.isDeleteNotified(), newSchema, newType);
+        this.updateObjInfo(id, newSchemaIndex, newSchema, newType);
 
         // Update object schema index entry
         final int oldSchemaIndex = oldSchema.getSchemaIndex();
@@ -2498,12 +2511,12 @@ public class Transaction {
     }
 
     /**
-     * Read an object's meta-data, migrating its schema it in the process if requested.
+     * Read an object's meta-data, migrating its schema in the process if requested.
      *
      * @param id object ID of the object
      * @param update true to migrate object's schema to match this transaction, false to leave it alone
      * @return object info
-     * @throws UnknownTypeException if {@code update} is true and object ID specifies an unknown object type
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -2559,12 +2572,12 @@ public class Transaction {
     /**
      * Update an object's meta-data in the key/value store and in the cache.
      */
-    private ObjInfo updateObjInfo(ObjId id, int schemaIndex, boolean deleteNotified, Schema schema, ObjType objType) {
+    private ObjInfo updateObjInfo(ObjId id, int schemaIndex, Schema schema, ObjType objType) {
         assert Thread.holdsLock(this);
-        ObjInfo.write(this, id, schemaIndex, deleteNotified);
+        ObjInfo.write(this, id, schemaIndex);
         if (this.objInfoCache.size() >= MAX_OBJ_INFO_CACHE_ENTRIES)
             this.objInfoCache.removeOne();
-        final ObjInfo info = new ObjInfo(this, id, schemaIndex, deleteNotified, schema, objType);
+        final ObjInfo info = new ObjInfo(this, id, schemaIndex, schema, objType);
         this.objInfoCache.put(id, info);
         return info;
     }

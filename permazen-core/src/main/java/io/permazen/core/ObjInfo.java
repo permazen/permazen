@@ -25,7 +25,6 @@ class ObjInfo {
     final Transaction tx;
     final ObjId id;
     final int schemaIndex;
-    final int flags;
 
     // Additional derived meta-data
     Schema schema;
@@ -44,23 +43,22 @@ class ObjInfo {
         this.schemaIndex = UnsignedIntEncoder.read(reader);
         if (this.schemaIndex == 0)
             throw new InvalidObjectVersionException(this.id, this.schemaIndex, null);
-        this.flags = reader.readByte();
-        if ((this.flags & ~Layout.OBJECT_FLAGS_VALID_BITS) != 0) {
+        final int flags = reader.remain() > 0 ? reader.readByte() : 0;
+        if ((flags & ~Layout.OBJECT_FLAGS_VALID_BITS) != 0) {
             throw new InconsistentDatabaseException(String.format(
-              "object meta-data in %s has invalid flags byte 0x%02x", this.id, this.flags));
+              "object meta-data in %s has invalid flags byte 0x%02x", this.id, flags));
         }
         if (reader.remain() > 0)
             throw new InconsistentDatabaseException(String.format("object meta-data in %s has trailing garbage", this.id));
     }
 
     // Constructor for explicitly given data
-    ObjInfo(Transaction tx, ObjId id, int schemaIndex, boolean deleteNotified, Schema schema, ObjType objType) {
+    ObjInfo(Transaction tx, ObjId id, int schemaIndex, Schema schema, ObjType objType) {
         assert tx != null;
         assert id != null;
         this.tx = tx;
         this.id = id;
         this.schemaIndex = schemaIndex;
-        this.flags = deleteNotified ? Layout.OBJECT_FLAG_DELETE_NOTIFIED : 0;
         this.schema = schema;
         this.objType = objType;
     }
@@ -71,10 +69,6 @@ class ObjInfo {
 
     public int getSchemaIndex() {
         return this.schemaIndex;
-    }
-
-    public boolean isDeleteNotified() {
-        return (this.flags & Layout.OBJECT_FLAG_DELETE_NOTIFIED) != 0;
     }
 
     public SchemaId getSchemaId() {
@@ -103,12 +97,11 @@ class ObjInfo {
         return this.objType;
     }
 
-    public static void write(Transaction tx, ObjId id, int schemaIndex, boolean deleteNotified) {
+    public static void write(Transaction tx, ObjId id, int schemaIndex) {
         assert schemaIndex > 0;
-        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(schemaIndex) + 1);
+        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(schemaIndex));
         Encodings.UNSIGNED_INT.write(writer, schemaIndex);
-        final int flags = deleteNotified ? Layout.OBJECT_FLAG_DELETE_NOTIFIED : 0;
-        writer.writeByte(flags);
+        //writer.writeByte(flags);                          // we can omit a zero flags byte
         tx.kvt.put(id.getBytes(), writer.getBytes());
     }
 
@@ -117,7 +110,6 @@ class ObjInfo {
         return "ObjInfo"
           + "[id=" + this.id
           + ",schemaIndex=" + this.schemaIndex
-          + ",flags=" + String.format("%02x", this.flags)
           + ",schema=" + this.schema
           + ",objType=" + Optional.ofNullable(this.objType).map(ObjType::getName).orElse(null)
           + "]";

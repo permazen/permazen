@@ -1,3 +1,7 @@
+Version Next
+
+    - Eliminate the need for the "deleteNofified" persistent meta-data flag
+
 Version 5.0.0 Released August 1, 2024
 
     - Update to the new generation:

@@ -336,9 +336,7 @@ public class Jsck {
 
                         // Read flags byte
                         try {
-                            if (metaData.remain() == 0)
-                                throw new IllegalArgumentException("missing flags byte");
-                            final int flags = metaData.readByte();
+                            final int flags = metaData.remain() > 0 ? metaData.readByte() : 0;
                             if ((flags & ~Layout.OBJECT_FLAGS_VALID_BITS) != 0)
                                 throw new IllegalArgumentException(String.format("invalid object flags byte 0x%02x", flags));
                             if (metaData.remain() > 0)
