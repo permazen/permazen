@@ -59,7 +59,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         // Find list entry
         final byte[] value = this.tx.kvt.get(this.buildKey(index));
         if (value == null)
-            throw new IndexOutOfBoundsException("index = " + index);
+            throw new IndexOutOfBoundsException(String.format("index = %d", index));
 
         // Decode list element
         return this.elementType.read(new ByteReader(value));
@@ -97,7 +97,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         // Get existing list entry at that index, if any
         final byte[] oldValue = this.tx.kvt.get(key);
         if (oldValue == null)
-            throw new IndexOutOfBoundsException("index = " + index);
+            throw new IndexOutOfBoundsException(String.format("index = %d", index));
 
         // Check for deleted assignement
         if (this.field.elementField instanceof ReferenceField)
@@ -134,14 +134,14 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     @Override
     public void add(final int index, final E elem) {
         if (index < 0)
-            throw new IndexOutOfBoundsException("index = " + index);
+            throw new IndexOutOfBoundsException(String.format("index = %d", index));
         this.tx.mutateAndNotify(this.id, () -> this.doAddAll(index, Collections.singleton(elem)));
     }
 
     @Override
     public boolean addAll(final int index, final Collection<? extends E> elems) {
         if (index < 0)
-            throw new IndexOutOfBoundsException("index = " + index);
+            throw new IndexOutOfBoundsException(String.format("index = %d", index));
         return this.tx.mutateAndNotify(this.id, () -> this.doAddAll(index, elems));
     }
 
@@ -165,7 +165,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         // Make room for elements
         final int size = this.size();
         if (index < 0 || index > size || size + numElems < 0)
-            throw new IndexOutOfBoundsException("index = " + index + ", size = " + size);
+            throw new IndexOutOfBoundsException(String.format("index = %d, size = %d", index, size));
         this.shift(index, index + numElems, size);
 
         // Add entries
@@ -314,7 +314,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             final byte[] srcKey = this.buildKey(src);
             final byte[] value = this.tx.kvt.get(srcKey);
             if (value == null)
-                throw new InconsistentDatabaseException("list entry at index " + src + " not found");
+                throw new InconsistentDatabaseException(String.format("list entry at index %d not found", src));
 
             // Delete index entry for value at src
             if (this.field.elementField.indexed)
@@ -348,7 +348,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             final byte[] key = this.buildKey(i);
             final byte[] value = this.tx.kvt.get(key);
             if (value == null)
-                throw new InconsistentDatabaseException("list entry at index " + i + " not found");
+                throw new InconsistentDatabaseException(String.format("list entry at index %d not found", i));
             this.field.removeIndexEntry(this.tx, this.id, this.field.elementField, key, value);
         }
     }
@@ -367,8 +367,9 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         try {
             this.elementType.validateAndWrite(writer, elem);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("list containing " + this.elementType
-              + " can't hold values of type " + (elem != null ? elem.getClass().getName() : "null"), e);
+            final String invalidType = elem != null ? elem.getClass().getName() : "null";
+            throw new IllegalArgumentException(String.format(
+              "list containing %s can't hold values of type %s", this.elementType, invalidType), e);
         }
         return writer.getBytes();
     }
