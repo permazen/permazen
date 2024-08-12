@@ -68,8 +68,7 @@ abstract class AbstractIndexView {
     }
 
     public AbstractIndexView filter(int index, KeyFilter filter) {
-        if (filter == null)
-            throw new IndexOutOfBoundsException("null filter");
+        Preconditions.checkArgument(filter != null, "null filter");
         if (filter instanceof KeyRanges && ((KeyRanges)filter).isFull())
             return this;
         if (this.filters[index] != null)
