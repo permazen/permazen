@@ -192,7 +192,8 @@ public final class NavigableSets {
     }
 
     /**
-     * Get a non-null {@link Comparator} that sorts consistently with, and optionally reversed from, the given {@link Comparator}.
+     * Return the given {@link Comparator}, or natural order {@link Comparator} if the given {@link Comparator} is null,
+     * optionally reversed.
      *
      * @param comparator comparator, or null for natural ordering
      * @param reversed whether to return a reversed {@link Comparator}
@@ -204,5 +205,17 @@ public final class NavigableSets {
         if (comparator == null)
             comparator = (Comparator<T>)Comparator.naturalOrder();
         return reversed ? comparator.reversed() : comparator;
+    }
+
+    /**
+     * Return the given {@link Comparator}, or natural order {@link Comparator} if the given {@link Comparator} is null.
+     *
+     * @param comparator comparator, or null for natural ordering
+     * @param <T> compared type
+     * @return a non-null {@link Comparator}
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Comparator<T> comparatorOrNatural(Comparator<T> comparator) {
+        return NavigableSets.getComparator(comparator, false);
     }
 }

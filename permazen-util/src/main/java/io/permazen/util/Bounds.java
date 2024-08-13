@@ -280,7 +280,7 @@ public class Bounds<T> {
         Preconditions.checkArgument(other != null, "null other");
 
         // Allow an instance to consolidate with itself or any empty instance
-        comparator = this.comparatorOrNatural(comparator);
+        comparator = NavigableSets.comparatorOrNatural(comparator);
         if (this.equals(other) || other.isEmpty(comparator))
             return this;
         if (this.isEmpty(comparator))
@@ -328,7 +328,7 @@ public class Bounds<T> {
     public boolean isEmpty(Comparator<? super T> comparator) {
         if (!this.hasLowerBound() || !this.hasUpperBound())
             return false;
-        final int diff = this.comparatorOrNatural(comparator).compare(this.lowerBound, this.upperBound);
+        final int diff = NavigableSets.comparatorOrNatural(comparator).compare(this.lowerBound, this.upperBound);
         if (diff > 0)
             return true;
         if (diff < 0)
@@ -353,7 +353,7 @@ public class Bounds<T> {
     public boolean isInverted(Comparator<? super T> comparator) {
         if (!this.hasLowerBound() || !this.hasUpperBound())
             return false;
-        return this.comparatorOrNatural(comparator).compare(this.lowerBound, this.upperBound) > 0;
+        return NavigableSets.comparatorOrNatural(comparator).compare(this.lowerBound, this.upperBound) > 0;
     }
 
     /**
@@ -373,7 +373,7 @@ public class Bounds<T> {
 
         // Compare value to bound
         final T bound = upper ? this.upperBound : this.lowerBound;
-        final int diff = this.comparatorOrNatural(comparator).compare(value, bound);
+        final int diff = NavigableSets.comparatorOrNatural(comparator).compare(value, bound);
 
         // Handle value equal to bound
         if (diff == 0)
@@ -381,11 +381,6 @@ public class Bounds<T> {
 
         // Value is either inside or outside bound
         return upper ? diff < 0 : diff > 0;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Comparator<? super T> comparatorOrNatural(Comparator<? super T> comparator) {
-        return comparator != null ? comparator : (x, y) -> ((Comparable<T>)x).compareTo(y);
     }
 
 // Static Methods

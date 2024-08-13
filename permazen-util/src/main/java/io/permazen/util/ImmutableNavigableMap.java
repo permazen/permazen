@@ -109,7 +109,7 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> impl
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
         this.comparator = comparator;
-        this.actualComparator = this.comparator != null ? this.comparator : (Comparator<K>)Comparator.naturalOrder();
+        this.actualComparator = NavigableSets.comparatorOrNatural(this.comparator);
         for (int i = minIndex + 1; i < maxIndex; i++)
             assert this.actualComparator.compare(this.keys[i - 1], this.keys[i]) < 0;
     }

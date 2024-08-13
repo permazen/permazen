@@ -48,7 +48,7 @@ class ConvertedComparator<E, W> implements Comparator<E> {
     public int compare(E obj1, E obj2) {
         final W wobj1 = this.converter.convert(obj1);
         final W wobj2 = this.converter.convert(obj2);
-        return this.comparator != null ? this.comparator.compare(wobj1, wobj2) : ((Comparable<W>)wobj1).compareTo(wobj2);
+        return NavigableSets.comparatorOrNatural(this.comparator).compare(wobj1, wobj2);
     }
 
     @Override

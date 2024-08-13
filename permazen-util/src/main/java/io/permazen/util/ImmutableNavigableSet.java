@@ -98,7 +98,7 @@ public class ImmutableNavigableSet<E> extends AbstractNavigableSet<E> {
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
         this.comparator = comparator;
-        this.actualComparator = this.comparator != null ? this.comparator : (Comparator<E>)Comparator.naturalOrder();
+        this.actualComparator = NavigableSets.comparatorOrNatural(this.comparator);
         for (int i = minIndex + 1; i < maxIndex; i++)
             assert this.actualComparator.compare(this.elems[i - 1], this.elems[i]) < 0;
     }
