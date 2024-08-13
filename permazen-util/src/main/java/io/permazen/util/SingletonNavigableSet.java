@@ -45,8 +45,9 @@ class SingletonNavigableSet<E> extends AbstractNavigableSet<E> {
         super(bounds);
         this.comparator = comparator;
         if (comparator == null && !(value instanceof Comparable)) {
-            throw new IllegalArgumentException("no Comparator provided but value type "
-              + (value != null ? value.getClass().getName() : "null") + " does not implement Comparable");
+            throw new IllegalArgumentException(String.format(
+              "no Comparator provided but %s does not implement Comparable",
+              value != null ? "value type " + value.getClass().getName() : "null value"));
         }
         this.value = value;
     }
@@ -62,7 +63,7 @@ class SingletonNavigableSet<E> extends AbstractNavigableSet<E> {
         if (this.value == null)
             return obj == null;
         try {
-            return this.comparator().compare(this.value, (E)obj) == 0;
+            return NavigableSets.comparatorOrNatural(this.comparator()).compare(this.value, (E)obj) == 0;
         } catch (ClassCastException e) {
             return false;
         }
