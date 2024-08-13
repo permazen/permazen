@@ -460,7 +460,7 @@ public class FieldMonitorTest extends CoreAPITestSupport {
                 }
             });
             assert false : "should not have been able to add new listener";
-        } catch (UnsupportedOperationException e) {
+        } catch (IllegalStateException e) {
             // expected
         }
 

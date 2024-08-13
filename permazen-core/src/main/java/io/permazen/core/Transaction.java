@@ -1430,20 +1430,18 @@ public class Transaction {
         return !existed;
     }
 
+// CreateListener's
+
     /**
      * Add a {@link CreateListener} to this transaction.
      *
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addCreateListener(CreateListener listener) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
+        this.validateListenerChange(listener);
         if (this.createListeners == null)
             this.createListeners = new HashSet<>(1);
         this.createListeners.add(listener);
@@ -1455,18 +1453,15 @@ public class Transaction {
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeCreateListener(CreateListener listener) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
-        if (this.createListeners == null)
-            return;
-        this.createListeners.remove(listener);
+        this.validateListenerChange(listener);
+        if (this.createListeners != null)
+            this.createListeners.remove(listener);
     }
+
+// DeleteListener's
 
     /**
      * Add a {@link DeleteListener} to this transaction.
@@ -1474,36 +1469,27 @@ public class Transaction {
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addDeleteListener(DeleteListener listener) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
+        this.validateListenerChange(listener);
         if (this.deleteListeners == null)
             this.deleteListeners = new HashSet<>(1);
         this.deleteListeners.add(listener);
     }
 
     /**
-     * Remove an {@link DeleteListener} from this transaction.
+     * Remove a {@link DeleteListener} from this transaction.
      *
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeDeleteListener(DeleteListener listener) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
-        if (this.deleteListeners == null)
-            return;
-        this.deleteListeners.remove(listener);
+        this.validateListenerChange(listener);
+        if (this.deleteListeners != null)
+           this.deleteListeners.remove(listener);
     }
 
 // Object Schemas
@@ -1872,20 +1858,18 @@ public class Transaction {
         return Layout.getSchemaIndex(this.kvt);
     }
 
+// SchemaChangeListener's
+
     /**
      * Add an {@link SchemaChangeListener} to this transaction.
      *
      * @param listener the listener to add
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addSchemaChangeListener(SchemaChangeListener listener) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
+        this.validateListenerChange(listener);
         if (this.schemaChangeListeners == null)
             this.schemaChangeListeners = new HashSet<>(1);
         this.schemaChangeListeners.add(listener);
@@ -1897,17 +1881,12 @@ public class Transaction {
      * @param listener the listener to remove
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeSchemaChangeListener(SchemaChangeListener listener) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
-        if (this.schemaChangeListeners == null)
-            return;
-        this.schemaChangeListeners.remove(listener);
+        this.validateListenerChange(listener);
+        if (this.schemaChangeListeners != null)
+            this.schemaChangeListeners.remove(listener);
     }
 
 // Object and Field Access
@@ -2636,10 +2615,9 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public void addSimpleFieldChangeListener(int storageId, int[] path, KeyRanges[] filters,
-      SimpleFieldChangeListener listener) {
+    public void addSimpleFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, SimpleFieldChangeListener listener) {
         this.addFieldChangeListener(storageId, path, filters, listener);
     }
 
@@ -2664,7 +2642,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void addSetFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, SetFieldChangeListener listener) {
         this.addFieldChangeListener(storageId, path, filters, listener);
@@ -2691,7 +2669,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void addListFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, ListFieldChangeListener listener) {
         this.addFieldChangeListener(storageId, path, filters, listener);
@@ -2718,7 +2696,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void addMapFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, MapFieldChangeListener listener) {
         this.addFieldChangeListener(storageId, path, filters, listener);
@@ -2745,10 +2723,10 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void addFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
-        this.validateChangeListener(path, listener);
+        this.validateListenerChange(listener, path);
         this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, filters, listener));
     }
 
@@ -2765,7 +2743,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void removeSimpleFieldChangeListener(int storageId, int[] path, KeyRanges[] filters,
       SimpleFieldChangeListener listener) {
@@ -2785,7 +2763,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void removeSetFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, SetFieldChangeListener listener) {
         this.removeFieldChangeListener(storageId, path, filters, listener);
@@ -2804,7 +2782,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void removeListFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, ListFieldChangeListener listener) {
         this.removeFieldChangeListener(storageId, path, filters, listener);
@@ -2823,7 +2801,7 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public void removeMapFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, MapFieldChangeListener listener) {
         this.removeFieldChangeListener(storageId, path, filters, listener);
@@ -2845,23 +2823,22 @@ public class Transaction {
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws UnsupportedOperationException if {@link #setListeners setListeners()} has been invoked on this instance
+     * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
     public synchronized void removeFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
-        this.validateChangeListener(path, listener);
+        this.validateListenerChange(listener, path);
         final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor(storageId, path, filters, listener));
     }
 
-    private void validateChangeListener(int[] path, Object listener) {
+    private void validateListenerChange(Object listener, int... path) {
         assert Thread.holdsLock(this);
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
-        if (this.listenerSetInstalled)
-            throw new UnsupportedOperationException("ListenerSet installed");
+        Preconditions.checkState(!this.listenerSetInstalled, "ListenerSet installed");
         this.verifyReferencePath(path);
     }
 
@@ -3547,7 +3524,7 @@ public class Transaction {
      * <p>
      * Any currently registered listeners are unregistered and replaced by the listeners in {@code listeners}.
      * This method may be invoked multiple times; however, once this method has been invoked, any subsequent
-     * attempts to register or unregister individual listeners will result in an {@link UnsupportedOperationException}.
+     * attempts to register or unregister individual listeners will result in an {@link IllegalStateException}.
      *
      * @param listeners listener set created by {@link #snapshotListeners}
      * @throws IllegalArgumentException if {@code listeners} was created from a transaction with an incompatible schema
@@ -3689,7 +3666,7 @@ public class Transaction {
      *
      * <p>
      * To create an instance of this class, use {@link Transaction#snapshotListeners} after registering the desired
-     * set of listeners. Once created, the instance can be used repeatedly to configured the same set of listeners
+     * set of listeners. Once created, the instance can be used repeatedly to configure the same set of listeners
      * on any other compatible {@link Transaction} via {@link Transaction#setListeners Transaction.setListeners()},
      * where "compatible" means having the same {@link SchemaBundle}.
      */
