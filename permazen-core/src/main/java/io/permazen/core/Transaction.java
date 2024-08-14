@@ -238,9 +238,9 @@ public class Transaction {
     @GuardedBy("this")
     private Set<DeleteListener> deleteListeners;
     @GuardedBy("this")
-    private NavigableMap<Integer, Set<FieldMonitor>> monitorMap;                    // key is field's storage ID
+    private NavigableMap<Integer, Set<FieldMonitor>> fieldMonitors;     // these are grouped by field storage ID
     @GuardedBy("this")
-    private NavigableSet<Long> hasFieldMonitorCache;                                // optimization for hasFieldMonitor()
+    private NavigableSet<Long> fieldMonitorCache;                       // provides a quick test for whether a field is monitored
     @GuardedBy("this")
     private boolean listenerSetInstalled;
 
@@ -254,7 +254,8 @@ public class Transaction {
 
     // Misc
     @GuardedBy("this")
-    private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>>> pendingNotifications = new ThreadLocal<>();
+    private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>>> pendingFieldChangeNotifications
+      = new ThreadLocal<>();
     @GuardedBy("this")
     private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
     @GuardedBy("this")
@@ -2848,18 +2849,18 @@ public class Transaction {
 
     private synchronized Set<FieldMonitor> getMonitorsForField(int storageId, boolean create) {
         Set<FieldMonitor> monitors;
-        if (this.monitorMap == null) {
+        if (this.fieldMonitors == null) {
             if (!create)
                 return null;
-            this.monitorMap = new TreeMap<>();
+            this.fieldMonitors = new TreeMap<>();
             monitors = null;
         } else
-            monitors = this.monitorMap.get(storageId);
+            monitors = this.fieldMonitors.get(storageId);
         if (monitors == null) {
             if (!create)
                 return null;
             monitors = new HashSet<>(1);
-            this.monitorMap.put(storageId, monitors);
+            this.fieldMonitors.put(storageId, monitors);
         }
         return monitors;
     }
@@ -2885,7 +2886,7 @@ public class Transaction {
             return;
 
         // Add a pending field monitor notification for the specified field
-        this.pendingNotifications.get().computeIfAbsent(fieldStorageId, i -> new ArrayList<>(2)).add(notifier);
+        this.pendingFieldChangeNotifications.get().computeIfAbsent(fieldStorageId, i -> new ArrayList<>(2)).add(notifier);
     }
 
     /**
@@ -2895,11 +2896,11 @@ public class Transaction {
         assert Thread.holdsLock(this);
 
         // Do quick check, if possible
-        if (this.monitorMap == null)
+        if (this.fieldMonitors == null)
             return false;
         final int objTypeStorageId = id.getStorageId();
-        if (this.hasFieldMonitorCache != null)
-            return this.hasFieldMonitorCache.contains(this.buildHasFieldMonitorCacheKey(objTypeStorageId, fieldStorageId));
+        if (this.fieldMonitorCache != null)
+            return this.fieldMonitorCache.contains(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
 
         // Do slow check
         final Set<FieldMonitor> monitorsForField = this.getMonitorsForField(fieldStorageId);
@@ -2911,40 +2912,40 @@ public class Transaction {
     /**
      * Determine if there are any monitors watching any field in the specified type.
      */
-    boolean hasFieldMonitor(ObjType objType) {
+    synchronized boolean hasFieldMonitor(ObjType objType) {
         assert Thread.holdsLock(this);
 
         // Do quick check, if possible
-        if (this.monitorMap == null)
+        if (this.fieldMonitors == null)
             return false;
         final int objTypeStorageId = objType.storageId;
-        if (this.hasFieldMonitorCache != null) {
-            final long minKey = this.buildHasFieldMonitorCacheKey(objTypeStorageId, 0);
+        if (this.fieldMonitorCache != null) {
+            final long minKey = this.monitorCacheKey(objTypeStorageId, 0);
             if (objTypeStorageId == Integer.MAX_VALUE)
-                return this.hasFieldMonitorCache.ceiling(minKey) != null;
-            final long maxKey = this.buildHasFieldMonitorCacheKey(objTypeStorageId + 1, 0);
-            return !this.hasFieldMonitorCache.subSet(minKey, maxKey).isEmpty();
+                return this.fieldMonitorCache.ceiling(minKey) != null;
+            final long maxKey = this.monitorCacheKey(objTypeStorageId + 1, 0);
+            return !this.fieldMonitorCache.subSet(minKey, maxKey).isEmpty();
         }
 
         // Do slow check
         final NavigableSet<Integer> fieldStorageIds = NavigableSets.intersection(
-          objType.fieldsByStorageId.navigableKeySet(), this.monitorMap.navigableKeySet());
+          objType.fieldsByStorageId.navigableKeySet(), this.fieldMonitors.navigableKeySet());
         for (int fieldStorageId : fieldStorageIds) {
-            if (this.monitorMap.get(fieldStorageId).stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
+            if (this.fieldMonitors.get(fieldStorageId).stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
                 return true;
         }
         return false;
     }
 
-    private long buildHasFieldMonitorCacheKey(int objTypeStorageId, int fieldStorageId) {
+    private long monitorCacheKey(int objTypeStorageId, int fieldStorageId) {
         return ((long)objTypeStorageId << 32) | ((long)fieldStorageId & 0xffffffffL);
     }
 
     /**
      * Build a data structure to optimize checking whether a field in an object type is being monitored.
      */
-    private synchronized NavigableSet<Long> buildHasFieldMonitorCache() {
-        if (this.monitorMap == null)
+    private synchronized NavigableSet<Long> buildFieldMonitorCache() {
+        if (this.fieldMonitors == null)
             return Collections.emptyNavigableSet();
         final TreeSet<Long> set = new TreeSet<>();
         for (Schema otherSchema : this.schemaBundle.getSchemasBySchemaId().values()) {
@@ -2954,7 +2955,7 @@ public class Transaction {
                     final int fieldStorageId = field.storageId;
                     final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId);
                     if (monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
-                        set.add(this.buildHasFieldMonitorCacheKey(objTypeStorageId, fieldStorageId));
+                        set.add(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
                 }
             }
         }
@@ -3004,25 +3005,25 @@ public class Transaction {
             throw new StaleTransactionException(this);
 
         // If re-entrant invocation, we're already set up
-        if (this.pendingNotifications.get() != null)
+        if (this.pendingFieldChangeNotifications.get() != null)
             return mutation.get();
 
         // Set up pending report list, perform mutation, and then issue reports
-        this.pendingNotifications.set(new TreeMap<>());
+        this.pendingFieldChangeNotifications.set(new TreeMap<>());
         try {
             return mutation.get();
         } finally {
             try {
-                final TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>> pendingNotificationMap = this.pendingNotifications.get();
-                while (!pendingNotificationMap.isEmpty()) {
+                final TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>> pending = this.pendingFieldChangeNotifications.get();
+                while (!pending.isEmpty()) {
 
                     // Get the next field with pending notifications
-                    final Map.Entry<Integer, ArrayList<FieldChangeNotifier<?>>> entry = pendingNotificationMap.pollFirstEntry();
+                    final Map.Entry<Integer, ArrayList<FieldChangeNotifier<?>>> entry = pending.pollFirstEntry();
                     final int storageId = entry.getKey();
 
                     // For all pending notifications, back-track references and notify all field monitors for the field
                     for (FieldChangeNotifier<?> notifier : entry.getValue()) {
-                        assert notifier.getStorageId() == storageId;
+                        assert notifier.storageId == storageId;
                         final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
                         if (monitors == null || monitors.isEmpty())
                             continue;
@@ -3030,7 +3031,7 @@ public class Transaction {
                     }
                 }
             } finally {
-                this.pendingNotifications.remove();
+                this.pendingFieldChangeNotifications.remove();
             }
         }
     }
@@ -3534,15 +3535,15 @@ public class Transaction {
         Preconditions.checkArgument(listeners != null, "null listeners");
 
         // Verify field change listeners are compatible with this transaction
-        if (listeners.monitorMap != null && !listeners.schemaBundle.matches(this.schemaBundle))
+        if (listeners.fieldMonitors != null && !listeners.schemaBundle.matches(this.schemaBundle))
             throw new IllegalArgumentException("listener set was created from a transaction having an incompatible schema");
 
         // Apply listeners to this instance
         this.schemaChangeListeners = listeners.schemaChangeListeners;
         this.createListeners = listeners.createListeners;
         this.deleteListeners = listeners.deleteListeners;
-        this.monitorMap = listeners.monitorMap;
-        this.hasFieldMonitorCache = listeners.hasFieldMonitorCache;
+        this.fieldMonitors = listeners.fieldMonitors;
+        this.fieldMonitorCache = listeners.fieldMonitorCache;
         this.listenerSetInstalled = true;
     }
 
@@ -3675,8 +3676,8 @@ public class Transaction {
         final Set<SchemaChangeListener> schemaChangeListeners;
         final Set<CreateListener> createListeners;
         final Set<DeleteListener> deleteListeners;
-        final NavigableMap<Integer, Set<FieldMonitor>> monitorMap;
-        final NavigableSet<Long> hasFieldMonitorCache;
+        final NavigableMap<Integer, Set<FieldMonitor>> fieldMonitors;
+        final NavigableSet<Long> fieldMonitorCache;
 
         final SchemaBundle schemaBundle;
 
@@ -3688,14 +3689,14 @@ public class Transaction {
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
             this.deleteListeners = tx.deleteListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
-            if (tx.monitorMap != null) {
-                final TreeMap<Integer, Set<FieldMonitor>> monitorMapSnapshot = new TreeMap<>();
-                for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.monitorMap.entrySet())
-                    monitorMapSnapshot.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
-                this.monitorMap = Collections.unmodifiableNavigableMap(monitorMapSnapshot);
+            if (tx.fieldMonitors != null) {
+                final TreeMap<Integer, Set<FieldMonitor>> fieldMonitorsCopy = new TreeMap<>();
+                for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.fieldMonitors.entrySet())
+                    fieldMonitorsCopy.put(entry.getKey(), new HashSet<>(entry.getValue()));
+                this.fieldMonitors = Collections.unmodifiableNavigableMap(fieldMonitorsCopy);
             } else
-                this.monitorMap = null;
-            this.hasFieldMonitorCache = tx.buildHasFieldMonitorCache();
+                this.fieldMonitors = null;
+            this.fieldMonitorCache = tx.buildFieldMonitorCache();
             this.schemaBundle = tx.schemaBundle;
         }
     }
