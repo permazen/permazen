@@ -100,7 +100,7 @@ class JSSet<E> extends EncodingSet<E> {
             return;
 
         // If range is restricted and there are field monitors, use individual deletions so we get individual notifications
-        if (!this.bounds.equals(new Bounds<E>()) && this.tx.hasFieldMonitor(this.id, this.field.storageId)) {
+        if (!this.bounds.isUnbounded() && this.tx.hasFieldMonitor(this.id, this.field.storageId)) {
             for (Iterator<E> i = this.iterator(); i.hasNext(); ) {
                 i.next();
                 i.remove();

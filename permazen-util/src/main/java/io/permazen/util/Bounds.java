@@ -27,7 +27,7 @@ public class Bounds<T> {
     private final BoundType upperBoundType;
 
     /**
-     * Convenience constructor to create a new instance with no upper or lower bounds.
+     * Convenience constructor to create an unbounded instance, i.e., having neither upper nor lower bounds.
      */
     public Bounds() {
         this(null, BoundType.NONE, null, BoundType.NONE);
@@ -102,6 +102,15 @@ public class Bounds<T> {
      */
     public boolean hasUpperBound() {
         return this.upperBoundType != BoundType.NONE;
+    }
+
+    /**
+     * Determine whether this instance is unbounded, i.e., it has neither a lower nor an upper bound.
+     *
+     * @return true if this instance has neither bounds, otherwise false
+     */
+    public boolean isUnbounded() {
+        return !this.hasLowerBound() && !this.hasUpperBound();
     }
 
     /**
