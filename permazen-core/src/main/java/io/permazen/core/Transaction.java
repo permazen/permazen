@@ -1008,8 +1008,8 @@ public class Transaction {
      * <p>
      * If the object exists, {@link DeleteListener}'s will be notified synchronously by this method before the object
      * is actually deleted. Therefore it's possible for a {@link DeleteListener} to (perhaps indirectly) re-entrantly
-     * invoke this method with the same {@code id}. In such cases, {@link DeleteListener} notifications are not sent for
-     * the re-entrant invocation with the same {@code id}.
+     * invoke this method with the same {@code id}. In such cases, false is returned matching {@link DeleteListener}s
+     * are not (redundantly) notified.
      *
      * <p><b>Secondary Deletions</b></p>
      *
@@ -1028,8 +1028,8 @@ public class Transaction {
      * as that depends on whether {@code B} or {@code C} is deleted first (with the answer being, respectively, no and yes).
      *
      * @param id object ID of the object to delete
-     * @return true if object was found and deleted, false if object was not found,
-     *  or if {@code id} specifies an unknown object type
+     * @return true if object was found and deleted, false if object does not exist or this method is
+     *  being invoked re-entrantly with the same {@code id}
      * @throws ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws IllegalArgumentException if {@code id} is null
@@ -1042,10 +1042,14 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
 
-        // Track delete notifications in case of re-entrancy
+        // Track in-progess notifications to handle re-entrancy
         final boolean topLevel = this.deleteNotified == null;
         if (topLevel)
             this.deleteNotified = new ObjIdSet();
+        else if (this.deleteNotified.contains(id))               // we are being invoked re-entrantly for the same ID
+            return false;
+
+        // Find and delete the object and notify listeners
         boolean found = false;
         try {
             final ObjIdSet deletables = new ObjIdSet();
