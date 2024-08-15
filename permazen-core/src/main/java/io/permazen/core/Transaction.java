@@ -238,7 +238,7 @@ public class Transaction {
     @GuardedBy("this")
     private Set<CreateListener> createListeners;
     @GuardedBy("this")
-    private Set<DeleteListener> deleteListeners;
+    private Set<DeleteMonitor> deleteMonitors;
     @GuardedBy("this")
     private NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;  // these are grouped by field storage ID
     @GuardedBy("this")
@@ -1095,14 +1095,13 @@ public class Transaction {
 
             // Do we need to issue delete notifications for the object being deleted?
             if (!this.deleteNotified.add(id)
-              || this.deleteListeners == null
-              || this.deleteListeners.isEmpty()
+              || this.deleteMonitors == null
+              || this.deleteMonitors.isEmpty()
               || this.disableListenerNotifications)
                 break;
 
-            // Issue delete notifications and retry
-            for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
-                listener.onDelete(this, id);
+            // Notify delete monitors and retry
+            this.monitorNotify(new DeleteNotifier(id), NavigableSets.singleton(id), new ArrayList<>(deleteMonitors));
         }
 
         // Find all objects referred to by a reference field with forwardDelete = true and add them to deletables
@@ -1473,30 +1472,40 @@ public class Transaction {
     /**
      * Add a {@link DeleteListener} to this transaction.
      *
-     * @param listener the listener to add
-     * @throws IllegalArgumentException if {@code listener} is null
+     * @param path path of reference fields (represented by storage IDs) through which to monitor for deletion;
+     *  negated values denote inverse traversal of the field
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
+     * @param listener callback for notifications on object deletion
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addDeleteListener(DeleteListener listener) {
-        this.validateListenerChange(listener);
-        if (this.deleteListeners == null)
-            this.deleteListeners = new HashSet<>(1);
-        this.deleteListeners.add(listener);
+    public synchronized void addDeleteListener(int[] path, KeyRanges[] filters, DeleteListener listener) {
+        this.validateListenerChange(listener, path);
+        if (this.deleteMonitors == null)
+            this.deleteMonitors = new HashSet<>(1);
+        this.deleteMonitors.add(new DeleteMonitor(path, filters, listener));
     }
 
     /**
      * Remove a {@link DeleteListener} from this transaction.
      *
-     * @param listener the listener to remove
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field;
+     *  negated values denote inverse traversal of the field
+     * @param filters if not null, an array of length {@code path.length + 1} containing optional filters to be applied
+     *  to object ID's after the corresponding steps in the path
+     * @param listener callback for notifications on object deletion
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code listener} is null
      * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeDeleteListener(DeleteListener listener) {
-        this.validateListenerChange(listener);
-        if (this.deleteListeners != null)
-           this.deleteListeners.remove(listener);
+    public synchronized void removeDeleteListener(int[] path, KeyRanges[] filters, DeleteListener listener) {
+        this.validateListenerChange(listener, path);
+        if (this.deleteMonitors != null)
+            this.deleteMonitors.remove(new DeleteMonitor(path, filters, listener));
     }
 
 // Object Schemas
@@ -3546,13 +3555,14 @@ public class Transaction {
         Preconditions.checkArgument(listeners != null, "null listeners");
 
         // Verify field change listeners are compatible with this transaction
-        if (listeners.fieldMonitors != null && !listeners.schemaBundle.matches(this.schemaBundle))
+        if ((listeners.fieldMonitors != null || listeners.deleteMonitors != null)
+          && !listeners.schemaBundle.matches(this.schemaBundle))
             throw new IllegalArgumentException("listener set was created from a transaction having an incompatible schema");
 
         // Apply listeners to this instance
         this.schemaChangeListeners = listeners.schemaChangeListeners;
         this.createListeners = listeners.createListeners;
-        this.deleteListeners = listeners.deleteListeners;
+        this.deleteMonitors = listeners.deleteMonitors;
         this.fieldMonitors = listeners.fieldMonitors;
         this.fieldMonitorCache = listeners.fieldMonitorCache;
         this.listenerSetInstalled = true;
@@ -3677,7 +3687,7 @@ public class Transaction {
 
         final Set<SchemaChangeListener> schemaChangeListeners;
         final Set<CreateListener> createListeners;
-        final Set<DeleteListener> deleteListeners;
+        final Set<DeleteMonitor> deleteMonitors;
         final NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;
         final NavigableSet<Long> fieldMonitorCache;
 
@@ -3689,8 +3699,8 @@ public class Transaction {
               Collections.unmodifiableSet(new HashSet<>(tx.schemaChangeListeners)) : null;
             this.createListeners = tx.createListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
-            this.deleteListeners = tx.deleteListeners != null ?
-              Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
+            this.deleteMonitors = tx.deleteMonitors != null ?
+              Collections.unmodifiableSet(new HashSet<>(tx.deleteMonitors)) : null;
             if (tx.fieldMonitors != null) {
                 final TreeMap<Integer, Set<FieldMonitor<?>>> fieldMonitorsCopy = new TreeMap<>();
                 for (Map.Entry<Integer, Set<FieldMonitor<?>>> entry : tx.fieldMonitors.entrySet())

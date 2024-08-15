@@ -23,7 +23,6 @@ import io.permazen.core.CoreIndex4;
 import io.permazen.core.CounterField;
 import io.permazen.core.CreateListener;
 import io.permazen.core.DeleteAction;
-import io.permazen.core.DeleteListener;
 import io.permazen.core.DeletedObjectException;
 import io.permazen.core.EnumValue;
 import io.permazen.core.Field;
@@ -288,8 +287,12 @@ public class PermazenTransaction {
             tx.addCreateListener(new InternalCreateListener());
 
         // Register listeners for @OnDelete
-        if (pdb.hasOnDeleteMethods)
-            tx.addDeleteListener(new InternalDeleteListener());
+        for (PermazenClass<?> pclass : pdb.pclasses) {
+            for (OnDeleteScanner<?>.MethodInfo info : pclass.onDeleteMethods) {
+                final OnDeleteScanner<?>.DeleteMethodInfo deleteInfo = (OnDeleteScanner<?>.DeleteMethodInfo)info;
+                deleteInfo.registerDeleteListener(tx);
+            }
+        }
 
         // Register listeners for @OnChange
         for (PermazenClass<?> pclass : pdb.pclasses) {
@@ -2018,37 +2021,6 @@ public class PermazenTransaction {
         // Notify @OnCreate methods
         Object pobj = null;
         for (OnCreateScanner<?>.MethodInfo info : pclass.onCreateMethods) {
-            if (pobj == null)
-                pobj = this.get(id);
-            Util.invoke(info.getMethod(), pobj);
-        }
-    }
-
-// InternalDeleteListener
-
-    private static class InternalDeleteListener implements DeleteListener {
-
-        @Override
-        public void onDelete(Transaction tx, ObjId id) {
-            final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
-            assert ptx != null && ptx.tx == tx;
-            ptx.doOnDelete(id);
-        }
-    }
-
-    private void doOnDelete(ObjId id) {
-
-        // Get PermazenClass, if known
-        final PermazenClass<?> pclass;
-        try {
-            pclass = this.pdb.getPermazenClass(id);
-        } catch (TypeNotInSchemaException e) {
-            return;                                             // object type does not exist in our schema
-        }
-
-        // Notify @OnDelete methods
-        Object pobj = null;
-        for (OnDeleteScanner<?>.MethodInfo info : pclass.onDeleteMethods) {
             if (pobj == null)
                 pobj = this.get(id);
             Util.invoke(info.getMethod(), pobj);

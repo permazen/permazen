@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
 import io.permazen.annotation.OnChange;
+import io.permazen.annotation.OnDelete;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
@@ -231,14 +232,15 @@ import org.slf4j.LoggerFactory;
  * that traverse reference paths.
  *
  * <p>
- * Reference paths are also used by {@link OnChange &#64;OnChange} annotations to specify
- * non-local objects for change monitoring, and by {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotations.
+ * Reference paths are also used by {@link OnChange &#64;OnChange} and {@link OnDelete &#64;OnDelete} annotations to specify
+ * non-local objects for monitoring, and by {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotations.
  *
  * @see Permazen#parseReferencePath Permazen.parseReferencePath()
  * @see PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()
  * @see PermazenTransaction#invertReferencePath PermazenTransaction.invertReferencePath()
  * @see io.permazen.annotation.ReferencePath &#64;ReferencePath
  * @see OnChange &#64;OnChange
+ * @see OnDelete &#64;OnDelete
  */
 public class ReferencePath {
 

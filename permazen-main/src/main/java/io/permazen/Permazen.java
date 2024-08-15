@@ -225,7 +225,6 @@ public class Permazen {
     final AnnotatedElement elementRequiringJSR303Validation;
 
     volatile boolean hasOnCreateMethods;
-    volatile boolean hasOnDeleteMethods;
     volatile boolean hasOnSchemaChangeMethods;
     volatile boolean hasUpgradeConversions;
     volatile boolean anyClassRequiresDefaultValidation;
@@ -530,17 +529,14 @@ public class Permazen {
 
         // Detect whether we have any @OnCreate, @OnDelete, and/or @OnSchemaChange methods
         boolean anyOnCreateMethods = false;
-        boolean anyOnDeleteMethods = false;
         boolean anyOnSchemaChangeMethods = false;
         boolean anyUpgradeConversions = false;
         for (PermazenClass<?> pclass : this.pclasses) {
             anyOnCreateMethods |= !pclass.onCreateMethods.isEmpty();
-            anyOnDeleteMethods |= !pclass.onDeleteMethods.isEmpty();
             anyOnSchemaChangeMethods |= !pclass.onSchemaChangeMethods.isEmpty();
             anyUpgradeConversions |= !pclass.upgradeConversionFields.isEmpty();
         }
         this.hasOnCreateMethods = anyOnCreateMethods;
-        this.hasOnDeleteMethods = anyOnDeleteMethods;
         this.hasOnSchemaChangeMethods = anyOnSchemaChangeMethods;
         this.hasUpgradeConversions = anyUpgradeConversions;
 

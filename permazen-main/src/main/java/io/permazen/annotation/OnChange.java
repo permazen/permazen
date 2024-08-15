@@ -267,17 +267,8 @@ import java.lang.annotation.Target;
  *   public abstract class Person implements PermazenObject {
  *
  *       &#64;NotNull
- *       public abstract String getName();
- *       public abstract void setName(String name);
- *
- *       &#64;NotNull
  *       public abstract Address getAddress();
  *       public abstract void setAddress(Address address);
- *
- *       &#64;OnDelete
- *       private void onDelete() {
- *           this.setAddress(null); // ensure we notify Address.referenceChange()
- *       }
  *   }
  *
  *   &#64;PermazenType
@@ -298,8 +289,13 @@ import java.lang.annotation.Target;
  *
  *   // Dependent Object Checks
  *
+ *       &#64;OnDelete(path = "&lt;-Person.address")
+ *       private void onOccupantDelete(Person person) {
+ *           this.revalidate();
+ *       }
+ *
  *       &#64;OnChange(path = "&lt;-Person.address", value = "address")
- *       private void occupantChange(SimpleFieldChange&lt;Person, Address&gt; change) {
+ *       private void onOccupantChange(SimpleFieldChange&lt;Person, Address&gt; change) {
  *           this.revalidate();
  *       }
  *
