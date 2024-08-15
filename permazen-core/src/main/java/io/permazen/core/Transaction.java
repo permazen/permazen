@@ -240,7 +240,7 @@ public class Transaction {
     @GuardedBy("this")
     private Set<DeleteListener> deleteListeners;
     @GuardedBy("this")
-    private NavigableMap<Integer, Set<FieldMonitor>> fieldMonitors;     // these are grouped by field storage ID
+    private NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;  // these are grouped by field storage ID
     @GuardedBy("this")
     private NavigableSet<Long> fieldMonitorCache;                       // provides a quick test for whether a field is monitored
     @GuardedBy("this")
@@ -256,7 +256,7 @@ public class Transaction {
 
     // Misc
     @GuardedBy("this")
-    private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>>> pendingFieldChangeNotifications
+    private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier<?, ?>>>> pendingFieldChangeNotifications
       = new ThreadLocal<>();
     @GuardedBy("this")
     private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
@@ -2109,14 +2109,14 @@ public class Transaction {
         if (!this.disableListenerNotifications) {
             final Object oldObj = oldValue != null ?
               field.encoding.read(new ByteReader(oldValue)) : field.encoding.getDefaultValue();
-            this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
-                @Override
-                @SuppressWarnings("unchecked")
-                public void notify(Transaction tx, SimpleFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSimpleFieldChange(tx, this.id, (SimpleField<Object>)field, path, referrers, oldObj, newObj);
-                }
-            });
+            this.addSimpleFieldChangeNotification(field, id, oldObj, newObj);
         }
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("unchecked")
+    private <V> void addSimpleFieldChangeNotification(SimpleField<V> field, ObjId id, Object oldValue, Object newValue) {
+        this.addFieldChangeNotification(new SimpleFieldChangeNotifier<>(field, id, (V)oldValue, (V)newValue));
     }
 
     /**
@@ -2734,7 +2734,7 @@ public class Transaction {
      */
     public synchronized void addFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
         this.validateListenerChange(listener, path);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, filters, listener));
+        this.getMonitorsForField(storageId, true).add(new FieldMonitor<>(storageId, path, filters, listener));
     }
 
     /**
@@ -2834,9 +2834,9 @@ public class Transaction {
      */
     public synchronized void removeFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
         this.validateListenerChange(listener, path);
-        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+        final Set<FieldMonitor<?>> monitors = this.getMonitorsForField(storageId);
         if (monitors != null)
-            monitors.remove(new FieldMonitor(storageId, path, filters, listener));
+            monitors.remove(new FieldMonitor<>(storageId, path, filters, listener));
     }
 
     private void validateListenerChange(Object listener, int... path) {
@@ -2849,12 +2849,13 @@ public class Transaction {
         this.verifyReferencePath(path);
     }
 
-    private Set<FieldMonitor> getMonitorsForField(int storageId) {
+    private Set<FieldMonitor<?>> getMonitorsForField(int storageId) {
         return this.getMonitorsForField(storageId, false);
     }
 
-    private synchronized Set<FieldMonitor> getMonitorsForField(int storageId, boolean create) {
-        Set<FieldMonitor> monitors;
+    private synchronized Set<FieldMonitor<?>> getMonitorsForField(int storageId, boolean create) {
+        Preconditions.checkArgument(storageId > 0, "invalid storageId");
+        Set<FieldMonitor<?>> monitors;
         if (this.fieldMonitors == null) {
             if (!create)
                 return null;
@@ -2879,13 +2880,13 @@ public class Transaction {
      * <p>
      * This method should only be invoked if this.disableListenerNotifications is false.
      */
-    void addFieldChangeNotification(FieldChangeNotifier<?> notifier) {
+    void addFieldChangeNotification(FieldChangeNotifier<?, ?> notifier) {
         assert Thread.holdsLock(this);
         assert !this.disableListenerNotifications;
 
         // Get info
-        final ObjId id = notifier.getId();
-        final int fieldStorageId = notifier.getStorageId();
+        final ObjId id = notifier.id;
+        final int fieldStorageId = notifier.field.storageId;
 
         // Does anybody care?
         if (!this.hasFieldMonitor(id, fieldStorageId))
@@ -2898,7 +2899,7 @@ public class Transaction {
     /**
      * Determine if there are any monitors watching the specified field in the specified object.
      */
-    boolean hasFieldMonitor(ObjId id, int fieldStorageId) {
+    synchronized boolean hasFieldMonitor(ObjId id, int fieldStorageId) {
         assert Thread.holdsLock(this);
 
         // Do quick check, if possible
@@ -2909,7 +2910,7 @@ public class Transaction {
             return this.fieldMonitorCache.contains(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
 
         // Do slow check
-        final Set<FieldMonitor> monitorsForField = this.getMonitorsForField(fieldStorageId);
+        final Set<FieldMonitor<?>> monitorsForField = this.getMonitorsForField(fieldStorageId);
         if (monitorsForField == null)
             return false;
         return monitorsForField.stream().anyMatch(new FieldMonitorPredicate(objTypeStorageId, fieldStorageId));
@@ -3022,20 +3023,20 @@ public class Transaction {
             return mutation.get();
         } finally {
             try {
-                final TreeMap<Integer, ArrayList<FieldChangeNotifier<?>>> pending = this.pendingFieldChangeNotifications.get();
+                final TreeMap<Integer, ArrayList<FieldChangeNotifier<?, ?>>> pending = this.pendingFieldChangeNotifications.get();
                 while (!pending.isEmpty()) {
 
                     // Get the next field with pending notifications
-                    final Map.Entry<Integer, ArrayList<FieldChangeNotifier<?>>> entry = pending.pollFirstEntry();
+                    final Map.Entry<Integer, ArrayList<FieldChangeNotifier<?, ?>>> entry = pending.pollFirstEntry();
                     final int storageId = entry.getKey();
 
                     // For all pending notifications, back-track references and notify all field monitors for the field
-                    for (FieldChangeNotifier<?> notifier : entry.getValue()) {
-                        assert notifier.storageId == storageId;
-                        final Set<FieldMonitor> monitors = this.getMonitorsForField(storageId);
+                    for (FieldChangeNotifier<?, ?> notifier : entry.getValue()) {
+                        assert notifier.field.storageId == storageId;
+                        final Set<FieldMonitor<?>> monitors = this.getMonitorsForField(storageId);
                         if (monitors == null || monitors.isEmpty())
                             continue;
-                        this.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), new ArrayList<>(monitors), 0);
+                        this.monitorNotify(notifier, NavigableSets.singleton(notifier.id), new ArrayList<>(monitors));
                     }
                 }
             } finally {
@@ -3051,49 +3052,51 @@ public class Transaction {
         });
     }
 
-    // Recursively back-track references along monitor paths and notify monitors when we reach the end (i.e., beginning)
-    private void notifyFieldMonitors(FieldChangeNotifier<?> notifier,
-      NavigableSet<ObjId> objects, ArrayList<FieldMonitor> monitorList, int step) {
+    // For each monitor, back-track references in path and notify the monitors when we reach the beginning of the path
+    private void monitorNotify(Notifier<?> notifier, NavigableSet<ObjId> objects, ArrayList<Monitor<?>> monitorList) {
+        this.monitorNotify(notifier, objects, monitorList, 0);
+    }
+
+    private void monitorNotify(Notifier<?> notifier, NavigableSet<ObjId> objects, ArrayList<Monitor<?>> monitorList, int step) {
 
         // Find the monitors for whom we have completed all the steps in their (inverse) path,
         // and group the remaining monitors by their next inverted reference path step.
-        final HashMap<Integer, ArrayList<FieldMonitor>> remainingMonitorsMap = new HashMap<>();
-        for (FieldMonitor monitor : monitorList) {
+        final HashMap<Integer, ArrayList<Monitor<?>>> remainingMonitorsMap = new HashMap<>();
+        for (Monitor<?> monitor : monitorList) {
 
             // Apply the monitor's type filter on the target object, if any
             if (step == 0) {
                 final KeyRanges filter = monitor.getTargetFilter();
-                if (filter != null && !filter.contains(notifier.getId().getBytes()))
+                if (filter != null && !filter.contains(notifier.id.getBytes()))
                     continue;
             }
 
             // Issue notification callback if we have back-tracked through the whole path
             if (monitor.path.length == step) {
-                this.notifyFieldChangeListener(notifier, monitor, objects);
+                this.monitorNotify(notifier, monitor, objects);
                 continue;
             }
 
-            // Sort the unfinished monitors by their next (i.e., previous) reference field
-            final int storageId = monitor.getStorageId(step);
-            remainingMonitorsMap.computeIfAbsent(storageId, i -> new ArrayList<>()).add(monitor);
+            // Group the unfinished monitors by their next (i.e., previous) reference field
+            remainingMonitorsMap.computeIfAbsent(monitor.getStorageId(step), i -> new ArrayList<>()).add(monitor);
         }
 
         // Invert references for each group of remaining monitors and recurse
-        for (Map.Entry<Integer, ArrayList<FieldMonitor>> entry : remainingMonitorsMap.entrySet()) {
+        for (Map.Entry<Integer, ArrayList<Monitor<?>>> entry : remainingMonitorsMap.entrySet()) {
             final int storageId = entry.getKey();
-            final ArrayList<FieldMonitor> monitors = entry.getValue();
+            final ArrayList<Monitor<?>> monitors = entry.getValue();
             assert monitors != null;
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>(monitors.size());
-            for (FieldMonitor monitor : entry.getValue())
+            for (Monitor<?> monitor : monitors)
                 refsList.addAll(this.traverseReference(objects, -storageId, monitor.getFilter(step + 1)));
             if (!refsList.isEmpty())
-                this.notifyFieldMonitors(notifier, NavigableSets.union(refsList), monitors, step + 1);
+                this.monitorNotify(notifier, NavigableSets.union(refsList), monitors, step + 1);
         }
     }
 
     // Notify listener, if it has the appropriate type
-    private <T> void notifyFieldChangeListener(FieldChangeNotifier<T> notifier, FieldMonitor monitor, NavigableSet<ObjId> objects) {
-        final T listener;
+    private <L> void monitorNotify(Notifier<L> notifier, Monitor<?> monitor, NavigableSet<ObjId> objects) {
+        final L listener;
         try {
             listener = notifier.getListenerType().cast(monitor.listener);
         } catch (ClassCastException e) {
@@ -3575,15 +3578,6 @@ public class Transaction {
         return this.userObject;
     }
 
-// SimpleFieldChangeNotifier
-
-    private abstract static class SimpleFieldChangeNotifier extends FieldChangeNotifier<SimpleFieldChangeListener> {
-
-        SimpleFieldChangeNotifier(SimpleField<?> field, ObjId id) {
-            super(SimpleFieldChangeListener.class, field.storageId, id);
-        }
-    }
-
 // Callback
 
     /**
@@ -3684,7 +3678,7 @@ public class Transaction {
         final Set<SchemaChangeListener> schemaChangeListeners;
         final Set<CreateListener> createListeners;
         final Set<DeleteListener> deleteListeners;
-        final NavigableMap<Integer, Set<FieldMonitor>> fieldMonitors;
+        final NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;
         final NavigableSet<Long> fieldMonitorCache;
 
         final SchemaBundle schemaBundle;
@@ -3698,8 +3692,8 @@ public class Transaction {
             this.deleteListeners = tx.deleteListeners != null ?
               Collections.unmodifiableSet(new HashSet<>(tx.deleteListeners)) : null;
             if (tx.fieldMonitors != null) {
-                final TreeMap<Integer, Set<FieldMonitor>> fieldMonitorsCopy = new TreeMap<>();
-                for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.fieldMonitors.entrySet())
+                final TreeMap<Integer, Set<FieldMonitor<?>>> fieldMonitorsCopy = new TreeMap<>();
+                for (Map.Entry<Integer, Set<FieldMonitor<?>>> entry : tx.fieldMonitors.entrySet())
                     fieldMonitorsCopy.put(entry.getKey(), new HashSet<>(entry.getValue()));
                 this.fieldMonitors = new ImmutableNavigableMap<>(fieldMonitorsCopy);
             } else
@@ -3712,7 +3706,7 @@ public class Transaction {
 // FieldMonitorPredicate
 
     // Matches FieldMonitors who monitor the specified field in the specified object type
-    private static final class FieldMonitorPredicate implements Predicate<FieldMonitor> {
+    private static final class FieldMonitorPredicate implements Predicate<FieldMonitor<?>> {
 
         private final byte[] objTypeBytes;
         private final int fieldStorageId;
@@ -3727,7 +3721,7 @@ public class Transaction {
         }
 
         @Override
-        public boolean test(FieldMonitor monitor) {
+        public boolean test(FieldMonitor<?> monitor) {
             assert monitor != null;
             if (monitor.storageId != this.fieldStorageId)
                 return false;

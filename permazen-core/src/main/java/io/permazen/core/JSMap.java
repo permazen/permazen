@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 /**
  * Implements the {@link NavigableMap} view of a {@link MapField}.
@@ -103,17 +102,9 @@ class JSMap<K, V> extends EncodingMap<K, V> {
 
         // Notify field monitors
         if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    if (oldValue == null)
-                        listener.onMapFieldAdd(tx, this.id, JSMap.this.field, path, referrers, keyObj, newValueObj);
-                    else {
-                        listener.onMapFieldReplace(tx, this.id,
-                          JSMap.this.field, path, referrers, keyObj, oldValueObj, newValueObj);
-                    }
-                }
-            });
+            this.tx.addFieldChangeNotification(oldValue != null ?
+              new MapFieldReplaceNotifier<>(this.field, this.id, keyObj, oldValueObj, newValueObj) :
+              new MapFieldAddNotifier<>(this.field, this.id, keyObj, newValueObj));
         }
 
         // Done
@@ -147,14 +138,8 @@ class JSMap<K, V> extends EncodingMap<K, V> {
             this.field.removeIndexEntry(this.tx, this.id, this.field.valueField, key, oldValue);
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onMapFieldRemove(tx, this.id, JSMap.this.field, path, referrers, keyObj, valueObj);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new MapFieldRemoveNotifier<>(this.field, this.id, keyObj, valueObj));
 
         // Done
         return valueObj;
@@ -196,14 +181,8 @@ class JSMap<K, V> extends EncodingMap<K, V> {
         this.field.deleteContent(this.tx, rangeMinKey, rangeMaxKey);
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onMapFieldClear(tx, this.id, JSMap.this.field, path, referrers);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new MapFieldClearNotifier<>(this.field, this.id));
     }
 
     @Override
@@ -221,14 +200,5 @@ class JSMap<K, V> extends EncodingMap<K, V> {
     @Override
     protected V decodeValue(KVPair pair) {
         return this.field.valueField.encoding.read(new ByteReader(pair.getValue()));
-    }
-
-// MapFieldChangeNotifier
-
-    private abstract class MapFieldChangeNotifier extends FieldChangeNotifier<MapFieldChangeListener> {
-
-        MapFieldChangeNotifier() {
-            super(MapFieldChangeListener.class, JSMap.this.field.storageId, JSMap.this.id);
-        }
     }
 }

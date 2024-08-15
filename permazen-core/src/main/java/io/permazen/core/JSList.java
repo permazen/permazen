@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.RandomAccess;
@@ -118,14 +117,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         }
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldReplace(tx, this.id, JSList.this.field, path, referrers, index, oldElem, newElem);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new ListFieldReplaceNotifier<>(this.field, this.id, index, oldElem, newElem));
 
         // Return previous entry
         return oldElem;
@@ -180,16 +173,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 this.field.addIndexEntry(this.tx, this.id, this.field.elementField, key, value);
 
             // Notify field monitors
-            if (!this.tx.disableListenerNotifications) {
-                final int index2 = index;
-                this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-                    @Override
-                    public void notify(Transaction tx,
-                      ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                        listener.onListFieldAdd(tx, this.id, JSList.this.field, path, referrers, index2, elem);
-                    }
-                });
-            }
+            if (!this.tx.disableListenerNotifications)
+                this.tx.addFieldChangeNotification(new ListFieldAddNotifier<>(this.field, this.id, index, elem));
 
             // Advance index
             index++;
@@ -218,14 +203,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         this.field.deleteContent(this.tx, this.id);
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldClear(tx, this.id, JSList.this.field, path, referrers);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new ListFieldClearNotifier<>(this.field, this.id));
     }
 
     @Override
@@ -259,25 +238,10 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         // Notify field monitors
         if (!this.tx.disableListenerNotifications) {
             for (int i = min; i < max; i++) {
-                final byte[] value = this.tx.kvt.get(this.buildKey(i));
-                if (value == null)
-                    throw new InconsistentDatabaseException("list entry at index " + i + " not found");
-                final int i2 = i;
-                this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-
-                    private boolean decoded;
-                    private E elem;
-
-                    @Override
-                    public void notify(Transaction tx,
-                      ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                        if (!this.decoded) {
-                            this.elem = JSList.this.elementType.read(new ByteReader(value));
-                            this.decoded = true;
-                        }
-                        listener.onListFieldRemove(tx, this.id, JSList.this.field, path, referrers, i2, elem);
-                    }
-                });
+                final byte[] oldValue = this.tx.kvt.get(this.buildKey(i));
+                if (oldValue == null)
+                    throw new InconsistentDatabaseException(String.format("list entry at index %d not found", i));
+                this.tx.addFieldChangeNotification(new ListFieldRemoveNotifier<>(this.field, this.id, i, oldValue));
             }
         }
 
@@ -419,15 +383,6 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             Preconditions.checkState(this.removeIndex != null);
             JSList.this.removeRange(this.removeIndex, this.removeIndex + 1);
             this.removeIndex = null;
-        }
-    }
-
-// ListFieldChangeNotifier
-
-    private abstract class ListFieldChangeNotifier extends FieldChangeNotifier<ListFieldChangeListener> {
-
-        ListFieldChangeNotifier() {
-            super(ListFieldChangeListener.class, JSList.this.field.storageId, JSList.this.id);
         }
     }
 }

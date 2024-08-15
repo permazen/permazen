@@ -73,14 +73,8 @@ class JSSet<E> extends EncodingSet<E> {
             this.field.addIndexEntry(this.tx, this.id, this.field.elementField, key, null);
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSetFieldAdd(tx, this.id, JSSet.this.field, path, referrers, newValue);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new SetFieldAddNotifier<>(this.field, this.id, newValue));
 
         // Done
         return true;
@@ -120,14 +114,8 @@ class JSSet<E> extends EncodingSet<E> {
         this.field.deleteContent(this.tx, rangeMinKey, rangeMaxKey);
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSetFieldClear(tx, this.id, JSSet.this.field, path, referrers);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new SetFieldClearNotifier<>(this.field, this.id));
     }
 
     @Override
@@ -151,14 +139,8 @@ class JSSet<E> extends EncodingSet<E> {
             this.field.removeIndexEntry(this.tx, this.id, this.field.elementField, key, null);
 
         // Notify field monitors
-        if (!this.tx.disableListenerNotifications) {
-            this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
-                @Override
-                public void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onSetFieldRemove(tx, this.id, JSSet.this.field, path, referrers, oldValue);
-                }
-            });
-        }
+        if (!this.tx.disableListenerNotifications)
+            this.tx.addFieldChangeNotification(new SetFieldRemoveNotifier<>(this.field, this.id, oldValue));
 
         // Done
         return true;
@@ -167,14 +149,5 @@ class JSSet<E> extends EncodingSet<E> {
     @Override
     protected NavigableSet<E> createSubSet(boolean newReversed, KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<E> newBounds) {
         return new JSSet<>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
-    }
-
-// SetFieldChangeNotifier
-
-    private abstract class SetFieldChangeNotifier extends FieldChangeNotifier<SetFieldChangeListener> {
-
-        SetFieldChangeNotifier() {
-            super(SetFieldChangeListener.class, JSSet.this.field.storageId, JSSet.this.id);
-        }
     }
 }
