@@ -25,6 +25,8 @@ import io.permazen.util.ByteReader;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.ImmutableNavigableMap;
+import io.permazen.util.ImmutableNavigableSet;
 import io.permazen.util.NavigableSets;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -2963,7 +2965,7 @@ public class Transaction {
                 }
             }
         }
-        return set;
+        return new ImmutableNavigableSet<>(set);
     }
 
     /**
@@ -3697,7 +3699,7 @@ public class Transaction {
                 final TreeMap<Integer, Set<FieldMonitor>> fieldMonitorsCopy = new TreeMap<>();
                 for (Map.Entry<Integer, Set<FieldMonitor>> entry : tx.fieldMonitors.entrySet())
                     fieldMonitorsCopy.put(entry.getKey(), new HashSet<>(entry.getValue()));
-                this.fieldMonitors = Collections.unmodifiableNavigableMap(fieldMonitorsCopy);
+                this.fieldMonitors = new ImmutableNavigableMap<>(fieldMonitorsCopy);
             } else
                 this.fieldMonitors = null;
             this.fieldMonitorCache = tx.buildFieldMonitorCache();
