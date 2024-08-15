@@ -25,12 +25,7 @@ import org.testng.annotations.Test;
 
 public class OnChangeMultipleTest extends MainTestSupport {
 
-    private static final ThreadLocal<ArrayList<FieldChange<?>>> EVENTS = new ThreadLocal<ArrayList<FieldChange<?>>>() {
-        @Override
-        protected ArrayList<FieldChange<?>> initialValue() {
-            return new ArrayList<>();
-        }
-    };
+    private static final ThreadLocal<ArrayList<FieldChange<?>>> EVENTS = ThreadLocal.withInitial(ArrayList::new);
 
     @Test
     public void testMultiFieldChange() throws Exception {

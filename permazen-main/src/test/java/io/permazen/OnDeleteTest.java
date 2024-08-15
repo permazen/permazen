@@ -19,20 +19,9 @@ import org.testng.annotations.Test;
 
 public class OnDeleteTest extends MainTestSupport {
 
-    private static final ThreadLocal<HashSet<PermazenObject>> CALLBACKS = new ThreadLocal<HashSet<PermazenObject>>() {
-        @Override
-        protected HashSet<PermazenObject> initialValue() {
-            return new HashSet<>();
-        }
-    };
+    private static final ThreadLocal<HashSet<PermazenObject>> CALLBACKS = ThreadLocal.withInitial(HashSet::new);
 
-    private static final ThreadLocal<HashMap<PermazenObject, PermazenObject>> DELETE_TARGET
-      = new ThreadLocal<HashMap<PermazenObject, PermazenObject>>() {
-        @Override
-        protected HashMap<PermazenObject, PermazenObject> initialValue() {
-            return new HashMap<>();
-        }
-    };
+    private static final ThreadLocal<HashMap<PermazenObject, PermazenObject>> DELETE_TARGET = ThreadLocal.withInitial(HashMap::new);
 
     @Test
     public void testOnDelete() {
