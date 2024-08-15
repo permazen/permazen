@@ -143,13 +143,13 @@ import java.lang.annotation.Target;
  *   }
  * </code></pre>
  *
- * <p><b>Custom Indexes</b></p>
+ * <p><b>Use Case: Custom Indexes</b></p>
  *
  * <p>
  * {@link OnChange &#64;OnChange} annotations are useful for creating custom database indexes. In the most general
  * sense, an "index" is some secondary data structure that (a) is entirely derived from some primary data, (b) can be
- * efficiently when the primary data changes, and (c) provides a quick answer to a question that would otherwise require
- * an extensive calculation if computed from scratch.
+ * efficiently updated when the primary data changes, and (c) provides a quick answer to a question that would otherwise
+ * require an extensive calculation if computed from scratch.
  *
  * <p>
  * The code below shows an example index that tracks the average and variance in {@code House} prices.
@@ -242,18 +242,22 @@ import java.lang.annotation.Target;
  *  }
  * </code></pre>
  *
- * <p><b>Depenedent Objects</b></p>
+ * <p><b>Use Case: Dependent Objects</b></p>
  *
  * <p>
  * {@link OnChange &#64;OnChange} annotations can be used to automatically garbage collect <i>dependent</i> objects.
  * A dependent object is one that is only useful or meaningful in the context of some other object(s) that reference it.
  * You can combine {@link OnChange &#64;OnChange} with {@link OnDelete &#64;OnDelete} and {@link ReferencePath &#64;ReferencePath}
- * to keep track of incoming references.
+ * to keep track of these incoming references.
  *
  * <p>
  * For example, suppose multiple {@code Person}'s can share a common {@code Address}. You only want {@code Address} objects
- * in your database when they are referred to by at least one {@code Person}. As soon as an {@code Address} is no longer
+ * in your database when they are referred to by at least one {@code Person}; as soon as an {@code Address} is no longer
  * referenced, you want it to be automaticaly garbage collected.
+ *
+ * <p>
+ * You can use {@link OnChange &#64;OnChange} annotations to implement a simple reference counting scheme. Actually, you don't
+ * need to count references, you just need to perform checks whether any references exist at the appropriate times.
  *
  * <p>
  * Then you could do something like this:
@@ -338,31 +342,33 @@ import java.lang.annotation.Target;
  * <p><b>Instance vs. Static Methods</b></p>
  *
  * <p>
- * For an instance method, the method will be invoked on each object for which the changed field is
- * found at the end of the specified reference path starting from that object. So if there are three
- * {@code Child} objects, and the {@code Child} class has an instance method annotated with
- * {@link OnChange &#64;OnChange}{@code (path = "parent", value = "name")}, then all three {@code Child} objects
+ * An instance method method will be invoked on <i>each object</i> for which the changed field is found at the end
+ * of the specified reference path, starting from that object. For example, if there are three child {@code Node}'s
+ * pointing to the same parent {@code Node}, and the {@code Node} class has an instance method annotated with
+ * {@link OnChange &#64;OnChange}{@code (path = "parent", value = "name")}, then all three child {@code Node}'s
  * will be notified when the parent's name changes.
  *
  * <p>
- * If the instance is a static method, then the method is invoked once when any instance of the class containing
- * the method exists for which the changed field is found at the end of the specified reference path, no matter how many
- * such instances there are. So in the previous example, making the method static would cause it to be invoked once
- * when the parent's name changes.
+ * A static method is invoked <i>once</i> when any instance of the class containing the method exists for which the
+ * changed field is found at the end of the specified reference path, no matter how many such instances there are.
+ * So in the previous example, making the method static would cause it to be invoked only once when the parent's
+ * name changes (and not at all if there were zero child {@code Node}'s). Put another way, an annotation on a static
+ * method behaves just like the same annotation on an instance method, except that multiple per-object notifications
+ * are coalesced into a single per-class notification.
  *
  * <p><b>Notification Delivery</b></p>
  *
  * <p>
  * Notifications are delivered synchronously within the thread the made the change, after the change is made and just
- * prior to returning to the original caller.
- * Additional changes made within an {@link OnChange &#64;OnChange} handler that themselves result in notifications
- * are also handled prior to returning to the original caller. Put another way, the queue of outstanding notifications
- * triggered by invoking a method that changes any field is emptied before that method returns. Therefore, infinite loops
- * are possible if an {@link OnChange &#64;OnChange} handler method modifies the field it's monitoring (directly, or indirectly via
- * other {@link OnChange &#64;OnChange} handler methods).
+ * prior to returning to the original caller who invoked the method that changed the field.
+ * If an {@link OnChange &#64;OnChange} method makes further changes that themselves generate change notifications,
+ * these new notifications are also handled prior to returning to the original caller. Put another way, the queue of
+ * outstanding notifications triggered by field changes is always emptied before the original method returns. Therefore,
+ * infinite loops are possible, e.g., if an {@link OnChange &#64;OnChange} method modifies the field it's monitoring
+ * either directly, or indirectly via other {@link OnChange &#64;OnChange} methods.
  *
  * <p>
- * {@link OnChange &#64;OnChange} functions within a single transaction; it does not notify about changes that
+ * {@link OnChange &#64;OnChange} operates within a single transaction; it does not notify about changes that
  * occur in other transactions.
  *
  * <p><b>Fields of Sub-Types</b>
@@ -370,7 +376,7 @@ import java.lang.annotation.Target;
  * <p>
  * The same field can appear in multiple sub-types, e.g., when implementing a Java interface containing a Permazen field.
  * This can lead to some subtleties: for example, in some cases, a field may not exist in a Java object type, but it does
- * exist in a some sub-type of that type:
+ * exist in a some sub-type of that type. For example, consider this class:
  *
  * <pre><code class="language-java">
  * &#64;PermazenType
@@ -378,7 +384,7 @@ import java.lang.annotation.Target;
  *
  *     public abstract Set&lt;Person&gt; <b>getFriends</b>();
  *
- *     &#64;OnChange(path = "friends", field="<b>name</b>")
+ *     &#64;OnChange(path = "-&gt;friends", field="<b>name</b>")
  *     private void friendNameChanged(SimpleFieldChange&lt;NamedPerson, String&gt; change) {
  *         // ... do whatever
  *     }
@@ -392,14 +398,14 @@ import java.lang.annotation.Target;
  * }
  * </code></pre>
  *
- * Here the path {@code "friends.name"} seems incorrect because {@code "friends"} has type {@code Person},
- * while {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will still
- * work as long as there is no ambiguity, i.e., in this example, there are no other sub-types of {@code Person} with a
- * different field named {@code "name"}.
+ * The path {@code "->friends"} implies type {@code Person},
+ * but the field {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will
+ * still work as long as there is no ambiguity. In this example, that means there are no other sub-types of {@code Person}
+ * with a different (i.e., having conflicting type) field also named {@code "name"}.
  *
  * <p>
- * Note also in the example above the {@link SimpleFieldChange} parameter to the method {@code friendNameChanged()}
- * necessarily has generic type {@code NamedPerson}, not {@code Person}.
+ * In the example above, the {@link SimpleFieldChange} parameter to the method {@code friendNameChanged()}
+ * <i>necessarily</i> has generic type {@code NamedPerson}, not {@code Person}.
  *
  * <p><b>Other Notes</b></p>
  *
@@ -412,8 +418,8 @@ import java.lang.annotation.Target;
  *
  * <p>
  * For any given field change and path, only one notification will be delivered per recipient object, even if the changed field
- * is seen through the path in multiple ways (e.g., via reference path {@code "mylist.myfield"} where the changed object
- * containing {@code myfield} appears multiple times in {@code mylist}).
+ * is seen through the path in multiple ways (e.g., via reference path {@code "->mylist"} where the changed object
+ * appears multiple times in the list {@code mylist}).
  *
  * <p>
  * Some notifications may need to be ignored by objects in {@linkplain DetachedPermazenTransaction detached} transactions;

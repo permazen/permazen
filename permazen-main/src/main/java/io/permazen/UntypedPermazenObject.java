@@ -8,7 +8,7 @@ package io.permazen;
 import io.permazen.core.TypeNotInSchemaException;
 
 /**
- * Represents a {@link PermazenObject} for which no Java model type is defined in the instance's associated schema.
+ * Represents a {@link PermazenObject} whose type does not exist in the transaction's schema.
  *
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
@@ -26,12 +26,12 @@ import io.permazen.core.TypeNotInSchemaException;
  *
  * <p>
  * For example, suppose a schema update removes the {@code Account} class and replaces fields referencing {@code Account}
- * objects with a simple {@link String} account ID field. Then the corresponding schema migration might look like this:
+ * objects with a copy of the {@code accountId} field. Then a corresponding schema migration might look like this:
  * <pre><code class="language-java">
  *      &#64;OnSchemaChange
  *      private void applySchemaChanges(Map&lt;String, Object&gt; oldValues) {
- *          if (oldValues.containsKey("account")) {                         // was replaced with "accountId"
- *              final PermazenObject acct = (PermazenObject)oldValues.get("account");     // acct has type UntypedPermazenObject
+ *          if (oldValues.containsKey("account")) {                                   // was replaced with "accountId"
+ *              final PermazenObject acct = (PermazenObject)oldValues.get("account"); // has type UntypedPermazenObject
  *              final PermazenTransaction ptx = this.getTransaction();
  *              final String acctId = (String)ptx.readSimpleField(acct.getObjId(), "accountId", false);
  *              this.setAccountId(acctId);

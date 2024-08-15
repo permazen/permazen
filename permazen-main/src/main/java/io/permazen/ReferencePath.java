@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reference paths.
+ * Permazen reference paths.
  *
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
@@ -43,58 +43,69 @@ import org.slf4j.LoggerFactory;
  * <p><b>Overview</b>
  *
  * <p>
- * A reference path defines a path of object references, starting from an instance of some <em>starting object type</em>
- * and ending up at one or more target objects (having some <em>target object types</em>), by hopping from object to
- * object through a sequence of reference fields. The reference fields may be simple reference fields or sub-fields
- * of complex fields (i.e., list or set element, or map key or value), and may be traversed in either direction
- * (forward or inverse). At its heart, a reference path is simply a list of reference fields along with a flag
- * for each field that determines in which direction the reference should be traversed.
+ * A reference path defines a path of object references, starting from some <em>starting object type(s)</em> and ending
+ * up at one or more <em>target object types</em>, by hopping from object to object through a sequence of reference fields.
+ * The reference fields may be simple reference fields or sub-fields of complex fields (i.e., list or set element,
+ * or map key or value), and each field may be traversed in either the forward or inverse direction. In short, a reference
+ * path is simply a list of reference fields, along with a flag for each field that determines the direction the field should
+ * be traversed. Because reference fields are always indexed, given an instance of the starting object type, Permazen can
+ * efficiently compute the set of objects at the other end of the reference path. Permazen automatically eliminates redundancies
+ * caused by loops or multiple paths.
+ *
+ * <p><b>Type Pruning</b>
  *
  * <p>
  * At each step in the path, there is a set of possible <em>current object types</em>: at the initial step, this set
- * is just the starting object type, and after the final step, this set equals the target object types. It is possible
+ * is just the starting object types, and after the final step, this set equals the target object types. It is possible
  * for any step to only apply to some of the current object types. This can happen when the field is only defined in some
- * of the object types (for forward step) or when the field can only refer to some of them (for inverse steps). In these
+ * of the object types (for forward step) or when the field can only refer to some object types (for inverse steps). In these
  * cases, the search ends for any unmatched types and continues for matching types. However, it is an error if, at any step,
- * no types match, which would mean no objects could ever be found. It's also an error if the field specified at any
- * step is ambiguous, which can happen when two sub-types define incompatible fields using the same name.
+ * no types match, which would mean no objects could ever be found. It's also an error if the field specified at any step
+ * is ambiguous, which can happen when two of the current object types define incompatible fields with the same name.
+ *
+ * <p><b>Fan-In/Fan-Out</b>
  *
  * <p>
  * When stepping through a collection field in the forward direction, or through any field in the inverse direction,
- * the number of objects can multiply. In general, the number of target objects can be vastly different than
- * the number of starting objects, depending on the fan-in/fan-out of the references traversed.
+ * the number of objects can multiply. In general, the number of target objects can be vastly different than the number
+ * of starting objects, depending on the fan-in/fan-out of the references traversed.
  *
- * <p><b>Reference Steps</b>
+ * <p><b>String Form</b>
  *
  * <p>
- * Reference paths are denoted in {@link String} form as zero or more concatenated <em>reference steps</em>:
+ * Reference paths are denoted in {@link String} form as a concatenation of zero or more <em>reference steps</em>:
  * <ul>
  *  <li>Forward reference steps are denoted {@code "->fieldName"} where {@code fieldName} is the name
  *      of a reference field defined in at least one of the current object types.
  *  <li>Inverse reference steps are denoted {@code "<-TypeName.fieldName"} where {@code fieldName} is the name
- *      of a reference field defined in {@code TypeName} (or some sub-type).
+ *      of a reference field defined in {@code TypeName} (or, at least, some sub-type(s) of {@code TypeName}).
  * </ul>
  *
- * <p><b>Field Names</b>
+ * <p>
+ * A reference path in {@link String} form is always interpreted in the context of some assumed starting object type
+ * (see for example {@link Permazen#parseReferencePath Permazen.parseReferencePath()}).
+ *
+ * <p><b>Complex Field Names</b>
  *
  * <p>
- * In the case of complex fields, the {@code fieldName} must specify the sub-field:
+ * In the case of complex fields, {@code fieldName} must specify (or imply) both the field and the sub-field:
  * <ul>
- *  <li>For List and Set fields, the only sub-field is {@code element}; for these field types,
- *      {@code myfield} can be used as an abbreviation for {@code myfield.element}.
- *  <li>For Map fields, either {@code myfield.key} or {@code myfield.value} must be specified.
+ *  <li>For List and Set fields, there is only one sub-field (named {@code element}); for these field types,
+ *      you can specify {@code myfield.element} or abbreviate as {@code myfield} and the sub-field will be implied.
+ *  <li>Map fields have two sub-fields so the sub-field must be explicitly given, as either
+ *      {@code myfield.key} or {@code myfield.value}.
  * </ul>
  *
  * <p>
- * In rare cases, sub-types of a common super-type type have fields with the same name but different storage IDs.
- * To disambiguate, the storage ID may always be explicitly specified as a suffix like this: {@code "myfield#123"}.
+ * In rare cases, sub-types of a common super-type type can have incompatible fields with the same name.
+ * To disambiguate, assign explicit storage ID's and specify them explicitly as a suffix like this: {@code "myfield#123"}.
  *
- * <p><b>Type Names</b>
+ * <p><b>Inverse Step Type Names</b>
  *
  * <p>
  * For inverse steps, the {@code TypeName} must be given to specify the type of the referring object.
- * {@code TypeName} is either the name of an object type in the schema (typically this is the unqualified
- * class name of the corresponding Java model class), or any fully-qualified Java class name.
+ * {@code TypeName} is either the name of an object type in the schema (usually the unqualified name of
+ * the corresponding Java model class), or any fully-qualified Java class name.
  *
  * <p><b>Examples</b>
  *
@@ -126,7 +137,7 @@ import org.slf4j.LoggerFactory;
  * }
  * </code></pre>
  *
- * Then these paths have the following meanings:
+ * Then the reference paths below would have the following meanings:
  *
  * <div style="margin-left: 20px;">
  * <table class="striped">
@@ -216,8 +227,12 @@ import org.slf4j.LoggerFactory;
  * or in the inverse direction via {@link PermazenTransaction#invertReferencePath PermazenTransaction.invertReferencePath()}.
  *
  * <p>
- * Reference paths are also used by {@link OnChange &#64;OnChange} annotations to specify non-local objects
- * for change monitoring, and by {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotations.
+ * The {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotation can be used to auto-generate methods
+ * that traverse reference paths.
+ *
+ * <p>
+ * Reference paths are also used by {@link OnChange &#64;OnChange} annotations to specify
+ * non-local objects for change monitoring, and by {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotations.
  *
  * @see Permazen#parseReferencePath Permazen.parseReferencePath()
  * @see PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()
@@ -474,7 +489,7 @@ public class ReferencePath {
      * Get the storage IDs of the reference fields in this path in the order they occur.
      *
      * <p>
-     * Storage ID's will be negated to indicate reference fields traversed in the reverse direction.
+     * Storage ID's will be negated to indicate reference fields traversed in the inverse direction.
      *
      * <p>
      * The result will be empty if this path is empty.

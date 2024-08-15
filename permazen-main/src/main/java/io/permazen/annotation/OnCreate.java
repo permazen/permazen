@@ -23,13 +23,18 @@ import java.lang.annotation.Target;
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
  * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
  *
+ * <p><b>Overview</b></p>
+ *
  * <p>
- * Note that there is a subtle distinction between (a) the creation of database objects in the database, and
- * (b) the instantiation of Java model objects that represent database objects (i.e., {@link PermazenObject}s).
- * These two events do not occur at the same time; in particular, distinct Java model objects are instantiated to
- * represent the same database object in different transactions. In addition, it's even possible for a Java model
- * object to be instantiated when no corresponding database object exists in the database, e.g., via
- * {@link PermazenTransaction#get(io.permazen.core.ObjId)}.
+ * When a new database object is created, any annotated methods on the object's class are invoked.
+ *
+ * <p>
+ * Note that there is a subtle distinction between (a) the creation of database objects in the database (i.e.,
+ * the event that this annotation listens for), and (b) the instantiation of the actual Java objects that represent
+ * these database objects (i.e., instances of {@link PermazenObject}). These two events do not always align; in particular,
+ * distinct Java objects are created to represent the same database object in different transactions. It's even possible
+ * for a Java object to be instantiated even though no corresponding database object exists in the database (via
+ * {@link PermazenTransaction#get(io.permazen.core.ObjId)}).
  *
  * <p>
  * Methods that are annotated with {@link OnCreate &#64;OnCreate} are invoked only for events of type (a).
@@ -43,12 +48,12 @@ import java.lang.annotation.Target;
  *  public abstract class Event {
  *
  *      protected Event() {
- *          this.setCreateTime(new Date());
+ *          this.setCreateTime(Instant.now());
  *      }
  *
  *      &#64;NotNull
- *      public abstract Date getCreateTime();
- *      public abstract void setCreateTime(Date createTime);
+ *      public abstract Instant getCreateTime();
+ *      public abstract void setCreateTime(Instant createTime);
  *
  *      ...
  * </code></pre>
@@ -59,14 +64,14 @@ import java.lang.annotation.Target;
  *  &#64;PermazenType
  *  public abstract class Event {
  *
+ *      &#64;NotNull
+ *      public abstract Instant getCreateTime();
+ *      public abstract void setCreateTime(Instant createTime);
+ *
  *      &#64;OnCreate
  *      private void initializeCreateTime() {
- *          this.setCreateTime(new Date());
+ *          this.setCreateTime(Instant.now());
  *      }
- *
- *      &#64;NotNull
- *      public abstract Date getCreateTime();
- *      public abstract void setCreateTime(Date createTime);
  *
  *      ...
  * </code></pre>
@@ -92,6 +97,8 @@ import java.lang.annotation.Target;
  * This annotation may be configured indirectly as a Spring
  * <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
+ *
+ * @see OnDelete
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })

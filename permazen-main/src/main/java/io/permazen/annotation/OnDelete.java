@@ -39,6 +39,8 @@ import java.lang.annotation.Target;
  * This annotation may be configured indirectly as a Spring
  * <a href="https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-meta-annotations">meta-annotation</a>
  * when {@code spring-core} is on the classpath.
+ *
+ * @see OnCreate
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
