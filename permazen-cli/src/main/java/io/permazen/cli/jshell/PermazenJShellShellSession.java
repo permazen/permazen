@@ -253,6 +253,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     private void associateTransactionToCurrentThread() {
         Optional.of(this.session)
           .map(Session::getTxInfo)
+          .filter(txInfo -> txInfo.getMode().hasPermazen())
           .map(Session.TxInfo::getPermazenTransaction)
           .ifPresent(PermazenTransaction::setCurrent);
         this.previousContextLoader = Thread.currentThread().getContextClassLoader();
@@ -260,7 +261,10 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     }
 
     private void disassociateTransactionFromCurrentThread() {
-        PermazenTransaction.setCurrent(null);
+        Optional.of(this.session)
+          .map(Session::getTxInfo)
+          .filter(txInfo -> txInfo.getMode().hasPermazen())
+          .ifPresent(txInfo -> PermazenTransaction.setCurrent(null));
         Thread.currentThread().setContextClassLoader(this.previousContextLoader);
         this.previousContextLoader = null;
     }
