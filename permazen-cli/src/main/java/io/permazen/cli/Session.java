@@ -82,7 +82,7 @@ public class Session {
 
     private volatile ValidationMode validationMode = ValidationMode.AUTOMATIC;
     private volatile String databaseDescription;
-    private volatile boolean allowNewSchema;
+    private volatile boolean allowNewSchema = true;
     private volatile TransactionConfig.SchemaRemoval schemaRemoval = TransactionConfig.SchemaRemoval.CONFIG_CHANGE;
     private volatile boolean readOnly;
 
@@ -335,7 +335,7 @@ public class Session {
 
     /**
      * Get whether the recording of new schemas should be allowed.
-     * Default value is false.
+     * Default value is true.
      *
      * <p>
      * This setting is ignored except in {@link SessionMode#CORE_API}.
