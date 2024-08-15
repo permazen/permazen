@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -607,6 +608,26 @@ public final class Util {
 
         // Done
         return map;
+    }
+
+    /**
+     * Check whether a generic type and its erased equivalent match the same set of candidate types.
+     *
+     * @param genType parameter generic type
+     * @param candidates possible candidates for parameter
+     * @return mismatching candidate, or null if generic and erased match the same candidates
+     */
+    public static TypeToken<?> findErasureDifference(TypeToken<?> genType, Collection<? extends TypeToken<?>> candidates) {
+        Preconditions.checkArgument(genType != null, "null genType");
+        Preconditions.checkArgument(candidates != null, "null candidates");
+        final Class<?> rawType = genType.getRawType();
+        for (TypeToken<?> candidate : candidates) {
+            final boolean matchesGen = genType.isSupertypeOf(candidate);
+            final boolean matchesRaw = rawType.isAssignableFrom(candidate.getRawType());
+            if (matchesGen != matchesRaw)
+                return candidate;
+        }
+        return null;
     }
 
     /**

@@ -96,7 +96,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final Set<PermazenClass<?>> targetTypes = path.getTargetTypes();
 
             // Get method parameter type (generic and raw)
-            final Class<?> rawParameterType = method.getParameterTypes()[0];
             final TypeToken<?> genericParameterType = OnChangeScanner.this.getParameterTypeTokens(method).get(0);
 
             // Extract generic types from the FieldChange<?> parameter
@@ -107,7 +106,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     genericTypeList.add(TypeToken.of(type).getRawType());
                 this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
             } else
-                this.genericTypes = new Class<?>[] { rawParameterType };
+                this.genericTypes = new Class<?>[] { genericParameterType.getRawType() };
 
             // Wildcard field names?
             final boolean wildcard = annotation.value().length == 0;
@@ -152,26 +151,22 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                           "%s: %s in %s does not support change notifications", errorPrefix, pfield, pclass));
                     }
 
-                    // Check whether method parameter type matches as least one of them; it must do so consistently raw vs. generic
-                    boolean matched = false;
-                    for (TypeToken<?> possibleChangeType : possibleChangeTypes) {
-                        final boolean matchesGeneric = genericParameterType.isSupertypeOf(possibleChangeType);
-                        final boolean matchesRaw = rawParameterType.isAssignableFrom(possibleChangeType.getRawType());
-                        assert !matchesGeneric || matchesRaw;
-                        if (matchesGeneric != matchesRaw) {
-                            throw new IllegalArgumentException(String.format(
-                              "%s: parameter type %s will match change events of type %s from field \"%s\" at runtime"
-                              + " due to type erasure, but its generic type is does not match %s; try narrowing or"
-                              + " widening the parameter type while keeping it compatible with %s",
-                              errorPrefix, genericParameterType, possibleChangeType, fieldName, possibleChangeType,
-                              possibleChangeTypes.size() != 1 ?
-                                "one or more of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
-                        }
-                        matched |= matchesGeneric;
+                    // Verify the method parameter type matches event types consistently whether raw vs. generic
+                    final TypeToken<?> mismatchType = Util.findErasureDifference(genericParameterType, possibleChangeTypes);
+                    if (mismatchType != null) {
+                        throw new IllegalArgumentException(String.format(
+                          "%s: parameter type %s will match change events of type %s from field \"%s\" at runtime"
+                          + " due to type erasure, but its generic type is does not match %s; try narrowing or"
+                          + " widening the parameter type while keeping it compatible with %s",
+                          errorPrefix, genericParameterType, mismatchType, fieldName, mismatchType,
+                          possibleChangeTypes.size() != 1 ?
+                            "one or more of: " + possibleChangeTypes : possibleChangeTypes.get(0)));
                     }
 
-                    // Not matched?
-                    if (!matched)
+                    // If no event types match, this field name does not match
+                    if (possibleChangeTypes.stream()
+                      .map(TypeToken::getRawType)
+                      .noneMatch(genericParameterType.getRawType()::isAssignableFrom))
                         continue;
                     fieldsNotMatched.remove(fieldName);
 
