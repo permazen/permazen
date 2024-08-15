@@ -18,15 +18,14 @@ import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.ImmutableNavigableMap;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Map field.
@@ -183,7 +182,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     NavigableMap<K, V> getValueReadOnlyCopy(Transaction tx, ObjId id) {
-        return Collections.unmodifiableNavigableMap(new TreeMap<K, V>(this.getValueInternal(tx, id)));
+        return new ImmutableNavigableMap<>(this.getValueInternal(tx, id));
     }
 
     @Override

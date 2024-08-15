@@ -18,10 +18,9 @@ import io.permazen.schema.SimpleSchemaField;
 import io.permazen.util.ByteReader;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
+import io.permazen.util.ImmutableNavigableSet;
 
-import java.util.Collections;
 import java.util.NavigableSet;
-import java.util.TreeSet;
 
 /**
  * Set field.
@@ -97,7 +96,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     NavigableSet<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
-        return Collections.unmodifiableNavigableSet(new TreeSet<E>(this.getValueInternal(tx, id)));
+        return new ImmutableNavigableSet<>(this.getValueInternal(tx, id));
     }
 
     @Override
