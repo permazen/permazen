@@ -2912,7 +2912,7 @@ public class Transaction {
         final Set<FieldMonitor> monitorsForField = this.getMonitorsForField(fieldStorageId);
         if (monitorsForField == null)
             return false;
-        return monitorsForField.stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId));
+        return monitorsForField.stream().anyMatch(new FieldMonitorPredicate(objTypeStorageId, fieldStorageId));
     }
 
     /**
@@ -2936,8 +2936,9 @@ public class Transaction {
         // Do slow check
         final NavigableSet<Integer> fieldStorageIds = NavigableSets.intersection(
           objType.fieldsByStorageId.navigableKeySet(), this.fieldMonitors.navigableKeySet());
+        final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
         for (int fieldStorageId : fieldStorageIds) {
-            if (this.fieldMonitors.get(fieldStorageId).stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
+            if (this.fieldMonitors.get(fieldStorageId).stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
                 return true;
         }
         return false;
@@ -2957,10 +2958,11 @@ public class Transaction {
         for (Schema otherSchema : this.schemaBundle.getSchemasBySchemaId().values()) {
             for (ObjType objType : otherSchema.getObjTypes().values()) {
                 final int objTypeStorageId = objType.storageId;
+                final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
                 for (Field<?> field : objType.fieldsAndSubFields.values()) {
                     final int fieldStorageId = field.storageId;
-                    final Set<FieldMonitor> monitors = this.getMonitorsForField(fieldStorageId);
-                    if (monitors != null && monitors.stream().anyMatch(new MonitoredPredicate(objTypeStorageId, fieldStorageId)))
+                    final Set<FieldMonitor<?>> monitors = this.getMonitorsForField(fieldStorageId);
+                    if (monitors != null && monitors.stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
                         set.add(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
                 }
             }
@@ -3707,17 +3709,21 @@ public class Transaction {
         }
     }
 
-// MonitoredPredicate
+// FieldMonitorPredicate
 
     // Matches FieldMonitors who monitor the specified field in the specified object type
-    private static final class MonitoredPredicate implements Predicate<FieldMonitor> {
+    private static final class FieldMonitorPredicate implements Predicate<FieldMonitor> {
 
         private final byte[] objTypeBytes;
         private final int fieldStorageId;
 
-        MonitoredPredicate(int objTypeStorageId, int fieldStorageId) {
-            this.objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+        FieldMonitorPredicate(byte[] objTypeBytes, int fieldStorageId) {
+            this.objTypeBytes = objTypeBytes;
             this.fieldStorageId = fieldStorageId;
+        }
+
+        FieldMonitorPredicate(int objTypeStorageId, int fieldStorageId) {
+            this(ObjId.getMin(objTypeStorageId).getBytes(), fieldStorageId);
         }
 
         @Override
