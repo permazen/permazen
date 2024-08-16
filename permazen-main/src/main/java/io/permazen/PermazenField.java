@@ -52,7 +52,7 @@ public abstract class PermazenField extends PermazenSchemaItem {
 // Public Methods
 
     /**
-     * Get the "full name" of this field.u
+     * Get the "full name" of this field.
      *
      * <p>
      * If this field is a sub-field of a complex field, the full name is the field's name qualified
