@@ -126,6 +126,10 @@ public class ReferencePathTest extends MainTestSupport {
           { PermazenObject.class,   null,                   true,   null,               "->foo->element" }, // ambiguous
           { PermazenObject.class,   PermazenObject.class,   true,   ii(123),            "->foo#123" },      // disambiguated
 
+          { PermazenObject.class,   PermazenObject.class,   true,   ii(123),            "->WackyPaths1.foo" }, // disambiguated
+          { PermazenObject.class,   null,                   true,   null,               "->WackyPaths2.foo" }, // no such field
+          { PermazenObject.class,   WackyPaths2.class,      false,  ii(789),            "->WackyPaths3.foo" }, // disambiguated
+
           { WackyPaths1.class,      null,                   true,   null,               "->foo.element" },  // wrong start type
           { WackyPaths2.class,      null,                   true,   null,               "->foo.element" },  // wrong start type
           { WackyPaths3.class,      WackyPaths2.class,      false,  ii(789),            "->foo.element" },

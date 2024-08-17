@@ -13,7 +13,6 @@ import io.permazen.annotation.OnDelete;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
-import io.permazen.tuple.Tuple2;
 import io.permazen.util.TypeTokens;
 
 import java.util.ArrayList;
@@ -44,69 +43,68 @@ import org.slf4j.LoggerFactory;
  * <p><b>Overview</b>
  *
  * <p>
- * A reference path defines a path of object references, starting from some <em>starting object type(s)</em> and ending
- * up at one or more <em>target object types</em>, by hopping from object to object through a sequence of reference fields.
- * The reference fields may be simple reference fields or sub-fields of complex fields (i.e., list or set element,
- * or map key or value), and each field may be traversed in either the forward or inverse direction. In short, a reference
- * path is simply a list of reference fields, along with a flag for each field that determines the direction the field should
- * be traversed. Because reference fields are always indexed, given an instance of the starting object type, Permazen can
- * efficiently compute the set of objects at the other end of the reference path. Permazen automatically eliminates redundancies
- * caused by loops or multiple paths.
+ * A reference path defines a bi-directional path of object references, starting from some <em>starting object type(s)</em>
+ * and ending up at some <em>target object type(s)</em> by hopping from object to object.
+ * Because reference fields are always indexed, given a set of starting or target instances Permazen can efficiently
+ * compute the set of objects at the other end of the path. This calculation includes automatic elimination
+ * of duplicates caused by loops or multiple paths.
+ *
+ * <p>
+ * The reference fields in the path may be simple fields or sub-fields of complex fields (i.e., list element, set element,
+ * map key, or map value), and each field may be traversed in either the forward or inverse direction. In short, a
+ * {@link ReferencePath} consists of a set of starting object types, a list of reference fields, and a boolean flag
+ * for each field that determines the direction the field should be traversed.
+ *
+ * <p>
+ * When stepping forward through a complex field, or backward through any field, the number of reachable objects can increase.
+ * In general, the number of target objects can be vastly different than the number of starting objects, depending on the
+ * fan-in/fan-out of the reference fields traversed. This should be kept in mind when considering the use of reference paths.
+ *
+ * A {@link ReferencePath} containing only forward simple reference fields is termed {@linkplain #isSingular singular}.
  *
  * <p><b>Type Pruning</b>
  *
  * <p>
  * At each step in the path, there is a set of possible <em>current object types</em>: at the initial step, this set
- * is just the starting object types, and after the final step, this set equals the target object types. It is possible
- * for any step to only apply to some of the current object types. This can happen when the field is only defined in some
- * of the object types (for forward step) or when the field can only refer to some object types (for inverse steps). In these
- * cases, the search ends for any unmatched types and continues for matching types. However, it is an error if, at any step,
- * no types match, which would mean no objects could ever be found. It's also an error if the field specified at any step
- * is ambiguous, which can happen when two of the current object types define incompatible fields with the same name.
- *
- * <p><b>Fan-In/Fan-Out</b>
- *
- * <p>
- * When stepping through a collection field in the forward direction, or through any field in the inverse direction,
- * the number of objects can multiply. In general, the number of target objects can be vastly different than the number
- * of starting objects, depending on the fan-in/fan-out of the references traversed.
+ * is just the starting object types, and after the final step, this set becomes the target object types. At each step,
+ * some of the current object types may get pruned because they are incompatible with the next field in the path. This
+ * happens when the field is only defined in some of the types (for forward steps), or when the field can only refer to
+ * some of the types (for inverse steps). In these cases, the search ends for any pruned types and continues for the
+ * remaining types. It is an error if, at any step, all types are pruned, as this would imply that no objects could
+ * ever be found.
  *
  * <p><b>String Form</b>
  *
  * <p>
  * Reference paths are denoted in {@link String} form as a concatenation of zero or more <em>reference steps</em>:
  * <ul>
- *  <li>Forward reference steps are denoted {@code "->fieldName"} where {@code fieldName} is the name
- *      of a reference field defined in at least one of the current object types.
+ *  <li>Forward reference steps are denoted by either {@code "->fieldName"} or (rarely) {@code "->TypeName.fieldName"}.
+ *      The latter form is only needed to disambiguate when two or more of the current object types define incompatible
+ *      fields with the same name.
  *  <li>Inverse reference steps are denoted {@code "<-TypeName.fieldName"} where {@code fieldName} is the name
- *      of a reference field defined in {@code TypeName} (or, at least, some sub-type(s) of {@code TypeName}).
+ *      of a reference field defined in {@code TypeName} (or some sub-type(s) therein).
  * </ul>
  *
  * <p>
- * A reference path in {@link String} form is always interpreted in the context of some assumed starting object type
- * (see for example {@link Permazen#parseReferencePath Permazen.parseReferencePath()}).
+ * To parse a reference path into a {@link ReferencePath} instance, the path must be interpreted in the context of
+ * some starting object types (see {@link Permazen#parseReferencePath Permazen.parseReferencePath()}).
  *
- * <p><b>Complex Field Names</b>
+ * <p><b>Type Names</b>
  *
  * <p>
- * In the case of complex fields, {@code fieldName} must specify (or imply) both the field and the sub-field:
+ * The {@code TypeName} is either the name of an object type in the schema (usually the unqualified name of the corresponding
+ * Java model class), or else the fully-qualified name of any Java class or interface.
+ *
+ * <p><b>Field Names</b>
+ *
+ * <p>
+ * For simple reference fields, the {@code fieldName} is just the field name. For reference fields that are sub-fields
+ * of complex fields, {@code fieldName} must specify both the parent field and the sub-field:
  * <ul>
- *  <li>For List and Set fields, there is only one sub-field (named {@code element}); for these field types,
- *      you can specify {@code myfield.element} or abbreviate as {@code myfield} and the sub-field will be implied.
- *  <li>Map fields have two sub-fields so the sub-field must be explicitly given, as either
- *      {@code myfield.key} or {@code myfield.value}.
+ *  <li>For {@code Map} fields, specify the sub-field via either {@code myfield.key} or {@code myfield.value}.
+ *  <li>For {@code List} and {@code Set} fields, the only sub-field is {@code element}, so you can specify
+ *      {@code myfield.element} or abbreviate as {@code myfield}.
  * </ul>
- *
- * <p>
- * In rare cases, sub-types of a common super-type type can have incompatible fields with the same name.
- * To disambiguate, assign explicit storage ID's and specify them explicitly as a suffix like this: {@code "myfield#123"}.
- *
- * <p><b>Inverse Step Type Names</b>
- *
- * <p>
- * For inverse steps, the {@code TypeName} must be given to specify the type of the referring object.
- * {@code TypeName} is either the name of an object type in the schema (usually the unqualified name of
- * the corresponding Java model class), or any fully-qualified Java class name.
  *
  * <p><b>Examples</b>
  *
@@ -233,7 +231,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Reference paths are also used by {@link OnChange &#64;OnChange} and {@link OnDelete &#64;OnDelete} annotations to specify
- * non-local objects for monitoring, and by {@link io.permazen.annotation.ReferencePath &#64;ReferencePath} annotations.
+ * non-local objects for monitoring.
  *
  * @see Permazen#parseReferencePath Permazen.parseReferencePath()
  * @see PermazenTransaction#followReferencePath PermazenTransaction.followReferencePath()
@@ -320,7 +318,7 @@ public class ReferencePath {
 
             // Debug
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath: step={} inverse={} cursors={}", step, inverse, debugFormat(cursors));
+                this.log.trace("RefPath: STEP {} inverse={} cursors={}", step, inverse, debugFormat(cursors));
 
             // Advance the remaining cursors
             final HashSet<Cursor> newCursors = new HashSet<>();
@@ -611,7 +609,7 @@ public class ReferencePath {
         private final Cursor previousCursor;                    // previous step's cursor (null if none)
         private final int previousStorageId;                    // previous step's storage ID (zero if none)
         private final PermazenClass<?> pclass;                  // current step's PermazenClass, or null for UntypedPermazenObject
-        private final boolean singular;
+        private final boolean singular;                         // true if path is singular so far
 
         // Constructor for initial cursors
         private Cursor(PermazenClass<?> pclass) {
@@ -678,75 +676,10 @@ public class ReferencePath {
             if (this.log.isTraceEnabled())
                 this.log.trace("RefPath.advance(): next step: {} \"{}\"", inverse ? "inverse" : "forward", step);
 
-            // Handle forward vs. inverse
-            final Collection<? extends PermazenClass<?>> nextPClasses;     // possible types of next object
-            final PermazenReferenceField nextPField;                       // the next field to step through
-            if (inverse) {
-
-                // Find the last component and the second-to-last component, if any
-                final int lastDot1 = step.lastIndexOf('.');
-                if (lastDot1 == -1)
-                    throw new IllegalArgumentException(errorPrefix);
-                final int lastDot2 = step.lastIndexOf('.', lastDot1 - 1);
-
-                // Parse into TypeName and fieldName, but note the ambiguity: "foo.bar.key" could
-                // mean either { type="foo", field="bar.key" } or { type="foo.bar", field="key" }.
-                // If field name has three or more components, try interpreting it both ways.
-                final Tuple2<Set<PermazenClass<?>>, PermazenReferenceField> try1 = this.tryInverseStep(errorPrefix, step, lastDot1);
-                final Tuple2<Set<PermazenClass<?>>, PermazenReferenceField> try2 = lastDot2 != -1 ?
-                  this.tryInverseStep(errorPrefix, step, lastDot2) : null;
-                if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath.advance(): inverse candidates: try1={} try2={}", try1, try2);
-
-                // Check and extract result
-                if (try1 == null && try2 == null)
-                    throw new IllegalArgumentException(String.format("%s: no such type and/or reference field found", errorPrefix));
-                if (try1 != null && try2 != null
-                  && (!try1.getValue1().equals(try2.getValue1())
-                   || !try1.getValue2().getSchemaId().equals(try2.getValue2().getSchemaId()))) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: ambiguous reference; matched %s in %s and %s in %s",
-                      errorPrefix, try1.getValue2(), try1.getValue1(), try2.getValue2(), try2.getValue1()));
-                }
-                nextPClasses = (try1 != null ? try1 : try2).getValue1();
-                nextPField = (try1 != null ? try1 : try2).getValue2();
-
-                // Check whether the reference field can actually refer to the current type
-                final Class<?> currentType = Optional.ofNullable(this.pclass)
-                  .<Class<?>>map(PermazenClass::getType)
-                  .orElse(UntypedPermazenObject.class);
-                if (!nextPField.typeToken.getRawType().isAssignableFrom(currentType)) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: %s can't refer to %s", errorPrefix, nextPField, currentType));
-                }
-            } else {
-
-                // Get the field name
-                final String fieldName = step;
-
-                // Handle the UntypedPermazenObject case
-                if (this.pclass == null) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, UntypedPermazenObject.class));
-                }
-
-                // Find the named field
-                final PermazenSimpleField pfield;
-                try {
-                    pfield = Util.findSimpleField(this.pclass, fieldName);
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
-                }
-                if (pfield == null) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: field \"%s\" not found in %s", errorPrefix, fieldName, this.pclass));
-                } else if (!(pfield instanceof PermazenReferenceField)) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: field \"%s\" in %s is not a reference field", errorPrefix, fieldName, this.pclass));
-                }
-                nextPClasses = ReferencePath.this.pdb.getPermazenClasses(pfield.typeToken.getRawType());
-                nextPField = (PermazenReferenceField)pfield;
-            }
+            // Resolve the next step
+            FieldResolution nextStep = this.resolveStep(errorPrefix, inverse, step);
+            final Set<PermazenClass<?>> nextPClasses = nextStep.types();
+            final PermazenReferenceField nextPField = nextStep.field();
 
             // Get the storage ID representing this step, negated for inverse steps
             final int storageId = inverse ? -nextPField.storageId : nextPField.storageId;
@@ -772,14 +705,128 @@ public class ReferencePath {
             return newCursors;
         }
 
-        // Decode an inverse step "<-[typeName].[fieldName]", where "typeName" could be either a schema object
-        // name or fully qualified Java class name, and "fieldName" is a simple field, possibly a complex sub-field.
-        private Tuple2<Set<PermazenClass<?>>, PermazenReferenceField> tryInverseStep(String errorPrefix,
-          String typeAndField, int dotIndex) {
+        // Resolve the next step. This is complicated because there are lots of possibilities because a dot "." can separate
+        // two Java package/class name components, a type name and a field name, or a field name and a sub-field name.
+        private FieldResolution resolveStep(String errorPrefix, final boolean inverse, final String step) {
 
-            // Split into typeName and fieldName
-            final String typeName = typeAndField.substring(0, dotIndex);
-            final String fieldName = typeAndField.substring(dotIndex + 1);
+            // Are there any dots? If not, this is easy.
+            final int dot1 = step.lastIndexOf('.');         // the very last dot
+            if (dot1 == -1) {
+
+                // Inverse steps must be qualified
+                if (inverse)
+                    throw new IllegalArgumentException(errorPrefix);
+
+                // It must be an unqualified forward step, i.e., simple field name
+                return this.resolveUnqualifiedStep(errorPrefix, step);
+            }
+
+            // If there is only one dot, this is a forward step, and the step matches an unqualified field name, then use it
+            final int dot2 = step.lastIndexOf('.', dot1 - 1);
+            if (dot2 == -1 && !inverse) {
+                try {
+                    return this.resolveUnqualifiedStep(errorPrefix, step);
+                } catch (IllegalArgumentException e) {
+                    // Nope, so from now on assume forward steps are qualified
+                }
+            }
+
+            // What is the current type?
+            final Class<?> currentType = Optional.ofNullable(this.pclass)
+              .<Class<?>>map(PermazenClass::getType)
+              .orElse(UntypedPermazenObject.class);
+
+            // For forward steps, the TypeName qualifier must be restricted to the current type
+            final Class<?> upperBound = !inverse ? currentType : null;
+
+            // Resolve this qualified step
+            FieldResolution nextStep = this.resolveQualifiedStep(errorPrefix, step, upperBound);
+
+            // For inverse steps, verify that the reference field can actually refer to the current type
+            if (inverse && !nextStep.field().typeToken.getRawType().isAssignableFrom(currentType)) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: %s can't refer to %s", errorPrefix, nextStep.field(), currentType));
+            }
+
+            // For forward steps, the next set of current types derives from what types the reference field can point to
+            if (!inverse)
+                nextStep = new FieldResolution(ReferencePath.this.pdb, nextStep.field());
+
+            // Done
+            return nextStep;
+        }
+
+        // Resolve an unqualified step like "[fieldName]", where "fieldName" is a simple field, or possibly a complex sub-field.
+        private FieldResolution resolveUnqualifiedStep(String errorPrefix, final String fieldName) {
+
+            // Handle the UntypedPermazenObject case
+            if (this.pclass == null) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: field \"%s\" not found in %s", errorPrefix, fieldName, UntypedPermazenObject.class));
+            }
+
+            // Find the named field
+            final PermazenReferenceField field;
+            try {
+                field = (PermazenReferenceField)Util.findSimpleField(this.pclass, fieldName);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: field \"%s\" in %s is not a reference field", errorPrefix, fieldName, this.pclass));
+            }
+            if (field == null) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: field \"%s\" not found in %s", errorPrefix, fieldName, this.pclass));
+            }
+
+            // Done
+            return new FieldResolution(ReferencePath.this.pdb, field);
+        }
+
+        // Resolve a qualified step like "[typeName].[fieldName]", where "typeName" could be either a schema object
+        // name or fully qualified Java class name, and "fieldName" is a simple field, or possibly a complex sub-field.
+        private FieldResolution resolveQualifiedStep(String errorPrefix, final String step, Class<?> upperBound) {
+
+            // Find the last dot
+            final int dot1 = step.lastIndexOf('.');
+            if (dot1 == -1) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: field name must be qualified with a type name", errorPrefix));
+            }
+
+            // Parse into TypeName and fieldName, but note the ambiguity: "foo.bar.key" could
+            // mean either { type="foo", field="bar.key" } or { type="foo.bar", field="key" }.
+            // If field name has three or more components, try interpreting it both ways.
+            final int dot2 = step.lastIndexOf('.', dot1 - 1);
+            final FieldResolution try1 = this.resolveQualifiedStep(errorPrefix,
+              step.substring(0, dot1), step.substring(dot1 + 1), upperBound);
+            final FieldResolution try2 = dot2 != -1 ?
+              this.resolveQualifiedStep(errorPrefix, step.substring(0, dot2), step.substring(dot2 + 1), upperBound) : null;
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath.advance(): qualified candidates: try1={} try2={} bound={}", try1, try2, upperBound);
+
+            // Anything found?
+            if (try1 == null && try2 == null) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: no such type and/or reference field found%s",
+                  errorPrefix, upperBound != null ? String.format(" in the context of %s", upperBound) : ""));
+            }
+
+            // Verify two different interpretations are consistent (unlikely!)
+            if (try1 != null && try2 != null && !try1.isConsistentWith(try2)) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: ambiguous reference; matched %s in %s and %s in %s",
+                  errorPrefix, try1.field(), try1.types(), try2.field(), try2.types()));
+            }
+
+            // Done
+            return try1 != null ? try1 : try2;
+        }
+
+        // Resolve a qualified step "[typeName].[fieldName]" where "typeName" and "fieldName" are given.
+        // The upperBound, if any, applies to the type name.
+        private FieldResolution resolveQualifiedStep(String errorPrefix, String typeName, String fieldName, Class<?> upperBound) {
 
             // Try resolving type name as a schema model object type
             final Class<?> modelType = Optional.of(ReferencePath.this.pdb.pclassesByName)
@@ -809,41 +856,53 @@ public class ReferencePath {
             if (javaType == null)
                 javaType = modelType;
 
-            // Find the field, gather matching PermazenClass's, and verify field apepars consistently
-            PermazenReferenceField pfield = null;
+            // Find the field, gather matching PermazenClass's, and verify field appears consistently
+            PermazenReferenceField field = null;
             final HashSet<PermazenClass<?>> pclasses = new HashSet<>();
             for (PermazenClass<?> nextPClass : ReferencePath.this.pdb.getPermazenClasses(javaType)) {
 
+                // Apply upper bound, if any
+                if (upperBound != null && !upperBound.isAssignableFrom(nextPClass.getType()))
+                    continue;
+
                 // Find the reference field
-                final PermazenSimpleField candidateField;
+                final PermazenReferenceField candidateField;
                 try {
-                    candidateField = Util.findSimpleField(nextPClass, fieldName);
-                } catch (IllegalArgumentException e) {
+                    candidateField = (PermazenReferenceField)Util.findSimpleField(nextPClass, fieldName);
+                } catch (IllegalArgumentException | ClassCastException e) {
                     continue;
                 }
-                if (!(candidateField instanceof PermazenReferenceField))
+                if (candidateField == null)
                     continue;
-                final PermazenReferenceField pfield2 = (PermazenReferenceField)candidateField;
 
                 // Check for ambiguity
-                if (pfield == null)
-                    pfield = pfield2;
-                else if (!pfield2.getSchemaId().equals(pfield.getSchemaId())) {
+                if (field == null)
+                    field = candidateField;
+                else if (!candidateField.getSchemaId().equals(field.getSchemaId())) {
                     throw new IllegalArgumentException(String.format(
                       "%s: ambiguous field \"%s\" in %s matches both %s and %s",
-                      errorPrefix, fieldName, nextPClass, pfield, pfield2));
+                      errorPrefix, fieldName, javaType, field, candidateField));
                 }
 
                 // Add pclass
                 pclasses.add(nextPClass);
             }
 
-            // Anything found?
-            if (pfield == null)
-                return null;
+            // Return what we found, if anything
+            return field != null ? new FieldResolution(pclasses, field) : null;
+        }
 
-            // Done
-            return new Tuple2<>(pclasses, pfield);
+    // FieldResolution
+
+        private record FieldResolution(Set<PermazenClass<?>> types, PermazenReferenceField field) {
+
+            FieldResolution(Permazen pdb, PermazenReferenceField field) {
+                this(new HashSet<>(pdb.getPermazenClasses(field.typeToken.getRawType())), field);
+            }
+
+            boolean isConsistentWith(FieldResolution that) {
+                return this.types().equals(that.types()) && this.field().getSchemaId().equals(that.field().getSchemaId());
+            }
         }
 
     // Object

@@ -14,14 +14,15 @@ import java.util.NavigableSet;
 import java.util.Optional;
 
 /**
- * Annotates Java methods that should return all objects found at the far end of a {@link io.permazen.ReferencePath}.
+ * Annotates Java instance methods that should return all objects found at the far end of a reference path,
+ * starting from the current instance.
  *
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
  * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
  *
  * <p>
- * This annotation can be used as a convenience to let Permazen auto-generate reference path traversal code.
+ * This annotation can be used as a convenience to let Permazen auto-generate {@link io.permazen.ReferencePath} traversal code.
  * A common use case is inverting references, e.g., from a parent back to a child in a one-to-many relationship.
  *
  * <p>
@@ -77,8 +78,8 @@ import java.util.Optional;
  * of the reference path.
  *
  * <p>
- * If the reference path contains only forward traversals of many-to-one relationships (i.e., simple reference fields),
- * then only one object can be returned and the return type must be {@link Optional}{@code <T>}.
+ * If the reference path {@link io.permazen.ReferencePath#isSingular isSingular()} (i.e., contains only forward traversals
+ * of simple reference fields), then only one object can be returned and the return type must be {@link Optional}{@code <T>}.
  *
  * <p>
  * Otherwise, either return type is valid, and you can use {@link Optional}{@code <T>} if you only care to

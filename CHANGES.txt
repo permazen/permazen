@@ -1,6 +1,7 @@
 Version Next
 
     - Eliminate the need for the "deleteNofified" persistent meta-data flag
+    - Allow reference path forward steps to have explicit type names
     - Enhance @OnDelete to allow matching objects via reference path()
 
 Version 5.0.0 Released August 1, 2024
