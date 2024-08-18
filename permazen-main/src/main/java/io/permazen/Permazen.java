@@ -53,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -222,8 +223,6 @@ public class Permazen {
     final SchemaModel schemaModel;                                                  // includes storage ID assignments
     final Database db;
 
-    final AnnotatedElement elementRequiringJSR303Validation;
-
     volatile boolean hasOnCreateMethods;
     volatile boolean hasOnSchemaChangeMethods;
     volatile boolean hasUpgradeConversions;
@@ -346,17 +345,19 @@ public class Permazen {
             this.origSchemaModel = this.schemaModel.clone();
             this.origSchemaModel.lockDown(true);
 
-            // Determine which PermazenClass's have validation requirement(s) on creation
+            // Calculate validation requirements
             this.pclasses.forEach(PermazenClass::calculateValidationRequirement);
-            boolean anyDefaultValidation = false;
-            AnnotatedElement someElementRequiringJSR303Validation = null;
-            for (PermazenClass<?> pclass : this.pclasses) {
-                anyDefaultValidation |= pclass.requiresDefaultValidation;
-                if (someElementRequiringJSR303Validation == null)
-                    someElementRequiringJSR303Validation = pclass.elementRequiringJSR303Validation;
-            }
-            this.anyClassRequiresDefaultValidation = anyDefaultValidation;
-            this.elementRequiringJSR303Validation = someElementRequiringJSR303Validation;
+
+            // Determine whether any class requires default validation
+            this.anyClassRequiresDefaultValidation = this.pclasses.stream()
+              .anyMatch(pclass -> pclass.requiresDefaultValidation);
+
+            // Determine if any PermazenClass requires JSR 303 validation, and if so find some representative annotation
+            final AnnotatedElement elementRequiringJSR303Validation = this.pclasses.stream()
+              .map(pclass -> pclass.elementRequiringJSR303Validation)
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElse(null);
 
             // Initialize ValidatorFactory (only if needed)
             ValidatorFactory optionalValidatorFactory = config.getValidatorFactory();
