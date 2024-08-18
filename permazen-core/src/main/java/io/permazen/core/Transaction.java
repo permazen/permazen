@@ -2741,7 +2741,7 @@ public class Transaction {
      */
     public synchronized void addFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
         this.validateListenerChange(listener, path);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor<>(storageId, path, filters, listener));
+        this.getFieldMonitorsForField(storageId, true).add(new FieldMonitor<>(storageId, path, filters, listener));
     }
 
     /**
@@ -2841,7 +2841,7 @@ public class Transaction {
      */
     public synchronized void removeFieldChangeListener(int storageId, int[] path, KeyRanges[] filters, Object listener) {
         this.validateListenerChange(listener, path);
-        final Set<FieldMonitor<?>> monitors = this.getMonitorsForField(storageId);
+        final Set<FieldMonitor<?>> monitors = this.getFieldMonitorsForField(storageId);
         if (monitors != null)
             monitors.remove(new FieldMonitor<>(storageId, path, filters, listener));
     }
@@ -2856,11 +2856,11 @@ public class Transaction {
         this.verifyReferencePath(path);
     }
 
-    private Set<FieldMonitor<?>> getMonitorsForField(int storageId) {
-        return this.getMonitorsForField(storageId, false);
+    private Set<FieldMonitor<?>> getFieldMonitorsForField(int storageId) {
+        return this.getFieldMonitorsForField(storageId, false);
     }
 
-    private synchronized Set<FieldMonitor<?>> getMonitorsForField(int storageId, boolean create) {
+    private synchronized Set<FieldMonitor<?>> getFieldMonitorsForField(int storageId, boolean create) {
         Preconditions.checkArgument(storageId > 0, "invalid storageId");
         Set<FieldMonitor<?>> monitors;
         if (this.fieldMonitors == null) {
@@ -2917,7 +2917,7 @@ public class Transaction {
             return this.fieldMonitorCache.contains(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
 
         // Do slow check
-        final Set<FieldMonitor<?>> monitorsForField = this.getMonitorsForField(fieldStorageId);
+        final Set<FieldMonitor<?>> monitorsForField = this.getFieldMonitorsForField(fieldStorageId);
         if (monitorsForField == null)
             return false;
         return monitorsForField.stream().anyMatch(new FieldMonitorPredicate(objTypeStorageId, fieldStorageId));
@@ -2969,7 +2969,7 @@ public class Transaction {
                 final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
                 for (Field<?> field : objType.fieldsAndSubFields.values()) {
                     final int fieldStorageId = field.storageId;
-                    final Set<FieldMonitor<?>> monitors = this.getMonitorsForField(fieldStorageId);
+                    final Set<FieldMonitor<?>> monitors = this.getFieldMonitorsForField(fieldStorageId);
                     if (monitors != null && monitors.stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
                         set.add(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
                 }
@@ -3040,7 +3040,7 @@ public class Transaction {
                     // For all pending notifications, back-track references and notify all field monitors for the field
                     for (FieldChangeNotifier<?, ?> notifier : entry.getValue()) {
                         assert notifier.field.storageId == storageId;
-                        final Set<FieldMonitor<?>> monitors = this.getMonitorsForField(storageId);
+                        final Set<FieldMonitor<?>> monitors = this.getFieldMonitorsForField(storageId);
                         if (monitors == null || monitors.isEmpty())
                             continue;
                         this.monitorNotify(notifier, NavigableSets.singleton(notifier.id), new ArrayList<>(monitors));
