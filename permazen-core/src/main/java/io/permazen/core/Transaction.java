@@ -242,9 +242,7 @@ public class Transaction {
     @GuardedBy("this")
     private NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;  // these are grouped by field storage ID
     @GuardedBy("this")
-    private NavigableSet<Long> fieldMonitorCache;                       // provides a quick test for whether a field is monitored
-    @GuardedBy("this")
-    private boolean listenerSetInstalled;
+    private NavigableSet<Long> fieldMonitorCache;                       // quick check for monitors; only if ListenerSet installed
 
     // Callbacks
     @GuardedBy("this")
@@ -2854,7 +2852,7 @@ public class Transaction {
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
-        Preconditions.checkState(!this.listenerSetInstalled, "ListenerSet installed");
+        Preconditions.checkState(this.fieldMonitorCache == null, "ListenerSet installed");
         this.verifyReferencePath(path);
     }
 
@@ -3554,7 +3552,7 @@ public class Transaction {
     public synchronized void setListeners(ListenerSet listeners) {
         Preconditions.checkArgument(listeners != null, "null listeners");
 
-        // Verify field change listeners are compatible with this transaction
+        // Verify monitors are compatible with this transaction
         if ((listeners.fieldMonitors != null || listeners.deleteMonitors != null)
           && !listeners.schemaBundle.matches(this.schemaBundle))
             throw new IllegalArgumentException("listener set was created from a transaction having an incompatible schema");
@@ -3565,7 +3563,6 @@ public class Transaction {
         this.deleteMonitors = listeners.deleteMonitors;
         this.fieldMonitors = listeners.fieldMonitors;
         this.fieldMonitorCache = listeners.fieldMonitorCache;
-        this.listenerSetInstalled = true;
     }
 
 // User Object
