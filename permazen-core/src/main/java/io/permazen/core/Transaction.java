@@ -26,7 +26,6 @@ import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ImmutableNavigableMap;
-import io.permazen.util.ImmutableNavigableSet;
 import io.permazen.util.NavigableSets;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -40,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -50,6 +49,8 @@ import java.util.stream.Stream;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.dellroad.stuff.util.LongMap;
+import org.dellroad.stuff.util.LongSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,11 +239,11 @@ public class Transaction {
     @GuardedBy("this")
     private Set<CreateListener> createListeners;
     @GuardedBy("this")
-    private Set<DeleteMonitor> deleteMonitors;
+    private LongMap<Set<DeleteMonitor>> deleteMonitors;                 // these are grouped by object type storage ID
     @GuardedBy("this")
     private NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;  // these are grouped by field storage ID
     @GuardedBy("this")
-    private NavigableSet<Long> fieldMonitorCache;                       // quick check for monitors; only if ListenerSet installed
+    private MonitorCache monitorCache;                                  // quick check for monitors; only if ListenerSet installed
 
     // Callbacks
     @GuardedBy("this")
@@ -1091,15 +1092,21 @@ public class Transaction {
                 }
             }
 
-            // Do we need to issue delete notifications for the object being deleted?
-            if (!this.deleteNotified.add(id)
-              || this.deleteMonitors == null
-              || this.deleteMonitors.isEmpty()
-              || this.disableListenerNotifications)
+            // Do we need to issue delete notifications for the object type being deleted?
+            if (!this.deleteNotified.add(id) || this.disableListenerNotifications)
+                break;
+            final int objTypeStorageId = info.getObjType().storageId;
+            if (this.monitorCache != null && !this.monitorCache.hasDeleteMonitor(objTypeStorageId))
+                break;
+            final Set<DeleteMonitor> objTypeDeleteMonitors = Optional.ofNullable(this.deleteMonitors)
+              .map(map -> map.get(objTypeStorageId))
+              .filter(map -> !map.isEmpty())
+              .orElse(null);
+            if (objTypeDeleteMonitors == null)
                 break;
 
             // Notify delete monitors and retry
-            this.monitorNotify(new DeleteNotifier(id), NavigableSets.singleton(id), new ArrayList<>(deleteMonitors));
+            this.monitorNotify(new DeleteNotifier(id), NavigableSets.singleton(id), new ArrayList<>(objTypeDeleteMonitors));
         }
 
         // Find all objects referred to by a reference field with forwardDelete = true and add them to deletables
@@ -1482,9 +1489,14 @@ public class Transaction {
      */
     public synchronized void addDeleteListener(int[] path, KeyRanges[] filters, DeleteListener listener) {
         this.validateListenerChange(listener, path);
+        final DeleteMonitor monitor = new DeleteMonitor(path, filters, listener);
         if (this.deleteMonitors == null)
-            this.deleteMonitors = new HashSet<>(1);
-        this.deleteMonitors.add(new DeleteMonitor(path, filters, listener));
+            this.deleteMonitors = new LongMap<>();
+        for (int objTypeStorageId : this.schemaBundle.getObjTypeStorageIds()) {
+            final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+            if (new DeleteMonitorPredicate(objTypeBytes).test(monitor))
+                this.deleteMonitors.computeIfAbsent((long)objTypeStorageId, i -> new HashSet<>(3)).add(monitor);
+        }
     }
 
     /**
@@ -1502,8 +1514,23 @@ public class Transaction {
      */
     public synchronized void removeDeleteListener(int[] path, KeyRanges[] filters, DeleteListener listener) {
         this.validateListenerChange(listener, path);
-        if (this.deleteMonitors != null)
-            this.deleteMonitors.remove(new DeleteMonitor(path, filters, listener));
+        if (this.deleteMonitors != null) {
+            final DeleteMonitor monitor = new DeleteMonitor(path, filters, listener);
+            for (int objTypeStorageId : this.schemaBundle.getObjTypeStorageIds()) {
+                final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+                if (new DeleteMonitorPredicate(objTypeBytes).test(monitor))
+                    this.removeFromMappedSet(this.deleteMonitors, objTypeStorageId, monitor);
+            }
+        }
+    }
+
+    private <M> void removeFromMappedSet(LongMap<Set<M>> map, int storageId, M monitor) {
+        if (map == null)
+            return;
+        final Set<M> set = map.get((long)storageId);
+        if (set != null && set.remove(monitor) && set.isEmpty())
+            map.remove((long)storageId);
+        return;
     }
 
 // Object Schemas
@@ -2852,7 +2879,7 @@ public class Transaction {
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(path != null, "null path");
         Preconditions.checkArgument(listener != null, "null listener");
-        Preconditions.checkState(this.fieldMonitorCache == null, "ListenerSet installed");
+        Preconditions.checkState(this.monitorCache == null, "ListenerSet installed");
         this.verifyReferencePath(path);
     }
 
@@ -2904,78 +2931,43 @@ public class Transaction {
     }
 
     /**
-     * Determine if there are any monitors watching the specified field in the specified object.
+     * Determine if there are any {@link FieldMonitor}s watching the specified field in the specified object.
      */
     synchronized boolean hasFieldMonitor(ObjId id, int fieldStorageId) {
-        assert Thread.holdsLock(this);
 
         // Do quick check, if possible
         if (this.fieldMonitors == null)
             return false;
-        final int objTypeStorageId = id.getStorageId();
-        if (this.fieldMonitorCache != null)
-            return this.fieldMonitorCache.contains(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
+        if (this.monitorCache != null)
+            return this.monitorCache.hasFieldMonitor(id.getStorageId(), fieldStorageId);
 
         // Do slow check
         final Set<FieldMonitor<?>> monitorsForField = this.getFieldMonitorsForField(fieldStorageId);
         if (monitorsForField == null)
             return false;
-        return monitorsForField.stream().anyMatch(new FieldMonitorPredicate(objTypeStorageId, fieldStorageId));
+        return monitorsForField.stream().anyMatch(new FieldMonitorPredicate(id.getStorageId(), fieldStorageId));
     }
 
     /**
-     * Determine if there are any monitors watching any field in the specified type.
+     * Determine if there are any {@link FieldMonitor}s watching any field in the specified type.
      */
     synchronized boolean hasFieldMonitor(ObjType objType) {
-        assert Thread.holdsLock(this);
 
         // Do quick check, if possible
         if (this.fieldMonitors == null)
             return false;
-        final int objTypeStorageId = objType.storageId;
-        if (this.fieldMonitorCache != null) {
-            final long minKey = this.monitorCacheKey(objTypeStorageId, 0);
-            if (objTypeStorageId == Integer.MAX_VALUE)
-                return this.fieldMonitorCache.ceiling(minKey) != null;
-            final long maxKey = this.monitorCacheKey(objTypeStorageId + 1, 0);
-            return !this.fieldMonitorCache.subSet(minKey, maxKey).isEmpty();
-        }
+        if (this.monitorCache != null)
+            return this.monitorCache.hasFieldMonitor(objType.storageId);
 
         // Do slow check
         final NavigableSet<Integer> fieldStorageIds = NavigableSets.intersection(
           objType.fieldsByStorageId.navigableKeySet(), this.fieldMonitors.navigableKeySet());
-        final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+        final byte[] objTypeBytes = ObjId.getMin(objType.storageId).getBytes();
         for (int fieldStorageId : fieldStorageIds) {
             if (this.fieldMonitors.get(fieldStorageId).stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
                 return true;
         }
         return false;
-    }
-
-    private long monitorCacheKey(int objTypeStorageId, int fieldStorageId) {
-        return ((long)objTypeStorageId << 32) | ((long)fieldStorageId & 0xffffffffL);
-    }
-
-    /**
-     * Build a data structure to optimize checking whether a field in an object type is being monitored.
-     */
-    private synchronized NavigableSet<Long> buildFieldMonitorCache() {
-        if (this.fieldMonitors == null)
-            return Collections.emptyNavigableSet();
-        final TreeSet<Long> set = new TreeSet<>();
-        for (Schema otherSchema : this.schemaBundle.getSchemasBySchemaId().values()) {
-            for (ObjType objType : otherSchema.getObjTypes().values()) {
-                final int objTypeStorageId = objType.storageId;
-                final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
-                for (Field<?> field : objType.fieldsAndSubFields.values()) {
-                    final int fieldStorageId = field.storageId;
-                    final Set<FieldMonitor<?>> monitors = this.getFieldMonitorsForField(fieldStorageId);
-                    if (monitors != null && monitors.stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
-                        set.add(this.monitorCacheKey(objTypeStorageId, fieldStorageId));
-                }
-            }
-        }
-        return new ImmutableNavigableSet<>(set);
     }
 
     /**
@@ -3562,7 +3554,7 @@ public class Transaction {
         this.createListeners = listeners.createListeners;
         this.deleteMonitors = listeners.deleteMonitors;
         this.fieldMonitors = listeners.fieldMonitors;
-        this.fieldMonitorCache = listeners.fieldMonitorCache;
+        this.monitorCache = listeners.monitorCache;
     }
 
 // User Object
@@ -3684,56 +3676,172 @@ public class Transaction {
 
         final Set<SchemaChangeListener> schemaChangeListeners;
         final Set<CreateListener> createListeners;
-        final Set<DeleteMonitor> deleteMonitors;
+        final LongMap<Set<DeleteMonitor>> deleteMonitors;
         final NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;
-        final NavigableSet<Long> fieldMonitorCache;
-
+        final MonitorCache monitorCache;
         final SchemaBundle schemaBundle;
 
         private ListenerSet(Transaction tx) {
             assert Thread.holdsLock(tx);
-            this.schemaChangeListeners = tx.schemaChangeListeners != null ?
-              Collections.unmodifiableSet(new HashSet<>(tx.schemaChangeListeners)) : null;
-            this.createListeners = tx.createListeners != null ?
-              Collections.unmodifiableSet(new HashSet<>(tx.createListeners)) : null;
-            this.deleteMonitors = tx.deleteMonitors != null ?
-              Collections.unmodifiableSet(new HashSet<>(tx.deleteMonitors)) : null;
-            if (tx.fieldMonitors != null) {
-                final TreeMap<Integer, Set<FieldMonitor<?>>> fieldMonitorsCopy = new TreeMap<>();
-                for (Map.Entry<Integer, Set<FieldMonitor<?>>> entry : tx.fieldMonitors.entrySet())
-                    fieldMonitorsCopy.put(entry.getKey(), new HashSet<>(entry.getValue()));
-                this.fieldMonitors = new ImmutableNavigableMap<>(fieldMonitorsCopy);
-            } else
-                this.fieldMonitors = null;
-            this.fieldMonitorCache = tx.buildFieldMonitorCache();
+            this.schemaChangeListeners = this.deepCopyReadOnly(tx.schemaChangeListeners);
+            this.createListeners = this.deepCopyReadOnly(tx.createListeners);
+            this.deleteMonitors = this.deepCopyReadOnly(tx.deleteMonitors);
+            this.fieldMonitors = this.deepCopyReadOnly(tx.fieldMonitors);
+            this.monitorCache = tx.buildMonitorCache();
             this.schemaBundle = tx.schemaBundle;
+        }
+
+        private <K, E> NavigableMap<K, Set<E>> deepCopyReadOnly(NavigableMap<K, Set<E>> map) {
+            if (map == null)
+                return null;
+            final TreeMap<K, Set<E>> copy = new TreeMap<>(map.comparator());
+            for (Map.Entry<K, Set<E>> entry : map.entrySet())
+                copy.put(entry.getKey(), this.deepCopyReadOnly(entry.getValue()));
+            return new ImmutableNavigableMap<>(copy);
+        }
+
+        private <E> LongMap<Set<E>> deepCopyReadOnly(LongMap<Set<E>> map) {
+            if (map == null)
+                return null;
+            final LongMap<Set<E>> copy = map.clone();
+            copy.entrySet().stream().forEach(entry -> entry.setValue(this.deepCopyReadOnly(entry.getValue())));
+            return copy;
+        }
+
+        private <E> Set<E> deepCopyReadOnly(Set<E> set) {
+            if (set == null)
+                return null;
+            return Collections.unmodifiableSet(new HashSet<>(set));
+        }
+    }
+
+// MonitorPredicate
+
+    private abstract static class MonitorPredicate<M extends Monitor<?>> implements Predicate<M> {
+
+        private final byte[] objTypeBytes;
+
+        MonitorPredicate(byte[] objTypeBytes) {
+            this.objTypeBytes = objTypeBytes;
+        }
+
+        MonitorPredicate(int objTypeStorageId) {
+            this(ObjId.getMin(objTypeStorageId).getBytes());
+        }
+
+        @Override
+        public boolean test(M monitor) {
+            final KeyRanges filter = monitor.getTargetFilter();
+            return filter == null || filter.contains(this.objTypeBytes);
         }
     }
 
 // FieldMonitorPredicate
 
     // Matches FieldMonitors who monitor the specified field in the specified object type
-    private static final class FieldMonitorPredicate implements Predicate<FieldMonitor<?>> {
+    private static final class FieldMonitorPredicate extends MonitorPredicate<FieldMonitor<?>> {
 
-        private final byte[] objTypeBytes;
         private final int fieldStorageId;
 
         FieldMonitorPredicate(byte[] objTypeBytes, int fieldStorageId) {
-            this.objTypeBytes = objTypeBytes;
+            super(objTypeBytes);
             this.fieldStorageId = fieldStorageId;
         }
 
         FieldMonitorPredicate(int objTypeStorageId, int fieldStorageId) {
-            this(ObjId.getMin(objTypeStorageId).getBytes(), fieldStorageId);
+            super(objTypeStorageId);
+            this.fieldStorageId = fieldStorageId;
         }
 
         @Override
         public boolean test(FieldMonitor<?> monitor) {
-            assert monitor != null;
-            if (monitor.storageId != this.fieldStorageId)
-                return false;
-            final KeyRanges filter = monitor.getTargetFilter();
-            return filter == null || filter.contains(this.objTypeBytes);
+            return monitor.storageId == this.fieldStorageId && super.test(monitor);
         }
+    }
+
+// DeleteMonitorPredicate
+
+    // Matches DeleteMonitors who monitor the specified object type
+    private static final class DeleteMonitorPredicate extends MonitorPredicate<DeleteMonitor> {
+
+        DeleteMonitorPredicate(byte[] objTypeBytes) {
+            super(objTypeBytes);
+        }
+
+        DeleteMonitorPredicate(int objTypeStorageId) {
+            super(objTypeStorageId);
+        }
+    }
+
+// MonitorCache
+
+    //
+    // This provides a way to do a quick check for the existence of field and delete monitors.
+    // Each long flag in the set is split decoded as two 32-bit integers as follows:
+    //
+    //  [Hi Bits, Lo Bits]          Decode                      Meaning
+    //  ---------------------       -------                     -------
+    //  [ Positive, Positive ]      Hi = ObjType, Lo = Field    FieldMonitor exists for that type and that field
+    //  [ Positive, Zero     ]      Hi = ObjType                FieldMonitor exists for that type and some field
+    //  [ Positive, -1       ]      Hi = ObjType                DeleteMonitor exists for that type
+    //
+    @SuppressWarnings("serial")
+    private static class MonitorCache extends LongSet {
+
+        public boolean hasFieldMonitor(int objTypeStorageId) {
+            return this.contains(this.buildKey(objTypeStorageId, 0));
+        }
+
+        public boolean hasFieldMonitor(int objTypeStorageId, int fieldStorageId) {
+            return this.contains(this.buildKey(objTypeStorageId, fieldStorageId));
+        }
+
+        public boolean hasDeleteMonitor(int objTypeStorageId) {
+            return this.contains(this.buildKey(objTypeStorageId, -1));
+        }
+
+        public void addDeleteMonitor(int objTypeStorageId) {
+            this.add(this.buildKey(objTypeStorageId, -1));
+        }
+
+        public void addFieldMonitor(int objTypeStorageId, int fieldStorageId) {
+            this.add(this.buildKey(objTypeStorageId, fieldStorageId));
+            this.add(this.buildKey(objTypeStorageId, 0));
+        }
+
+        private long buildKey(int objTypeStorageId, int fieldStorageId) {
+            assert objTypeStorageId > 0;
+            assert fieldStorageId >= -1;
+            return ((long)objTypeStorageId << 32) | ((long)fieldStorageId & 0xffffffffL);
+        }
+    }
+
+    /**
+     * Build a {@link MonitorCache} based on this transaction's current monitors.
+     */
+    private synchronized MonitorCache buildMonitorCache() {
+        final MonitorCache cache = new MonitorCache();
+        for (Schema otherSchema : this.schemaBundle.getSchemasBySchemaId().values()) {
+            for (ObjType objType : otherSchema.getObjTypes().values()) {
+                final int objTypeStorageId = objType.storageId;
+                final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+
+                // Add flags for FieldMonitors
+                for (Field<?> field : objType.fieldsAndSubFields.values()) {
+                    final int fieldStorageId = field.storageId;
+                    final Set<FieldMonitor<?>> monitors = this.getFieldMonitorsForField(fieldStorageId);
+                    if (monitors != null && monitors.stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
+                        cache.addFieldMonitor(objTypeStorageId, fieldStorageId);
+                }
+
+                // Add flags for DeleteMonitors
+                if (Optional.ofNullable(this.deleteMonitors)
+                  .map(map -> map.get(objTypeStorageId))
+                  .filter(map -> !map.isEmpty())
+                  .isPresent())
+                    cache.addDeleteMonitor(objTypeStorageId);
+            }
+        }
+        return cache;
     }
 }
