@@ -282,9 +282,11 @@ public class PermazenTransaction {
     // Register listeners for the given situation
     private static void registerListeners(Permazen pdb, Transaction tx, boolean automaticValidation, boolean isDetached) {
 
-        // Register listeners for @OnCreate and validation on creation
-        if (pdb.hasOnCreateMethods || (automaticValidation && pdb.anyClassRequiresDefaultValidation))
-            tx.addCreateListener(new InternalCreateListener());
+        // Register listeners for @OnCreate (and automatic validation on creation)
+        for (PermazenClass<?> pclass : pdb.pclasses) {
+            if (!pclass.onCreateMethods.isEmpty() || (automaticValidation && pclass.requiresDefaultValidation))
+                tx.addCreateListener(pclass.storageId, new InternalCreateListener());
+        }
 
         // Register listeners for @OnDelete
         for (PermazenClass<?> pclass : pdb.pclasses) {

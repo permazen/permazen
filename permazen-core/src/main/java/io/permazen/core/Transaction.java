@@ -237,7 +237,7 @@ public class Transaction {
     @GuardedBy("this")
     private Set<SchemaChangeListener> schemaChangeListeners;
     @GuardedBy("this")
-    private Set<CreateListener> createListeners;
+    private LongMap<Set<CreateListener>> createListeners;
     @GuardedBy("this")
     private LongMap<Set<DeleteMonitor>> deleteMonitors;                 // these are grouped by object type storage ID
     @GuardedBy("this")
@@ -993,8 +993,9 @@ public class Transaction {
 
         // Notify listeners
         if (!this.disableListenerNotifications && this.createListeners != null) {
-            for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
-                listener.onCreate(this, id);
+            final Set<CreateListener> objTypeCreateListeners = this.createListeners.get(objType.storageId);
+            if (objTypeCreateListeners != null)
+                new ArrayList<>(objTypeCreateListeners).forEach(listener -> listener.onCreate(this, id));
         }
     }
 
@@ -1446,30 +1447,34 @@ public class Transaction {
     /**
      * Add a {@link CreateListener} to this transaction.
      *
+     * @param storageId storage ID of the object type to listen for creation
      * @param listener the listener to add
+     * @throws UnknownTypeException if {@code storageId} specifies an unknown object type
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addCreateListener(CreateListener listener) {
+    public synchronized void addCreateListener(int storageId, CreateListener listener) {
         this.validateListenerChange(listener);
+        this.schemaBundle.getSchemaItem(storageId, ObjType.class);
         if (this.createListeners == null)
-            this.createListeners = new HashSet<>(1);
-        this.createListeners.add(listener);
+            this.createListeners = new LongMap<>();
+        this.createListeners.computeIfAbsent((long)storageId, i -> new HashSet<>(1)).add(listener);
     }
 
     /**
      * Remove an {@link CreateListener} from this transaction.
      *
-     * @param listener the listener to remove
+     * @param storageId storage ID of the object type to listen for creation
+     * @throws UnknownTypeException if {@code storageId} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeCreateListener(CreateListener listener) {
+    public synchronized void removeCreateListener(int storageId, CreateListener listener) {
         this.validateListenerChange(listener);
-        if (this.createListeners != null)
-            this.createListeners.remove(listener);
+        this.schemaBundle.getSchemaItem(storageId, ObjType.class);
+        this.removeFromMappedSet(this.createListeners, storageId, listener);
     }
 
 // DeleteListener's
@@ -3675,7 +3680,7 @@ public class Transaction {
     public static final class ListenerSet {
 
         final Set<SchemaChangeListener> schemaChangeListeners;
-        final Set<CreateListener> createListeners;
+        final LongMap<Set<CreateListener>> createListeners;
         final LongMap<Set<DeleteMonitor>> deleteMonitors;
         final NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;
         final MonitorCache monitorCache;

@@ -223,7 +223,6 @@ public class Permazen {
     final SchemaModel schemaModel;                                                  // includes storage ID assignments
     final Database db;
 
-    volatile boolean hasOnCreateMethods;
     volatile boolean hasOnSchemaChangeMethods;
     volatile boolean hasUpgradeConversions;
     volatile boolean anyClassRequiresDefaultValidation;
@@ -528,16 +527,13 @@ public class Permazen {
         // Scan for various method-level annotations
         this.pclasses.forEach(PermazenClass::scanAnnotations);
 
-        // Detect whether we have any @OnCreate, @OnDelete, and/or @OnSchemaChange methods
-        boolean anyOnCreateMethods = false;
+        // Detect whether we have any @OnSchemaChange methods and/or fields with upgrade conversions
         boolean anyOnSchemaChangeMethods = false;
         boolean anyUpgradeConversions = false;
         for (PermazenClass<?> pclass : this.pclasses) {
-            anyOnCreateMethods |= !pclass.onCreateMethods.isEmpty();
             anyOnSchemaChangeMethods |= !pclass.onSchemaChangeMethods.isEmpty();
             anyUpgradeConversions |= !pclass.upgradeConversionFields.isEmpty();
         }
-        this.hasOnCreateMethods = anyOnCreateMethods;
         this.hasOnSchemaChangeMethods = anyOnSchemaChangeMethods;
         this.hasUpgradeConversions = anyUpgradeConversions;
 
