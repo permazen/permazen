@@ -84,7 +84,7 @@ import java.lang.annotation.Target;
  * throw a {@link TypeNotInSchemaException}. Such objects are still accessible however (see {@link UntypedPermazenObject}).
  *
  * <p>
- * Secondly, it's possible for an old field to have a value that simply doesn't exist in the new schema. When this happens,
+ * Secondly, it's possible for an old field to have a value whose type simply doesn't exist in the new schema. When this happens,
  * it's not possible to provide the old value to an {@link OnSchemaChange &#64;OnSchemaChange} method in its original form.
  * This can happen in two ways:
  * <ul>
