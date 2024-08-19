@@ -1,4 +1,4 @@
-Version Next
+Version 5.1.0
 
     - Eliminate the need for the "deleteNofified" persistent meta-data flag
     - Allow reference path forward steps to have explicit type names
