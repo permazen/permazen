@@ -251,8 +251,7 @@ public @interface PermazenField {
      * on the application class path; see {@link DefaultEncodingRegistry} for details.
      *
      * <p>
-     * For reference fields (i.e., methods with return value equal to a {@link PermazenType &#64;PermazenType}-annotated class),
-     * this property must be left unset.
+     * For reference fields, this property must be left unset.
      *
      * <p>
      * For sub-fields of complex fields, this property can be used to force a primitive type instead of a
@@ -321,8 +320,8 @@ public @interface PermazenField {
      *
      * <p>
      * When following a cascade of references, if the cascade name is one of the names listed here,
-     * and an object with the annotated reference field is encountered, then the annotated reference
-     * field will will be traversed in the inverse direction.
+     * and an object is encountered that is referred to through the annotated reference field,
+     * then the annotated reference field will will be traversed in the inverse direction.
      *
      * <p>
      * Cascade names must be non-empty.
