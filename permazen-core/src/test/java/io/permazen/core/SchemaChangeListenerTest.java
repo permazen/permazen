@@ -79,7 +79,7 @@ public class SchemaChangeListenerTest extends CoreAPITestSupport {
         tx = db.createTransaction(schema2);
 
         final boolean[] notified = new boolean[1];
-        tx.addSchemaChangeListener((tx12, id, oldSchemaId, newSchemaId, oldFieldValues) -> {
+        tx.addSchemaChangeListener(100, (tx12, id, oldSchemaId, newSchemaId, oldFieldValues) -> {
             Assert.assertEquals(oldSchemaId, schemaId1);
             Assert.assertEquals(newSchemaId, schemaId2);
             Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet("i"));
@@ -120,7 +120,7 @@ public class SchemaChangeListenerTest extends CoreAPITestSupport {
         tx = db.createTransaction(schema3);
 
         notified[0] = false;
-        tx.addSchemaChangeListener((tx1, id, oldSchemaId, newSchemaId, oldFieldValues) -> {
+        tx.addSchemaChangeListener(100, (tx1, id, oldSchemaId, newSchemaId, oldFieldValues) -> {
             Assert.assertEquals(oldSchemaId, schemaId2);
             Assert.assertEquals(newSchemaId, schemaId3);
             Assert.assertEquals(oldFieldValues.keySet(), Sets.newHashSet("i", "s", "set"));

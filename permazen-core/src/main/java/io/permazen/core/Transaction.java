@@ -235,13 +235,13 @@ public class Transaction {
 
     // Listeners
     @GuardedBy("this")
-    private Set<SchemaChangeListener> schemaChangeListeners;
+    private LongMap<Set<SchemaChangeListener>> schemaChangeListeners;   // grouped by object type storage ID
     @GuardedBy("this")
-    private LongMap<Set<CreateListener>> createListeners;
+    private LongMap<Set<CreateListener>> createListeners;               // grouped by object type storage ID
     @GuardedBy("this")
-    private LongMap<Set<DeleteMonitor>> deleteMonitors;                 // these are grouped by object type storage ID
+    private LongMap<Set<DeleteMonitor>> deleteMonitors;                 // grouped by object type storage ID
     @GuardedBy("this")
-    private NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;  // these are grouped by field storage ID
+    private NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;  // grouped by field storage ID
     @GuardedBy("this")
     private MonitorCache monitorCache;                                  // quick check for monitors; only if ListenerSet installed
 
@@ -1223,8 +1223,8 @@ public class Transaction {
      * fields as each field is copied. These notifications may be disabled by setting {@code notifyListeners} to false.
      *
      * <p>
-     * {@link SchemaChangeListener}s in this transaction are always notified if/when {@code source} is migrated due to
-     * {@link migrateSchema} being true.
+     * Matching {@link SchemaChangeListener}s in this transaction are notified if/when {@code source} is migrated due
+     * to {@link migrateSchema} being true.
      *
      * <p><b>Deleted Assignments</b></p>
      *
@@ -1579,7 +1579,7 @@ public class Transaction {
      * Migrate the specified object, if necessary, to {@linkplain #getSchema() the schema associated with this transaction}.
      *
      * <p>
-     * If a schema change occurs, any registered {@link SchemaChangeListener}s will be notified prior
+     * If a schema change occurs, any matching {@link SchemaChangeListener}s will be notified prior
      * to this method returning.
      *
      * @param id object ID of the object to migrate
@@ -1633,9 +1633,16 @@ public class Transaction {
             throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, typeName, newSchema).initCause(e);
         }
 
-        // Gather removed fields' values here for user migration if any SchemaChangeListeners are registered
-        final NavigableMap<String, Object> oldValueMap
-          = this.schemaChangeListeners != null && !this.schemaChangeListeners.isEmpty() ? new TreeMap<>() : null;
+        // Are there any matching SchemaChangeListeners registered?
+        final int objTypeStorageId = oldType.storageId;
+        assert oldType.storageId == newType.storageId;
+        final Set<SchemaChangeListener> listeners = Optional.ofNullable(this.schemaChangeListeners)
+          .map(map -> map.get((long)objTypeStorageId))
+          .filter(set -> !set.isEmpty())
+          .orElse(null);
+
+        // If so, we need to remember the removed fields' values so we can provide them to listerners
+        final NavigableMap<String, Object> oldValueMap = listeners != null ? new TreeMap<>() : null;
 
     //////// Remove the index entries corresponding to removed composite indexes
 
@@ -1860,7 +1867,7 @@ public class Transaction {
             final SchemaId oldSchemaId = oldSchema.getSchemaId();
             final SchemaId newSchemaId = newSchema.getSchemaId();
             final NavigableMap<String, Object> immutableOldValueMap = Collections.unmodifiableNavigableMap(oldValueMap);
-            for (SchemaChangeListener listener : this.schemaChangeListeners)
+            for (SchemaChangeListener listener : new ArrayList<>(listeners))
                 listener.onSchemaChange(this, id, oldSchemaId, newSchemaId, immutableOldValueMap);
         }
     }
@@ -1907,32 +1914,39 @@ public class Transaction {
 // SchemaChangeListener's
 
     /**
-     * Add an {@link SchemaChangeListener} to this transaction.
+     * Add a {@link SchemaChangeListener} to this transaction that listens for schema migrations
+     * of the specified object type.
      *
+     * @param storageId storage ID of the object type to listen to for schema changes
      * @param listener the listener to add
+     * @throws UnknownTypeException if {@code storageId} specifies an unknown object type
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void addSchemaChangeListener(SchemaChangeListener listener) {
+    public synchronized void addSchemaChangeListener(int storageId, SchemaChangeListener listener) {
         this.validateListenerChange(listener);
+        this.schemaBundle.getSchemaItem(storageId, ObjType.class);
         if (this.schemaChangeListeners == null)
-            this.schemaChangeListeners = new HashSet<>(1);
-        this.schemaChangeListeners.add(listener);
+            this.schemaChangeListeners = new LongMap<>();
+        this.schemaChangeListeners.computeIfAbsent((long)storageId, i -> new HashSet<>(1)).add(listener);
     }
 
     /**
-     * Remove an {@link SchemaChangeListener} from this transaction.
+     * Remove a {@link SchemaChangeListener} from this transaction previously registered via
+     * {@link addSchemaChangeListener addSchemaChangeListener()}.
      *
+     * @param storageId storage ID of the object type to listen to for schema changes
      * @param listener the listener to remove
+     * @throws UnknownTypeException if {@code storageId} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code listener} is null
      * @throws IllegalStateException if {@link #setListeners setListeners()} has been invoked on this instance
      */
-    public synchronized void removeSchemaChangeListener(SchemaChangeListener listener) {
+    public synchronized void removeSchemaChangeListener(int storageId, SchemaChangeListener listener) {
         this.validateListenerChange(listener);
-        if (this.schemaChangeListeners != null)
-            this.schemaChangeListeners.remove(listener);
+        this.schemaBundle.getSchemaItem(storageId, ObjType.class);
+        this.removeFromMappedSet(this.schemaChangeListeners, storageId, listener);
     }
 
 // Object and Field Access
@@ -3679,7 +3693,7 @@ public class Transaction {
      */
     public static final class ListenerSet {
 
-        final Set<SchemaChangeListener> schemaChangeListeners;
+        final LongMap<Set<SchemaChangeListener>> schemaChangeListeners;
         final LongMap<Set<CreateListener>> createListeners;
         final LongMap<Set<DeleteMonitor>> deleteMonitors;
         final NavigableMap<Integer, Set<FieldMonitor<?>>> fieldMonitors;

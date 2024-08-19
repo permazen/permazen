@@ -311,11 +311,13 @@ public class PermazenTransaction {
               .forEach(storageId -> tx.addFieldChangeListener(storageId, new int[0], null, defaultValidationListener));
         }
 
-        // Register listeners for @OnSchemaChange and validation on upgrade
-        if (pdb.hasOnSchemaChangeMethods
-          || pdb.hasUpgradeConversions
-          || (automaticValidation && pdb.anyClassRequiresDefaultValidation))
-            tx.addSchemaChangeListener(new InternalSchemaChangeListener());
+        // Register listeners for @OnSchemaChange (and automatic field conversion and/or validation on upgrade)
+        for (PermazenClass<?> pclass : pdb.pclasses) {
+            if (!pclass.onSchemaChangeMethods.isEmpty()
+              || !pclass.upgradeConversionFields.isEmpty()
+              || (automaticValidation && pclass.requiresDefaultValidation))
+                tx.addSchemaChangeListener(pclass.storageId, new InternalSchemaChangeListener());
+        }
     }
 
 // Thread-local Access

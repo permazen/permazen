@@ -223,10 +223,6 @@ public class Permazen {
     final SchemaModel schemaModel;                                                  // includes storage ID assignments
     final Database db;
 
-    volatile boolean hasOnSchemaChangeMethods;
-    volatile boolean hasUpgradeConversions;
-    volatile boolean anyClassRequiresDefaultValidation;
-
     // Cached listener sets used by PermazenTransaction.<init>()
     final Transaction.ListenerSet[] listenerSets = new Transaction.ListenerSet[4];
 
@@ -346,10 +342,6 @@ public class Permazen {
 
             // Calculate validation requirements
             this.pclasses.forEach(PermazenClass::calculateValidationRequirement);
-
-            // Determine whether any class requires default validation
-            this.anyClassRequiresDefaultValidation = this.pclasses.stream()
-              .anyMatch(pclass -> pclass.requiresDefaultValidation);
 
             // Determine if any PermazenClass requires JSR 303 validation, and if so find some representative annotation
             final AnnotatedElement elementRequiringJSR303Validation = this.pclasses.stream()
@@ -526,16 +518,6 @@ public class Permazen {
 
         // Scan for various method-level annotations
         this.pclasses.forEach(PermazenClass::scanAnnotations);
-
-        // Detect whether we have any @OnSchemaChange methods and/or fields with upgrade conversions
-        boolean anyOnSchemaChangeMethods = false;
-        boolean anyUpgradeConversions = false;
-        for (PermazenClass<?> pclass : this.pclasses) {
-            anyOnSchemaChangeMethods |= !pclass.onSchemaChangeMethods.isEmpty();
-            anyUpgradeConversions |= !pclass.upgradeConversionFields.isEmpty();
-        }
-        this.hasOnSchemaChangeMethods = anyOnSchemaChangeMethods;
-        this.hasUpgradeConversions = anyUpgradeConversions;
 
         // Eagerly load all generated Java classes so we "fail fast" if there are any loading errors
         this.untypedClassGenerator.generateClass();

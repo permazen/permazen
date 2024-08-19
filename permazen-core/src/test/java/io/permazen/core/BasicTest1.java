@@ -141,7 +141,7 @@ public class BasicTest1 extends CoreAPITestSupport {
         Assert.assertEquals(tx.getObjType(id).getSchema().getSchemaId(), schemaId1);
 
         final AtomicInteger oldIntValue = new AtomicInteger();
-        tx.addSchemaChangeListener((tx1, id1, oldSchemaId, newSchemaId, oldFieldValues) -> {
+        tx.addSchemaChangeListener(1, (tx1, id1, oldSchemaId, newSchemaId, oldFieldValues) -> {
             this.log.info("version change: {} -> {} oldFields={}", oldSchemaId, newSchemaId, oldFieldValues);
             Assert.assertEquals(oldSchemaId, schemaId1);
             Assert.assertEquals(newSchemaId, schemaId2);
