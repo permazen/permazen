@@ -282,13 +282,21 @@ public class PermazenTransaction {
     // Register listeners for the given situation
     private static void registerListeners(Permazen pdb, Transaction tx, boolean automaticValidation, boolean isDetached) {
 
-        // Register listeners for @OnCreate (and automatic validation on creation)
+        // Register create listeners for @OnCreate
         for (PermazenClass<?> pclass : pdb.pclasses) {
-            if (!pclass.onCreateMethods.isEmpty() || (automaticValidation && pclass.requiresDefaultValidation))
-                tx.addCreateListener(pclass.storageId, new InternalCreateListener());
+            for (OnCreateScanner<?>.MethodInfo info : pclass.onCreateMethods) {
+                final OnCreateScanner<?>.CreateMethodInfo createInfo = (OnCreateScanner<?>.CreateMethodInfo)info;
+                createInfo.registerCreateListeners(tx);
+            }
         }
 
-        // Register listeners for @OnDelete
+        // Register create listeners for automatic validation on creation
+        for (PermazenClass<?> pclass : pdb.pclasses) {
+            if (automaticValidation && pclass.requiresDefaultValidation)
+                tx.addCreateListener(pclass.storageId, new ValidateOnCreateListener());
+        }
+
+        // Register delete listeners for @OnDelete
         for (PermazenClass<?> pclass : pdb.pclasses) {
             for (OnDeleteScanner<?>.MethodInfo info : pclass.onDeleteMethods) {
                 final OnDeleteScanner<?>.DeleteMethodInfo deleteInfo = (OnDeleteScanner<?>.DeleteMethodInfo)info;
@@ -296,7 +304,7 @@ public class PermazenTransaction {
             }
         }
 
-        // Register listeners for @OnChange
+        // Register field change listeners for @OnChange
         for (PermazenClass<?> pclass : pdb.pclasses) {
             for (OnChangeScanner<?>.MethodInfo info : pclass.onChangeMethods) {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
@@ -304,14 +312,14 @@ public class PermazenTransaction {
             }
         }
 
-        // Register field change listeners to trigger validation of corresponding JSR 303 and uniqueness constraints
+        // Register field change listeners for automatic validation of JSR 303 and uniqueness constraints
         if (automaticValidation) {
             final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
             pdb.fieldsRequiringDefaultValidation
               .forEach(storageId -> tx.addFieldChangeListener(storageId, new int[0], null, defaultValidationListener));
         }
 
-        // Register listeners for @OnSchemaChange (and automatic field conversion and/or validation on upgrade)
+        // Register schema change listeners for @OnSchemaChange and automatic field conversion and/or validation on upgrade
         for (PermazenClass<?> pclass : pdb.pclasses) {
             if (!pclass.onSchemaChangeMethods.isEmpty()
               || !pclass.upgradeConversionFields.isEmpty()
@@ -1996,19 +2004,19 @@ public class PermazenTransaction {
         return conflictors;
     }
 
-// InternalCreateListener
+// ValidateOnCreateListener
 
-    private static class InternalCreateListener implements CreateListener {
+    private static class ValidateOnCreateListener implements CreateListener {
 
         @Override
         public void onCreate(Transaction tx, ObjId id) {
             final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
             assert ptx != null && ptx.tx == tx;
-            ptx.doOnCreate(id);
+            ptx.validateOnCreate(id);
         }
     }
 
-    private void doOnCreate(ObjId id) {
+    private void validateOnCreate(ObjId id) {
 
         // Get PermazenClass, if known
         final PermazenClass<?> pclass;
@@ -2017,18 +2025,10 @@ public class PermazenTransaction {
         } catch (TypeNotInSchemaException e) {
             return;                                             // object type does not exist in our schema
         }
+        assert this.validationMode == ValidationMode.AUTOMATIC && pclass.requiresDefaultValidation;
 
         // Enqueue for revalidation
-        if (this.validationMode == ValidationMode.AUTOMATIC && pclass.requiresDefaultValidation)
-            this.revalidate(Collections.singleton(id));
-
-        // Notify @OnCreate methods
-        Object pobj = null;
-        for (OnCreateScanner<?>.MethodInfo info : pclass.onCreateMethods) {
-            if (pobj == null)
-                pobj = this.get(id);
-            Util.invoke(info.getMethod(), pobj);
-        }
+        this.revalidate(Collections.singleton(id));
     }
 
 // InternalSchemaChangeListener

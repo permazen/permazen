@@ -25,21 +25,22 @@ import java.lang.annotation.Target;
  * <p><b>Overview</b></p>
  *
  * <p>
- * When a matching object is deleted, annotated methods are invoked just prior to the actual deletion.
+ * When a <i>matching object</i> is deleted, annotated methods are invoked just prior to actual deletion.
  *
  * <p>
- * A "matching object" is one that is found at the end of the {@linkplain ReferencePath reference path} specified
- * by {@link #path}, starting from the object to be notified; see {@link ReferencePath} for more information about
- * reference paths.
+ * For instance methods, a matching object is one that is found at the end of the {@linkplain ReferencePath reference path}
+ * specified by {@link #path}, starting from the object to be notified, and whose type is compatible with the method's
+ * only parameter. By default, {@link #path} is empty, which means deletion of the object itself is monitored.
+ * See {@link ReferencePath} for more information about reference paths.
  *
  * <p>
- * By default, the reference path is empty, which means deletion of the target object itself is monitored.
+ * For static methods, {@link #path} must be empty and every object is a potential matching object. Therefore, the
+ * deletion of any object whose type is compatible with the method's parameter will result in a notification.
  *
  * <p>
- * The annotated method may be an instance method or a static method. It may have any level of access, including
- * {@code private}. It must return void and take one parameter representing the deleted object; however, an instance
- * method annotated with an empty {@link #path} must take zero parameters, because in that case the deleted object is
- * the same as the notified object.
+ * The annotated method may may have any level of access, including {@code private}. It must return void and take one
+ * parameter representing the deleted object; however, an instance method with an empty {@link #path} may take zero
+ * parameters, as the deleted object is always the same as the notified object.
  *
  * <p>
  * A class may have multiple {@link OnDelete &#64;OnDelete} methods, each with a specific purpose.
@@ -88,18 +89,23 @@ import java.lang.annotation.Target;
  *           // Invoked when THIS Account is deleted
  *       }
  *
+ *       &#64;OnDelete
+ *       private void handleDeletion2(SpecialAccount self) {
+ *           // Invoked when THIS Account is deleted IF it's also a SpecialAccount
+ *       }
+ *
  *       &#64;OnDelete(path = "&lt;-User.account")
- *       private void handleDeletion2(User user) {
+ *       private void handleDeletion3(User user) {
  *           // Invoked when ANY User associated with THIS Account is deleted
  *       }
  *
  *       &#64;OnDelete(path = "&lt;-User.account")
- *       private void handleDeletion3(Object obj) {
+ *       private void handleDeletion4(Object obj) {
  *           // Invoked when ANY User OR Feature associated with THIS Account is deleted
  *       }
  *
  *       &#64;OnDelete(path = "&lt;-Feature.account-&gt;account&lt;-User.account")
- *       private void handleDeletion4(User user) {
+ *       private void handleDeletion5(User user) {
  *           // Invoked when ANY User associated with the same Account
  *           // as ANY Feature associated with THIS Account is deleted
  *       }
@@ -115,11 +121,6 @@ import java.lang.annotation.Target;
  *       private static void handleDeletion6(Account account) {
  *           // Invoked when ANY Account is deleted
  *       }
- *
- *       &#64;OnDelete(path = "&lt;-User.account")
- *       private static void handleDeletion7(Account account) {
- *           // Invoked when ANY Account having at least one User is deleted
- *       }
  *   }
  * </code></pre>
  *
@@ -133,12 +134,7 @@ import java.lang.annotation.Target;
  * when the parent is deleted.
  *
  * <p>
- * A static method is invoked <i>once</i> when any instance of the class containing the method exists for which the
- * deleted object is found at the end of the specified reference path, no matter how many such instances there are.
- * So in the previous example, making the method static would cause it to be invoked only once when the parent
- * is deleted (and not at all if there were zero child {@code Node}'s). Put another way, an annotation on a static
- * method behaves just like the same annotation on an instance method, except that multiple per-object notifications
- * are coalesced into a single per-class notification.
+ * A static method is invoked <i>once</i> for any matching object; the {@link path} is ignored and must be empty.
  *
  * <p><b>Notification Delivery</b></p>
  *
@@ -177,9 +173,7 @@ public @interface OnDelete {
      * The default empty path means the monitored object and the notified object are the same.
      *
      * <p>
-     * In the case of static methods, a non-empty path restricts notification from being delivered
-     * unless there exists at least one object for whom the monitored object is found at the other
-     * end of the path.
+     * When annotating static methods, this property is unused and must be left unset.
      *
      * @return reference path leading to monitored objects
      * @see ReferencePath

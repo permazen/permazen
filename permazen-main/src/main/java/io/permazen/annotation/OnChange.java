@@ -11,6 +11,7 @@ import io.permazen.ReferencePath;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
 import io.permazen.change.SetFieldChange;
+import io.permazen.change.SetFieldClear;
 import io.permazen.change.SimpleFieldChange;
 import io.permazen.core.Transaction;
 
@@ -30,29 +31,66 @@ import java.lang.annotation.Target;
  * <p><b>Overview</b></p>
  *
  * <p>
- * When the value of a matching field in a matching object changes, a change event is created and the annotated
- * method is invoked. The change event's type will be some sub-type of {@link FieldChange} appropriate for the
- * type of field and the change that occurred. Only change events whose types are compatible with the method's
- * parameter are delivered.
+ * Annotated methods accept a single change event parameter whose type must be a sub-type of {@link FieldChange}.
+ * When a <i>matching change</i> in a <i>matching object</i> occurs, an event of the appropriate type is created
+ * and delivered to the annotated method.
  *
  * <p>
- * A "matching object" is one that is found at the end of the {@linkplain ReferencePath reference path} specified
- * by {@link #path}, starting from the object to be notified; see {@link ReferencePath} for more information about
- * reference paths.
+ * A matching change is one that originates from one of the fields specified by {@link #value} (or every event-generating
+ * field if {@link #value} is empty), and that has a type compatible with the method's parameter type. This type
+ * compatibility check is based on the parameter's generic type, not just its raw type.
  *
  * <p>
- * By default, the reference path is empty, which means changes in the target object itself are monitored.
+ * For instance methods, a matching object is one that is found at the end of the {@linkplain ReferencePath reference path}
+ * specified by {@link #path}, starting from the object to be notified. By default, {@link #path} is empty, which means
+ * changes in the object itself are monitored. See {@link ReferencePath} for more information about reference paths.
  *
  * <p>
- * A "matching field" is one named in {@link #value}, or every event-generating field if {@link #value} is empty.
+ * For static methods, {@link #path} must be empty and every object is a matching object, so any change event compatible
+ * with the method's parameter type will be delivered.
  *
  * <p>
  * A class may have multiple {@link OnChange &#64;OnChange} methods, each with a specific purpose.
  *
+ * <p><b>Method Parameter Types</b></p>
+ *
+ * <p>
+ * In all cases the annotated method must return void and take one parameter whose type is compatible with least one
+ * of the {@link FieldChange} sub-types appropriate for the field(s) being monitored. The parameter type can be narrowed
+ * to restrict which notifications are delivered. For example, a method with a {@link SetFieldChange} parameter will
+ * receive notifications about all changes to a set field, but a method with a {@link SetFieldAdd} parameter will receive
+ * notification only when an element is added to the set. Similarly, a {@link SetFieldClear SetFieldClear&lt;Animal&gt;} will
+ * receive notifications when a set associated with any {@code Animal} is cleared, but a {@link SetFieldClear
+ * SetFieldClear&lt;Cat&gt;} will only receive notifications when a set associated with a {@code Cat} is cleared.
+ *
+ * <p>
+ * The method may have any level of access, including {@code private}.
+ *
+ * <p>
+ * Multiple fields may be specified in {@link #value}; if so, all of the fields are monitored together, and they all
+ * must emit {@link FieldChange}s compatible with the method's parameter type. When multiple fields are monitored
+ * by the same method, the method's parameter type may need to be widened to accomodate them all.
+ *
+ * <p>
+ * If {@link #value} is empty (the default), then every event-generating field in the target object is monitored,
+ * though again only changes compatible with the method's parameter type will be delivered.
+ *
+ * <p><b>Instance vs. Static Methods</b></p>
+ *
+ * <p>
+ * An instance method method will be invoked on <i>each object</i> for which the changed field is found at the end
+ * of the specified reference path, starting from that object. For example, if there are three child {@code Node}'s
+ * pointing to the same parent {@code Node}, and the {@code Node} class has an instance method annotated with
+ * {@link OnChange &#64;OnChange}{@code (path = "parent", value = "name")}, then all three child {@code Node}'s
+ * will be notified when the parent's name changes.
+ *
+ * <p>
+ * A static method is invoked <i>once</i> for any matching change event; the {@link path} is ignored and must be empty.
+ *
  * <p><b>Examples</b></p>
  *
  * <p>
- * This example shows how the declaration of the annotated method helps determine which events are delivered:
+ * This example shows how the annotation and the method parameter work together to determine which events are delivered:
  *
  * <pre><code class="language-java">
  *   &#64;PermazenType
@@ -69,16 +107,11 @@ import java.lang.annotation.Target;
  *
  *       public abstract NavigableSet&lt;AccessLevel&gt; getAccessLevels();
  *
- *   // &#64;OnChange methods
+ *   // &#64;OnChange instance methods
  *
  *       &#64;OnChange
  *       private void handleAnyChange1(FieldChange&lt;Account&gt; change) {
  *           // Sees any change to ANY field of THIS account
- *       }
- *
- *       &#64;OnChange
- *       private static void handleAnyChange2(FieldChange&lt;Account&gt; change) {
- *           // Sees any change to ANY field of ANY account (note static method)
  *       }
  *
  *       &#64;OnChange("accessLevels")
@@ -89,6 +122,13 @@ import java.lang.annotation.Target;
  *       &#64;OnChange
  *       private void handleSimpleChange(SimpleFieldChange&lt;Account, ?&gt; change) {
  *           // Sees any change to any SIMPLE field of THIS account (i.e., "enabled", "name")
+ *       }
+ *
+ *   // &#64;OnChange static methods
+ *
+ *       &#64;OnChange
+ *       private static void handleAnyChange2(FieldChange&lt;Account&gt; change) {
+ *           // Sees any change to ANY field of ANY account
  *       }
  *   }
  * </code></pre>
@@ -113,7 +153,7 @@ import java.lang.annotation.Target;
  *
  *       public abstract NavigableSet&lt;User&gt; getFriends();
  *
- *   // &#64;OnChange methods
+ *   // &#64;OnChange instance methods
  *
  *       &#64;OnChange("username")
  *       private void handleUsernameChange(SimpleFieldChange&lt;User, String&gt; change) {
@@ -136,9 +176,16 @@ import java.lang.annotation.Target;
  *           // Note the use of the inverse step "&lt;-User.account" from Account back to User
  *       }
  *
+ *   // &#64;OnChange static methods
+ *
  *       &#64;OnChange("account")
- *       private static void handleMembershipChange(SimpleFieldChange&lt;User, Account&gt; change) {
+ *       private static void handleAccountChange(SimpleFieldChange&lt;User, Account&gt; change) {
  *           // Sees any change to ANY user's account
+ *       }
+ *
+ *       &#64;OnChange("name")
+ *       private static void handleAccountNameChange(SimpleFieldChange&lt;Account, String&gt; change) {
+ *           // Sees any change to ANY account's name
  *       }
  *   }
  * </code></pre>
@@ -147,9 +194,9 @@ import java.lang.annotation.Target;
  *
  * <p>
  * {@link OnChange &#64;OnChange} annotations are useful for creating custom database indexes. In the most general
- * sense, an "index" is some secondary data structure that (a) is entirely derived from some primary data, (b) can be
- * efficiently updated when the primary data changes, and (c) provides a quick answer to a question that would otherwise
- * require an extensive calculation if computed from scratch.
+ * sense, an "index" is a secondary data structure that (a) is entirely derived from some primary data structure,
+ * (b) can be efficiently updated when the primary data changes, and (c) provides a quick answer to a question that
+ * would otherwise require an extensive calculation if computed from scratch.
  *
  * <p>
  * The code below shows an example index that tracks the average and variance in {@code House} prices.
@@ -160,31 +207,11 @@ import java.lang.annotation.Target;
  *  &#64;PermazenType
  *  public abstract class House implements PermazenObject {
  *
+ *      public abstract String getAddress();
+ *      public abstract void setAddress(String address);
+ *
  *      public abstract double getPrice();
  *      public abstract void setPrice(double price);
- *
- *  // Index maintenance
- *
- *      &#64;OnCreate
- *      private void handleAddition() {
- *          this.getStats().adjust(true, this.getPrice());    // price is always zero here
- *      }
- *
- *      &#64;OnDelete
- *      private void handleRemoval() {
- *          this.getStats().adjust(false, this.getPrice());
- *      }
- *
- *      &#64;OnChange("price")
- *      private void handlePriceChange(SimpleFieldChange&lt;House, Double&gt; change) {
- *          HouseStats stats = this.getStats();
- *          stats.adjust(false, change.getOldValue());
- *          stats.adjust(true, change.getNewValue());
- *      }
- *
- *      private HouseStats getStats() {
- *          return this.getPermazenTransaction().getSingleton(HouseStats.class);
- *      }
  *  }
  *
  *  &#64;PermazenType(singleton = true)
@@ -192,27 +219,50 @@ import java.lang.annotation.Target;
  *
  *  // Public Methods
  *
+ *      public HouseStats getInstance() {
+ *          return PermazenTransaction.getCurrent().getSingleton(HouseStats.class);
+ *      }
+ *
  *      // The total number of houses
  *      public abstract long getCount();
  *
  *      // The average house price
  *      public abstract double getAverage();
  *
- *      // The variance in the house price
+ *      // The variance in house price
  *      public double getVariance() {
  *          return this.getCount() &gt; 1 ? this.getM2() / this.getCount() : 0.0;
  *      }
  *
+ *  // Listener Methods
+ *
+ *      &#64;OnCreate
+ *      private static void handleAddition(House house) {
+ *          getInstance().adjust(true, house.getPrice());   // price is always zero here
+ *      }
+ *
+ *      &#64;OnDelete
+ *      private static void handleRemoval(House house) {
+ *          getInstance().adjust(false, house.getPrice());
+ *      }
+ *
+ *      &#64;OnChange("price")
+ *      private static void handlePriceChange(SimpleFieldChange&lt;House, Double&gt; change) {
+ *          HouseStats stats = getInstance();
+ *          stats.adjust(false, change.getOldValue());
+ *          stats.adjust(true, change.getNewValue());
+ *      }
+ *
  *  // Non-public Methods
  *
- *      protected abstract void setCount(long count);
+ *      abstract void setCount(long count);
  *
- *      protected abstract void setAverage(double average);
+ *      abstract void setAverage(double average);
  *
- *      protected abstract double getM2();
- *      protected abstract void setM2(double m2);
+ *      abstract double getM2();
+ *      abstract void setM2(double m2);
  *
- *      protected void adjust(boolean add, double price) {
+ *      private void adjust(boolean add, double price) {
  *          long count = this.getCount();
  *          double mean = this.getAverage();
  *          double m2 = this.getM2();
@@ -257,10 +307,11 @@ import java.lang.annotation.Target;
  *
  * <p>
  * You can use {@link OnChange &#64;OnChange} annotations to implement a simple reference counting scheme. Actually, you don't
- * need to count references, you just need to perform checks whether any references exist at the appropriate times.
+ * need to count references, you just need to check whether any references still exist at the appropriate times.
  *
  * <p>
- * Then you could do something like this:
+ * You could do something like the example below. It defers the cleanup until validation time to avoid object being deleted
+ * accidentally due to transient reference manipulation.
  *
  * <pre><code class="language-java">
  *   &#64;PermazenType
@@ -285,6 +336,7 @@ import java.lang.annotation.Target;
  *   // Index queries
  *
  *       &#64;ReferencePath("&lt;-Person.address")
+ *       &#64;Size(min = 1)
  *       public abstract NavigableSet&lt;Person&gt; getOccupants();
  *
  *   // Dependent Object Checks
@@ -307,57 +359,12 @@ import java.lang.annotation.Target;
  *   }
  * </code></pre>
  *
- * <p><b>Method Parameter Types</b></p>
- *
- * <p>
- * In all cases the annotated method must return void and take one parameter whose type must be compatible
- * with at least one of the {@link FieldChange} sub-types appropriate for the/a field being monitored. The
- * parameter type can be narrowed to restrict which notifications are delivered. For example, a method with a
- * {@link SetFieldChange} parameter will receive notifications about all changes to a set field, but a method
- * with a {@link SetFieldAdd} parameter will receive notification only when an element is added to the set.
- *
- * <p>
- * The method may have any level of access, including {@code private}, and multiple independent {@link OnChange &#64;OnChange}
- * methods are allowed.
- *
- * <p>
- * Multiple fields in the target object may be specified; if so, all of the fields are monitored together, and they all
- * must emit {@link FieldChange}s compatible with the method's parameter type. Therefore, when multiple fields are monitored
- * by the same method, the method's parameter type may need to be widened to accomodate them all.
- *
- * <p>
- * If {@link #value} is empty (the default), then every field in the target object is monitored,
- * though again only changes compatible with the method's parameter type will be delivered. So for example, a method
- * taking a {@link SetFieldChange} would receive notifications about changes to all {@code Set} fields in the class,
- * but not any other fields.
- *
- * <p>
- * Currently, due to type erasure, only the parameter's raw type is taken into consideration and an error is generated
- * if the parameter's generic type and its raw type don't match the same events.
- *
- * <p><b>Instance vs. Static Methods</b></p>
- *
- * <p>
- * An instance method method will be invoked on <i>each object</i> for which the changed field is found at the end
- * of the specified reference path, starting from that object. For example, if there are three child {@code Node}'s
- * pointing to the same parent {@code Node}, and the {@code Node} class has an instance method annotated with
- * {@link OnChange &#64;OnChange}{@code (path = "parent", value = "name")}, then all three child {@code Node}'s
- * will be notified when the parent's name changes.
- *
- * <p>
- * A static method is invoked <i>once</i> when any instance of the class containing the method exists for which the
- * changed field is found at the end of the specified reference path, no matter how many such instances there are.
- * So in the previous example, making the method static would cause it to be invoked only once when the parent's
- * name changes (and not at all if there were zero child {@code Node}'s). Put another way, an annotation on a static
- * method behaves just like the same annotation on an instance method, except that multiple per-object notifications
- * are coalesced into a single per-class notification.
- *
  * <p><b>Notification Delivery</b></p>
  *
  * <p>
  * Notifications are delivered synchronously within the thread the made the change, after the change is made and just
  * prior to returning to the original caller who invoked the method that changed the field.
- * If an {@link OnChange &#64;OnChange} method makes further changes that themselves generate change notifications,
+ * If an {@link OnChange &#64;OnChange} method itself makes changes that generate additional change notifications,
  * these new notifications are also handled prior to returning to the original caller. Put another way, the queue of
  * outstanding notifications triggered by field changes is always emptied before the original method returns. Therefore,
  * infinite loops are possible, e.g., if an {@link OnChange &#64;OnChange} method modifies the field it's monitoring
@@ -394,13 +401,13 @@ import java.lang.annotation.Target;
  * }
  * </code></pre>
  *
- * The path {@code "->friends"} implies type {@code Person},
- * but the field {@code "name"} is a field of {@code NamedPerson}, a narrower type than {@code Person}. However, this will
- * still work as long as there is no ambiguity. In this example, that means there are no other sub-types of {@code Person}
- * with a different (i.e., having conflicting type) field also named {@code "name"}.
+ * The path {@code "->friends"} implies type {@code Person}, but the field {@code "name"} is a field of {@code NamedPerson},
+ * a narrower type than {@code Person}. However, this will still work as long as there is no ambiguity. In this example,
+ * that means there are no other sub-types of {@code Person} with a different (i.e., having conflicting type) field also
+ * named {@code "name"}.
  *
  * <p>
- * In the example above, the {@link SimpleFieldChange} parameter to the method {@code friendNameChanged()}
+ * Note that in the example above, the {@link SimpleFieldChange} parameter to the method {@code friendNameChanged()}
  * <i>necessarily</i> has generic type {@code NamedPerson}, not {@code Person}.
  *
  * <p><b>Other Notes</b></p>
@@ -452,9 +459,7 @@ public @interface OnChange {
      * The default empty path means the monitored object and the notified object are the same.
      *
      * <p>
-     * In the case of static methods, a non-empty path restricts notification from being delivered
-     * unless there exists at least one object for whom the monitored object is found at the other
-     * end of the path.
+     * When annotating static methods, this property is unused and must be left unset.
      *
      * @return reference path leading to monitored objects
      * @see ReferencePath
@@ -470,7 +475,7 @@ public @interface OnChange {
      * event sub-types emitted by that field.
      *
      * <p>
-     * If zero paths are specified (the default), every field in the target object(s) that emits
+     * If zero fields are specified (the default), every field in the target object(s) that emits
      * {@link FieldChange}s compatible with the method's parameter type will be monitored for changes.
      *
      * @return the names of the fields to monitored in the target objects

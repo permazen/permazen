@@ -55,41 +55,47 @@ class OnDeleteScanner<T> extends AnnotationScanner<T, OnDelete> {
             final String errorPrefix = OnDeleteScanner.this.getErrorPrefix(method);
             final List<TypeToken<?>> paramGenTypes = OnDeleteScanner.this.getParameterTypeTokens(method);
             final int numParams = paramGenTypes.size();
+            final boolean staticMethod = (method.getModifiers() & Modifier.STATIC) != 0;
+            final boolean selfMatch = !staticMethod && numParams == 0 && annotation.path().isEmpty();
+
+            // Check number of parameters
+            if (numParams != 1 && !selfMatch) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: @%s method is required to have exactly one parameter",
+                  errorPrefix, annotation.annotationType().getSimpleName()));
+            }
 
             // Determine method invocation style and accepted object type
             final TypeToken<?> acceptedGenType;
-            if ((method.getModifiers() & Modifier.STATIC) != 0) {
-                if (numParams != 1) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: a static @%s method is required to have exactly one parameter",
-                      errorPrefix, annotation.annotationType().getSimpleName()));
-                }
-                this.invokeStyle = (ptx, deleted, referrers) -> Util.invoke(method, null, deleted);
-                acceptedGenType = paramGenTypes.get(0);
-            } else if (annotation.path().isEmpty()) {
-                if (numParams != 0) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: @%s.path() is empty so method is required to have zero parameters",
-                      errorPrefix, annotation.annotationType().getSimpleName()));
-                }
+            if (selfMatch) {
+                acceptedGenType = TypeToken.of(method.getDeclaringClass());
                 this.invokeStyle = (ptx, deleted, referrers) -> {
                     assert referrers.size() == 1;
                     assert referrers.first().equals(deleted.getObjId());
                     Util.invoke(method, deleted);
                 };
-                acceptedGenType = TypeToken.of(method.getDeclaringClass());
             } else {
-                if (numParams != 1) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: @%s.path() is non-empty so method is required to have exactly one parameter",
-                      errorPrefix, annotation.annotationType().getSimpleName()));
-                }
-                this.invokeStyle = (ptx, deleted, referrers) -> {
-                    referrers.stream()
-                      .map(ptx::get)
-                      .forEach(referrer -> Util.invoke(method, referrer, deleted));
-                };
                 acceptedGenType = paramGenTypes.get(0);
+                if (staticMethod) {
+                    if (!annotation.path().isEmpty()) {
+                        throw new IllegalArgumentException(String.format(
+                          "%s: method is static so @%s.path() must be empty",
+                          errorPrefix, annotation.annotationType().getSimpleName()));
+                    }
+                    this.invokeStyle = (ptx, deleted, referrers) -> Util.invoke(method, null, deleted);
+                } else if (annotation.path().isEmpty()) {
+                    this.invokeStyle = (ptx, deleted, referrers) -> {
+                        assert referrers.size() == 1;
+                        assert referrers.first().equals(deleted.getObjId());
+                        Util.invoke(method, deleted, deleted);
+                    };
+                } else {
+                    this.invokeStyle = (ptx, deleted, referrers) -> {
+                        referrers.stream()
+                          .map(ptx::get)
+                          .forEach(referrer -> Util.invoke(method, referrer, deleted));
+                    };
+                }
             }
             this.acceptedRawType = acceptedGenType.getRawType();
 
@@ -100,34 +106,30 @@ class OnDeleteScanner<T> extends AnnotationScanner<T, OnDelete> {
                 throw new IllegalArgumentException(String.format("%s: %s", errorPrefix, e.getMessage()), e);
             }
 
-            // Validate parameter type
-            if (numParams > 0) {
+            // Verify at least one target type is accepted by the method
+            final Set<Class<?>> targetRawTypes = path.getTargetTypes().stream()
+              .map(pclass -> Optional.ofNullable(pclass)
+                .<Class<?>>map(PermazenClass::getType)
+                .orElse(UntypedPermazenObject.class))
+              .collect(Collectors.toSet());
+            if (targetRawTypes.stream().noneMatch(this.acceptedRawType::isAssignableFrom)) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: there are no target object types matching the method's parameter type %s",
+                  errorPrefix, acceptedGenType));
+            }
+            final List<TypeToken<?>> targetGenTypes = targetRawTypes.stream()
+              .map(TypeToken::of)
+              .collect(Collectors.toList());
 
-                // Verify at least one target type is accepted by the method
-                final Set<Class<?>> targetRawTypes = path.getTargetTypes().stream()
-                  .map(pclass -> Optional.ofNullable(pclass)
-                    .<Class<?>>map(PermazenClass::getType)
-                    .orElse(UntypedPermazenObject.class))
-                  .collect(Collectors.toSet());
-                if (targetRawTypes.stream().noneMatch(this.acceptedRawType::isAssignableFrom)) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: there are no target object types matching the method's parameter type %s",
-                      errorPrefix, acceptedGenType));
-                }
-                final List<TypeToken<?>> targetGenTypes = targetRawTypes.stream()
-                  .map(TypeToken::of)
-                  .collect(Collectors.toList());
-
-                // Verify the method accepts object types consistently whether raw vs. generic
-                final TypeToken<?> mismatchType = Util.findErasureDifference(acceptedGenType, targetGenTypes);
-                if (mismatchType != null) {
-                    throw new IllegalArgumentException(String.format(
-                      "%s: parameter type %s matches objects of type %s due to type erasure,"
-                      + " but its generic type is does not match %s; try narrowing or"
-                      + " widening the parameter type while keeping it compatible with %s",
-                      errorPrefix, acceptedGenType, mismatchType, mismatchType,
-                      targetGenTypes.size() != 1 ?  "one or more of: " + targetGenTypes : targetGenTypes.get(0)));
-                }
+            // Verify the method accepts object types consistently whether raw vs. generic
+            final TypeToken<?> mismatchType = Util.findErasureDifference(acceptedGenType, targetGenTypes);
+            if (mismatchType != null) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: parameter type %s matches objects of type %s due to type erasure,"
+                  + " but its generic type is does not match %s; try narrowing or"
+                  + " widening the parameter type while keeping it compatible with %s",
+                  errorPrefix, acceptedGenType, mismatchType, mismatchType,
+                  targetGenTypes.size() != 1 ?  "one or more of: " + targetGenTypes : targetGenTypes.get(0)));
             }
         }
 
@@ -136,22 +138,7 @@ class OnDeleteScanner<T> extends AnnotationScanner<T, OnDelete> {
             tx.addDeleteListener(path.getReferenceFields(), path.getPathKeyRanges(), this);
         }
 
-        // Note genericTypes is derived from this.method, so there's no need to include it in equals() or hashCode()
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            final OnDeleteScanner<?>.DeleteMethodInfo that = (OnDeleteScanner<?>.DeleteMethodInfo)obj;
-            return this.path.equals(that.path);
-        }
-
-        @Override
-        public int hashCode() {
-            return super.hashCode()
-              ^ this.path.hashCode();
-        }
+        // Note my fields are derived from this.method, so there's no need to include them in equals() or hashCode()
 
     // DeleteListener
 
@@ -162,7 +149,7 @@ class OnDeleteScanner<T> extends AnnotationScanner<T, OnDelete> {
             final PermazenTransaction ptx = (PermazenTransaction)tx.getUserObject();
             assert ptx != null && ptx.tx == tx;
 
-            // Is the deleted object type's compatible with what the target method?
+            // Is the deleted object type's compatible with the target method?
             final PermazenObject deleted = ptx.get(id);
             if (!this.acceptedRawType.isInstance(deleted))
                 return;

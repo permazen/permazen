@@ -2,7 +2,9 @@ Version Next
 
     - Eliminate the need for the "deleteNofified" persistent meta-data flag
     - Allow reference path forward steps to have explicit type names
-    - Enhance @OnDelete to allow matching objects via reference path()
+    - Add @OnCreate method parameter and allow static methods
+    - Add @OnDelete path(), method parameter, and allow static methods
+    - Disallow a non-empty @OnChange.path() with static methods
     - Register core API SchemaChangeListeners's on a per-object type basis
     - Register core API CreateListener's on a per-object type basis
 

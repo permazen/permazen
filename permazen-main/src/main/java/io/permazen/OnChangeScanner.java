@@ -85,6 +85,13 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final Permazen pdb = OnChangeScanner.this.pclass.pdb;
             final String errorPrefix = OnChangeScanner.this.getErrorPrefix(method);
 
+            // Path must be empty if method is static
+            if ((method.getModifiers() & Modifier.STATIC) != 0 && !annotation.path().isEmpty()) {
+                throw new IllegalArgumentException(String.format(
+                  "%s: method is static so @%s.path() must be empty",
+                  errorPrefix, annotation.annotationType().getSimpleName()));
+            }
+
             // Parse reference path
             try {
                 this.path = pdb.parseReferencePath(method.getDeclaringClass(), annotation.path());

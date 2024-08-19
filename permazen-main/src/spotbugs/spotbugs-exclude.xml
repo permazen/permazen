@@ -23,4 +23,12 @@
         <Method name="&lt;init&gt;"/>
         <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED,REC_CATCH_EXCEPTION"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.OnDeleteScanner$DeleteMethodInfo"/>
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
+    <Match>
+        <Class name="io.permazen.OnCreateScanner$CreateMethodInfo"/>
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
 </FindBugsFilter>

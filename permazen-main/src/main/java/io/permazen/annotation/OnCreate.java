@@ -6,7 +6,6 @@
 package io.permazen.annotation;
 
 import io.permazen.DetachedPermazenTransaction;
-import io.permazen.PermazenObject;
 import io.permazen.PermazenTransaction;
 import io.permazen.core.Transaction;
 
@@ -26,23 +25,40 @@ import java.lang.annotation.Target;
  * <p><b>Overview</b></p>
  *
  * <p>
- * When a new database object is created, any annotated methods on the object's class are invoked.
+ * When a <i>matching object</i> is created, annotated methods are invoked just after the object's creation.
  *
  * <p>
- * Note that there is a subtle distinction between (a) the creation of database objects in the database (i.e.,
- * the event that this annotation listens for), and (b) the instantiation of the actual Java objects that represent
- * these database objects (i.e., instances of {@link PermazenObject}). These two events do not always align; in particular,
- * distinct Java objects are created to represent the same database object in different transactions. It's even possible
- * for a Java object to be instantiated even though no corresponding database object exists in the database (via
- * {@link PermazenTransaction#get(io.permazen.core.ObjId)}).
+ * For instance methods, the annotated method may take either zero or one parameter. Zero is typical: a matching
+ * object is any object that is an instance of the method's declaring type, i.e., newly created objects receive
+ * their own notifications. If the method has a parameter, then newly created objects notify themselves but only
+ * when their types match the parameter's type (the new object becomes both the method receiver and parameter). The
+ * latter case is less typical but useful when a method is only interested in the creation of specific sub-types.
  *
  * <p>
- * Methods that are annotated with {@link OnCreate &#64;OnCreate} are invoked only for events of type (a).
- * As a consequence, for any database fields that require default initialization, this initialization should be
- * performed not in a Java constructor but rather in an {@link OnCreate &#64;OnCreate}-annotated method.
+ * For static methods, a method parameter is required and a matching object is one whose type is compatible with it.
  *
  * <p>
- * For example, instead of this:
+ * The annotated method may may have any level of access, including {@code private}.
+ *
+ * <p>
+ * A class may have multiple {@link OnCreate &#64;OnCreate} methods, each with a specific purpose.
+ *
+ * <p>
+ * Note that there is a subtle distinction between (a) the creation of objects in the database (i.e., the event that
+ * this annotation concerns), and (b) the instantiation of an actual Java model object representing a database object.
+ * These two events are different; in particular, distinct Java objects are created to represent the same database
+ * object in different transactions. It's even possible for a Java model object to be instantiated even though no
+ * corresponding database object exists in the database (via
+ * {@link PermazenTransaction#get(io.permazen.core.ObjId) PermazenTransaction.get()}).
+ *
+ * <p>
+ * As a consequence, any operations specific to the creation of new database instance, such as one-time initialization
+ * of database fields, should take place in {@link OnCreate &#64;OnCreate}-annotated methods instead of constructors.
+ *
+ * <p>
+ * For example, instead of doing this:
+ *
+ * <p>
  * <pre><code class="language-java">
  *  &#64;PermazenType
  *  public abstract class Event {
@@ -56,6 +72,7 @@ import java.lang.annotation.Target;
  *      public abstract void setCreateTime(Instant createTime);
  *
  *      ...
+ *  }
  * </code></pre>
  *
  * <p>
@@ -74,14 +91,13 @@ import java.lang.annotation.Target;
  *      }
  *
  *      ...
+ *  }
  * </code></pre>
+ *
+ * <p><b>Notification Delivery</b></p>
  *
  * <p>
  * Notifications are delivered in the same thread that created the object, immediately after the object is created.
- *
- * <p>
- * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
- * It may have any level of access, including {@code private}.
  *
  * <p>
  * Some notifications may need to be ignored by objects in {@linkplain DetachedPermazenTransaction detached} transactions;
