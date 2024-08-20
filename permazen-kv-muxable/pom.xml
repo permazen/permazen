@@ -10,9 +10,9 @@
         <artifactId>permazen</artifactId>
         <version>5.1.0</version>
     </parent>
-    <artifactId>permazen-kv-simple</artifactId>
-    <name>Permazen Simple Key/Value Store Classes</name>
-    <description>A couple of simplistic Permazen key/value store implementations.</description>
+    <artifactId>permazen-kv-muxable</artifactId>
+    <name>Permazen Muxable Key/Value Store</name>
+    <description>Permazen key/value store accessing a remote key/value store over the network.</description>
     <distributionManagement>
         <site>
             <id>${project.artifactId}-site</id>
@@ -20,7 +20,7 @@
         </site>
     </distributionManagement>
     <properties>
-        <automatic.module.name>io.permazen.kv.simple</automatic.module.name>
+        <automatic.module.name>io.permazen.kv.muxable</automatic.module.name>
     </properties>
     <dependencies>
         <dependency>
@@ -28,13 +28,13 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dellroad</groupId>
-            <artifactId>dellroad-stuff-main</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -52,11 +52,6 @@
             <artifactId>${project.parent.artifactId}-kv-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
