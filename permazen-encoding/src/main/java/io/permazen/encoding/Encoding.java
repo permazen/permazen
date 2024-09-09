@@ -39,28 +39,29 @@ import java.util.OptionalInt;
  * <p>
  * {@link Encoding}s must satsify these requirements:
  * <ul>
- *  <li>Instances have an associated Java type which can represent any of the encoding's supported values. However, an encoding
- *      is not required to support <i>every</i> instance of the Java type. For example, there can be an encoding of {@link Integer}
- *      that only supports non-negative values.
- *  <li>Instances totally order their supported Java values via {@link #compare compare()}. If the associated Java type itself
+ *  <li>Instances have an associated Java type which can represent any of the encoding's supported values (see
+ *      {@link #getTypeToken}). However, an encoding is not required to support <i>every</i> value of the Java type.
+ *      For example, there could be an encoding of type {@link Integer} that only supports non-negative values.
+ *  <li>Instances totally order their supported Java values (see {@link #compare compare()}). If the associated Java type itself
  *      implements {@link Comparable}, then the two orderings do not necessarily have to agree, but they should if possible.
- *      In that case, {@link #sortsNaturally} should return true.
- *  <li>{@code null} may or may not be a supported value; see {@link #supportsNull}. If so, it must be fully supported value just
- *      like any other; for example, it must be handled by {@link #compare compare()} (typically null values sort last).
+ *      In that case, {@link #sortsNaturally sortsNaturally()} should return true.
+ *  <li>{@code null} may or may not be a supported value (see {@link #supportsNull}). If so, it must be fully supported value
+ *      just like any other; for example, it must be handled by {@link #compare compare()} (typically null values sort last).
  *      Note that this is an additional requirement beyond what {@link Comparator} strictly requires.
  *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null,
  *      and for types that don't support null, obviously the default value must not be null; however, an exception can be made
- *      for encodings that don't support null but don't need default values, e.g., anonymous encodings that are always wrapped
- *      within a {@link NullSafeEncoding}.
- *  <li>All <i>non-null</i> values can be encoded/decoded into a {@link String} without losing information; see
- *      {@link #toString(Object) toString()} and {@link #fromString fromString()}.
+ *      for encodings that don't support null but also don't need default values, e.g., anonymous encodings that are always
+ *      wrapped within a {@link NullSafeEncoding}; for such encodings, {@link #getDefaultValue} should throw an
+ *      {@link UnsupportedOperationException}.
+ *  <li>All <i>non-null</i> values can be encoded/decoded into a {@link String} without losing information (see
+ *      {@link #toString(Object) toString()} and {@link #fromString fromString()}). These strings must contain characters
+ *      that are valid in an XML document only.
  *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]}
- *      array) without losing information. Moreover, these binary strings, when sorted lexicographically using unsigned comparison,
- *      sort consistently with the encoding's {@linkplain #compare total ordering} of the corresponding Java values;
- *      see {@link #read read()} and {@link #write write()}.
+ *      array) without losing information (see {@link #read read()} and {@link #write write()}). Moreover, these binary strings,
+ *      when sorted lexicographically as unsigned values, sort consistently with {@link #compare compare()}.
  *  <li>An {@link Encoding}'s string and binary encodings and sort ordering is guaranteed to <i>never change</i>, unless the
- *      {@link EncodingId} is also changed, which effectvely defines a new encoding. However, in such scenarios automatic
- *      schema migrations are easily handled by adding appropriate logic to {@link #convert convert()}.
+ *      {@link EncodingId} is also changed, which effectively defines a new encoding (in such scenarios, automatic schema
+ *      migration is possible by adding the appropriate logic to {@link #convert convert()}).
  * </ul>
  *
  * <p>
@@ -85,9 +86,9 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      *
      * <p>
      * Once associated with a specific encoding, an encoding ID must never be changed or reused. If an {@link Encoding}'s
-     * encoding changes in any way, then its encoding ID <b>must</b> also change. This applies only to the encoding itself,
+     * behavior changes in any way, then its encoding ID <b>must</b> also change. This applies only to the encoding itself,
      * and not the {@linkplain #getTypeToken associated Java type}. For example, an {@link Encoding}'s associated Java type
-     * can change over time, e.g., if the Java class changes package or class name.
+     * can change over time, e.g., if its class or package name changes.
      *
      * @return this encoding's unique ID, or null if this encoding is anonymous
      */
