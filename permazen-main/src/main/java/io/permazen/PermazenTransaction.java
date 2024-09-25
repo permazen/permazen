@@ -1716,7 +1716,7 @@ public class PermazenTransaction {
      * and a {@link ValidationException} is thrown. The transaction will remain usable.
      *
      * <p>
-     * <b>Note:</b> if the this transaction was created with {@link ValidationMode#DISABLED}, then this method does nothing.
+     * <b>Note:</b> if this transaction was created with {@link ValidationMode#DISABLED}, then this method does nothing.
      *
      * @throws io.permazen.kv.RetryKVTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
