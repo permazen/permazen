@@ -119,7 +119,7 @@ Under the Object ID itself is meta-data related to the object:
     ┃  Object ID  ┃ -> ┃  Schema Index  ┃ Flags ┃
     ┗━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━┻━━━━━━━┛
 
-The 'Flags' field is a single byte. Currently, the flags byte must be zero. A mising flags byte is equivalent to zero.
+The 'Flags' field is a single byte. Currently, the flags byte must be zero. A missing flags byte is equivalent to zero.
 
 #### Simple and Counter Fields
 
