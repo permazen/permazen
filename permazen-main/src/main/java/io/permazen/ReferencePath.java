@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
  * When stepping forward through a complex field, or backward through any field, the number of reachable objects can increase.
  * In general, the number of target objects can be vastly different than the number of starting objects, depending on the
  * fan-in/fan-out of the reference fields traversed. This should be kept in mind when considering the use of reference paths.
- *
  * A {@link ReferencePath} containing only forward simple reference fields is termed {@linkplain #isSingular singular}.
  *
  * <p><b>Type Pruning</b>
