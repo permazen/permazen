@@ -571,10 +571,7 @@ public final class LongEncoder {
      * @throws IllegalArgumentException if the first byte is {@code 0xff}
      */
     public static void skip(ByteReader reader) {
-        final int first = reader.readByte();
-        if (first == 0x00 || first == 0xff)
-            throw new IllegalArgumentException("invalid encoded value starting with 0x" + Integer.toHexString(first));
-        reader.skip(LongEncoder.decodeLength(first) - 1);
+        reader.skip(LongEncoder.decodeLength(reader.readByte()) - 1);
     }
 
     /**
