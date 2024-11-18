@@ -21,15 +21,15 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for methods that are to be invoked whenever an object's schema has just changed,
- * in order to apply arbitrary "semantic" schema migration logic.
+ * in order to apply "semantic" schema migration logic.
  *
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
  * <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
  * <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
  *
  * <p>
- * The annotated method is given access to all of the previous object version's fields, including fields that have
- * been deleted or whose types have changed in the new schema. This allows the object to perform any schema migration
+ * The annotated method is given access to all of the values in the previous object version's fields, including for
+ * fields that have been removed or changed types. This allows the object to perform any schema migration
  * "fixups" that may be required before the old information is lost for good.
  *
  * <p>
@@ -68,9 +68,6 @@ import java.lang.annotation.Target;
  * </code></pre>
  *
  * <p>
- * Note: {@linkplain PermazenCounterField} values are represented in {@code oldValues} as {@code Long}s.
- *
- * <p>
  * A class may have multiple {@link OnSchemaChange &#64;OnSchemaChange}-annotated methods.
  *
  * <p><b>Incompatible Object Type Changes</b></p>
@@ -84,8 +81,11 @@ import java.lang.annotation.Target;
  * throw a {@link TypeNotInSchemaException}. Such objects are still accessible however (see {@link UntypedPermazenObject}).
  *
  * <p>
- * Secondly, it's possible for an old field to have a value whose type simply doesn't exist in the new schema. When this happens,
- * it's not possible to provide the old value to an {@link OnSchemaChange &#64;OnSchemaChange} method in its original form.
+ * Secondly, it's possible for an old field to have a value that can no longer be represented within the new schema.
+ * When this happens, it's not possible to provide the old value to an {@link OnSchemaChange &#64;OnSchemaChange} method
+ * in its original form.
+ *
+ * <p>
  * This can happen in two ways:
  * <ul>
  * <li>A reference field refers to an object whose type no longer exists in the new schema; or</li>
@@ -101,6 +101,9 @@ import java.lang.annotation.Target;
  * <li>For {@link Enum} fields, old values are always represented as {@link EnumValue} objects.
  *      For consistency's sake, this is true <i>even if the associated field's type has not changed</i>.</li>
  * </ul>
+ *
+ * <p>
+ * In addition, {@linkplain PermazenCounterField} values are represented in {@code oldValues} as values of type {@code Long}.
  *
  * <p><b>Meta-Annotations</b></p>
  *

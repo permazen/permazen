@@ -28,11 +28,15 @@ import java.lang.annotation.Target;
  * When a <i>matching object</i> is created, annotated methods are invoked just after the object's creation.
  *
  * <p>
- * For instance methods, the annotated method may take either zero or one parameter. Zero is typical: a matching
- * object is any object that is an instance of the method's declaring type, i.e., newly created objects receive
- * their own notifications. If the method has a parameter, then newly created objects notify themselves but only
- * when their types match the parameter's type (the new object becomes both the method receiver and parameter). The
- * latter case is less typical but useful when a method is only interested in the creation of specific sub-types.
+ * For instance methods, the annotated method may take either zero or one parameter (the newly created object).
+ * Zero is typical, in which case a matching object is any object that is an instance of the method's declaring class,
+ * i.e., newly created objects receive their own notifications.
+ *
+ * <p>
+ * If the method has one parameter, then newly created objects still notify themselves but only when their types
+ * match the parameter's type (the new object is both the method receiver and method parameter). The latter case
+ * is less common but useful for example when a superclass method is only interested in the creation of
+ * specific sub-types.
  *
  * <p>
  * For static methods, a method parameter is required and a matching object is one whose type is compatible with it.
@@ -70,8 +74,6 @@ import java.lang.annotation.Target;
  *      &#64;NotNull
  *      public abstract Instant getCreateTime();
  *      public abstract void setCreateTime(Instant createTime);
- *
- *      ...
  *  }
  * </code></pre>
  *
@@ -89,8 +91,6 @@ import java.lang.annotation.Target;
  *      private void initializeCreateTime() {
  *          this.setCreateTime(Instant.now());
  *      }
- *
- *      ...
  *  }
  * </code></pre>
  *

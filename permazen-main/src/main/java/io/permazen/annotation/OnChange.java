@@ -219,7 +219,7 @@ import java.lang.annotation.Target;
  *
  *  // Public Methods
  *
- *      public HouseStats getInstance() {
+ *      public static HouseStats getInstance() {
  *          return PermazenTransaction.getCurrent().getSingleton(HouseStats.class);
  *      }
  *
@@ -255,12 +255,12 @@ import java.lang.annotation.Target;
  *
  *  // Non-public Methods
  *
- *      abstract void setCount(long count);
+ *      protected abstract void setCount(long count);
  *
- *      abstract void setAverage(double average);
+ *      protected abstract void setAverage(double average);
  *
- *      abstract double getM2();
- *      abstract void setM2(double m2);
+ *      protected abstract double getM2();
+ *      protected abstract void setM2(double m2);
  *
  *      private void adjust(boolean add, double price) {
  *          long count = this.getCount();
@@ -298,7 +298,7 @@ import java.lang.annotation.Target;
  * {@link OnChange &#64;OnChange} annotations can be used to automatically garbage collect <i>dependent</i> objects.
  * A dependent object is one that is only useful or meaningful in the context of some other object(s) that reference it.
  * You can combine {@link OnChange &#64;OnChange} with {@link OnDelete &#64;OnDelete} and {@link ReferencePath &#64;ReferencePath}
- * to keep track of these incoming references.
+ * to keep track of these references.
  *
  * <p>
  * For example, suppose multiple {@code Person}'s can share a common {@code Address}. You only want {@code Address} objects
@@ -310,7 +310,7 @@ import java.lang.annotation.Target;
  * need to count references, you just need to check whether any references still exist at the appropriate times.
  *
  * <p>
- * You could do something like the example below. It defers the cleanup until validation time to avoid object being deleted
+ * You could do something like the example below. It defers the cleanup until validation time to avoid objects being deleted
  * accidentally due to transient reference manipulation.
  *
  * <pre><code class="language-java">
@@ -362,7 +362,7 @@ import java.lang.annotation.Target;
  * <p><b>Notification Delivery</b></p>
  *
  * <p>
- * Notifications are delivered synchronously within the thread the made the change, after the change is made and just
+ * Notifications are delivered synchronously within the thread that made the change, after the change is made and just
  * prior to returning to the original caller who invoked the method that changed the field.
  * If an {@link OnChange &#64;OnChange} method itself makes changes that generate additional change notifications,
  * these new notifications are also handled prior to returning to the original caller. Put another way, the queue of
@@ -402,9 +402,8 @@ import java.lang.annotation.Target;
  * </code></pre>
  *
  * The path {@code "->friends"} implies type {@code Person}, but the field {@code "name"} is a field of {@code NamedPerson},
- * a narrower type than {@code Person}. However, this will still work as long as there is no ambiguity. In this example,
- * that means there are no other sub-types of {@code Person} with a different (i.e., having conflicting type) field also
- * named {@code "name"}.
+ * a narrower type than {@code Person}. However, this will still work as long as there is no ambiguity; in this example,
+ * "no ambiguity" would mean no other sub-types of {@code Person} exist that have a non-{@link String} {@code "name"} field.
  *
  * <p>
  * Note that in the example above, the {@link SimpleFieldChange} parameter to the method {@code friendNameChanged()}
@@ -422,7 +421,7 @@ import java.lang.annotation.Target;
  * <p>
  * For any given field change and path, only one notification will be delivered per recipient object, even if the changed field
  * is seen through the path in multiple ways (e.g., via reference path {@code "->mylist"} where the changed object
- * appears multiple times in the list {@code mylist}).
+ * appears multiple times in {@code mylist}).
  *
  * <p>
  * Some notifications may need to be ignored by objects in {@linkplain DetachedPermazenTransaction detached} transactions;

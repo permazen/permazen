@@ -198,9 +198,9 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Beware however, that like most other types of validation constraint, adding or changing a uniqueness constraint can cause
- * valid database objects to become invalid without notice, or at least until if/when the object is revalidated in some future
- * transaction. In such a situation, you can force a schema change - and therefore revalidation on the next access - by
- * incrementing {@link PermazenType#schemaEpoch} in the field's containing type.
+ * valid database objects to become invalid without immediate notice, or at least not until if/when the object is revalidated
+ * in some future transaction. In such a situation, you can force a schema change - and therefore revalidation on the next
+ * access - by incrementing {@link PermazenType#schemaEpoch} in the field's containing type.
  *
  * <p><b>Upgrade Conversions</b></p>
  *

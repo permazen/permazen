@@ -28,19 +28,21 @@ import java.lang.annotation.Target;
  * When a <i>matching object</i> is deleted, annotated methods are invoked just prior to actual deletion.
  *
  * <p>
- * For instance methods, a matching object is one that is found at the end of the {@linkplain ReferencePath reference path}
- * specified by {@link #path}, starting from the object to be notified, and whose type is compatible with the method's
- * only parameter. By default, {@link #path} is empty, which means deletion of the object itself is monitored.
- * See {@link ReferencePath} for more information about reference paths.
+ * Methods must return void and normally take one parameter. A matching object is one whose type is compatible
+ * with the method parameter and which is found at the end of the {@linkplain ReferencePath reference path}
+ * specified by {@link #path}, starting from the object to be notified. See {@link ReferencePath} for more
+ * information about reference paths.
  *
  * <p>
- * For static methods, {@link #path} must be empty and every object is a potential matching object. Therefore, the
- * deletion of any object whose type is compatible with the method's parameter will result in a notification.
+ * In the case of an instance method where {@link #path} is empty (the default), the method is allowed to take
+ * zero parameters; in this case, the object monitors itself.
  *
  * <p>
- * The annotated method may may have any level of access, including {@code private}. It must return void and take one
- * parameter representing the deleted object; however, an instance method with an empty {@link #path} may take zero
- * parameters, as the deleted object is always the same as the notified object.
+ * For static methods, {@link #path} must be empty and every object whose type is compatible with the method's parameter
+ * is a matching object and can produce notifications.
+ *
+ * <p>
+ * The annotated method may may have any level of access, including {@code private}.
  *
  * <p>
  * A class may have multiple {@link OnDelete &#64;OnDelete} methods, each with a specific purpose.
@@ -170,7 +172,8 @@ public @interface OnDelete {
      * See {@link ReferencePath} for information on reference paths and their proper syntax.
      *
      * <p>
-     * The default empty path means the monitored object and the notified object are the same.
+     * The default empty path means the monitored object and the notified object are the same. In that case,
+     * the type of the parameter (if any) restricts notifications to compatible subclasses.
      *
      * <p>
      * When annotating static methods, this property is unused and must be left unset.
