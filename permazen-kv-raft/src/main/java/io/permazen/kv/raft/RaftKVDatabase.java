@@ -70,6 +70,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -2364,9 +2365,10 @@ public class RaftKVDatabase implements KVDatabase {
         private final File tempDir;
         private final ArrayBlockingQueue<FileInfo> availableTempFiles = new ArrayBlockingQueue<>(MAX_TEMP_FILES);
         private final ArrayBlockingQueue<FileInfo> filesToDelete = new ArrayBlockingQueue<>(MAX_DELETE_FILES);
+        private final AtomicBoolean didWarnDelete = new AtomicBoolean();
 
+        @GuardedBy("this")
         private boolean shutdown;
-        private boolean didWarnDelete;
 
         private IOThread(File tempDir, String threadName) {
             super(threadName);
@@ -2382,17 +2384,20 @@ public class RaftKVDatabase implements KVDatabase {
         public synchronized void deleteFile(File file, String description) {
             assert file != null;
             assert description != null;
-            try {
-                this.filesToDelete.add(new FileInfo(file, description));
-            } catch (IllegalStateException e) {
-                if (!this.didWarnDelete) {
-                    this.log.error("file deletion queue is full (suppressing further warnings)", e);
-                    this.didWarnDelete = true;
+
+            // Enqueue the task for the I/O thread, if able
+            if (!this.shutdown) {
+                try {
+                    this.filesToDelete.add(new FileInfo(file, description));
+                    this.notifyAll();
+                } catch (IllegalStateException e) {
+                    if (this.didWarnDelete.compareAndSet(false, true))
+                        this.log.warn("file deletion queue is full (suppressing further warnings)");
                 }
-                Util.delete(file, description);
-                return;
             }
-            this.notifyAll();
+
+            // We must do it ourselves
+            Util.delete(file, description);
         }
 
         public synchronized File getTempFile() throws IOException {
@@ -2479,7 +2484,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-    private static class FileInfo {
+    private static final class FileInfo {
 
         private final File file;
         private final String description;
