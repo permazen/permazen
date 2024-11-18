@@ -608,7 +608,7 @@ public class SchemaBundle {
         final SchemaId schemaId = this.schemaIdsByStorageId.get(storageId);
         if (schemaId == null) {
             String message = String.format("no %s with storage ID %d found", SchemaBundle.getDescription(expectedType), storageId);
-            throw this.createNotFoundException(expectedType, "storage ID " + storageId, message);
+            throw this.createNotFoundException(expectedType, String.format("storage ID %d", storageId), message);
         }
         return this.getSchemaItem(schemaId, expectedType);
     }

@@ -43,6 +43,6 @@ public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
         // Find corresponding enum value
         return EnumUtil.getValues(this.type).stream()
           .filter(value -> text.equals(this.nameFunction.apply(value)))
-          .findAny().orElseThrow(() -> new IllegalArgumentException("unknown value \"" + text + "\""));
+          .findAny().orElseThrow(() -> new IllegalArgumentException(String.format("unknown value \"%s\"", text)));
     }
 }

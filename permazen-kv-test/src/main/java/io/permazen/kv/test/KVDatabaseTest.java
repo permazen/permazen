@@ -484,7 +484,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // Show contents of surviving transactions; note exception(s) could occur here also
         for (int i = 0; i < 2; i++) {
             if (fails[i] == null) {
-                final RuntimeException e = this.showKV(txs[i], "tx[" + i + "] of " + store + " after write");
+                final RuntimeException e = this.showKV(txs[i], String.format("tx[%d] of %s after write", i, store));
                 if (e != null) {
                     if (e.toString().contains(AssertionError.class.getName()))
                         throw new AssertionError("internal assertion failure", e);
@@ -513,7 +513,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         throw (AssertionError)e;
                     if (e.toString().contains(AssertionError.class.getName()))
                         throw new AssertionError("internal assertion failure", e);
-                    assert e instanceof RetryKVTransactionException : "wrong exception type: " + e;
+                    assert e instanceof RetryKVTransactionException : String.format("wrong exception type: %s", e);
                     final RetryKVTransactionException retry = (RetryKVTransactionException)e;
                     //Assert.assertSame(retry.getTransaction(), txs[i]);
                     this.log.info("{} #{} failed on commit", txs[i], i + 1);
@@ -643,7 +643,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             for (int i = 0; i < tasks.length; i++) {
                 final Throwable fail = tasks[i].getFail();
                 if (fail != null)
-                    throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
+                    throw new Exception(String.format("task #%d failed: >>>%s<<<", i, this.show(fail).trim()));
             }
             this.log.info("finished testParallelTransactions() iteration {}", count);
         }
@@ -677,7 +677,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             task.run();
             final Throwable fail = task.getFail();
             if (fail != null)
-                throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
+                throw new Exception(String.format("task #%d failed: >>>%s<<<", i, this.show(fail).trim()));
         }
         this.log.info("finished testSequentialTransactions() on {}", store);
     }
@@ -707,7 +707,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         populateTask.run();
         Throwable fail = populateTask.getFail();
         if (fail != null)
-            throw new Exception("populate task failed: >>>" + this.show(fail).trim() + "<<<");
+            throw new Exception(String.format("populate task failed: >>>%s<<<", this.show(fail).trim()));
 
         // Create new transaction and blast away at it
         this.log.info("testMultipleThreadsTransaction() starting threads");
@@ -739,8 +739,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             for (int i = 0; i < tasks.length; i++) {
                 final Throwable taskFail = tasks[i].getFail();
                 if (taskFail != null) {
-                    throw new RuntimeException("task #" + i + " failed: >>>"
-                      + KVDatabaseTest.this.show(taskFail).trim() + "<<<");
+                    throw new RuntimeException(String.format(
+                      "task #%d failed: >>>%s<<<", i, KVDatabaseTest.this.show(taskFail).trim()));
                 }
             }
         });

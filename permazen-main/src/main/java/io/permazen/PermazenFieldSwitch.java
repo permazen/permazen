@@ -155,6 +155,6 @@ public interface PermazenFieldSwitch<R> {
      * @return visitor return value
      */
     default R casePermazenField(PermazenField field) {
-        throw new UnsupportedOperationException("field type not handled: " + field);
+        throw new UnsupportedOperationException(String.format("field type not handled: %s", field));
     }
 }

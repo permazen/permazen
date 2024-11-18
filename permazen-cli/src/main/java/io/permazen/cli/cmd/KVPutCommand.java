@@ -24,7 +24,7 @@ public class KVPutCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Writes a raw database key/value pair. The `key' and `value' parameters may be given as a hexadecimal value"
+        return "Writes a raw database key/value pair. The \"key\" and \"value\" parameters may be given as a hexadecimal value"
           + " or C-style doubly-quoted string."
           + "\n\nWARNING: this command can corrupt a Permazen database.";
     }

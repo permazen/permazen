@@ -577,7 +577,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     else if (field instanceof ListField)
                         collection = tempTx.readListField(id, field.getName(), false);
                     else
-                        throw new RuntimeException("internal error: " + field);
+                        throw new RuntimeException(String.format("internal error: %s", field));
                     while ((tagName = this.next(reader)) != null) {
                         if (!ELEMENT_TAG.equals(tagName)) {
                             throw this.newInvalidInputException(reader,
@@ -614,7 +614,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         }
                     }
                 } else
-                    throw new RuntimeException("internal error: " + field);
+                    throw new RuntimeException(String.format("internal error: %s", field));
             }
 
             // Copy over object, replacing any previous
@@ -853,7 +853,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         writer.writeEndElement();
                     }
                 } else
-                    throw new RuntimeException("internal error: " + field);
+                    throw new RuntimeException(String.format("internal error: %s", field));
 
                 // Output field closing tag
                 writer.writeEndElement();

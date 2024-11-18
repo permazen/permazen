@@ -137,8 +137,8 @@ public class DetachedPermazenTransactionHttpMessageConverter extends AbstractHtt
             try {
                 jtx.validate();
             } catch (ValidationException e) {
-                throw new HttpMessageNotReadableException("incoming object graph failed validation: "
-                  + ValidationUtil.describe(e.getViolations()), input);
+                throw new HttpMessageNotReadableException(String.format(
+                  "incoming object graph failed validation: %s", ValidationUtil.describe(e.getViolations())), input);
             }
         }
 

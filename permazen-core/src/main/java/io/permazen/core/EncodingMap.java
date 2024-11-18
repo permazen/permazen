@@ -71,8 +71,10 @@ abstract class EncodingMap<K, V> extends AbstractKVNavigableMap<K, V> {
         Preconditions.checkArgument(keyEncoding != null, "null keyEncoding");
         Preconditions.checkArgument(prefix != null, "null prefix");
         Preconditions.checkArgument(keyRange != null, "null keyRange");
-        if (!KeyRange.forPrefix(prefix).contains(keyRange))
-            throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
+        if (!KeyRange.forPrefix(prefix).contains(keyRange)) {
+            throw new IllegalArgumentException(String.format(
+              "%s does not restrict to prefix %s", keyRange, ByteUtil.toString(prefix)));
+        }
         this.keyEncoding = keyEncoding;
         this.prefix = prefix;
     }

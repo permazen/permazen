@@ -233,7 +233,7 @@ public class LogEntry {
         // Parse file name
         final long[] parse = LogEntry.parseFileName(file.getName());
         if (parse == null)
-            throw new IOException("invalid log file name \"" + file.getName() + "\"");
+            throw new IOException(String.format("invalid log file name \"%s\"", file.getName()));
         final long index = parse[0];
         final long term = parse[1];
 

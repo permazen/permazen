@@ -162,7 +162,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
         assert Thread.holdsLock(this.kvdb);
         assert !this.hasOverlaps() && !this.hasEmpties();
 
-        // Get all mutations starting at or prior to `key' and look for overlap
+        // Get all mutations starting at or prior to "key" and look for overlap
         final SortedSet<Mutation> left = this.mutations.headSet(Mutation.key(ByteUtil.getNextKey(key)));
         if (!left.isEmpty()) {
             final Mutation last = left.last();

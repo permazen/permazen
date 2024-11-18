@@ -135,11 +135,12 @@ public interface EncodingRegistry {
         final List<Encoding<T>> encodings = this.getEncodings(typeToken);
         switch (encodings.size()) {
         case 0:
-            throw new IllegalArgumentException("no encodings support values of type " + typeToken);
+            throw new IllegalArgumentException(String.format("no encodings support values of type %s", typeToken));
         case 1:
             return encodings.get(0);
         default:
-            throw new IllegalArgumentException("multiple encodings support values of type " + typeToken + ": " + encodings);
+            throw new IllegalArgumentException(String.format(
+              "multiple encodings support values of type %s: %s", typeToken, encodings));
         }
     }
 

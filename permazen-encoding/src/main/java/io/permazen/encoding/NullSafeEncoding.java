@@ -86,7 +86,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
             case NOT_NULL_SENTINEL:
                 return this.inner.read(reader);
             default:
-                throw new IllegalArgumentException("invalid encoding of " + this);
+                throw new IllegalArgumentException(String.format("invalid encoding of %s", this));
             }
         }
     }
@@ -125,7 +125,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
                 this.inner.skip(reader);
                 break;
             default:
-                throw new IllegalArgumentException("invalid encoding of " + this);
+                throw new IllegalArgumentException(String.format("invalid encoding of %s", this));
             }
         }
     }

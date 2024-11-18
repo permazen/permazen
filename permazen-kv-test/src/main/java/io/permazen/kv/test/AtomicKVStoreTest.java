@@ -67,7 +67,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         // Create directory
         this.dir = File.createTempFile(this.getClass().getSimpleName(), null);
         if (!this.dir.delete() || !this.dir.mkdirs())
-            throw new IOException("can't create " + dir);
+            throw new IOException(String.format("can't create %s", dir));
         final ArrayList<AtomicKVStore> list = new ArrayList<>();
 
         // Get AtomicKVStore(s)

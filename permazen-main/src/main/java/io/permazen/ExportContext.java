@@ -79,7 +79,8 @@ public class ExportContext {
             try {
                 return type.getConstructor().newInstance();
             } catch (ReflectiveOperationException e) {
-                throw new IllegalArgumentException("can't instatiate " + type + " using default constructor for POJO export", e);
+                throw new IllegalArgumentException(String.format(
+                  "can't instatiate %s using default constructor for POJO export", type), e);
             }
         };
     }

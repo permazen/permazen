@@ -227,7 +227,7 @@ class ClassGenerator<T> {
                       + " a public or protected constructor taking either () or (%s, %s)",
                       this.modelClass.getName(), PermazenTransaction.class.getSimpleName(), ObjId.class.getSimpleName());
                     if (this.modelClass.isMemberClass() && !Modifier.isStatic(this.modelClass.getModifiers()))
-                        message += "; did you mean to declare this class `static'?";
+                        message += "; did you mean to declare this class \"static\"?";
                     throw new IllegalArgumentException(message);
                 }
             }

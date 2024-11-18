@@ -36,7 +36,7 @@ public class CockroachKVDatabase extends SQLKVDatabase {
           + "  " + this.quote(this.getValueColumnName()) + " BYTES NOT NULL\n"
           + ")";
         try (Statement statement = connection.createStatement()) {
-            this.log.debug("auto-creating table `{}' if not already existing:\n{}", this.getTableName(), sql);
+            this.log.debug("auto-creating table \"{}\" if not already existing:\n{}", this.getTableName(), sql);
             statement.execute(sql);
         }
     }

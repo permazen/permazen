@@ -99,7 +99,7 @@ final class Util {
             while (buf.hasRemaining()) {
                 final int numRead = input.getChannel().read(buf);
                 if (numRead == -1)
-                    throw new IOException("file length was " + length + " but only read " + buf.position() + " bytes");
+                    throw new IOException(String.format("file length was %d but only read %d bytes", length, buf.position()));
             }
             return buf.flip();
         }
@@ -119,7 +119,7 @@ final class Util {
         } catch (IOException e) {
             if (description != null) {
                 LoggerFactory.getLogger(Util.class).warn(
-                  "error deleting " + description + " " + file + " (proceeding anyway): " + e);
+                  "error deleting {} {} (proceeding anyway): {}", description, file, e.toString());
             }
         }
     }

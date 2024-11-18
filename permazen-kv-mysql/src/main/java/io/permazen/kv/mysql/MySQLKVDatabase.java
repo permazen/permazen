@@ -87,7 +87,7 @@ public class MySQLKVDatabase extends SQLKVDatabase {
           + "  PRIMARY KEY(" + this.quote(this.getKeyColumnName()) + ")\n"
           + ") ENGINE=InnoDB default charset=utf8 collate=utf8_bin" + rowFormat;
         try (Statement statement = connection.createStatement()) {
-            this.log.debug("auto-creating table `{}' if not already existing:\n{}", this.getTableName(), sql);
+            this.log.debug("auto-creating table \"{}\" if not already existing:\n{}", this.getTableName(), sql);
             statement.execute(sql);
         }
     }

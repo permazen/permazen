@@ -371,7 +371,8 @@ public interface PermazenObject {
         try {
             return this.getPermazenTransaction().getPermazen().getPermazenClass(id);
         } catch (UnknownTypeException e) {
-            throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, "storage ID " + id.getStorageId(), null).initCause(e);
+            throw (TypeNotInSchemaException)new TypeNotInSchemaException(id,
+              String.format("storage ID %d", id.getStorageId()), null).initCause(e);
         }
     }
 

@@ -154,20 +154,28 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     @Override
     public NavigableSet<E> headSet(E newMaxElement, boolean inclusive) {
         final Bounds<E> newBounds = this.bounds.withUpperBound(newMaxElement, BoundType.of(inclusive));
-        if (newBounds.isInverted(this.comparator()))
-            throw new IllegalArgumentException("upper bound " + newMaxElement + " < lower bound " + this.bounds.getLowerBound());
-        if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("upper bound " + newMaxElement + " is out of bounds: " + this.bounds);
+        if (newBounds.isInverted(this.comparator())) {
+            throw new IllegalArgumentException(String.format(
+              "upper bound %s < lower bound %s", newMaxElement, this.bounds.getLowerBound()));
+        }
+        if (!this.bounds.isWithinBounds(this.comparator(), newBounds)) {
+            throw new IllegalArgumentException(String.format(
+              "upper bound %s is out of bounds: %s", newMaxElement, this.bounds));
+        }
         return this.createSubSet(false, newBounds);
     }
 
     @Override
     public NavigableSet<E> tailSet(E newMinElement, boolean inclusive) {
         final Bounds<E> newBounds = this.bounds.withLowerBound(newMinElement, BoundType.of(inclusive));
-        if (newBounds.isInverted(this.comparator()))
-            throw new IllegalArgumentException("lower bound " + newMinElement + " > upper bound " + this.bounds.getUpperBound());
-        if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("lower bound " + newMinElement + " is out of bounds: " + this.bounds);
+        if (newBounds.isInverted(this.comparator())) {
+            throw new IllegalArgumentException(String.format(
+              "lower bound %s > upper bound %s", newMinElement, this.bounds.getUpperBound()));
+        }
+        if (!this.bounds.isWithinBounds(this.comparator(), newBounds)) {
+            throw new IllegalArgumentException(String.format(
+              "lower bound %s is out of bounds: %s", newMinElement, this.bounds));
+        }
         return this.createSubSet(false, newBounds);
     }
 
@@ -176,9 +184,9 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
         final Bounds<E> newBounds = new Bounds<>(newMinElement,
           BoundType.of(minInclusive), newMaxElement, BoundType.of(maxInclusive));
         if (newBounds.isInverted(this.comparator()))
-            throw new IllegalArgumentException("new bound(s) " + newBounds + " are backwards");
+            throw new IllegalArgumentException(String.format("new bound(s) %s are backwards", newBounds));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("new bound(s) " + newBounds + " are out of bounds: " + this.bounds);
+            throw new IllegalArgumentException(String.format("new bound(s) %s are out of bounds: %s", newBounds, this.bounds));
         return this.createSubSet(false, newBounds);
     }
 

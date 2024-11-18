@@ -118,7 +118,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         try {
             urls.add(this.getClassOutputDirectory().toURI().toURL());
         } catch (MalformedURLException e) {
-            throw new MojoExecutionException("Error creating URL from directory \"" + this.getClassOutputDirectory() + "\"", e);
+            throw new MojoExecutionException(String.format(
+              "Error creating URL from directory \"%s\"", this.getClassOutputDirectory()), e);
         }
         final ArrayList<String> dependencies = new ArrayList<>();
         try {
@@ -130,7 +131,8 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
             try {
                 urls.add(new File(dependency).toURI().toURL());
             } catch (MalformedURLException e) {
-                throw new MojoExecutionException("Error creating URL from classpath element \"" + dependency + "\"", e);
+                throw new MojoExecutionException(String.format(
+                  "Error creating URL from classpath element \"%s\"", dependency), e);
             }
         }
 

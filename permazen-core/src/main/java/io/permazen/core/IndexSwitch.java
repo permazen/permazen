@@ -153,6 +153,6 @@ public interface IndexSwitch<R> {
      * @return visitor return value
      */
     default R caseIndex(Index index) {
-        throw new UnsupportedOperationException("index type not handled: " + index);
+        throw new UnsupportedOperationException(String.format("index type not handled: %s", index));
     }
 }

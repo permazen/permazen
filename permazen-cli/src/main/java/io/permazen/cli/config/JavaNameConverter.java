@@ -25,7 +25,7 @@ public class JavaNameConverter implements ValueConverter<String> {
     @Override
     public String convert(String value) {
         if (!value.matches(NAME_PATTERN))
-            throw new ValueConversionException("invalid Java " + this.what + " name");
+            throw new ValueConversionException(String.format("invalid Java %s name", this.what));
         return value;
     }
 

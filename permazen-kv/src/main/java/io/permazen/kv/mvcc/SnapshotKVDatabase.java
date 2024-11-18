@@ -398,9 +398,9 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
                     // Mark transaction for failure
                     i.remove();
-                    victim.error = new RetryKVTransactionException(victim, "transaction is based on version "
-                      + victim.baseVersion + " but the transaction committed at version "
-                      + this.currentVersion + " contains conflicting writes");
+                    victim.error = new RetryKVTransactionException(victim, String.format(
+                      "transaction is based on version %d but the transaction committed at version %d contains conflicting writes",
+                      victim.baseVersion, this.currentVersion));
                     if (this.log.isTraceEnabled())
                         this.log.trace("removed conflicting transaction {} (new total {})", victim, --numTx);
 

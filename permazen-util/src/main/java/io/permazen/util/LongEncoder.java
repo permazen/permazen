@@ -584,7 +584,7 @@ public final class LongEncoder {
     public static int decodeLength(int first) {
         first &= 0xff;
         if (first == 0x00 || first == 0xff)
-            throw new IllegalArgumentException("invalid encoded value starting with 0x" + Integer.toHexString(first));
+            throw new IllegalArgumentException(String.format("invalid encoded value starting with 0x%02x", first));
         if (first < MIN_SINGLE_BYTE_ENCODED)
             return 1 + MIN_SINGLE_BYTE_ENCODED - first;
         if (first > MAX_SINGLE_BYTE_ENCODED)

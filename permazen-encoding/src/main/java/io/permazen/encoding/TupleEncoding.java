@@ -160,7 +160,7 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
         Preconditions.checkArgument(tuple != null, "null tuple");
         final List<Object> list = tuple.asList();
         if (list.size() != this.size)
-            throw new IllegalArgumentException("tuple has the wrong cardinality " + list.size() + " != " + this.size);
+            throw new IllegalArgumentException(String.format("tuple has the wrong cardinality %d != %d", list.size(), this.size));
         return list;
     }
 

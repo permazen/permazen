@@ -83,7 +83,7 @@ public class Main extends AbstractMain implements GUIConfig {
             return 1;
         }
         if (this.schemaClasses == null) {
-            System.err.println(this.getName() + ": no schema classes defined; please specify using `--pkg'");
+            System.err.println(this.getName() + ": no schema classes defined; please specify using \"--pkg\"");
             return 1;
         }
 
@@ -100,7 +100,7 @@ public class Main extends AbstractMain implements GUIConfig {
                     e.printStackTrace(System.err);
             }
             if (this.root == null) {
-                System.err.println(this.getName() + ": can't determine install directory; please specify `--root dir'");
+                System.err.println(this.getName() + ": can't determine install directory; please specify \"--root dir\"");
                 return 1;
             }
         }

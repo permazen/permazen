@@ -38,27 +38,27 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
     @Override
     public String toString(T value) {
         if (value == null)
-            throw new IllegalArgumentException("illegal null value for primitive type " + this.primitive);
+            throw new IllegalArgumentException(String.format("illegal null value for primitive type %s", this.primitive));
         return String.valueOf(value);
     }
 
     @Override
     public T validate(Object obj) {
         if (obj == null)
-            throw new IllegalArgumentException("illegal null value for primitive type " + this.primitive);
+            throw new IllegalArgumentException(String.format("illegal null value for primitive type %s", this.primitive));
         final Class<T> wrapperType = this.primitive.getWrapperType();
         try {
             return wrapperType.cast(obj);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("value " + obj + " has type "
-              + obj.getClass().getName() + " but type " + wrapperType.getName() + " is required");
+            throw new IllegalArgumentException(String.format(
+              "value %s has type %s but type %s is required", obj, obj.getClass().getName(), wrapperType.getName()));
         }
     }
 
     @Override
     public int compare(T value1, T value2) {
         if (value1 == null || value2 == null)
-            throw new IllegalArgumentException("illegal null value for primitive type " + this.primitive);
+            throw new IllegalArgumentException(String.format("illegal null value for primitive type %s", this.primitive));
         return this.primitive.compare(value1, value2);
     }
 
@@ -79,8 +79,10 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
 
         // Unwrap primitive wrapper types
         if (type instanceof PrimitiveWrapperEncoding) {
-            if (value == null)
-                throw new IllegalArgumentException("can't convert null value into primitive type " + this.primitive);
+            if (value == null) {
+                throw new IllegalArgumentException(String.format(
+                  "can't convert null value into primitive type %s", this.primitive));
+            }
             type = ((PrimitiveWrapperEncoding<S>)type).inner;
         }
 
@@ -93,7 +95,7 @@ public abstract class PrimitiveEncoding<T> extends AbstractEncoding<T> {
                 return this.convertNumber((Boolean)value ? 1 : 0);
             if (primitiveType instanceof CharacterEncoding)
                 return this.convertNumber((int)(Character)value);
-            throw new RuntimeException("internal error: " + primitiveType);
+            throw new RuntimeException(String.format("internal error: %s", primitiveType));
         }
 
         // Handle non-primitive types the regular way

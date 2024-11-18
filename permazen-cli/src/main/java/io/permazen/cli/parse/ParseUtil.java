@@ -81,8 +81,10 @@ public final class ParseUtil {
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
-        if (info == null)
-            throw new IllegalArgumentException("error accessing field \"" + name + "\": object " + id + " does not exist");
+        if (info == null) {
+            throw new IllegalArgumentException(String.format(
+              "error accessing field \"%s\": %s", name, String.format("object %s does not exist", id)));
+        }
         final ObjType objType = info.getObjType();
 
         // Find PermazenClass
@@ -90,13 +92,15 @@ public final class ParseUtil {
         try {
             jclass = session.getPermazen().getPermazenClass(objType.getStorageId());
         } catch (UnknownTypeException e) {
-            throw new IllegalArgumentException("error accessing field \"" + name + "\": " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format("error accessing field \"%s\": %s", name, e.getMessage()), e);
         }
 
         // Find PermazenField
         final PermazenField jfield = jclass.getFieldsByName().get(name);
-        if (jfield == null)
-            throw new IllegalArgumentException("error accessing field \"" + name + "\": there is no such field in " + objType);
+        if (jfield == null) {
+            throw new IllegalArgumentException(String.format(
+              "error accessing field \"%s\": %s", name, String.format("there is no such field in %s", objType)));
+        }
         return jfield;
     }
 
@@ -120,15 +124,18 @@ public final class ParseUtil {
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
-        if (info == null)
-            throw new IllegalArgumentException("error accessing field \"" + fieldName + "\": object " + id + " does not exist");
+        if (info == null) {
+            throw new IllegalArgumentException(String.format(
+              "error accessing field \"%s\": %s", fieldName, String.format("object %s does not exist", id)));
+        }
         final ObjType objType = info.getObjType();
 
         // Find the field
         return objType.getFields().values().stream()
           .filter(field -> field.getName().equals(fieldName))
           .findAny().orElseThrow(() ->
-            new IllegalArgumentException("error accessing field \"" + fieldName + "\": there is no such field in " + objType));
+            new IllegalArgumentException(String.format(
+              "error accessing field \"%s\": %s", fieldName, String.format("there is no such field in %s", objType))));
     }
 
     /**
@@ -158,7 +165,7 @@ public final class ParseUtil {
         try {
             return Class.forName(className, false, base.getClassLoader());
         } catch (Exception e) {
-            throw new RuntimeException("error loading array class \"" + className + "\"");
+            throw new RuntimeException(String.format("error loading array class \"%s\"", className));
         }
     }
 }

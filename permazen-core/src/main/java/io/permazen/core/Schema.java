@@ -235,7 +235,7 @@ public class Schema {
         Preconditions.checkArgument(storageId > 0, "invalid storageId");
         final ObjType objType = this.objTypesByStorageId.get(storageId);
         if (objType == null)
-            throw new UnknownTypeException("#" + storageId, this);
+            throw new UnknownTypeException(String.format("#%d", storageId), this);
         return objType;
     }
 
@@ -243,7 +243,7 @@ public class Schema {
 
     @Override
     public String toString() {
-        return this.schemaModel.getSchemaId() + "@" + this.schemaIndex;
+        return String.format("%s@%d", this.schemaModel.getSchemaId(), this.schemaIndex);
     }
 
 // Package Methods

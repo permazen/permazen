@@ -75,8 +75,10 @@ public class ImportContext {
         this.ptx = ptx;
         this.objectIdMapper = obj -> {
             final PermazenClass<?> modelClass = this.ptx.pdb.findPermazenClass(obj.getClass());
-            if (modelClass == null)
-                throw new IllegalArgumentException("no Permazen model class corresponds to POJO " + obj.getClass());
+            if (modelClass == null) {
+                throw new IllegalArgumentException(String.format(
+                  "no Permazen model class corresponds to POJO %s",  obj.getClass()));
+            }
             return ((PermazenObject)this.ptx.create(modelClass)).getObjId();
         };
     }

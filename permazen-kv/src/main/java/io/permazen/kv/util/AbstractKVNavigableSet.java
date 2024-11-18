@@ -476,12 +476,12 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         final byte[] key = writer.getBytes();
         if (this.keyRange != null && !this.keyRange.contains(key)) {
             if (fail)
-                throw new IllegalArgumentException("value is out of bounds: " + obj);
+                throw new IllegalArgumentException(String.format("value is out of bounds: %s", obj));
             return null;
         }
         if (this.keyFilter != null && !this.keyFilter.contains(key)) {
             if (fail)
-                throw new IllegalArgumentException("value is filtered out: " + obj);
+                throw new IllegalArgumentException(String.format("value is filtered out: %s", obj));
             return null;
         }
         return key;

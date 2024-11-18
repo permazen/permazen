@@ -91,7 +91,7 @@ class ObjInfo {
             try {
                 this.objType = this.getSchema().getObjType(this.id.getStorageId());
             } catch (IllegalArgumentException e) {
-                throw new InconsistentDatabaseException("object " + this.id + " has invalid storage ID", e);
+                throw new InconsistentDatabaseException(String.format("object %s has invalid storage ID", this.id), e);
             }
         }
         return this.objType;

@@ -68,7 +68,7 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
             try {
                 list.add(cl.asSubclass(Annotation.class));
             } catch (ClassCastException e) {
-                throw new IllegalArgumentException(cl + " is not an annotation type");
+                throw new IllegalArgumentException(String.format("%s is not an annotation type", cl));
             }
         }
         INIT_HACK.set(list);

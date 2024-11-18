@@ -109,7 +109,7 @@ public class ParseContext implements Cloneable {
     public Matcher matchPrefix(Pattern regex) {
         final Matcher matcher = this.tryPattern(regex);
         if (matcher == null)
-            throw buildException("expected input matching pattern \"" + regex + "\"");
+            throw buildException(String.format("expected input matching pattern \"%s\"", regex));
         return matcher;
     }
 
@@ -208,7 +208,7 @@ public class ParseContext implements Cloneable {
     public void expect(char ch) {
         if (this.read() != ch) {
             this.unread();
-            throw buildException("expected \"" + ch + "\"");
+            throw buildException(String.format("expected \"%c\"", ch));
         }
     }
 

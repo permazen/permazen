@@ -72,6 +72,6 @@ public final class LevelDBUtil {
         }
 
         // Nothing found
-        throw new RuntimeException("no " + DBFactory.class.getName() + " implementation found; tried: " + classNames);
+        throw new RuntimeException(String.format("no %s implementation found; tried: %s", DBFactory.class.getName(), classNames));
     }
 }

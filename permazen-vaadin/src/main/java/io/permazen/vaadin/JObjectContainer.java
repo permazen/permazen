@@ -311,7 +311,7 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, PermazenObject
         if (propertyDef instanceof ObjPropertyDef)
             return (V)((ObjPropertyDef<?>)propertyDef).extract(jobj);
         if (this.propertyScanner == null)
-            throw new IllegalArgumentException("unknown property: " + propertyDef.getName());
+            throw new IllegalArgumentException(String.format("unknown property: %s", propertyDef.getName()));
         return JObjectContainer.extractProperty(this.propertyScanner.getPropertyExtractor(), propertyDef, jobj);
     }
 

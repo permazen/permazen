@@ -319,7 +319,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
     private byte[] buildKey(int index) {
         if (index < 0)
-            throw new IndexOutOfBoundsException("index = " + index);
+            throw new IndexOutOfBoundsException(String.format("index = %d", index));
         final ByteWriter writer = new ByteWriter();
         writer.write(this.contentPrefix);
         UnsignedIntEncoder.write(writer, index);

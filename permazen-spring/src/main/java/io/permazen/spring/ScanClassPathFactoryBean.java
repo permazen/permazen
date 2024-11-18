@@ -102,7 +102,7 @@ abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?
             try {
                 classes.add(Class.forName(name, false, scanner.getResourceLoader().getClassLoader()));
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException("failed to load class \"" + name + "\"", e);
+                throw new RuntimeException(String.format("failed to load class \"%s\"", name), e);
             }
         }
 

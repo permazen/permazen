@@ -153,6 +153,6 @@ public interface SchemaFieldSwitch<R> {
      * @return visitor return value
      */
     default R caseDefault(SchemaField field) {
-        throw new UnsupportedOperationException("field type not handled: " + field);
+        throw new UnsupportedOperationException(String.format("field type not handled: %s", field));
     }
 }

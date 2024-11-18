@@ -100,7 +100,7 @@ class IndexKeyFilter implements KeyFilter {
         if (this.prefixLen == this.encodings.length)
             return true;
 
-        // Determine what part of `key' constituted the prefix + prefix fields
+        // Determine what part of "key" constituted the prefix + prefix fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         for (Encoding<?> encoding : this.prefixFilter.getEncodings())
             encoding.skip(reader);
@@ -126,7 +126,7 @@ class IndexKeyFilter implements KeyFilter {
         if (this.prefixLen == this.encodings.length)
             return next;
 
-        // Determine what part of `key' constituted the prefix + prefix fields
+        // Determine what part of "key" constituted the prefix + prefix fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         for (Encoding<?> encoding : this.prefixFilter.getEncodings())
             encoding.skip(reader);
@@ -156,7 +156,7 @@ class IndexKeyFilter implements KeyFilter {
         if (this.prefixLen == this.encodings.length)
             return next;
 
-        // Determine what part of `next' constituted the prefix + prefix fields
+        // Determine what part of "next" constituted the prefix + prefix fields
         final ByteReader reader = new ByteReader(key, this.prefix.length);
         try {
             for (Encoding<?> encoding : this.prefixFilter.getEncodings())

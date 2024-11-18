@@ -57,7 +57,7 @@ public class TypeTokenParser {
         final TypeToken<?> token = this.parse(new ParseContext(string));
         ctx.skipWhitespace();
         if (!ctx.isEOF())
-            throw new IllegalArgumentException("string contains trailing garbage at index " + ctx.getIndex());
+            throw new IllegalArgumentException(String.format("string contains trailing garbage at index %d", ctx.getIndex()));
         return token;
     }
 

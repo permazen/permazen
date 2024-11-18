@@ -204,7 +204,7 @@ public abstract class SchemaItem extends SchemaSupport {
                 }
             }
         }
-        throw new RuntimeException("internal error: didn't find " + reader.getName());
+        throw new RuntimeException(String.format("internal error: didn't find %s", reader.getName()));
     }
 
     /**

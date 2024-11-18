@@ -45,7 +45,7 @@ public class CliMain extends BasicCliMain {
         try {
             level = Level.valueOf(levelName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid logging level \"" + levelName + "\"", e);
+            throw new IllegalArgumentException(String.format("invalid logging level \"%s\"", levelName), e);
         }
         Configurator.setAllLevels("", level);
     }

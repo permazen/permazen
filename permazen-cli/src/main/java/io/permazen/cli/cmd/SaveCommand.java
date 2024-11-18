@@ -36,11 +36,11 @@ public class SaveCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Writes all database objects to the specified XML file. Objects can be read back in later via `load'.\n"
+        return "Writes all database objects to the specified XML file. Objects can be read back in later via \"load\".\n"
           + "By default, objects are written in the custom format; add the \"--plain\" flag to get the plain format.\n"
           + "You can optionally omit schemas or objects via \"--no-schemas\" and \"--no-objects\", respectively.\n"
           + "To include explicit storage ID's in the output, use the \"--storage-ids\" flag.\n"
-          + "Add the `--weak' flag for a weaker transaction consistency level in certain key/value stores to reduce conflicts.";
+          + "Add the \"--weak\" flag for a weaker transaction consistency level in certain key/value stores to reduce conflicts.";
     }
 
     @Override

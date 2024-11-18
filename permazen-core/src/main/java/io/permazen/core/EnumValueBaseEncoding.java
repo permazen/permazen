@@ -148,7 +148,7 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
             throw new IllegalArgumentException(String.format(
               "enum value %s has incorrect ordinal value %d != %d", value, ordinal, sameName.getOrdinal()));
         }
-        throw new IllegalArgumentException("unknown enum value " + value);
+        throw new IllegalArgumentException(String.format("unknown enum value %s", value));
     }
 
 // Object

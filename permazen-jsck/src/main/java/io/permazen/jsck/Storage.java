@@ -60,7 +60,7 @@ abstract class Storage<T extends io.permazen.core.SchemaItem> {
      */
     protected void validateObjectExists(JsckInfo info, ByteReader reader, ObjId id) {
         if (info.getConfig().isRepair() && info.getKVStore().get(id.getBytes()) == null)
-            throw new IllegalArgumentException("object " + id + " does not exist");
+            throw new IllegalArgumentException(String.format("object %s does not exist", id));
     }
 
     /**
@@ -76,9 +76,11 @@ abstract class Storage<T extends io.permazen.core.SchemaItem> {
         try {
             value = encoding.read(reader);
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("can't decode value of " + encoding + " because value is truncated");
+            throw new IllegalArgumentException(String.format(
+              "can't decode value of %s: %s", encoding, "value is truncated"));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("can't decode value of " + encoding + ": " + e.getMessage());
+            throw new IllegalArgumentException(String.format(
+              "can't decode value of %s: %s", encoding, e.getMessage()));
         }
         final int len = reader.getOffset() - off;
         final byte[] bytes = reader.getBytes(off, len);
@@ -88,13 +90,15 @@ abstract class Storage<T extends io.permazen.core.SchemaItem> {
         try {
             encoding.write(writer, value);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("decoding then re-encoding value "
-              + Jsck.ds(bytes) + " (" + value + ") using " + encoding + " throws " + e, e);
+            throw new IllegalArgumentException(String.format(
+              "decode/encode error for value %s (%s) using %s: %s",
+              Jsck.ds(bytes), value, encoding, String.format("encode threw %s", e)), e);
         }
         final byte[] bytes2 = writer.getBytes();
         if (!Arrays.equals(bytes2, bytes)) {
-            throw new IllegalArgumentException("decoding then re-encoding value "
-              + Jsck.ds(bytes) + " (" + value + ") using " + encoding + " results in" + " a different value " + Jsck.ds(bytes2));
+            throw new IllegalArgumentException(String.format(
+              "decode/encode error for value %s (%s) using %s: %s",
+              Jsck.ds(bytes), value, encoding, String.format("got a different value %s", Jsck.ds(bytes2))));
         }
 
         // Done
@@ -112,8 +116,8 @@ abstract class Storage<T extends io.permazen.core.SchemaItem> {
 
     protected void validateEOF(ByteReader reader) {
         if (reader.remain() > 0) {
-            throw new IllegalArgumentException("value contains extra trailing garbage "
-              + Jsck.ds(reader.getBytes(reader.getOffset())));
+            throw new IllegalArgumentException(String.format(
+              "value contains extra trailing garbage %s", Jsck.ds(reader.getBytes(reader.getOffset()))));
         }
     }
 

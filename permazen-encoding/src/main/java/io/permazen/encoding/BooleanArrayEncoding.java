@@ -56,7 +56,7 @@ loop:   while (true) {
                     bits.set(count++);
                     break;
                 default:
-                    throw new IllegalArgumentException("invalid encoding of " + this);
+                    throw new IllegalArgumentException(String.format("invalid encoding of %s", this));
                 }
             }
         }

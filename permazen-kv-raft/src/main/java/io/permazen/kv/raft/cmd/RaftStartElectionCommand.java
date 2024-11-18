@@ -40,7 +40,7 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
                 try {
                     role = (NonLeaderRole)db.getCurrentRole();
                 } catch (ClassCastException e) {
-                    throw new Exception("current role is not follower or candidate; try `raft-status' for more info");
+                    throw new Exception("current role is not follower or candidate; try \"raft-status\" for more info");
                 }
 
                 // Trigger an election

@@ -86,7 +86,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
 
     static <T> T noNull(T value, String name) {
         if (value == null)
-            throw new IllegalArgumentException("null " + name);
+            throw new IllegalArgumentException(String.format("null %s", name));
         return value;
     }
 

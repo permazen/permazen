@@ -136,7 +136,7 @@ public abstract class Message {
         case Message.VERSION_3:
             break;
         default:
-            throw new IllegalArgumentException("unrecognized message format version " + version);
+            throw new IllegalArgumentException(String.format("unrecognized message format version %s", version));
         }
     }
 
@@ -211,12 +211,14 @@ public abstract class Message {
             msg = new PingResponse(buf, version);
             break;
         default:
-            throw new IllegalArgumentException("invalid message type " + type);
+            throw new IllegalArgumentException(String.format("invalid message type %s", type));
         }
 
         // Check for trailing garbage
-        if (buf.hasRemaining())
-            throw new IllegalArgumentException("buffer contains " + buf.remaining() + " bytes of extra garbage after " + msg);
+        if (buf.hasRemaining()) {
+            throw new IllegalArgumentException(String.format(
+              "buffer contains %d bytes of extra garbage after %s", buf.remaining(), msg));
+        }
 
         // Done
         return msg;
@@ -240,8 +242,10 @@ public abstract class Message {
 
         // Encode message
         this.writeTo(buf, version);
-        if (buf.hasRemaining())
-            throw new RuntimeException("internal error: " + buf.remaining() + " remaining bytes in buffer from " + this);
+        if (buf.hasRemaining()) {
+            throw new RuntimeException(String.format(
+              "internal error: %d remaining bytes in buffer from %s", buf.remaining(), this));
+        }
         return buf.flip();
     }
 
@@ -316,7 +320,7 @@ public abstract class Message {
         Preconditions.checkArgument(buf != null, "null buf");
         final int numBytes = UnsignedIntEncoder.read(buf);
         if (numBytes > buf.remaining())
-            throw new IllegalArgumentException("bogus buffer length " + numBytes + " > " + buf.remaining());
+            throw new IllegalArgumentException(String.format("bogus buffer length %d > %d", numBytes, buf.remaining()));
         final ByteBuffer result = buf.slice().limit(numBytes);
         buf.position(buf.position() + numBytes);
         return result;
@@ -374,16 +378,16 @@ public abstract class Message {
             else if ((b1 & 0xe0) == 0xc0) {
                 final int b2 = buf.get() & 0xff;
                 if ((b2 & 0xc0) != 0x80)
-                    throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1 + " " + b2);
+                    throw new IllegalArgumentException(String.format("invalid UTF-8 sequence: 0x%02x 0x%02x", b1, b2));
                 writer.append((char)((b1 & 0x1f) << 6 | (b2 & 0x3f)));
             } else if ((b1 & 0xf0) == 0xe0) {
                 final int b2 = buf.get() & 0xff;
                 final int b3 = buf.get() & 0xff;
                 if ((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80)
-                    throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1 + " " + b2 + " " + b3);
+                    throw new IllegalArgumentException(String.format("invalid UTF-8 sequence: 0x%02x 0x%02x 0x%02x", b1, b2, b3));
                 writer.append((char)(((b1 & 0x0f) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f)));
             } else
-                throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1);
+                throw new IllegalArgumentException(String.format("invalid UTF-8 sequence: 0x%02x", b1));
         }
         return writer.toString();
     }

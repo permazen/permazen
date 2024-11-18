@@ -74,7 +74,7 @@ public class WordParser implements Parser<String> {
             if (!sortedWords.contains(text))
                 throw new IllegalArgumentException(String.format("unknown %s \"%s\"", this.description, text));
         } else if (text.length() == 0)
-            throw new IllegalArgumentException("missing " + this.description);
+            throw new IllegalArgumentException(String.format("missing %s", this.description));
 
         // Done
         return text;

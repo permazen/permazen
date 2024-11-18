@@ -331,8 +331,9 @@ public class FollowerRole extends NonLeaderRole {
 
             // Otherwise, we can only handle an initial config change that is adding the local node
             if (configChange == null || !configChange[0].equals(this.raft.identity) || configChange[1] == null) {
-                throw new RetryKVTransactionException(tx, "unconfigured node: an initial configuration change adding"
-                  + " the local node (\"" + this.raft.identity + "\") as the first member of a new cluster is required");
+                throw new RetryKVTransactionException(tx, String.format(
+                  "unconfigured node: an initial configuration change adding the local node"
+                  + " (\"%s\") as the first member of a new cluster is required", this.raft.identity));
             }
 
             // Create a new cluster if needed
@@ -884,8 +885,9 @@ public class FollowerRole extends NonLeaderRole {
 
                 // Fail if rebasable and the base index doesn't exactly match
                 if (tx.isRebasable() && (tx.getBaseTerm() != term || tx.getBaseIndex() != index)) {
-                    this.raft.fail(tx, new RetryKVTransactionException(tx, "snapshot install of " + index + "t" + term
-                      + " invalidated transaction base " + tx.getBaseIndex() + "t" + tx.getBaseTerm()));
+                    this.raft.fail(tx, new RetryKVTransactionException(tx, String.format(
+                      "snapshot install of %dt%d invalidated transaction base %dt%d",
+                      index, term, tx.getBaseIndex(), tx.getBaseTerm())));
                 }
             }
 

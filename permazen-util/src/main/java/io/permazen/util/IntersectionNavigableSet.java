@@ -146,8 +146,8 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
                 }
 
                 // Oops, sets are not ordered properly
-                throw new IllegalStateException("internal error: NavigableSet.ceiling() returned a mis-ordered element "
-                  + ceiling + " < " + candidate);
+                throw new IllegalStateException(String.format(
+                  "internal error: NavigableSet.ceiling() returned a mis-ordered element %s < %s", ceiling, candidate));
             }
 
             // We found candidate in all of the sets

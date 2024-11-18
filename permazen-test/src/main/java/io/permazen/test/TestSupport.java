@@ -82,9 +82,9 @@ public abstract class TestSupport {
     protected File createTempDirectory() throws IOException {
         File file = File.createTempFile(this.getClass().getName(), "");
         if (!file.delete())
-            throw new IOException("error deleting \"" + file + "\"");
+            throw new IOException(String.format("error deleting \"%s\"", file));
         if (!file.mkdir())
-            throw new IOException("error creating directory \"" + file + "\"");
+            throw new IOException(String.format("error creating directory \"%s\"", file));
         return file;
     }
 
@@ -138,7 +138,7 @@ public abstract class TestSupport {
         try {
             return this.readResource(file.toURI().toURL());
         } catch (MalformedURLException e) {
-            throw new RuntimeException("can't URL'ify file: " + file);
+            throw new RuntimeException(String.format("can't URL'ify file: %s", file));
         }
     }
 
@@ -151,7 +151,7 @@ public abstract class TestSupport {
     protected String readResource(String path) {
         final URL url = getClass().getResource(path);
         if (url == null)
-            throw new RuntimeException("can't find resource \"" + path + "\"");
+            throw new RuntimeException(String.format("can't find resource \"%s\"", path));
         return this.readResource(url);
     }
 
@@ -171,7 +171,7 @@ public abstract class TestSupport {
                 writer.write(buf, 0, r);
             return writer.toString();
         } catch (IOException e) {
-            throw new RuntimeException("error reading from " + url, e);
+            throw new RuntimeException(String.format("error reading from %s", url), e);
         } finally {
             if (reader != null) {
                 try {
@@ -377,7 +377,8 @@ public abstract class TestSupport {
             case 1:
                 break;
             default:
-                throw new RuntimeException("diff(1) error: " + new String(runner.getStandardError(), StandardCharsets.UTF_8));
+                throw new RuntimeException(String.format(
+                  "diff(1) error: %s", new String(runner.getStandardError(), StandardCharsets.UTF_8)));
             }
 
             // Skip first two lines (filenames)

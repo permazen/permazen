@@ -174,8 +174,8 @@ public class FoundationKVStore implements KVStore {
         if (this.keyPrefix == null)
             return key;
         if (!ByteUtil.isPrefixOf(this.keyPrefix, key)) {
-            throw new IllegalArgumentException("read key " + ByteUtil.toString(key) + " not having "
-              + ByteUtil.toString(this.keyPrefix) + " as a prefix");
+            throw new IllegalArgumentException(String.format(
+              "read key %s not having %s as a prefix", ByteUtil.toString(key), ByteUtil.toString(this.keyPrefix)));
         }
         final byte[] stripped = new byte[key.length - this.keyPrefix.length];
         System.arraycopy(key, this.keyPrefix.length, stripped, 0, stripped.length);

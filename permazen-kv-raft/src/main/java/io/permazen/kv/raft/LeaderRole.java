@@ -1084,8 +1084,10 @@ public class LeaderRole extends Role {
             // Disallow a configuration change that removes the last node in a cluster
             if (this.raft.currentConfig.size() == 1 && configChange[1] == null) {
                 final String lastNode = this.raft.currentConfig.keySet().iterator().next();
-                if (configChange[0].equals(lastNode))
-                    throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");
+                if (configChange[0].equals(lastNode)) {
+                    throw new IllegalArgumentException(String.format(
+                      "can't remove the last node in a cluster (\"%s\")", lastNode));
+                }
             }
         }
 

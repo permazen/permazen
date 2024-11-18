@@ -397,7 +397,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 try {
                     this.readStateFile();
                 } catch (IOException e) {
-                    throw new RuntimeException("error reading persistent state file " + this.stateFile, e);
+                    throw new RuntimeException(String.format("error reading persistent state file %s", this.stateFile), e);
                 }
             }
 
@@ -858,14 +858,15 @@ public class FallbackKVDatabase implements KVDatabase {
         try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(this.stateFile)))) {
             final int cookie = input.readInt();
             if (cookie != STATE_FILE_COOKIE)
-                throw new IOException("invalid state file " + this.stateFile + " (incorrect header)");
+                throw new IOException(String.format("invalid state file %s (incorrect header)", this.stateFile));
             final int formatVersion = input.readInt();
             switch (formatVersion) {
             case CURRENT_FORMAT_VERSION:
                 break;
             default:
-                throw new IOException("invalid state file " + this.stateFile + " format version (expecting "
-                  + CURRENT_FORMAT_VERSION + ", found " + formatVersion + ")");
+                throw new IOException(String.format(
+                  "invalid state file %s format version (expecting %d, found %d)",
+                  this.stateFile, CURRENT_FORMAT_VERSION, formatVersion));
             }
             final int numTargets = input.readInt();
             if (numTargets != this.targets.size()) {
@@ -875,7 +876,7 @@ public class FallbackKVDatabase implements KVDatabase {
             }
             targetIndex = input.readInt();
             if (targetIndex < -1 || targetIndex >= this.targets.size())
-                throw new IOException("invalid state file " + this.stateFile + " target index " + targetIndex);
+                throw new IOException(String.format("invalid state file %s target index %d", this.stateFile, targetIndex));
             standaloneActiveTime = input.readLong();
             lastActiveTimes = new long[numTargets];
             for (int i = 0; i < numTargets; i++)

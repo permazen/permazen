@@ -52,7 +52,7 @@ class JSSet<E> extends EncodingSet<E> {
         try {
             key = this.encodeVisible(newValue, true);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("can't add invalid value to " + this.field + ": " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format("can't add invalid value to %s: %s", this.field, e.getMessage()), e);
         }
         return this.tx.mutateAndNotify(this.id, () -> this.doAdd(newValue, key));
     }

@@ -164,6 +164,6 @@ public interface FieldSwitch<R> {
      * @return visitor return value
      */
     default <T> R caseField(Field<T> field) {
-        throw new UnsupportedOperationException("field type not handled: " + field);
+        throw new UnsupportedOperationException(String.format("field type not handled: %s", field));
     }
 }

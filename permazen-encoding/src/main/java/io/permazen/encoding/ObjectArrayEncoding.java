@@ -60,7 +60,7 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
             if (this.inlineValue)
                 reader.unread();
             else if (first != VALUE)
-                throw new IllegalArgumentException("invalid encoding of " + this);
+                throw new IllegalArgumentException(String.format("invalid encoding of %s", this));
             list.add(this.elementEncoding.read(reader));
         }
         return this.createArray(list);
@@ -87,7 +87,7 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
             if (this.inlineValue)
                 reader.unread();
             else if (first != VALUE)
-                throw new IllegalArgumentException("invalid encoding of " + this);
+                throw new IllegalArgumentException(String.format("invalid encoding of %s", this));
             this.elementEncoding.skip(reader);
         }
     }

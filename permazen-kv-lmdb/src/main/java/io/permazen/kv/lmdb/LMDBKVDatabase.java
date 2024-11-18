@@ -199,9 +199,9 @@ public abstract class LMDBKVDatabase<T> implements KVDatabase {
         // Check configuration
         Preconditions.checkState(this.directory != null, "no directory configured");
         if (!this.directory.exists() && !this.directory.mkdirs())
-            throw new RuntimeException("failed to create directory " + this.directory);
+            throw new RuntimeException(String.format("failed to create directory %s", this.directory));
         if (!this.directory.isDirectory())
-            throw new RuntimeException("file " + this.directory + " is not a directory");
+            throw new RuntimeException(String.format("file %s is not a directory", this.directory));
 
         // Open environment
         if (this.log.isDebugEnabled())

@@ -657,11 +657,11 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             break;
         case WAIT_TIMEOUT_EXPIRED:
             this.rollback(tx);
-            throw new RetryKVTransactionException(tx, "could not acquire lock after " + tx.waitTimeout + "ms");
+            throw new RetryKVTransactionException(tx, String.format("could not acquire lock after %dms", tx.waitTimeout));
         case HOLD_TIMEOUT_EXPIRED:
             this.rollback(tx);
-            throw new KVTransactionTimeoutException(tx,
-              "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
+            throw new KVTransactionTimeoutException(tx, String.format(
+              "transaction taking too long: hold timeout of %dms has expired", this.lockManager.getHoldTimeout()));
         default:
             throw new RuntimeException("internal error");
         }

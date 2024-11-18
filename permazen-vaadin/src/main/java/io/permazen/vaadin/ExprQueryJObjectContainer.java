@@ -91,8 +91,9 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
         else if (content instanceof Iterable)
             iterator = ((Iterable<?>)content).iterator();
         else {
-            throw new EvalException("expression must evaluate to an Iterable or Iterator; found "
-              + (content != null ? content.getClass().getName() : "null") + " instead");
+            throw new EvalException(String.format(
+              "expression must evaluate to an Iterable or Iterator; found %s instead",
+              content != null ? content.getClass().getName() : "null"));
         }
 
         // Reload container with results of expression

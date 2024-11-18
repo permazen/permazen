@@ -501,14 +501,16 @@ public abstract class Role {
 
             // The commit log entry has already been forgotten. We don't know whether it actually got committed
             // or not, so the transaction must be retried.
-            throw new RetryKVTransactionException(tx, "commit index " + commitIndex
-              + " < first index " + this.raft.log.getFirstIndex() + " for which the term is known");
+            throw new RetryKVTransactionException(tx, String.format(
+              "commit index %d < first index %d for which the term is known",
+              commitIndex, this.raft.log.getFirstIndex()));
         }
 
         // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
         if (commitTerm != commitIndexActualTerm) {
-            throw new RetryKVTransactionException(tx, "leader was deposed during commit and transaction's commit log entry "
-              + commitIndex + "t" + commitTerm + " overwritten by " + commitIndex + "t" + commitIndexActualTerm);
+            throw new RetryKVTransactionException(tx, String.format(
+              "leader was deposed during commit and transaction's commit log entry %dt%d overwritten by %dt%d",
+              commitIndex, commitTerm, commitIndex, commitIndexActualTerm));
         }
 
         // Has the transaction's commit log entry been committed yet?
@@ -611,8 +613,9 @@ public abstract class Role {
                         this.dumpConflicts(tx.view.getReads(), logEntry.getWrites(),
                           "local txId=" + tx.txId + " fails due to conflicts with " + logEntry);
                     }
-                    throw new TransactionConflictException(tx, conflict, "writes of committed transaction at index " + baseIndex
-                      + " conflict with transaction reads from transaction base index " + tx.getBaseIndex() + ": " + conflict);
+                    throw new TransactionConflictException(tx, conflict, String.format(
+                      "writes of committed transaction at index %d conflict with reads from transaction base index %d: %s",
+                      baseIndex, tx.getBaseIndex(), conflict));
                 }
 
                 // If we reach the transaction's commit log entry (if any), we can stop

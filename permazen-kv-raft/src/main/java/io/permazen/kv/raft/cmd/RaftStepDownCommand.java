@@ -40,7 +40,7 @@ public class RaftStepDownCommand extends AbstractRaftCommand {
                 try {
                     leader = (LeaderRole)db.getCurrentRole();
                 } catch (ClassCastException e) {
-                    throw new Exception("current role is not leader; try `raft-status' for more info");
+                    throw new Exception("current role is not leader; try \"raft-status\" for more info");
                 }
 
                 // Step down

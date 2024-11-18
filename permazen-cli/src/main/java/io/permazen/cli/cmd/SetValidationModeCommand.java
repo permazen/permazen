@@ -27,7 +27,8 @@ public class SetValidationModeCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Sets the validation mode for Permazen transactions, one of `disabled', `manual', or `automatic' (the default).";
+        return "Sets the validation mode for Permazen transactions,"
+         + " one of \"disabled\", \"manual\", or \"automatic\" (the default).";
     }
 
     @Override

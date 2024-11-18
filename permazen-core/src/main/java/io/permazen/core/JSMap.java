@@ -58,7 +58,8 @@ class JSMap<K, V> extends EncodingMap<K, V> {
             key = this.encodeVisibleKey(keyObj, true);
             value = this.encodeValue(valueObj);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("can't add invalid key/value pair to " + this.field + ": " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format(
+              "can't add invalid key/value pair to %s: %s", this.field, e.getMessage()), e);
         }
         return this.tx.mutateAndNotify(this.id, () -> this.doPut(keyObj, valueObj, key, value));
     }

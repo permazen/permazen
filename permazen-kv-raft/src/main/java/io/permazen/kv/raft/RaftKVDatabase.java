@@ -1045,7 +1045,7 @@ public class RaftKVDatabase implements KVDatabase {
             if (!this.logDir.exists())
                 Files.createDirectories(this.logDir.toPath());
             if (!this.logDir.isDirectory())
-                throw new IOException("file \"" + this.logDir + "\" is not a directory");
+                throw new IOException(String.format("file \"%s\" is not a directory", this.logDir));
 
             // Start k/v store
             this.kv.start();
@@ -1647,8 +1647,8 @@ public class RaftKVDatabase implements KVDatabase {
                             switch (tx.getState()) {
                             case COMMIT_READY:
                             case COMMIT_WAITING:
-                                this.fail(tx, new RetryKVTransactionException(tx, "transaction failed to complete within "
-                                  + tx.getTimeout() + "ms (in state " + tx.getState() + ")"));
+                                this.fail(tx, new RetryKVTransactionException(tx, String.format(
+                                  "transaction failed to complete within %dms (in state %s)", tx.getTimeout(), tx.getState())));
                                 break;
                             default:
                                 break;
@@ -2516,8 +2516,8 @@ public class RaftKVDatabase implements KVDatabase {
         try {
             return LongEncoder.decode(value);
         } catch (IllegalArgumentException e) {
-            throw new IOException("can't interpret encoded long value "
-              + ByteUtil.toString(value) + " under key " + ByteUtil.toString(key), e);
+            throw new IOException(String.format(
+              "can't interpret encoded %s value %s under key %s", "long", ByteUtil.toString(value), ByteUtil.toString(key)), e);
         }
     }
 
@@ -2529,8 +2529,8 @@ public class RaftKVDatabase implements KVDatabase {
         try {
             return input.readUTF();
         } catch (IOException e) {
-            throw new IOException("can't interpret encoded string value "
-              + ByteUtil.toString(value) + " under key " + ByteUtil.toString(key), e);
+            throw new IOException(String.format(
+              "can't interpret encoded %s value %s under key %s", "string", ByteUtil.toString(value), ByteUtil.toString(key)), e);
         }
     }
 
@@ -2561,8 +2561,8 @@ public class RaftKVDatabase implements KVDatabase {
                 config.put(data.readUTF(), data.readUTF());
             }
         } catch (IOException e) {
-            throw new IOException("can't interpret encoded config "
-              + ByteUtil.toString(value) + " under key " + ByteUtil.toString(key), e);
+            throw new IOException(String.format(
+              "can't interpret encoded %s value %s under key %s", "config", ByteUtil.toString(value), ByteUtil.toString(key)), e);
         }
         return config;
     }

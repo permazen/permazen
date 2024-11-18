@@ -145,16 +145,15 @@ public class Jsck {
             // Override format version, if needed
             if (formatVersionOverride != 0 && formatVersionOverride != info.getFormatVersion()) {
                 final byte[] newValue = Encodings.UNSIGNED_INT.encode(formatVersionOverride);
-                info.handle(new InvalidValue(formatVersionKey, newValue).setDetail(String.format(
-                  "forcibly override format version %d with override version %d",
-                  info.getFormatVersion(), formatVersionOverride)));
+                info.handle(new InvalidValue(formatVersionKey, newValue).setDetail(
+                  "forcibly override format version %d with override version %d", info.getFormatVersion(), formatVersionOverride));
             }
         } catch (IllegalArgumentException e) {
             if (formatVersionOverride == 0)
                 throw e;
             info.setFormatVersion(formatVersionOverride);
             final byte[] newValue = Encodings.UNSIGNED_INT.encode(formatVersionOverride);
-            info.handle(new InvalidValue(formatVersionKey, val, newValue).setDetail(e.getMessage()));
+            info.handle(new InvalidValue(formatVersionKey, val, newValue).setDetail("%s", e.getMessage()));
         }
 
         // Check empty space before schema table
@@ -169,9 +168,9 @@ public class Jsck {
             try {
                 schema = Layout.decodeSchema(new ByteReader(bytes));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid encoded schema: " + e.getMessage(), e);
+                throw new IllegalArgumentException(String.format("invalid encoded schema: %s", e.getMessage()), e);
             } catch (InvalidSchemaException e) {
-                throw new IllegalArgumentException("invalid schema model: " + e.getMessage(), e);
+                throw new IllegalArgumentException(String.format("invalid schema model: %s", e.getMessage()), e);
             }
             schema.lockDown(true);
 
@@ -204,9 +203,9 @@ public class Jsck {
             try {
                 schemaId = new SchemaId(Encodings.STRING.read(reader));
                 if (reader.remain() > 0)
-                    throw new IllegalArgumentException("trailing garbage " + Jsck.ds(reader, reader.getOffset()));
+                    throw new IllegalArgumentException(String.format("trailing garbage %s", Jsck.ds(reader, reader.getOffset())));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid schema ID: " + e.getMessage(), e);
+                throw new IllegalArgumentException(String.format("invalid schema ID: %s", e.getMessage()), e);
             }
             return schemaId;
         };
@@ -228,8 +227,8 @@ public class Jsck {
             final SchemaBundle.Encoded encoded = new SchemaBundle.Encoded(schemaBytes, storageIdBytes);
             info.setSchemaBundle(new SchemaBundle(encoded, this.config.getEncodingRegistry()));
         } catch (InvalidSchemaException e) {
-            throw new IllegalArgumentException("inconsistent schema and/or storage ID tables (override(s) required): "
-              + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format(
+              "inconsistent schema and/or storage ID tables (override(s) required): %s", e.getMessage()), e);
         }
 
         // Build storage objects
@@ -279,9 +278,9 @@ public class Jsck {
 
                     // The next key should be an object ID
                     if (idKey.length < ObjId.NUM_BYTES) {
-                        info.handle(new InvalidKey(pair).setDetail(String.format(
+                        info.handle(new InvalidKey(pair).setDetail(
                           "invalid key %s in %s: key is truncated (length %d < %d)",
-                          Jsck.ds(idKey), rangeDescription, idKey.length, ObjId.NUM_BYTES)));
+                          Jsck.ds(idKey), rangeDescription, idKey.length, ObjId.NUM_BYTES));
                         continue;
                     }
                     final ByteReader idKeyReader = new ByteReader(idKey);
@@ -306,9 +305,9 @@ public class Jsck {
                             } catch (IllegalArgumentException | UnknownFieldException e) {
                                 bestGuess = "some unknown field";
                             }
-                            info.handle(new InvalidKey(pair).setDetail(String.format(
+                            info.handle(new InvalidKey(pair).setDetail(
                               "invalid key %s in %s: no such object %s exists (possibly orphaned content for %s)",
-                              Jsck.ds(idKey), rangeDescription, id, bestGuess)));
+                              Jsck.ds(idKey), rangeDescription, id, bestGuess));
                             break;
                         }
 
@@ -318,9 +317,9 @@ public class Jsck {
                             if ((schemaIndex = Encodings.UNSIGNED_INT.read(metaData)) == 0)
                                 throw new IllegalArgumentException("schema index is zero");
                         } catch (IllegalArgumentException e) {
-                            info.handle(new InvalidValue(pair).setDetail(String.format(
+                            info.handle(new InvalidValue(pair).setDetail(
                               "invalid meta-data %s for object %s: invalid object schema index: %s",
-                              Jsck.ds(metaData), id, e.getMessage())));
+                              Jsck.ds(metaData), id, e.getMessage()));
                             break;
                         }
 
@@ -328,9 +327,9 @@ public class Jsck {
                         try {
                             schema = info.getSchemaBundle().getSchema(schemaIndex);
                         } catch (IllegalArgumentException e) {
-                            info.handle(new InvalidValue(pair).setDetail(String.format(
+                            info.handle(new InvalidValue(pair).setDetail(
                               "invalid schema index %d in object %s meta-data %s: %s",
-                              schemaIndex, id, Jsck.ds(metaData), e.getMessage())));
+                              schemaIndex, id, Jsck.ds(metaData), e.getMessage()));
                             break;
                         }
 
@@ -342,9 +341,8 @@ public class Jsck {
                             if (metaData.remain() > 0)
                                 throw new IllegalArgumentException("meta-data contains trailing garbage");
                         } catch (IllegalArgumentException e) {
-                            info.handle(new InvalidValue(pair, new byte[] { 0 }).setDetail(String.format(
-                              "invalid meta-data %s for object %s: %s",
-                              Jsck.ds(metaData), id, e.getMessage())));
+                            info.handle(new InvalidValue(pair, new byte[] { 0 }).setDetail(
+                              "invalid meta-data %s for object %s: %s", Jsck.ds(metaData), id, e.getMessage()));
                         }
                     } while (false);
 
@@ -386,7 +384,7 @@ public class Jsck {
                     try {
                         index.validateIndexEntry(info, reader);
                     } catch (IllegalArgumentException e) {
-                        info.handle(new InvalidKey(pair).setDetail(index, e.getMessage()));
+                        info.handle(new InvalidKey(pair).setDetail(index, "%s", e.getMessage()));
                         continue;
                     }
 
@@ -420,8 +418,8 @@ public class Jsck {
                         throw new IllegalArgumentException("schema index is zero");
                     schema = info.getSchemaBundle().getSchema(schemaIndex);
                 } catch (IllegalArgumentException e) {
-                    info.handle(new InvalidKey(pair).setDetail(String.format(
-                      "invalid schema index key %s: %s", Jsck.ds(reader.getBytes()), e.getMessage())));
+                    info.handle(new InvalidKey(pair).setDetail(
+                      "invalid schema index key %s: %s", Jsck.ds(reader.getBytes()), e.getMessage()));
                     continue;
                 }
 
@@ -442,9 +440,9 @@ public class Jsck {
                     if (kv.get(id.getBytes()) == null)
                         throw new IllegalArgumentException(String.format("object %s does not exist", id));
                 } catch (IllegalArgumentException e) {
-                    info.handle(new InvalidKey(pair).setDetail(String.format(
+                    info.handle(new InvalidKey(pair).setDetail(
                       "invalid schema index value %s under schema index %d: %s",
-                      Jsck.ds(reader.getBytes()), schemaIndex, e.getMessage())));
+                      Jsck.ds(reader.getBytes()), schemaIndex, e.getMessage()));
                     continue;
                 }
 
@@ -454,9 +452,9 @@ public class Jsck {
 
                 // Validate value, which should be empty
                 if (pair.getValue().length > 0) {
-                    info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail(String.format(
+                    info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail(
                       "invalid schema index entry %s for \"%s\" (schema index %d): value is %s but should be empty",
-                      Jsck.ds(reader.getBytes()), schema.getSchemaId(), schemaIndex, Jsck.ds(pair.getValue()))));
+                      Jsck.ds(reader.getBytes()), schema.getSchemaId(), schemaIndex, Jsck.ds(pair.getValue())));
                 }
             }
         }
@@ -488,8 +486,8 @@ public class Jsck {
                 final byte[] key = Encodings.UNSIGNED_INT.encode(schemaIndex);
                 final byte[] schemaVal = kv.get(key);
                 if (schemaVal != null) {
-                    info.handle(new InvalidValue("obsolete schema", key, schemaVal, null).setDetail(String.format(
-                      "schema \"%s\"", schema.getSchemaId())), true);
+                    info.handle(new InvalidValue("obsolete schema", key, schemaVal, null).setDetail(
+                      "schema \"%s\"", schema.getSchemaId()), true);
                 }
             });
 
@@ -498,8 +496,8 @@ public class Jsck {
                 final byte[] key = Encodings.UNSIGNED_INT.encode(storageId);
                 final byte[] idVal = kv.get(key);
                 if (idVal != null) {
-                    info.handle(new InvalidValue("obsolete storage ID", key, idVal, null).setDetail(String.format(
-                      "storage ID %d for schema ID \"%s\"", storageId, schemaId)), true);
+                    info.handle(new InvalidValue("obsolete storage ID", key, idVal, null).setDetail(
+                      "storage ID %d for schema ID \"%s\"", storageId, schemaId), true);
                 }
             });
         }
@@ -549,7 +547,7 @@ public class Jsck {
 
                     // Invalid key?
                     if (index == 0) {
-                        info.handle(new InvalidKey(pair).setDetail(e.getMessage()));
+                        info.handle(new InvalidKey(pair).setDetail("%s", e.getMessage()));
                         continue;
                     }
 
@@ -557,12 +555,12 @@ public class Jsck {
                     final boolean hasOverride = overrides.containsKey(index);
                     final T overrideItem = overrides.remove(index);
                     if (overrideItem != null) {
-                        info.handle(new InvalidValue(pair, encoder.apply(overrideItem)).setDetail(String.format(
-                          "forcibly %s invalid %s with %s %d: %s", "override", valueName, keyName, index, e.getMessage())));
+                        info.handle(new InvalidValue(pair, encoder.apply(overrideItem)).setDetail(
+                          "forcibly %s invalid %s with %s %d: %s", "override", valueName, keyName, index, e.getMessage()));
                         item = overrideItem;
                     } else if (hasOverride) {
-                        info.handle(new InvalidValue(pair).setDetail(String.format(
-                          "forcibly %s invalid %s with %s %d: %s", "delete", valueName, keyName, index, e.getMessage())));
+                        info.handle(new InvalidValue(pair).setDetail(
+                          "forcibly %s invalid %s with %s %d: %s", "delete", valueName, keyName, index, e.getMessage()));
                         continue;
                     } else
                         throw e;
@@ -587,17 +585,17 @@ public class Jsck {
             // Apply override
             if (overrideItem == null) {
                 if (originalItem != null) {
-                    info.handle(new InvalidValue(key, null, null).setDetail(String.format(
-                      "forcibly remove %s with %s %s", valueName, keyName, index)));
+                    info.handle(new InvalidValue(key, null, null).setDetail(
+                      "forcibly remove %s with %s %s", valueName, keyName, index));
                 }
             } else {
                 final byte[] value = encoder.apply(overrideItem);
                 if (originalItem != null) {
-                    info.handle(new InvalidValue(key, null, value).setDetail(String.format(
-                      "forcibly %s %s with %s %d with provided version", "replace", valueName, keyName, index)));
+                    info.handle(new InvalidValue(key, null, value).setDetail(
+                      "forcibly %s %s with %s %d with provided version", "replace", valueName, keyName, index));
                 } else {
-                    info.handle(new InvalidValue(key, null, value).setDetail(String.format(
-                      "forcibly %s %s with %s %d with provided version", "add", valueName, keyName, index)));
+                    info.handle(new InvalidValue(key, null, value).setDetail(
+                      "forcibly %s %s with %s %d with provided version", "add", valueName, keyName, index));
                 }
                 itemMap.put(index, overrideItem);
             }
@@ -611,8 +609,8 @@ public class Jsck {
         while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
             final KVPair pair2 = i.next();
             assert ByteUtil.compare(pair2.getKey(), prefix) >= 0;
-            info.handle(new InvalidKey(pair2).setDetail("invalid key " + Jsck.ds(pair2.getKey())
-              + " in the key range of non-existent/invalid " + description));
+            info.handle(new InvalidKey(pair2).setDetail(
+              "invalid key %s in the key range of non-existent/invalid %s", Jsck.ds(pair2.getKey()), description));
         }
     }
 
@@ -635,7 +633,7 @@ public class Jsck {
         try (CloseableIterator<KVPair> i = info.getKVStore().getRange(range)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
-                info.handle(new InvalidKey(pair.getKey(), pair.getValue()).setDetail(description));
+                info.handle(new InvalidKey(pair.getKey(), pair.getValue()).setDetail("%s", description));
             }
         }
     }

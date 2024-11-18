@@ -95,7 +95,7 @@ public class VerifySchemaMojo extends AbstractMainSchemaMojo {
             this.getLog().error("Recommended actions to take:\n"
               + "  (a) Verify " + this.actualSchemaFile + " looks correct.\n"
               + "  (b) Copy " + this.actualSchemaFile + " to " + this.expectedSchemaFile);
-            throw new MojoFailureException("Expected schema file " + expectedSchemaFile + " not found");
+            throw new MojoFailureException(String.format("Expected schema file %s not found", expectedSchemaFile));
         }
 
         // Verify actual vs. expected

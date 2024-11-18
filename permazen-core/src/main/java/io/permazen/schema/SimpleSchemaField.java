@@ -150,7 +150,7 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         else if (this.hasFixedEncoding() && this.encodingId != null)
             throw new InvalidSchemaException(String.format("invalid %s: %s", this, "encoding ID should be null"));
         if (this.isAlwaysIndexed() && !this.isIndexed())
-            throw new IllegalArgumentException("invalid " + this + ": field must always be indexed");
+            throw new InvalidSchemaException(String.format("invalid %s: %s", this, "field must always be indexed"));
     }
 
 // SchemaFieldSwitch

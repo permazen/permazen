@@ -31,8 +31,8 @@ public class LoadCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Imports objects from an XML file created previously via `save'. Does NOT remove any objects already"
-          + " in the database unless the `-R' flag is given, in which case the database is completely wiped first.";
+        return "Imports objects from an XML file created previously via \"save\". Does NOT remove any objects already"
+          + " in the database unless the \"-R\" flag is given, in which case the database is completely wiped first.";
     }
 
     @Override

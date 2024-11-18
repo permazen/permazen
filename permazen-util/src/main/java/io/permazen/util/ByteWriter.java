@@ -32,7 +32,7 @@ public class ByteWriter {
      */
     public ByteWriter(int capacity) {
         if (capacity < 0)
-            throw new IndexOutOfBoundsException("capacity = " + capacity);
+            throw new IndexOutOfBoundsException(String.format("capacity = %d", capacity));
         this.buf = new byte[capacity];
     }
 

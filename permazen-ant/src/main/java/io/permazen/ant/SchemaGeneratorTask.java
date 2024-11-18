@@ -307,7 +307,7 @@ public class SchemaGeneratorTask extends Task {
 
         // Sanity check
         if (this.file == null)
-            throw new BuildException("`file' attribute is required specifying output/verify file");
+            throw new BuildException("\"file\" attribute is required specifying output/verify file");
         boolean generate = false;
         boolean verify = false;
         switch (this.mode) {
@@ -322,15 +322,16 @@ public class SchemaGeneratorTask extends Task {
             verify = true;
             break;
         default:
-            throw new BuildException("`mode' attribute must be one of \""
-              + MODE_VERIFY + "\", or \"" + MODE_GENERATE + "\", or \"" + MODE_GENERATE_AND_VERIFY + "\"");
+            throw new BuildException(String.format(
+              "\"mode\" attribute must be one of \"%s\", or \"%s\", or \"%s\"",
+              MODE_VERIFY, MODE_GENERATE, MODE_GENERATE_AND_VERIFY));
         }
         if (this.classPath == null)
-            throw new BuildException("`classpath' attribute is required specifying search path for scanned classes");
+            throw new BuildException("\"classpath\" attribute is required specifying search path for scanned classes");
 
         // Create directory containing file
         if (generate && this.file.getParent() != null && !this.file.getParentFile().exists() && !this.file.getParentFile().mkdirs())
-            throw new BuildException("error creating directory \"" + this.file.getParentFile() + "\"");
+            throw new BuildException(String.format("error creating directory \"%s\"", this.file.getParentFile()));
 
         // Set up mysterious classloader stuff
         final AntClassLoader loader = this.getProject().createClassLoader(this.classPath);
@@ -362,7 +363,7 @@ public class SchemaGeneratorTask extends Task {
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
-                        throw new BuildException("failed to load class \"" + className + "\"", e);
+                        throw new BuildException(String.format("failed to load class \"%s\"", className), e);
                     }
                 }
             }
@@ -375,7 +376,7 @@ public class SchemaGeneratorTask extends Task {
                 try {
                     cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
                 } catch (ClassNotFoundException e) {
-                    throw new BuildException("failed to load class \"" + className + "\"", e);
+                    throw new BuildException(String.format("failed to load class \"%s\"", className), e);
                 }
 
                 // Add model classes
@@ -393,7 +394,8 @@ public class SchemaGeneratorTask extends Task {
                        false, Thread.currentThread().getContextClassLoader())
                       .asSubclass(EncodingRegistry.class).getConstructor().newInstance();
                 } catch (Exception e) {
-                    throw new BuildException("failed to instantiate class \"" + this.encodingRegistryClassName + "\"", e);
+                    throw new BuildException(String.format(
+                      "failed to instantiate class \"%s\"", this.encodingRegistryClassName), e);
                 }
             }
 
@@ -413,7 +415,7 @@ public class SchemaGeneratorTask extends Task {
             try {
                 schemaModel = config.newPermazen().getSchemaModel(false);
             } catch (Exception e) {
-                throw new BuildException("schema generation failed: " + e, e);
+                throw new BuildException(String.format("schema generation failed: %s", e), e);
             }
             final SchemaId schemaId = schemaModel.getSchemaId();
             this.flog("schema ID is \"%s\"", schemaId);
@@ -427,7 +429,7 @@ public class SchemaGeneratorTask extends Task {
                 try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                     verifyModel = SchemaModel.fromXML(input);
                 } catch (IOException e) {
-                    throw new BuildException("error reading schema from \"" + this.file + "\": " + e, e);
+                    throw new BuildException(String.format("error reading schema from \"%s\": %s", this.file, e), e);
                 }
             }
 
@@ -437,7 +439,7 @@ public class SchemaGeneratorTask extends Task {
                 try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(this.file))) {
                     schemaModel.toXML(output, false, true);
                 } catch (IOException e) {
-                    throw new BuildException("error writing schema to \"" + this.file + "\": " + e, e);
+                    throw new BuildException(String.format("error writing schema to \"%s\": %s", this.file, e), e);
                 }
             }
 
@@ -462,7 +464,7 @@ public class SchemaGeneratorTask extends Task {
                         try (BufferedInputStream input = new BufferedInputStream(resource.getInputStream())) {
                             otherSchema = SchemaModel.fromXML(input);
                         } catch (IOException e) {
-                            throw new BuildException("error reading schema from \"" + resource + "\": " + e, e);
+                            throw new BuildException(String.format("error reading schema from \"%s\": %s", resource, e), e);
                         }
                         final TransactionConfig txConfig = TransactionConfig.builder()
                           .schemaModel(otherSchema)

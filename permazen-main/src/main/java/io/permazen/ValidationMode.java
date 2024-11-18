@@ -40,7 +40,7 @@ public enum ValidationMode {
      *      has a JSR 303 annotated public method or {@link OnValidate &#64;OnValidate} annoted method</li>
      *  <li>An instance is {@linkplain PermazenObject#migrateSchema migrated}, and the Java model type (or any super-type)
      *      has a JSR 303 annotated public method or {@link OnValidate &#64;OnValidate} annoted method</li>
-     *  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
+     *  <li>An instance field is modified, and the corresponding Java model "getter" method has any JSR 303 annotations</li>
      * </ul>
      *
      * <p>

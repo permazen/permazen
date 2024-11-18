@@ -25,9 +25,9 @@ public class KVRemoveCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Deletes a single raw database key/value pair, or a range of key/value pairs. If `-range' is not given,"
-          + " the specified key/value pair is deleted. Otherwise, `key' is the minimum key (inclusive) and `maxKey'"
-          + " is the maximum key (exclusive) if given, otherwise there is no maximum key. `key' and `maxKey' may be given"
+        return "Deletes a single raw database key/value pair, or a range of key/value pairs. If \"-range\" is not given,"
+          + " the specified key/value pair is deleted. Otherwise, \"key\" is the minimum key (inclusive) and \"maxKey\""
+          + " is the maximum key (exclusive) if given, otherwise there is no maximum key. \"key\" and \"maxKey\" may be given"
           + " as hexadecimal strings or C-style doubly-quoted strings."
           + "\n\nWARNING: this command can corrupt a Permazen database.";
     }
@@ -43,7 +43,7 @@ public class KVRemoveCommand extends AbstractKVCommand {
         final byte[] key = (byte[])params.get("key");
         final byte[] maxKey = (byte[])params.get("maxKey");
         if (maxKey != null && !range)
-            throw new IllegalArgumentException("`-range' must be specified to delete a range of keys");
+            throw new IllegalArgumentException("\"-range\" must be specified to delete a range of keys");
         return new RemoveAction(range, key, maxKey);
     }
 

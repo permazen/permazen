@@ -275,12 +275,12 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         // Create directory if needed
         if (!this.directory.exists()) {
             if (!this.options.createIfMissing())
-                throw new RuntimeException("directory \"" + this.directory + "\" does not exist");
+                throw new RuntimeException(String.format("directory \"%s\" does not exist", this.directory));
             if (!this.directory.mkdirs())
-                throw new RuntimeException("failed to create directory \"" + this.directory + "\"");
+                throw new RuntimeException(String.format("failed to create directory \"%s\"", this.directory));
         }
         if (!this.directory.isDirectory())
-            throw new RuntimeException("file \"" + this.directory + "\" is not a directory");
+            throw new RuntimeException(String.format("file \"%s\" is not a directory", this.directory));
 
         // Open database
         if (this.log.isDebugEnabled())

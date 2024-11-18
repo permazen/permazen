@@ -137,7 +137,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
         try {
             this.write(writer, this.getDefaultValue());
         } catch (IllegalArgumentException e) {
-            throw new UnsupportedOperationException(this + " does not have a default value");
+            throw new UnsupportedOperationException(String.format("%s does not have a default value", this));
         }
         return writer.getBytes();
     }
@@ -268,7 +268,8 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
         try {
             return (T)this.getTypeToken().getRawType().cast(obj);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(this + " does not support values of type " + obj.getClass().getName());
+            throw new IllegalArgumentException(String.format(
+              "%s does not support values of type %s", this, obj.getClass().getName()));
         }
     }
 
@@ -373,7 +374,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
             try {
                 this.write(writer, bounds.getLowerBound());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid lower bound " + bounds.getLowerBound() + " for " + this, e);
+                throw new IllegalArgumentException(String.format("invalid lower bound %s for %s", bounds.getLowerBound(), this), e);
             }
             lowerBound = writer.getBytes();
             if (!lowerBoundType.isInclusive())
@@ -388,7 +389,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
             try {
                 this.write(writer, bounds.getUpperBound());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("invalid upper bound " + bounds.getUpperBound() + " for " + this, e);
+                throw new IllegalArgumentException(String.format("invalid upper bound %s for %s", bounds.getUpperBound(), this), e);
             }
             upperBound = writer.getBytes();
             if (upperBoundType.isInclusive())

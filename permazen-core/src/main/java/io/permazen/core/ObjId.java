@@ -233,7 +233,7 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
 
     private static ByteReader buildRandom(int storageId) {
         if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storage ID " + storageId);
+            throw new IllegalArgumentException(String.format("invalid storage ID %d", storageId));
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
         final byte[] randomPart = new byte[NUM_BYTES - writer.getLength()];
@@ -246,14 +246,14 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
         if (string == null)
             throw new IllegalArgumentException("null string");
         if (string.length() != NUM_BYTES * 2)
-            throw new IllegalArgumentException("invalid object ID \"" + string + "\"");
+            throw new IllegalArgumentException(String.format("invalid object ID \"%s\"", string));
         final byte[] buf = new byte[NUM_BYTES];
         int off = 0;
         for (int i = 0; i < buf.length; i++) {
             final int digit1 = Character.digit(string.charAt(off++), 16);
             final int digit2 = Character.digit(string.charAt(off++), 16);
             if (digit1 == -1 || digit2 == -1)
-                throw new IllegalArgumentException("invalid object ID \"" + string + "\"");
+                throw new IllegalArgumentException(String.format("invalid object ID \"%s\"", string));
             buf[i] = (byte)((digit1 << 4) | digit2);
         }
         return new ByteReader(buf);

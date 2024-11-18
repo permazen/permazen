@@ -269,7 +269,8 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     }
 
     private KVTransactionException weirdStatus(OperationStatus status, String methodName) {
-        return new KVTransactionException(BerkeleyKVTransaction.this, "unexpected status " + status + " from " + methodName + "()");
+        return new KVTransactionException(BerkeleyKVTransaction.this,
+          String.format("unexpected status %s from %s()", status, methodName));
     }
 
 // CursorIterator

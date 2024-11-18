@@ -98,25 +98,25 @@ public abstract class Issue {
             kvstore.remove(this.key);
     }
 
-    public Issue setDetail(String detail) {
-        this.detail = detail;
+    public Issue setDetail(String format, Object... args) {
+        this.detail = String.format(format, args);
         return this;
     }
 
-    public Issue setDetail(ObjId id, String detail) {
-        return this.setDetail("for object " + id + ": " + detail);
+    public Issue setDetail(ObjId id, String format, Object... args) {
+        return this.setDetail("for object %s: ", id, String.format(format, args));
     }
 
-    public Issue setDetail(ObjId id, Field<?> field, String detail) {
-        return this.setDetail("for object " + id + " " + field + ": " + detail);
+    public Issue setDetail(ObjId id, Field<?> field, String format, Object... args) {
+        return this.setDetail("for object %s %s: %s", id, field, String.format(format, args));
     }
 
-    public Issue setDetail(ObjId id, CompositeIndex index, String detail) {
-        return this.setDetail("for object " + id + " " + index + ": " + detail);
+    public Issue setDetail(ObjId id, CompositeIndex index, String format, Object... args) {
+        return this.setDetail("for object %s %s: %s", id, index, String.format(format, args));
     }
 
-    public Issue setDetail(Index<?> index, String detail) {
-        return this.setDetail("for " + index + ": " + detail);
+    public Issue setDetail(Index<?> index, String format, Object... args) {
+        return this.setDetail("for %s: %s", index, String.format(format, args));
     }
 
 // Object

@@ -47,7 +47,7 @@ public final class Tuples {
         try {
             return tupleClass.getConstructor(parameterTypes).newInstance(values);
         } catch (Exception e) {
-            throw new UnsupportedOperationException("can't instantiate " + tupleClass, e);
+            throw new UnsupportedOperationException(String.format("can't instantiate %s", tupleClass), e);
         }
     }
 
@@ -65,7 +65,7 @@ public final class Tuples {
         try {
             return Class.forName(name, false, Tuple.class.getClassLoader()).asSubclass(Tuple.class);
         } catch (Exception e) {
-            throw new UnsupportedOperationException("can't find class \"" + name + "\" of size " + size, e);
+            throw new UnsupportedOperationException(String.format("can't find class \"%s\" for size %d", name, size), e);
         }
     }
 
@@ -82,7 +82,7 @@ public final class Tuples {
                 if (Tuples.tupleClassForSize(size).isAssignableFrom(tupleClass))
                     return size;
             } catch (UnsupportedOperationException e) {
-                throw new IllegalArgumentException("not a tuple (sub)class: " + tupleClass);
+                throw new IllegalArgumentException(String.format("not a tuple (sub)class: %s", tupleClass));
             }
         }
     }

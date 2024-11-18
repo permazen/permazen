@@ -111,13 +111,17 @@ public final class KeyListEncoder {
 
         // Decode prefix length and read prefix, if any
         if (keyLength < 0) {
-            if (prev == null)
-                throw new IllegalArgumentException("null `prev' given but next key has " + -keyLength + " byte shared prefix");
+            if (prev == null) {
+                throw new IllegalArgumentException(String.format(
+                  "null \"prev\" given but next key has %d byte shared prefix", -keyLength));
+            }
             prefixLength = ~keyLength + 2;
             final int suffixLength = UnsignedIntEncoder.read(input);
             keyLength = prefixLength + suffixLength;
-            if (keyLength < 0)
-                throw new IllegalArgumentException("invalid prefix length " + prefixLength + " plus suffix length " + suffixLength);
+            if (keyLength < 0) {
+                throw new IllegalArgumentException(String.format(
+                  "invalid prefix length %d plus suffix length %d", prefixLength, suffixLength));
+            }
             key = new byte[keyLength];
             System.arraycopy(prev, 0, key, 0, prefixLength);
         } else {

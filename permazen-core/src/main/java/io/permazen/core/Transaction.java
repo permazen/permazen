@@ -1571,7 +1571,7 @@ public class Transaction {
     public synchronized String getTypeName(int storageId) {
         final String typeName = this.schemaBundle.getTypeNamesByStorageId().get(storageId);
         if (typeName == null)
-            throw new UnknownTypeException("storage ID " + storageId, null);
+            throw new UnknownTypeException(String.format("storage ID %d", storageId), null);
         return typeName;
     }
 
@@ -3405,8 +3405,10 @@ public class Transaction {
         try {
             return coreIndexType.cast(coreIndex);
         } catch (ClassCastException e) {
-            throw new UnknownIndexException("storage ID " + storageId, String.format(
-              "the composite index \"%s\" is on %d != %d fields", index.getName(), index.getFields().size(), numFields));
+            throw new UnknownIndexException(
+              String.format("storage ID %d", storageId),
+              String.format("the composite index \"%s\" is on %d != %d fields",
+                index.getName(), index.getFields().size(), numFields));
         }
     }
 
@@ -3419,8 +3421,8 @@ public class Transaction {
         try {
             return indexType.cast(index);
         } catch (ClassCastException e) {
-            throw new UnknownIndexException("storage ID " + storageId, String.format(
-              "%s is not a %s", index, SchemaBundle.getDescription(indexType)));
+            throw new UnknownIndexException(String.format("storage ID %d", storageId),
+              String.format("%s is not a %s", index, SchemaBundle.getDescription(indexType)));
         }
     }
 
@@ -3459,8 +3461,10 @@ public class Transaction {
 
             // Get corresponding Schema object
             final Schema nextSchema = this.schemaBundle.getSchema(schemaIndex);
-            if (nextSchema == null)
-                throw new InconsistentDatabaseException("encountered objects with unknown schema index " + schemaIndex);
+            if (nextSchema == null) {
+                throw new InconsistentDatabaseException(String.format(
+                  "encountered objects with unknown schema index %s", schemaIndex));
+            }
 
             // Iterate over reference fields in this schema that have the configured DeleteAction in some object type
             nextSchema.getDeleteActionKeyRanges().get(inverseDelete).forEach((field, keyRanges) -> {

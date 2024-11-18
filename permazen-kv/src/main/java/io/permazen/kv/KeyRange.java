@@ -65,8 +65,10 @@ public class KeyRange {
      */
     public KeyRange(byte[] min, byte[] max) {
         Preconditions.checkArgument(min != null, "null min");
-        if (KeyRange.compare(min, max) > 0)
-            throw new IllegalArgumentException("min = " + ByteUtil.toString(min) + " > max = " + ByteUtil.toString(max));
+        if (KeyRange.compare(min, max) > 0) {
+            throw new IllegalArgumentException(String.format(
+              "min = %s > max = %s", ByteUtil.toString(min), ByteUtil.toString(max)));
+        }
         this.min = min.clone();
         this.max = max != null ? max.clone() : null;
     }

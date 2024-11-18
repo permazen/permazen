@@ -157,7 +157,7 @@ public class RaftKVImplementation implements KVImplementation<RaftKVImplementati
           .ifPresent(arg -> {
             final int port = TCPNetwork.parsePortPart("x:" + arg, -1);
             if (port == -1)
-                throw new IllegalArgumentException("invalid TCP port \"" + arg + "\"");
+                throw new IllegalArgumentException(String.format("invalid TCP port \"%s\"", arg));
             config.setPort(port);
           });
         Optional.ofNullable(options.valueOf(this.minElectionTimeoutOption))
@@ -201,7 +201,8 @@ public class RaftKVImplementation implements KVImplementation<RaftKVImplementati
             return (MergeStrategy)Class.forName(className, false, ApplicationClassLoader.getInstance())
               .getConstructor().newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException("invalid Raft fallback strategy class \"" + className + "\": " + e.getMessage(), e);
+            throw new IllegalArgumentException(String.format(
+              "invalid Raft fallback strategy class \"%s\": %s", className, e.getMessage()), e);
         }
     }
 
@@ -296,7 +297,7 @@ public class RaftKVImplementation implements KVImplementation<RaftKVImplementati
                 network.setListenAddress(this.address != null ?
                   new InetSocketAddress(InetAddress.getByName(this.address), this.port) : new InetSocketAddress(this.port));
             } catch (UnknownHostException e) {
-                throw new RuntimeException("can't resolve local Raft address \"" + this.address + "\"", e);
+                throw new RuntimeException(String.format("can't resolve local Raft address \"%s\"", this.address), e);
             }
             this.raft.setNetwork(network);
             return this.raft;

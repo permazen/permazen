@@ -38,11 +38,11 @@ public class KVSaveCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Writes all key/value pairs to the specified XML file. Data can be read back in later via `kvload'."
-          + "\n\nIf `minKey' and/or `maxKey' are specified, the keys are restricted to the specified range."
-          + " `minKey' and `maxKey' may be given as hexadecimal strings or C-style doubly-quoted strings.\n"
-          + "The `-i' flag causes the output XML to be indented.\n"
-          + "If the `-w' flag is given, for certain key/value stores a weaker consistency level is used for"
+        return "Writes all key/value pairs to the specified XML file. Data can be read back in later via \"kvload\"."
+          + "\n\nIf \"minKey\" and/or \"maxKey\" are specified, the keys are restricted to the specified range."
+          + " \"minKey\" and \"maxKey\" may be given as hexadecimal strings or C-style doubly-quoted strings.\n"
+          + "The \"-i\" flag causes the output XML to be indented.\n"
+          + "If the \"-w\" flag is given, for certain key/value stores a weaker consistency level is used for"
           + " the tranasction to reduce the chance of conflicts.";
     }
 

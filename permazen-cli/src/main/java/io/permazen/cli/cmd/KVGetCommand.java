@@ -62,7 +62,7 @@ public class KVGetCommand extends AbstractKVCommand {
         final byte[] maxKey = (byte[])params.get("maxKey");
         final Integer limit = (Integer)params.get("limit");
         if (maxKey != null && !range)
-            throw new IllegalArgumentException("`-range' must be specified to retrieve a range of keys");
+            throw new IllegalArgumentException("\"-range\" must be specified to retrieve a range of keys");
         return new GetAction(cstrings, range, novals, key, maxKey, limit);
     }
 

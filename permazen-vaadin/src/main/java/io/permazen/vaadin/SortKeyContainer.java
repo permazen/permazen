@@ -55,7 +55,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         sortKeys.add(new ObjectIdSortKey());
         sortKeys.add(new VersionSortKey());
 
-        // Identify fields common to all sub-types of `type'
+        // Identify fields common to all sub-types of "type"
         SortedMap<Integer, PermazenField> commonFields = Util.getCommonJFields(this.pdb.getPermazenClasses(this.type));
 
         // Add sort keys for all indexed fields common to all sub-types

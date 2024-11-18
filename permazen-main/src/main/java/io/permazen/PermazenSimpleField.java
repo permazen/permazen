@@ -301,7 +301,7 @@ public class PermazenSimpleField extends PermazenField {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("failed to invoke setter method " + objSetter, e);
+            throw new RuntimeException(String.format("failed to invoke setter method %s", objSetter), e);
         }
     }
 

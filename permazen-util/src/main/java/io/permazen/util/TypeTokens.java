@@ -174,7 +174,7 @@ public final class TypeTokens {
     private static <T> Stream<T> noNulls(Stream<T> stream, String name) {
         return stream.peek(x -> {
             if (x == null)
-                throw new IllegalArgumentException("null " + name);
+                throw new IllegalArgumentException(String.format("null %s", name));
         });
     }
 

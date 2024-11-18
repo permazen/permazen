@@ -451,7 +451,7 @@ public class PermazenTransaction {
         Preconditions.checkArgument(type != null, "null type");
         final PermazenClass<T> pclass = this.pdb.getPermazenClass(type);
         if (!pclass.singleton)
-            throw new IllegalArgumentException("model type is not a singleton type: " + type);
+            throw new IllegalArgumentException(String.format("model type is not a singleton type: %s", type));
         final AbstractKVNavigableSet<ObjId> ids = (AbstractKVNavigableSet<ObjId>)this.tx.getAll(pclass.name);
         final ObjId id;
         try {

@@ -191,7 +191,7 @@ public class Permazen {
         final Properties properties = new Properties();
         try (InputStream input = Permazen.class.getResourceAsStream(PROPERTIES_RESOURCE)) {
             if (input == null)
-                throw new RuntimeException("can't find resource " + PROPERTIES_RESOURCE);
+                throw new RuntimeException(String.format("can't find resource %s", PROPERTIES_RESOURCE));
             properties.load(input);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
@@ -850,7 +850,7 @@ public class Permazen {
         this.initialize();
         final PermazenClass<?> pclass = this.pclassesByType.get(type);
         if (pclass == null)
-            throw new IllegalArgumentException("java model type is not recognized: " + type);
+            throw new IllegalArgumentException(String.format("java model type is not recognized: %s", type));
         return (PermazenClass<T>)pclass;
     }
 
@@ -899,7 +899,7 @@ public class Permazen {
         this.initialize();
         final PermazenClass<?> pclass = this.pclassesByStorageId.get(storageId);
         if (pclass == null)
-            throw new UnknownTypeException("storage ID " + storageId, null);
+            throw new UnknownTypeException(String.format("storage ID %d", storageId), null);
         return pclass;
     }
 

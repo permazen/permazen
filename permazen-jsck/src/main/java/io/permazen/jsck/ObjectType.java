@@ -90,7 +90,7 @@ class ObjectType extends Storage<ObjType> {
                 continue;
             }
             if (storageId <= 0) {
-                info.handle(new InvalidKey(pair).setDetail(id, "invalid field storage ID " + storageId));
+                info.handle(new InvalidKey(pair).setDetail(id, "invalid field storage ID %d", storageId));
                 continue;
             }
 
@@ -99,8 +99,8 @@ class ObjectType extends Storage<ObjType> {
             try {
                 field = this.schemaItem.getField(storageId);
             } catch (UnknownFieldException e) {
-                info.handle(new InvalidKey(pair).setDetail(id, String.format(
-                  "invalid field storage ID %d: no such field exists in %s", storageId, this.schemaItem)));
+                info.handle(new InvalidKey(pair).setDetail(id,
+                  "invalid field storage ID %d: no such field exists in %s", storageId, this.schemaItem));
                 continue;
             }
 
@@ -173,7 +173,7 @@ class ObjectType extends Storage<ObjType> {
         // Check for trailing garbage in key
         if (pair.getKey().length > prefix.length) {
             info.handle(new InvalidKey(pair).setDetail(id, field,
-              String.format("trailing garbage %s", Jsck.ds(new ByteReader(pair.getKey(), prefix.length)))));
+              "trailing garbage %s", Jsck.ds(new ByteReader(pair.getKey(), prefix.length))));
             return null;
         }
 
@@ -185,7 +185,7 @@ class ObjectType extends Storage<ObjType> {
 
         // We should not see default values in simple fields that are not sub-fields of complex fields
         if (value != null && ByteUtil.compare(value, encoding.getDefaultValueBytes()) == 0) {
-            info.handle(new InvalidValue(pair).setDetail("default value; should not be present"));
+            info.handle(new InvalidValue(pair).setDetail("default value should not be present"));
             value = null;
         }
 
@@ -266,7 +266,7 @@ class ObjectType extends Storage<ObjType> {
                 try {
                     actualIndex = Encodings.UNSIGNED_INT.read(keyReader);
                 } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("invalid list index: " + e.getMessage(), e);
+                    throw new IllegalArgumentException(String.format("invalid list index: %s", e.getMessage()), e);
                 }
                 if (keyReader.remain() > 0) {
                     throw new IllegalArgumentException(String.format(
@@ -274,7 +274,7 @@ class ObjectType extends Storage<ObjType> {
                       Jsck.ds(keyReader, keyReader.getOffset()), actualIndex));
                 }
             } catch (IllegalArgumentException e) {
-                info.handle(new InvalidValue(pair).setDetail(id, elementField, e.getMessage()));
+                info.handle(new InvalidValue(pair).setDetail(id, elementField, "%s", e.getMessage()));
                 continue;
             }
 
@@ -286,14 +286,13 @@ class ObjectType extends Storage<ObjType> {
             // Check list index, and renumber if necessary
             byte[] encodedIndex = keyReader.getBytes(prefix.length);
             if (actualIndex != expectedIndex) {
-                info.handle(new InvalidValue(pair).setDetail(id,
-                  elementField, String.format("wrong index %d != %d", actualIndex, expectedIndex)));
+                info.handle(new InvalidValue(pair).setDetail(id, elementField, "wrong index %d != %d", actualIndex, expectedIndex));
                 final ByteWriter keyWriter = new ByteWriter();
                 keyWriter.write(prefix);
                 Encodings.UNSIGNED_INT.write(keyWriter, expectedIndex);
                 encodedIndex = keyWriter.getBytes(prefix.length);
                 info.handle(new MissingKey("incorrect list index", keyWriter.getBytes(), pair.getValue())
-                  .setDetail(id, elementField, String.format("renumbered list index %d -> %d", actualIndex, expectedIndex)));
+                  .setDetail(id, elementField, "renumbered list index %d -> %d", actualIndex, expectedIndex));
             }
 
             // Entry is good - we can advance the list index
@@ -315,7 +314,7 @@ class ObjectType extends Storage<ObjType> {
         // Check for trailing garbage in key
         if (pair.getKey().length > prefix.length) {
             info.handle(new InvalidKey(pair).setDetail(id, field,
-              String.format("trailing garbage %s", Jsck.ds(new ByteReader(pair.getKey(), prefix.length)))));
+              "trailing garbage %s", Jsck.ds(new ByteReader(pair.getKey(), prefix.length))));
             return;
         }
 
@@ -323,7 +322,7 @@ class ObjectType extends Storage<ObjType> {
         try {
             info.getKVStore().decodeCounter(pair.getValue());
         } catch (IllegalArgumentException e) {
-            info.handle(new InvalidValue(pair).setDetail(id, field, " (resetting to zero): " + e.getMessage()));
+            info.handle(new InvalidValue(pair).setDetail(id, field, "(resetting to zero): %s", e.getMessage()));
         }
     }
 
@@ -345,11 +344,11 @@ class ObjectType extends Storage<ObjType> {
                     assert encoding instanceof ReferenceEncoding;
                     final ObjId target = (ObjId)value;
                     if (info.getKVStore().get(target.getBytes()) == null)
-                        throw new IllegalArgumentException("invalid reference to deleted object " + target);
+                        throw new IllegalArgumentException(String.format("invalid reference to deleted object %s", target));
                 }
             }
         } catch (IllegalArgumentException e) {
-            info.handle(new InvalidValue(pair).setDetail(id, field, e.getMessage()));
+            info.handle(new InvalidValue(pair).setDetail(id, field, "%s", e.getMessage()));
             return false;
         }
         return true;

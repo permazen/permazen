@@ -53,7 +53,7 @@ public class SimpleFieldConverter<T> implements Converter<String, T> {
         try {
             return this.encoding.fromString(value.trim());
         } catch (IllegalArgumentException e) {
-            throw new Converter.ConversionException("invalid value of type \"" + this.encoding + "\": " + e.getMessage());
+            throw new Converter.ConversionException(String.format("invalid value of type \"%s\": %s",  this.encoding, e.getMessage()));
         }
     }
 }

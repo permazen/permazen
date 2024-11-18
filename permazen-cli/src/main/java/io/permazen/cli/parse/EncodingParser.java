@@ -46,8 +46,10 @@ public class EncodingParser<T> implements Parser<T> {
         Encoding<?> actualEncoding = this.encoding;
         if (actualEncoding == null) {
             final EncodingId encodingId = session.getDatabase().getEncodingRegistry().idForAlias(this.typeName);
-            if ((actualEncoding = session.getDatabase().getEncodingRegistry().getEncoding(encodingId)) == null)
-                throw new IllegalArgumentException("no known encoding \"" + this.typeName + "\" registered with database");
+            if ((actualEncoding = session.getDatabase().getEncodingRegistry().getEncoding(encodingId)) == null) {
+                throw new IllegalArgumentException(String.format(
+                  "no encoding \"%s\" found in database's encoding registry", this.typeName));
+            }
         }
 
         // Parse value

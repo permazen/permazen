@@ -378,12 +378,12 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         final byte[] key = writer.getBytes();
         if (this.keyRange != null && !this.keyRange.contains(key)) {
             if (fail)
-                throw new IllegalArgumentException("key is out of bounds: " + obj);
+                throw new IllegalArgumentException(String.format("key is out of bounds: %s", obj));
             return null;
         }
         if (this.keyFilter != null && !this.keyFilter.contains(key)) {
             if (fail)
-                throw new IllegalArgumentException("key is filtered out: " + obj);
+                throw new IllegalArgumentException(String.format("key is filtered out: %s", obj));
             return null;
         }
         return key;

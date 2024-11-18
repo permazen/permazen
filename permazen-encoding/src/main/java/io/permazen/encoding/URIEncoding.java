@@ -29,7 +29,7 @@ public class URIEncoding extends StringConvertedEncoding<URI> {
             try {
                 return new URI(string);
             } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("invalid URI \"" + string + "\"", e);
+                throw new IllegalArgumentException(String.format("invalid URI \"%s\"", string), e);
             }
         }));
     }

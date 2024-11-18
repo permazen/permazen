@@ -40,7 +40,7 @@ public class PermazenExceptionTranslator implements PersistenceExceptionTranslat
         final String message = e0.getMessage() != null ? e0.getMessage() : "wrapped exception";
         if (e0 instanceof DeletedObjectException) {
             final DeletedObjectException e = (DeletedObjectException)e0;
-            return new EmptyResultDataAccessException("object " + e.getId() + " not found", 1, e);
+            return new EmptyResultDataAccessException(String.format("object %s not found", e.getId()), 1, e);
         }
         if (e0 instanceof SchemaMismatchException)
             return new DataIntegrityViolationException(message, e0);

@@ -48,7 +48,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
         if (info.getConfig().isRepair()) {
             final byte[] actualValue = info.getKVStore().get(this.buildFieldKey(id, storageId).getBytes());
             if (!Arrays.equals(expectedValue, actualValue != null ? actualValue : encoding.getDefaultValueBytes()))
-                throw new IllegalArgumentException("field value != " + Jsck.ds(expectedValue));
+                throw new IllegalArgumentException(String.format("field value != %s", Jsck.ds(expectedValue)));
         }
     }
 
@@ -57,7 +57,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
         try {
             super.validateObjectExists(info, reader, id);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid index entry: " + e.getMessage());
+            throw new IllegalArgumentException(String.format("invalid index entry: %s", e.getMessage()));
         }
     }
 
@@ -66,7 +66,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
         try {
             return super.validateEncodedBytes(reader, encoding);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid index entry: " + e.getMessage());
+            throw new IllegalArgumentException(String.format("invalid index entry: %s", e.getMessage()));
         }
     }
 
@@ -75,7 +75,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
         try {
             super.validateEOF(reader);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid index entry: " + e.getMessage());
+            throw new IllegalArgumentException(String.format("invalid index entry: %s", e.getMessage()));
         }
     }
 }

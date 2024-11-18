@@ -403,10 +403,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             boolean initializeFiles = false;
             if (!this.directory.exists()) {
                 if (!this.directory.mkdirs())
-                    throw new ArrayKVException("failed to create directory \"" + this.directory + "\"");
+                    throw new ArrayKVException(String.format("failed to create directory \"%s\"", this.directory));
             }
             if (!this.directory.isDirectory())
-                throw new ArrayKVException("file \"" + this.directory + "\" is not a directory");
+                throw new ArrayKVException(String.format("file \"%ds\" is not a directory", this.directory));
 
             // Get directory channel we can fsync()
             try {
@@ -446,8 +446,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         if (name.startsWith(INDX_FILE_NAME_BASE)
                           || name.startsWith(KEYS_FILE_NAME_BASE)
                           || name.startsWith(VALS_FILE_NAME_BASE)) {
-                            throw new ArrayKVException("database file inconsistency: found "
-                              + name + " but not " + GENERATION_FILE_NAME + " in " + this.directory);
+                            throw new ArrayKVException(String.format(
+                              "database file inconsistency: found %s but not %s in %s",
+                              name, GENERATION_FILE_NAME, this.directory));
                         }
                     }
                 }
@@ -481,10 +482,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
               new InputStreamReader(new FileInputStream(this.generationFile), StandardCharsets.UTF_8))) {
                 final String line = reader.readLine();
                 if (line == null)
-                    throw new ArrayKVException("generation file " + this.generationFile + " is empty");
+                    throw new ArrayKVException(String.format("generation file %s is empty", this.generationFile));
                 this.generation = Long.parseLong(line.trim(), 10);
                 if (this.generation < 0)
-                    throw new ArrayKVException("read negative generation number from " + this.generationFile);
+                    throw new ArrayKVException(String.format("read negative generation number from %s", this.generationFile));
             } catch (Exception e) {
                 throw new ArrayKVException("error reading generation file", e);
             }
@@ -886,13 +887,13 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 } catch (IOException e2) {
                     this.log.error("error reopening log file after write error - we're probably hosed", e2);
                 }
-                throw new ArrayKVException("error appending to " + this.modsFile, e);
+                throw new ArrayKVException(String.format("error appending to %s", this.modsFile), e);
             }
             final long newModsFileLength;
             try {
                 newModsFileLength = this.modsFileOutput.getChannel().size();
             } catch (IOException e) {
-                throw new ArrayKVException("error getting length of " + this.modsFile, e);
+                throw new ArrayKVException(String.format("error getting length of %s", this.modsFile), e);
             }
             if (this.log.isDebugEnabled()) {
                 this.log.debug("appended {} bytes to {} (new length {})",
@@ -998,10 +999,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         if (!Files.exists(dir))
             Files.createDirectories(dir);
         if (!Files.isDirectory(dir))
-            throw new IllegalArgumentException("target \"" + dir + "\" is not a directory");
+            throw new IllegalArgumentException(String.format("target \"%s\" is not a directory", dir));
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
             for (Path path : stream)
-                throw new IllegalArgumentException("target \"" + dir + "\" is not empty");
+                throw new IllegalArgumentException(String.format("target \"%s\" is not empty", dir));
         }
 
         // Increment hot copy counter - this prevents compaction from removing files while we're copying them
@@ -1217,8 +1218,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         try {
                             this.hotCopyFinishedCondition.await();
                         } catch (InterruptedException e) {
-                            throw new ArrayKVException("thread was interrupted while waiting for "
-                              + this.hotCopiesInProgress + " hot copies to complete", e);
+                            throw new ArrayKVException(String.format(
+                              "thread was interrupted while waiting for %d hot copies to complete", this.hotCopiesInProgress), e);
                         }
                         this.log.debug("hot copies completed, proceeding with completion of (trivial) compaction");
                     }
@@ -1330,8 +1331,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             try {
                                 this.hotCopyFinishedCondition.await();
                             } catch (InterruptedException e) {
-                                throw new ArrayKVException("thread was interrupted while waiting for "
-                                  + this.hotCopiesInProgress + " hot copies to complete", e);
+                                throw new ArrayKVException(String.format(
+                                  "thread was interrupted while waiting for %d hot copies to complete",
+                                  this.hotCopiesInProgress), e);
                             }
                             assert this.compaction == compaction;
                             assert this.kvstore != null;

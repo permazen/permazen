@@ -17,6 +17,7 @@ import jakarta.validation.groups.Default;
 import java.io.IOException;
 import java.util.Collections;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -125,26 +126,31 @@ public class PermazenObjectHttpMessageConverter extends AbstractHttpMessageConve
         // Get the root object's ID
         final MediaType mediaType = input.getHeaders().getContentType();
         if (mediaType == null) {
-            throw new HttpMessageNotReadableException("required parameter \"" + ROOT_OBJECT_ID_PARAMETER_NAME
-              + "\" missing; no `Content-Type' header found", input);
+            throw new HttpMessageNotReadableException(String.format(
+              "required parameter \"%s\" missing; no \"%s\" header found",
+              ROOT_OBJECT_ID_PARAMETER_NAME, HttpHeaders.CONTENT_TYPE), input);
         }
         final String objId = mediaType.getParameter(ROOT_OBJECT_ID_PARAMETER_NAME);
         if (objId == null) {
-            throw new HttpMessageNotReadableException("required parameter \"" + ROOT_OBJECT_ID_PARAMETER_NAME
-              + "\" missing from Content-Type \"" + mediaType + "\"", input);
+            throw new HttpMessageNotReadableException(String.format(
+              "required parameter \"%s\" missing from %s \"%s\"",
+              ROOT_OBJECT_ID_PARAMETER_NAME, HttpHeaders.CONTENT_TYPE, mediaType), input);
         }
         final ObjId id;
         try {
             id = new ObjId(objId);
         } catch (IllegalArgumentException e) {
-            throw new HttpMessageNotReadableException("invalid \"" + ROOT_OBJECT_ID_PARAMETER_NAME + "\" parameter value \""
-              + objId + "\" in Content-Type \"" + mediaType + "\"", input);
+            throw new HttpMessageNotReadableException(String.format(
+              "invalid \"%s\" parameter value \"%s\" in %s \"%s\"",
+              ROOT_OBJECT_ID_PARAMETER_NAME, objId, HttpHeaders.CONTENT_TYPE, mediaType), input);
         }
 
         // Find the root object
         final PermazenObject jobj = jtx.get(id);
-        if (!jobj.exists())
-            throw new HttpMessageNotReadableException("no object with object ID " + id + " found in object graph", input);
+        if (!jobj.exists()) {
+            throw new HttpMessageNotReadableException(String.format(
+              "no object with object ID %s found in object graph", id), input);
+        }
 
         // Done
         return jobj;

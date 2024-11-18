@@ -50,7 +50,7 @@ public class InternetAddressEncoding extends StringConvertedEncoding<InternetAdd
             try {
                 return new InternetAddress(string);
             } catch (AddressException e) {
-                throw new IllegalArgumentException("invalid email address \"" + string + "\"", e);
+                throw new IllegalArgumentException(String.format("invalid email address \"%s\"", string), e);
             }
         }
     }

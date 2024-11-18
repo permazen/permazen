@@ -127,14 +127,14 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("can't load SQLite driver class \"" + SQLITE_DRIVER_CLASS_NAME + "\"", e);
+            throw new RuntimeException(String.format("can't load SQLite driver class \"%s\"", SQLITE_DRIVER_CLASS_NAME), e);
         }
 
         // Auto-configure DataSource
         if (this.getDataSource() == null && this.file != null) {
             final SQLiteDataSource dataSource = this.config != null ? new SQLiteDataSource(this.config) : new SQLiteDataSource();
             final String uri = "jdbc:sqlite:" + this.file.toURI().toString().substring("file:".length());
-            this.log.debug("auto-configuring SQLite DataSource using URI `{}'", uri);
+            this.log.debug("auto-configuring SQLite DataSource using URI \"{}\"", uri);
             dataSource.setUrl(uri);
             this.setDataSource(dataSource);
         }
@@ -155,7 +155,7 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
           + ")";
         this.beginTransaction(connection);
         try (Statement statement = connection.createStatement()) {
-            this.log.debug("auto-creating table `{}' if not already existing:\n{}", this.getTableName(), sql);
+            this.log.debug("auto-creating table \"{}\" if not already existing:\n{}", this.getTableName(), sql);
             statement.execute(sql);
             statement.execute("COMMIT");
         }

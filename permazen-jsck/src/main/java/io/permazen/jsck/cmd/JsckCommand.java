@@ -48,10 +48,10 @@ public class JsckCommand extends AbstractCommand {
           + "       In addition to detecting inconsistencies, attempt to repair them; without this flag,\n"
           + "       inconsistencies are only reported and no changes are made.\n"
           + "   -limit\n"
-          + "       Stop after encountering `limit' issues.\n"
+          + "       Stop after encountering \"limit\" issues.\n"
           + "   -gc\n"
           + "       Garbage collect any unused schema versions at the end of inspection.\n"
-          + "       Note: this garbage collection will occur even without `-repair'.\n"
+          + "       Note: this garbage collection will occur even without \"-repair\".\n"
 /*
           + "   -kv\n"
           + "       Specify a different KVStore to check (by default, the current transaction is checked).\n"
@@ -62,16 +62,16 @@ public class JsckCommand extends AbstractCommand {
           + "   -force-schemas\n"
           + "       Forcibly override schema versions. The parameter must be a Java expression returning a\n"
           + "       Map<Integer, SchemaModel>. WARNING: only use this if you know what you are doing.\n"
-          + "       This flag is ignored without `-repair'.\n"
+          + "       This flag is ignored without \"-repair\".\n"
 */
           + "   -force-format-version\n"
           + "       Forcibly override format version. WARNING: only use this if you know what you are doing.\n"
-          + "       This flag is ignored without `-repair'.\n"
+          + "       This flag is ignored without \"-repair\".\n"
           + "   -verbose\n"
           + "       Increase logging verbosity to show a high level of detail.\n"
           + "   -weak\n"
           + "       For certain key/value stores, use weaker consistency to reduce the chance of conflicts.\n"
-          + "       This flag is incompatible with `-repair' and/or `-gc'.\n";
+          + "       This flag is incompatible with \"-repair\" and/or \"-gc\".\n";
     }
 
     @Override
@@ -97,7 +97,7 @@ public class JsckCommand extends AbstractCommand {
 
         // Sanity check
         if (weak && (config.isGarbageCollectSchemas() || config.isRepair()))
-            throw new RuntimeException("`-weak' flag requires read-only transaction (incompatible with `-gc' and `-repair')");
+            throw new RuntimeException("\"-weak\" flag requires read-only transaction (incompatible with \"-gc\" and \"-repair\")");
 
         // Done
         return new JsckAction(config,
@@ -153,10 +153,11 @@ public class JsckCommand extends AbstractCommand {
                     final HashMap<Integer, SchemaModel> versionMap = new HashMap<>(map.size());
                     for (Map.Entry<?, ?> entry : map.entrySet()) {
                         if (!(entry.getKey() instanceof Integer))
-                            throw new IllegalArgumentException("must be a Map<Integer, SchemaModel>; found key " + entry.getKey());
+                            throw new IllegalArgumentException(String.format(
+                              "must be a Map<Integer, SchemaModel>; found key %s", entry.getKey()));
                         if ((entry.getValue() != null && !(entry.getValue() instanceof SchemaModel))) {
-                            throw new IllegalArgumentException("must be a Map<Integer, SchemaModel>; found value "
-                              + entry.getValue());
+                            throw new IllegalArgumentException(String.format(
+                              "must be a Map<Integer, SchemaModel>; found value %s", entry.getValue()));
                         }
                         versionMap.put((Integer)entry.getKey(), (SchemaModel)entry.getValue());
                     }
