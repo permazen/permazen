@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -105,28 +105,29 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
  <p>
  <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s must satsify these requirements:
  <ul>
-  <li>Instances have an associated Java type which can represent any of the encoding's supported values. However, an encoding
-      is not required to support <i>every</i> instance of the Java type. For example, there can be an encoding of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link"><code>Integer</code></a>
-      that only supports non-negative values.
-  <li>Instances totally order their supported Java values via <a href="#compare(T,T)"><code>compare()</code></a>. If the associated Java type itself
+  <li>Instances have an associated Java type which can represent any of the encoding's supported values (see
+      <a href="#getTypeToken()"><code>getTypeToken()</code></a>). However, an encoding is not required to support <i>every</i> value of the Java type.
+      For example, there could be an encoding of type <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link"><code>Integer</code></a> that only supports non-negative values.
+  <li>Instances totally order their supported Java values (see <a href="#compare(T,T)"><code>compare()</code></a>). If the associated Java type itself
       implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link"><code>Comparable</code></a>, then the two orderings do not necessarily have to agree, but they should if possible.
-      In that case, <a href="../util/NaturalSortAware.html#sortsNaturally()"><code>NaturalSortAware.sortsNaturally()</code></a> should return true.
-  <li><code>null</code> may or may not be a supported value; see <a href="#supportsNull()"><code>supportsNull()</code></a>. If so, it must be fully supported value just
-      like any other; for example, it must be handled by <a href="#compare(T,T)"><code>compare()</code></a> (typically null values sort last).
+      In that case, <a href="../util/NaturalSortAware.html#sortsNaturally()"><code>sortsNaturally()</code></a> should return true.
+  <li><code>null</code> may or may not be a supported value (see <a href="#supportsNull()"><code>supportsNull()</code></a>). If so, it must be fully supported value
+      just like any other; for example, it must be handled by <a href="#compare(T,T)"><code>compare()</code></a> (typically null values sort last).
       Note that this is an additional requirement beyond what <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html" title="class or interface in java.util" class="external-link"><code>Comparator</code></a> strictly requires.
   <li>There is a <a href="#getDefaultValue()">default value</a>. For types that support null, the default value must be null,
       and for types that don't support null, obviously the default value must not be null; however, an exception can be made
-      for encodings that don't support null but don't need default values, e.g., anonymous encodings that are always wrapped
-      within a <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>.
-  <li>All <i>non-null</i> values can be encoded/decoded into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> without losing information; see
-      <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
+      for encodings that don't support null but also don't need default values, e.g., anonymous encodings that are always
+      wrapped within a <a href="NullSafeEncoding.html" title="class in io.permazen.encoding"><code>NullSafeEncoding</code></a>; for such encodings, <a href="#getDefaultValue()"><code>getDefaultValue()</code></a> should throw an
+      <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="external-link"><code>UnsupportedOperationException</code></a>.
+  <li>All <i>non-null</i> values can be encoded/decoded into a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> without losing information (see
+      <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>). These strings must contain characters
+      that are valid in an XML document only.
   <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., <code>byte[]</code>
-      array) without losing information. Moreover, these binary strings, when sorted lexicographically using unsigned comparison,
-      sort consistently with the encoding's <a href="#compare(T,T)">total ordering</a> of the corresponding Java values;
-      see <a href="#read(io.permazen.util.ByteReader)"><code>read()</code></a> and <a href="#write(io.permazen.util.ByteWriter,T)"><code>write()</code></a>.
+      array) without losing information (see <a href="#read(io.permazen.util.ByteReader)"><code>read()</code></a> and <a href="#write(io.permazen.util.ByteWriter,T)"><code>write()</code></a>). Moreover, these binary strings,
+      when sorted lexicographically as unsigned values, sort consistently with <a href="#compare(T,T)"><code>compare()</code></a>.
   <li>An <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s string and binary encodings and sort ordering is guaranteed to <i>never change</i>, unless the
-      <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> is also changed, which effectvely defines a new encoding. However, in such scenarios automatic
-      schema migrations are easily handled by adding appropriate logic to <a href="#convert(io.permazen.encoding.Encoding,S)"><code>convert()</code></a>.
+      <a href="EncodingId.html" title="class in io.permazen.encoding"><code>EncodingId</code></a> is also changed, which effectively defines a new encoding (in such scenarios, automatic schema
+      migration is possible by adding the appropriate logic to <a href="#convert(io.permazen.encoding.Encoding,S)"><code>convert()</code></a>).
  </ul>
 
  <p>
@@ -169,8 +170,8 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 <h2>Method Summary</h2>
 <div id="method-summary-table">
 <div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab5" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab5', 3)" class="table-tab">Default Methods</button></div>
-<div id="method-summary-table.tabpanel" role="tabpanel">
-<div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
+<div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
+<div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
@@ -329,9 +330,9 @@ extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/ja
 
  <p>
  Once associated with a specific encoding, an encoding ID must never be changed or reused. If an <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s
- encoding changes in any way, then its encoding ID <b>must</b> also change. This applies only to the encoding itself,
+ behavior changes in any way, then its encoding ID <b>must</b> also change. This applies only to the encoding itself,
  and not the <a href="#getTypeToken()">associated Java type</a>. For example, an <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>'s associated Java type
- can change over time, e.g., if the Java class changes package or class name.</div>
+ can change over time, e.g., if its class or package name changes.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>this encoding's unique ID, or null if this encoding is anonymous</dd>

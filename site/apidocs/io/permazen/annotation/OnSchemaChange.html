@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -73,15 +73,15 @@ loadScripts(document, 'script');</script>
 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="external-link">@Documented</a>
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">OnSchemaChange</span></div>
 <div class="block">Annotation for methods that are to be invoked whenever an object's schema has just changed,
- in order to apply arbitrary "semantic" schema migration logic.
+ in order to apply "semantic" schema migration logic.
 
  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/prism.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-java.min.js"></script>
  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/themes/prism.min.css" rel="stylesheet"/>
 
  <p>
- The annotated method is given access to all of the previous object version's fields, including fields that have
- been deleted or whose types have changed in the new schema. This allows the object to perform any schema migration
+ The annotated method is given access to all of the values in the previous object version's fields, including for
+ fields that have been removed or changed types. This allows the object to perform any schema migration
  "fixups" that may be required before the old information is lost for good.
 
  <p>
@@ -120,9 +120,6 @@ loadScripts(document, 'script');</script>
  </code></pre>
 
  <p>
- Note: <a href="../PermazenCounterField.html" title="class in io.permazen">PermazenCounterField</a> values are represented in <code>oldValues</code> as <code>Long</code>s.
-
- <p>
  A class may have multiple <a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a>-annotated methods.
 
  <p><b>Incompatible Object Type Changes</b></p>
@@ -136,8 +133,11 @@ loadScripts(document, 'script');</script>
  throw a <a href="../core/TypeNotInSchemaException.html" title="class in io.permazen.core"><code>TypeNotInSchemaException</code></a>. Such objects are still accessible however (see <a href="../UntypedPermazenObject.html" title="class in io.permazen"><code>UntypedPermazenObject</code></a>).
 
  <p>
- Secondly, it's possible for an old field to have a value whose type simply doesn't exist in the new schema. When this happens,
- it's not possible to provide the old value to an <a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a> method in its original form.
+ Secondly, it's possible for an old field to have a value that can no longer be represented within the new schema.
+ When this happens, it's not possible to provide the old value to an <a href="OnSchemaChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnSchemaChange</code></a> method
+ in its original form.
+
+ <p>
  This can happen in two ways:
  <ul>
  <li>A reference field refers to an object whose type no longer exists in the new schema; or</li>
@@ -153,6 +153,9 @@ loadScripts(document, 'script');</script>
  <li>For <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link"><code>Enum</code></a> fields, old values are always represented as <a href="../core/EnumValue.html" title="class in io.permazen.core"><code>EnumValue</code></a> objects.
       For consistency's sake, this is true <i>even if the associated field's type has not changed</i>.</li>
  </ul>
+
+ <p>
+ In addition, <a href="../PermazenCounterField.html" title="class in io.permazen">PermazenCounterField</a> values are represented in <code>oldValues</code> as values of type <code>Long</code>.
 
  <p><b>Meta-Annotations</b></p>
 

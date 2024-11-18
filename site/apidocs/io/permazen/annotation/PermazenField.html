@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -240,9 +240,9 @@ loadScripts(document, 'script');</script>
 
  <p>
  Beware however, that like most other types of validation constraint, adding or changing a uniqueness constraint can cause
- valid database objects to become invalid without notice, or at least until if/when the object is revalidated in some future
- transaction. In such a situation, you can force a schema change - and therefore revalidation on the next access - by
- incrementing <a href="PermazenType.html#schemaEpoch()"><code>PermazenType.schemaEpoch()</code></a> in the field's containing type.
+ valid database objects to become invalid without immediate notice, or at least not until if/when the object is revalidated
+ in some future transaction. In such a situation, you can force a schema change - and therefore revalidation on the next
+ access - by incrementing <a href="PermazenType.html#schemaEpoch()"><code>PermazenType.schemaEpoch()</code></a> in the field's containing type.
 
  <p><b>Upgrade Conversions</b></p>
 

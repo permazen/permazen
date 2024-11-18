@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -268,7 +268,7 @@ loadScripts(document, 'script');</script>
 
   // Public Methods
 
-      public HouseStats getInstance() {
+      public static HouseStats getInstance() {
           return PermazenTransaction.getCurrent().getSingleton(HouseStats.class);
       }
 
@@ -304,12 +304,12 @@ loadScripts(document, 'script');</script>
 
   // Non-public Methods
 
-      abstract void setCount(long count);
+      protected abstract void setCount(long count);
 
-      abstract void setAverage(double average);
+      protected abstract void setAverage(double average);
 
-      abstract double getM2();
-      abstract void setM2(double m2);
+      protected abstract double getM2();
+      protected abstract void setM2(double m2);
 
       private void adjust(boolean add, double price) {
           long count = this.getCount();
@@ -347,7 +347,7 @@ loadScripts(document, 'script');</script>
  <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> annotations can be used to automatically garbage collect <i>dependent</i> objects.
  A dependent object is one that is only useful or meaningful in the context of some other object(s) that reference it.
  You can combine <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> with <a href="OnDelete.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnDelete</code></a> and <a href="../ReferencePath.html" title="class in io.permazen"><code>&#64;ReferencePath</code></a>
- to keep track of these incoming references.
+ to keep track of these references.
 
  <p>
  For example, suppose multiple <code>Person</code>'s can share a common <code>Address</code>. You only want <code>Address</code> objects
@@ -359,7 +359,7 @@ loadScripts(document, 'script');</script>
  need to count references, you just need to check whether any references still exist at the appropriate times.
 
  <p>
- You could do something like the example below. It defers the cleanup until validation time to avoid object being deleted
+ You could do something like the example below. It defers the cleanup until validation time to avoid objects being deleted
  accidentally due to transient reference manipulation.
 
  <pre><code class="language-java">
@@ -411,7 +411,7 @@ loadScripts(document, 'script');</script>
  <p><b>Notification Delivery</b></p>
 
  <p>
- Notifications are delivered synchronously within the thread the made the change, after the change is made and just
+ Notifications are delivered synchronously within the thread that made the change, after the change is made and just
  prior to returning to the original caller who invoked the method that changed the field.
  If an <a href="OnChange.html" title="annotation interface in io.permazen.annotation"><code>&#64;OnChange</code></a> method itself makes changes that generate additional change notifications,
  these new notifications are also handled prior to returning to the original caller. Put another way, the queue of
@@ -451,9 +451,8 @@ loadScripts(document, 'script');</script>
  </code></pre>
 
  The path <code>"-&gt;friends"</code> implies type <code>Person</code>, but the field <code>"name"</code> is a field of <code>NamedPerson</code>,
- a narrower type than <code>Person</code>. However, this will still work as long as there is no ambiguity. In this example,
- that means there are no other sub-types of <code>Person</code> with a different (i.e., having conflicting type) field also
- named <code>"name"</code>.
+ a narrower type than <code>Person</code>. However, this will still work as long as there is no ambiguity; in this example,
+ "no ambiguity" would mean no other sub-types of <code>Person</code> exist that have a non-<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link"><code>String</code></a> <code>"name"</code> field.
 
  <p>
  Note that in the example above, the <a href="../change/SimpleFieldChange.html" title="class in io.permazen.change"><code>SimpleFieldChange</code></a> parameter to the method <code>friendNameChanged()</code>
@@ -471,7 +470,7 @@ loadScripts(document, 'script');</script>
  <p>
  For any given field change and path, only one notification will be delivered per recipient object, even if the changed field
  is seen through the path in multiple ways (e.g., via reference path <code>"-&gt;mylist"</code> where the changed object
- appears multiple times in the list <code>mylist</code>).
+ appears multiple times in <code>mylist</code>).
 
  <p>
  Some notifications may need to be ignored by objects in <a href="../DetachedPermazenTransaction.html" title="class in io.permazen">detached</a> transactions;
