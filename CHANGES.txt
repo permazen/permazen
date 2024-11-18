@@ -1,4 +1,4 @@
-Version 5.1.0
+Version 5.1.0 Released November 18, 2024
 
     - Eliminate the need for the "deleteNofified" persistent meta-data flag
     - Allow reference path forward steps to have explicit type names
