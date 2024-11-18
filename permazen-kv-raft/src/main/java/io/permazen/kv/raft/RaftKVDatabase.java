@@ -2367,7 +2367,6 @@ public class RaftKVDatabase implements KVDatabase {
 
         private boolean shutdown;
         private boolean didWarnDelete;
-        private boolean didWarnTempFile;
 
         private IOThread(File tempDir, String threadName) {
             super(threadName);
@@ -2397,10 +2396,14 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         public synchronized File getTempFile() throws IOException {
+
+            // Grab a free temp file from the ready queue, if any
             final FileInfo fileInfo;
             try {
                 fileInfo = this.availableTempFiles.remove();
             } catch (NoSuchElementException e) {
+
+                // We must do it ourselves
                 return File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.tempDir);
             }
             this.notifyAll();
@@ -2435,16 +2438,14 @@ public class RaftKVDatabase implements KVDatabase {
 
                     // Create a new temporary file, if needed
                     if (this.availableTempFiles.remainingCapacity() > 0) {
+                        final File file;
                         try {
-                            this.availableTempFiles.add(new FileInfo(
-                              File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.tempDir), "ready temporary file"));
+                            file = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, this.tempDir);
                         } catch (IOException e) {
-                            if (!this.didWarnTempFile) {
-                                this.log.error("error creating temporary file in "
-                                  + this.tempDir + " (suppressing further warnings)", e);
-                                this.didWarnTempFile = true;
-                            }
+                            this.log.error("error creating temporary file in {} ({} exiting)", this.tempDir, this, e);
+                            break;      // exit thread - we can't reliabily create temp files
                         }
+                        this.availableTempFiles.add(new FileInfo(file, "ready temporary file"));
                     }
                 }
             } catch (ThreadDeath t) {
