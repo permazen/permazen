@@ -849,8 +849,7 @@ public class Transaction {
 
         // Find object type
         final Schema objSchema = schemaId.equals(this.schema.getSchemaId()) ? this.schema : this.schemaBundle.getSchema(schemaId);
-        if (objSchema == null)
-            throw new InvalidSchemaException(String.format("unknown schema \"%s\"", schemaId));
+        assert objSchema != null;
         final ObjType objType = objSchema.getObjType(id.getStorageId());
 
         // Initialize object
@@ -902,8 +901,7 @@ public class Transaction {
 
         // Find object type
         final Schema objSchema = schemaId.equals(this.schema.getSchemaId()) ? this.schema : this.schemaBundle.getSchema(schemaId);
-        if (objSchema == null)
-            throw new InvalidSchemaException(String.format("unknown schema \"%s\"", schemaId));
+        assert objSchema != null;
         final ObjType objType = objSchema.getObjType(typeName);
 
         // Generate object ID
@@ -3461,10 +3459,7 @@ public class Transaction {
 
             // Get corresponding Schema object
             final Schema nextSchema = this.schemaBundle.getSchema(schemaIndex);
-            if (nextSchema == null) {
-                throw new InconsistentDatabaseException(String.format(
-                  "encountered objects with unknown schema index %s", schemaIndex));
-            }
+            assert nextSchema != null;
 
             // Iterate over reference fields in this schema that have the configured DeleteAction in some object type
             nextSchema.getDeleteActionKeyRanges().get(inverseDelete).forEach((field, keyRanges) -> {
