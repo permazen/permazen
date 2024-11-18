@@ -30,7 +30,7 @@ void branch(java.util.Map<String, ?> openOptions, java.util.Map<String, ?> syncO
 // Emit a greeting
 System.out.println();
 System.out.println(String.format(
-  "|  Welcome to the Permazen %s version of JShell.", io.permazen.Permazen.VERSION));
+  "|  Welcome to the Permazen %s version of JShell.", Permazen.VERSION));
 System.out.println("""
 
 You can access the current io.permazen.cli.Session instance as "session", and the current
