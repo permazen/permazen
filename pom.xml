@@ -293,7 +293,7 @@
 
                                 <!-- Enforce Java version -->
                                 <requireJavaVersion>
-                                    <version>[${java.version},${java.version.upper.bound})</version>
+                                    <version>[${java.version},${java.version.upper.bound}]</version>
                                 </requireJavaVersion>
 
                                 <!-- Check for dependency conflicts -->
@@ -637,7 +637,7 @@
         <profile>
             <id>sign</id>
             <properties>
-                <java.version.upper.bound>18</java.version.upper.bound>
+                <java.version.upper.bound>${java.version}.99999</java.version.upper.bound>
             </properties>
             <build>
                 <plugins>
