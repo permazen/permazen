@@ -21,7 +21,7 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.kv.mysql</automatic.module.name>
-        <mysql.version>8.0.31</mysql.version>
+        <mysql.version>8.4.0</mysql.version>
     </properties>
     <dependencies>
         <dependency>
