@@ -11,11 +11,11 @@ Unless specified otherwise:
 
 ## Storage ID's
 
-Storage ID's are positive 32-bit values that identify a range of related keys. Encoded storage ID's are used as prefixes for keys corresponding to specific object types, indexes, meta-data, etc.
+Storage ID's are positive 32-bit values whose `byte[]` encodings are used to build keys corresponding to specific object types, fields, indexes, meta-data, etc.
 
-To generate a `byte[]` array key prefix from a storage ID, the ID is encoded by [`UnsignedIntEncoder`](http://permazen.github.io/permazen/site/apidocs/io/permazen/util/UnsignedIntEncoder.html). Depending on the ID's value, the resulting `byte[]` array will be from 1 to 5 bytes (values from 1 to 250 require one byte, values from 251 to 506 require two bytes, values from 507 to 65786 require three bytes, etc.).
+To generate a `byte[]` key component from a storage ID, the ID is encoded by [`UnsignedIntEncoder`](http://permazen.github.io/permazen/site/apidocs/io/permazen/util/UnsignedIntEncoder.html). Depending on the ID's value, the resulting `byte[]` array will be from 1 to 5 bytes (values from 1 to 250 require one byte, values from 251 to 506 require two bytes, values from 507 to 65786 require three bytes, etc.).
 
-By default, storage ID's are assigned automatically starting from 1, so unless the schema is very complicated, they will all fit in one byte.
+By default, storage ID's are assigned automatically starting from 1, so unless the schema is very complicated, they will all encoded as one byte.
 
 ## Object ID's
 
@@ -53,35 +53,39 @@ A Permazen database has a "magic cookie" key/value pair that also encodes a form
     ┃ 0x00 ┃ 0x00 ┃ 'Permazen' ┃ -> ┃  Database Format Version  ┃
     ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-The current format version is [`Layout.CURRENT_FORMAT_VERSION`](https://permazen.github.io/permazen/site/apidocs/io/permazen/core/Layout.html#CURRENT_FORMAT_VERSION),
+The current format version is [`Layout.CURRENT_FORMAT_VERSION`](https://permazen.github.io/permazen/site/apidocs/io/permazen/core/Layout.html#CURRENT_FORMAT_VERSION).
 
 **Schema Table**
 
-Schemas are recorded in an indexed list. The "schema index" is a positive integer encoded like a storage ID.
+Schema versions are recorded in the Schema Table. This table maps small, positive integers to schema versions; the integer is the "schema index" for the schema. In the database, schemas are referred to by their schema index, encoded like a storage ID.
 
-The list can have holes if unused schema(s) have been garbage collected. When a new schema is recorded, it always grabs the lowest available schema index.
+Schema indexes are allocated consecutively starting at one. There can be holes if unused schema(s) have been garbage collected. In any case, when a new schema is recorded, it always grabs the lowest available schema index.
 
     ┏━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━┓    ┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
     ┃ 0x00 ┃ 0x01 ┃  Schema Index  ┃ -> ┃  Compressed Schema XML  ┃
     ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-The schema index is stored under each object's key to indicate its schema version (see below).
+Each schema version is recorded as a (compressed) XML document that defines all of the object types, fields, and indexes in that particular schema. This includes information that determines how field values are encoded. The XML is a serialized representation of a [`SchemaModel`](http://permazen.github.io/permazen/site/apidocs/io/permazen/schema/SchemaModel.html).
+
+A schema index is stored under each object's key to indicate that object's current schema version (see below).
 
 **Storage ID Table**
 
-All object types, fields, and composite indexes have an associated [`SchemaId`](http://permazen.github.io/permazen/site/apidocs/io/permazen/schema/SchemaId.html) which is a unique signature corresponding to how the item is encoded in the database, independent of the schema that it belongs to.
+All object types, fields, and composite indexes have an associated [`SchemaId`](http://permazen.github.io/permazen/site/apidocs/io/permazen/schema/SchemaId.html) which is a unique signature corresponding to how that particular item is encoded in the database, independent of the schema that it belongs to. Each `SchemaId` is assigned a unique storage ID. As mentioned above, an item's encoded storage ID is used as a `byte[]` component when building keys related to the item.
 
-This means (for example) that objects from different schemas but having the same type name will be stored together, and that fields from different schemas with the same name and encoding will be indexed together. This is what makes it possible to return objects from other schema versions when querying by type or index.
+If two items have the same `SchemaId`, then they are encoded the same way in the database, and therefore they can share the same storage ID.
 
-`SchemaId`'s are hash values generated based on the item type, plus the following:
+`SchemaId`'s are hash values based on the item type plus the following:
 
-* For object types, their object type names (regardless of the fields they contain)
-* For counter fields, their names
-* For simple fields, their names and [`EncodingId`](http://permazen.github.io/permazen/site/apidocs/io/permazen/encoding/EncodingId.html)
-* For complex fields, their names and the `SchemaId`'s of their sub-fields
+* For object types, the object type name (regardless of the fields it contains)
+* For counter fields, the field name
+* For simple fields, the field name and [`EncodingId`](http://permazen.github.io/permazen/site/apidocs/io/permazen/encoding/EncodingId.html)
+* For complex fields, the names and the `SchemaId`'s of its sub-fields
 * For composite indexes, the `SchemaId`'s of the fields in the index
 
-Each `SchemaId` is assigned a unique storage ID. Storage ID's are used to build keys in the key/value database.
+This means (for example) that objects from different schemas but having the same type name will have the same `SchemaId` and therefore can be stored together, and similarly that fields from different schemas but having the same name and encoding can be indexed together.
+
+These two facts make it possible to iterate over objects from all schema versions when querying by type or index. It is also possible to limit queries to specific schema versions, by intersecting them with the Object Schema Index; see below.
 
 Storage ID's are allocated consecutively starting at one and stored in the Storage ID Table list:
 
@@ -89,9 +93,9 @@ Storage ID's are allocated consecutively starting at one and stored in the Stora
     ┃ 0x00 ┃ 0x02 ┃  Storage ID  ┃ -> ┃  SchemaId  ┃
     ┗━━━━━━┻━━━━━━┻━━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━┛
 
-When recording a new schema, any storage ID's not already assigned get the next available storage ID. When a schema is removed, unused storage IDs are garbage collected, so this table can also have holes.
+When recording a new schema, any storage ID's not already assigned get the next available storage ID. When a schema is removed, unused storage IDs are automatically removed as well, so this table can also have holes.
 
-Note: A schema itself also has a `SchemaId`, which is a hash over the entire schema. This hash is used to quickly determine if two schemas are identical.
+Note: A schema itself also has a `SchemaId`, which is a hash over the entire schema. This hash is used to quickly determine if two schemas are identical. No entry is made in the Storage ID Table for schemas, since they are already listed in the Schema Table.
 
 **Object Schema Index**
 
@@ -119,7 +123,7 @@ Under the Object ID itself is meta-data related to the object:
     ┃  Object ID  ┃ -> ┃  Schema Index  ┃ Flags ┃
     ┗━━━━━━━━━━━━━┛    ┗━━━━━━━━━━━━━━━━┻━━━━━━━┛
 
-The 'Flags' field is a single byte. Currently, the flags byte must be zero. A missing flags byte is equivalent to zero.
+The 'Flags' field is a single byte. Currently, the flags byte must be zero or missing. A missing flags byte is equivalent to zero.
 
 #### Simple and Counter Fields
 
