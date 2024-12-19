@@ -22,10 +22,6 @@ public class FloatEncoding extends NumberEncoding<Float> {
 
     private static final long serialVersionUID = 4726406311612739536L;
 
-    private static final byte[] DEFAULT_VALUE = new byte[] {
-      (byte)0x80, (byte)0x00, (byte)0x00, (byte)0x00
-    };
-
     private static final int POS_XOR = 0x80000000;
     private static final int NEG_XOR = 0xffffffff;
     private static final int SIGN_BIT = 0x80000000;
