@@ -401,7 +401,6 @@
                         <link>https://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
                         <link>https://docs.spring.io/spring/docs/${spring-framework.version}/javadoc-api/</link>
                         <link>https://guava.dev/releases/${guava.version}/api/docs/</link>
-                        <link>https://www.eclipse.org/aspectj/doc/released/runtime-api/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                     </links>
                 </configuration>
@@ -615,7 +614,6 @@
                         <link>https://archiecobbs.github.io/dellroad-stuff/site/apidocs/</link>
                         <link>https://docs.spring.io/spring/docs/${spring-framework.version}/javadoc-api/</link>
                         <link>https://guava.dev/releases/${guava.version}/api/docs/</link>
-                        <link>https://www.eclipse.org/aspectj/doc/released/runtime-api/</link>
                         <link>https://www.slf4j.org/apidocs/</link>
                     </links>
                 </configuration>
