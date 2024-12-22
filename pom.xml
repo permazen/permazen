@@ -13,7 +13,7 @@
     <groupId>io.permazen</groupId>
     <artifactId>permazen</artifactId>
     <name>Permazen</name>
-    <version>5.1.0</version>
+    <version>5.2.0</version>
     <packaging>pom</packaging>
     <description>Permazen is a better persistence layer for Java.</description>
     <url>https://github.com/permazen/permazen/</url>

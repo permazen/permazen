@@ -1,8 +1,9 @@
-Version Next
+Version 5.2.0
 
     - Update LMDB to fix failure to run on ARM architecture.
     - Removed dependency of permazen-encoding on permazen-kv.
     - Fix MySQL quoting breakage caused by commit e47c679ea5.
+    - Update API's to replace byte[] arrays with new ByteData class.
 
 Version 5.1.0 Released November 18, 2024
 

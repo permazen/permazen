@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.permazen</groupId>
         <artifactId>permazen</artifactId>
-        <version>5.1.0</version>
+        <version>5.2.0</version>
     </parent>
     <artifactId>permazen-kv-lmdb</artifactId>
     <name>Permazen LMDB Key/Value Store</name>
