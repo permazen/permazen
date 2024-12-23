@@ -5,6 +5,8 @@
 
 package io.permazen.util;
 
+import com.google.common.base.Preconditions;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -419,72 +421,108 @@ public final class LongEncoder {
     private LongEncoder() {
     }
 
+// ENCODING
+
     /**
      * Encode the given value.
      *
      * @param value value to encode
-     * @return encoded bytes
+     * @return encoded value
      */
-    public static byte[] encode(long value) {
-        final ByteWriter writer = new ByteWriter(LongEncoder.encodeLength(value));
-        LongEncoder.write(writer, value);
-        return writer.getBytes();
+    private static ByteData encode(long value) {
+        final byte[] buf = new byte[MAX_ENCODED_LENGTH];
+        int len = 1;
+        if (value < MIN_SINGLE_BYTE_VALUE) {
+            value += NEGATIVE_ADJUST;
+            long mask = 0x00ffffffffffffffL;
+            for (int shift = 56; shift != 0; shift -= 8, mask >>= 8) {
+                if ((value | mask) != ~0L)
+                    buf[len++] = (byte)(value >> shift);
+            }
+            buf[0] = (byte)(MIN_SINGLE_BYTE_ENCODED - len);
+        } else if (value > MAX_SINGLE_BYTE_VALUE) {
+            value += POSITIVE_ADJUST;
+            long mask = 0xff00000000000000L;
+            for (int shift = 56; shift != 0; shift -= 8, mask >>= 8) {
+                if ((value & mask) != 0L)
+                    buf[len++] = (byte)(value >> shift);
+            }
+            buf[0] = (byte)(MAX_SINGLE_BYTE_ENCODED + len);
+        } else
+            return ByteData.of((byte)(value + ZERO_ADJUST));
+        buf[len++] = (byte)value;
+        return ByteData.of(buf, 0, len);
     }
+
+    /**
+     * Encode the given value.
+     *
+     * @param writer destination for the encoded value
+     * @param value value to encode
+     * @throws IllegalArgumentException if {@code writer} is null
+     */
+    public static void write(ByteData.Writer writer, long value) {
+        Preconditions.checkArgument(writer != null, "null writer");
+        writer.write(LongEncoder.encode(value));
+    }
+
+    /**
+     * Encode the given value.
+     *
+     * @param out destination for the encoded value
+     * @param value value to encode
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if {@code out} is null
+     */
+    public static void write(OutputStream out, long value) throws IOException {
+        Preconditions.checkArgument(out != null, "null out");
+        LongEncoder.encode(value).writeTo(out);
+    }
+
+    /**
+     * Encode the given value.
+     *
+     * @param buf destination for the encoded value
+     * @param value value to encode
+     * @throws java.nio.BufferOverflowException if {@code buf} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code buf} is read-only
+     * @throws IllegalArgumentException if {@code buf} is null
+     */
+    public static void write(ByteBuffer buf, long value) {
+        Preconditions.checkArgument(buf != null, "null buf");
+        LongEncoder.encode(value).writeTo(buf);
+    }
+
+    /**
+     * Determine the length (in bytes) of the encoded value.
+     *
+     * @param value value to encode
+     * @return the length of the encoded value, a value between one and {@link #MAX_ENCODED_LENGTH}
+     */
+    public static int encodeLength(long value) {
+        int index = Arrays.binarySearch(CUTOFF_VALUES, value);
+        if (index < 0)
+            index = ~index - 1;
+        return index < 8 ? 8 - index : index - 6;
+    }
+
+// DECODING
 
     /**
      * Decode the given value.
      *
      * @param data encoded value
      * @return decoded value
-     * @throws IllegalArgumentException if {@code bytes} contains an invalid encoding, or extra trailing garbage
+     * @throws IllegalArgumentException if {@code data} contains an invalid encoding, or extra trailing garbage
+     * @throws IllegalArgumentException if {@code data} is null
      */
-    public static long decode(byte[] data) {
-        final ByteReader reader = new ByteReader(data);
+    public static long decode(ByteData data) {
+        Preconditions.checkArgument(data != null, "null data");
+        final ByteData.Reader reader = data.newReader();
         final long value = LongEncoder.read(reader);
         if (reader.remain() > 0)
-            throw new IllegalArgumentException("encoded value contains extra trailing garbage");
+            throw new IllegalArgumentException("value contains trailing garbage");
         return value;
-    }
-
-    /**
-     * Encode the given value to the output.
-     *
-     * @param writer destination for the encoded value
-     * @param value value to encode
-     * @throws NullPointerException if {@code writer} is null
-     */
-    public static void write(ByteWriter writer, long value) {
-        writer.makeRoom(MAX_ENCODED_LENGTH);
-        writer.len += LongEncoder.encode(value, writer.buf, writer.len);
-    }
-
-    /**
-     * Encode the given value and write it to the given {@link OutputStream}.
-     *
-     * @param out destination for the encoded value
-     * @param value value to encode
-     * @throws IOException if an I/O error occurs
-     * @throws NullPointerException if {@code out} is null
-     */
-    public static void write(OutputStream out, long value) throws IOException {
-        final byte[] array = new byte[LongEncoder.MAX_ENCODED_LENGTH];
-        final int nbytes = LongEncoder.encode(value, array, 0);
-        out.write(array, 0, nbytes);
-    }
-
-    /**
-     * Encode the given value and write it to the given {@link ByteBuffer}.
-     *
-     * @param buf destination for the encoded value
-     * @param value value to encode
-     * @throws java.nio.BufferOverflowException if {@code buf} overflows
-     * @throws java.nio.ReadOnlyBufferException if {@code buf} is read-only
-     * @throws NullPointerException if {@code buf} is null
-     */
-    public static void write(ByteBuffer buf, long value) {
-        final byte[] array = new byte[LongEncoder.MAX_ENCODED_LENGTH];
-        final int nbytes = LongEncoder.encode(value, array, 0);
-        buf.put(array, 0, nbytes);
     }
 
     /**
@@ -494,9 +532,10 @@ public final class LongEncoder {
      * @return the decoded value
      * @throws IllegalArgumentException if an invalid encoding is encountered
      * @throws IllegalArgumentException if the encoded value is truncated
-     * @throws NullPointerException if {@code reader} is null
+     * @throws IllegalArgumentException if {@code reader} is null
      */
-    public static long read(ByteReader reader) {
+    public static long read(ByteData.Reader reader) {
+        Preconditions.checkArgument(reader != null, "null reader");
         try {
             int first = reader.readByte();
             if (first < MIN_SINGLE_BYTE_ENCODED) {
@@ -529,21 +568,20 @@ public final class LongEncoder {
      * @throws IOException if an I/O error occurs
      * @throws EOFException if an unexpected EOF is encountered
      * @throws IllegalArgumentException if an invalid encoding is encountered
-     * @throws NullPointerException if {@code input} is null
+     * @throws IllegalArgumentException if {@code input} is null
      */
     public static long read(InputStream input) throws IOException {
+        Preconditions.checkArgument(input != null, "null input");
         final int first = input.read();
         if (first == -1)
             throw new EOFException();
         final byte[] array = new byte[LongEncoder.decodeLength(first)];
         array[0] = (byte)first;
-        for (int i = 1; i < array.length; i++) {
-            final int next = input.read();
-            if (next == -1)
+        for (int r, off = 1; off < array.length; off += r) {
+            if ((r = input.read(array, off, array.length - off)) == -1)
                 throw new EOFException();
-            array[i] = (byte)next;
         }
-        return LongEncoder.read(new ByteReader(array));
+        return LongEncoder.read(new ByteData.Reader(array));
     }
 
     /**
@@ -553,15 +591,16 @@ public final class LongEncoder {
      * @return the decoded value
      * @throws java.nio.BufferUnderflowException if {@code buf} underflows
      * @throws IllegalArgumentException if an invalid encoding is encountered
-     * @throws NullPointerException if {@code buf} is null
+     * @throws IllegalArgumentException if {@code buf} is null
      */
     public static long read(ByteBuffer buf) {
+        Preconditions.checkArgument(buf != null, "null buf");
         final byte first = buf.get();
         final byte[] array = new byte[LongEncoder.decodeLength(first)];
         array[0] = first;
         if (array.length > 1)
             buf.get(array, 1, array.length - 1);
-        return LongEncoder.read(new ByteReader(array));
+        return LongEncoder.read(new ByteData.Reader(array));
     }
 
     /**
@@ -569,9 +608,13 @@ public final class LongEncoder {
      *
      * @param reader input holding an encoded value
      * @throws IllegalArgumentException if the first byte is {@code 0xff}
+     * @throws IllegalArgumentException if {@code reader} is null
      */
-    public static void skip(ByteReader reader) {
-        reader.skip(LongEncoder.decodeLength(reader.readByte()) - 1);
+    public static void skip(ByteData.Reader reader) {
+        Preconditions.checkArgument(reader != null, "null reader");
+        final int remain = LongEncoder.decodeLength(reader.readByte()) - 1;
+        if (remain > 0)
+            reader.skip(remain);
     }
 
     /**
@@ -592,53 +635,7 @@ public final class LongEncoder {
         return 1;
     }
 
-    /**
-     * Determine the length (in bytes) of the encoded value.
-     *
-     * @param value value to encode
-     * @return the length of the encoded value, a value between one and {@link #MAX_ENCODED_LENGTH}
-     */
-    public static int encodeLength(long value) {
-        int index = Arrays.binarySearch(CUTOFF_VALUES, value);
-        if (index < 0)
-            index = ~index - 1;
-        return index < 8 ? 8 - index : index - 6;
-    }
-
-    /**
-     * Encode the given value and write the encoded bytes into the given buffer.
-     *
-     * @param value value to encode
-     * @param buf output buffer
-     * @param off starting offset into output buffer
-     * @return the number of encoded bytes written
-     * @throws ArrayIndexOutOfBoundsException if {@code off} is negative or the encoded value exceeds the given buffer
-     */
-    private static int encode(long value, byte[] buf, int off) {
-        int len = 1;
-        if (value < MIN_SINGLE_BYTE_VALUE) {
-            value += NEGATIVE_ADJUST;
-            long mask = 0x00ffffffffffffffL;
-            for (int shift = 56; shift != 0; shift -= 8, mask >>= 8) {
-                if ((value | mask) != ~0L)
-                    buf[off + len++] = (byte)(value >> shift);
-            }
-            buf[off] = (byte)(MIN_SINGLE_BYTE_ENCODED - len);
-        } else if (value > MAX_SINGLE_BYTE_VALUE) {
-            value += POSITIVE_ADJUST;
-            long mask = 0xff00000000000000L;
-            for (int shift = 56; shift != 0; shift -= 8, mask >>= 8) {
-                if ((value & mask) != 0L)
-                    buf[off + len++] = (byte)(value >> shift);
-            }
-            buf[off] = (byte)(MAX_SINGLE_BYTE_ENCODED + len);
-        } else {
-            buf[off] = (byte)(value + ZERO_ADJUST);
-            return 1;
-        }
-        buf[off + len++] = (byte)value;
-        return len;
-    }
+// TEST METHOD
 
     /**
      * Test routine.
@@ -647,29 +644,26 @@ public final class LongEncoder {
      */
     public static void main(String[] args) {
         for (String arg : args) {
-            byte[] bytes = null;
+            ByteData bytes = ByteData.fromHex(arg);
+            System.out.println("Decoding bytes: " + bytes);
             try {
-                bytes = ByteUtil.parse(arg);
-            } catch (IllegalArgumentException e) {
-                if (arg.startsWith("0x"))
-                    bytes = ByteUtil.parse(arg.substring(2));
-            }
-            if (bytes != null) {
                 final long value = LongEncoder.decode(bytes);
-                System.out.println("0x" + ByteUtil.toString(bytes)
-                  + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");
+                System.out.println(String.format("%s decodes to %d (0x%016x)", bytes, value, value));
+            } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+                System.out.println(String.format("Error decoding %s: %s", bytes, e));
             }
-            Long value = null;
+            long value;
             try {
                 value = Long.parseLong(arg);
             } catch (IllegalArgumentException e) {
-                // ignore
+                continue;
             }
-            if (value != null) {
-                final ByteWriter writer = new ByteWriter();
-                LongEncoder.write(writer, value);
-                System.out.println(value + " (" + String.format("0x%016x", value)
-                  + ") encodes to " + ByteUtil.toString(writer.getBytes()));
+            System.out.println(String.format("Encoding value %d (0x%016x)", value, value));
+            try {
+                bytes = LongEncoder.encode(value);
+                System.out.println(String.format("%d (0x%16x) encodes to %s", value, value, bytes));
+            } catch (IllegalArgumentException e) {
+                System.out.println(String.format("Error encoding %d (0x%16x): %s", value, value, e));
             }
         }
     }

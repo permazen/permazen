@@ -18,10 +18,10 @@ public class LongEncoderTest extends TestSupport {
     @Test(dataProvider = "randomEncodings")
     public void testRandomLongEncoding(String string) {
         final long value = this.decode(string);
-        byte[] encoding = this.encode(value);
-        Assert.assertEquals(encoding.length, LongEncoder.encodeLength(value));
-        Assert.assertEquals(LongEncoder.decodeLength(encoding[0]), encoding.length);
-        long decoding = this.decode(encoding);
+        final ByteData encoding = this.encode(value);
+        Assert.assertEquals(encoding.size(), LongEncoder.encodeLength(value));
+        Assert.assertEquals(LongEncoder.decodeLength(encoding.byteAt(0)), encoding.size());
+        final long decoding = this.decode(encoding);
         Assert.assertEquals(decoding, value);
     }
 
@@ -29,48 +29,47 @@ public class LongEncoderTest extends TestSupport {
     public void testLongEncoding(long value, String string) {
 
         // Get expected encoding
-        byte[] expected = ByteUtil.parse(string);
+        ByteData expected = ByteData.fromHex(string);
 
         // Test encoding
-        byte[] actual = this.encode(value);
+        final ByteData actual = this.encode(value);
         Assert.assertEquals(actual, expected);
 
         // Test encodeLength()
-        Assert.assertEquals(actual.length, LongEncoder.encodeLength(value));
+        Assert.assertEquals(actual.size(), LongEncoder.encodeLength(value));
 
         // Test decoding
         long value2 = this.decode(actual);
         Assert.assertEquals(value2, value);
 
         // Test decodeLength()
-        Assert.assertEquals(actual.length, LongEncoder.decodeLength(actual[0]));
-        Assert.assertEquals(actual.length, LongEncoder.decodeLength(actual[0] & 0xff));
+        Assert.assertEquals(actual.size(), LongEncoder.decodeLength(actual.byteAt(0)));
+        Assert.assertEquals(actual.size(), LongEncoder.decodeLength(actual.ubyteAt(0)));
     }
 
     @Test(dataProvider = "lengths")
     public void testLongEncodeLength(long value, int expected) {
         final int actual = LongEncoder.encodeLength(value);
         Assert.assertEquals(actual, expected);
-        final byte[] buf = this.encode(value);
-        Assert.assertEquals(buf.length, expected);
+        final ByteData buf = this.encode(value);
+        Assert.assertEquals(buf.size(), expected);
     }
 
     private long decode(String string) {
         long value = 0;
-        for (byte b : ByteUtil.parse(string))
+        for (byte b : ByteData.fromHex(string).toByteArray())
             value = (value << 8) | (b & 0xff);
         return value;
     }
 
-    private long decode(byte[] buf) {
-        final ByteReader reader = new ByteReader(buf);
-        return LongEncoder.read(reader);
+    private long decode(ByteData buf) {
+        return LongEncoder.read(buf.newReader());
     }
 
-    private byte[] encode(long value) {
-        final ByteWriter writer = new ByteWriter(LongEncoder.MAX_ENCODED_LENGTH);
+    private ByteData encode(long value) {
+        final ByteData.Writer writer = ByteData.newWriter(LongEncoder.MAX_ENCODED_LENGTH);
         LongEncoder.write(writer, value);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @DataProvider(name = "randomEncodings")

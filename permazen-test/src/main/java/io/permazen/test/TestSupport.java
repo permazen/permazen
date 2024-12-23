@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.dellroad.stuff.java.ProcessRunner;
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,33 +311,6 @@ public abstract class TestSupport {
         t.printStackTrace(pw);
         pw.flush();
         return buf.toString();
-    }
-
-    protected byte[] randomBytes(boolean allowNull) {
-        return this.randomBytes(0, 6, allowNull);
-    }
-
-    protected byte[] randomBytes(int minLength, int maxLength, boolean allowNull) {
-        if (allowNull && this.random.nextFloat() < 0.1f)
-            return null;
-        final byte[] bytes = new byte[minLength + this.random.nextInt(maxLength - minLength)];
-        this.random.nextBytes(bytes);
-        return bytes;
-    }
-
-    protected static byte[][] ba(String... sa) {
-        final byte[][] ba = new byte[sa.length][];
-        for (int i = 0; i < sa.length; i++)
-            ba[i] = b(sa[i]);
-        return ba;
-    }
-
-    protected static byte[] b(String s) {
-        return s == null ? null : ByteArrayEncoder.decode(s);
-    }
-
-    protected static String s(byte[] b) {
-        return b == null ? "null" : ByteArrayEncoder.encode(b);
     }
 
     protected void assertSameOrDiff(String expected, String actual) {

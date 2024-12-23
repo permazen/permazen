@@ -18,7 +18,7 @@ public class UnsignedIntEncoderTest extends TestSupport {
     @Test(dataProvider = "randomEncodings")
     public void testRandomUnsignedIntEncoding(String string) {
         final int value = this.decode(string);
-        byte[] encoding = this.encode(value);
+        final ByteData encoding = this.encode(value);
         int expectedLength;
         if (value < UnsignedIntEncoder.MIN_MULTI_BYTE_VALUE)
             expectedLength = 1;
@@ -33,9 +33,9 @@ public class UnsignedIntEncoderTest extends TestSupport {
             else
                 expectedLength = 5;
         }
-        Assert.assertEquals(encoding.length, expectedLength);
-        Assert.assertEquals(encoding.length, UnsignedIntEncoder.encodeLength(value));
-        Assert.assertEquals(UnsignedIntEncoder.decodeLength(encoding[0]), encoding.length);
+        Assert.assertEquals(encoding.size(), expectedLength);
+        Assert.assertEquals(encoding.size(), UnsignedIntEncoder.encodeLength(value));
+        Assert.assertEquals(UnsignedIntEncoder.decodeLength(encoding.byteAt(0)), encoding.size());
         int decoding = this.decode(encoding);
         Assert.assertEquals(decoding, value);
     }
@@ -58,20 +58,23 @@ public class UnsignedIntEncoderTest extends TestSupport {
 
     private int decode(String string) {
         int value = 0;
-        for (byte b : ByteUtil.parse(string))
+        for (byte b : ByteData.fromHex(string).toByteArray())
             value = (value << 8) | (b & 0xff);
         return value;
     }
 
     private int decode(byte[] buf) {
-        final ByteReader reader = new ByteReader(buf);
-        return UnsignedIntEncoder.read(reader);
+        return this.decode(ByteData.of(buf));
     }
 
-    private byte[] encode(int value) {
-        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.MAX_ENCODED_LENGTH);
+    private int decode(ByteData data) {
+        return UnsignedIntEncoder.read(data.newReader());
+    }
+
+    private ByteData encode(int value) {
+        final ByteData.Writer writer = ByteData.newWriter(UnsignedIntEncoder.MAX_ENCODED_LENGTH);
         UnsignedIntEncoder.write(writer, value);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @DataProvider(name = "randomEncodings")

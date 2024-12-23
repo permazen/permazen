@@ -24,11 +24,11 @@ public class ApplicationClassLoaderTest extends TestSupport {
 
     @Test
     public void testApplicationClassLoader() throws Exception {
-        final byte[] classfile = ByteUtil.parse(CLASSFILE);
+        final ByteData classfile = ByteData.fromHex(CLASSFILE);
         final File tempDir = this.createTempDirectory();
         final File tempFile = new File(tempDir, "xx.class");
         try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            out.write(classfile);
+            classfile.writeTo(out);
         }
         final ApplicationClassLoader loader = ApplicationClassLoader.getInstance();
         loader.addURL(tempDir.toURI().toURL());

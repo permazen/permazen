@@ -19,6 +19,7 @@
     <url>https://github.com/permazen/permazen/</url>
 
     <modules>
+<!--
         <module>permazen-ant</module>
         <module>permazen-cli</module>
         <module>permazen-cliapp</module>
@@ -46,6 +47,7 @@
         <module>permazen-main</module>
         <module>permazen-maven-plugin</module>
         <module>permazen-spring</module>
+-->
         <module>permazen-test</module>
         <module>permazen-util</module>
 
