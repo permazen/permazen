@@ -8,11 +8,7 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.kv.KeyRange;
-import io.permazen.util.BoundType;
-import io.permazen.util.Bounds;
 import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
 import io.permazen.util.ByteWriter;
 import io.permazen.util.NaturalSortAware;
 import io.permazen.util.XMLUtil;
@@ -352,52 +348,6 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      */
     default void validateAndWrite(ByteWriter writer, Object obj) {
         this.write(writer, this.validate(obj));
-    }
-
-    /**
-     * Calculate the {@link KeyRange} that includes exactly those encoded values that lie within the given bounds.
-     *
-     * @param bounds bounds to impose
-     * @return {@link KeyRange} corresponding to {@code bounds}
-     * @throws IllegalArgumentException if {@code bounds} is null
-     */
-    default KeyRange getKeyRange(Bounds<? extends T> bounds) {
-
-        // Sanity check
-        Preconditions.checkArgument(bounds != null);
-
-        // Get inclusive byte[] lower bound
-        byte[] lowerBound = ByteUtil.EMPTY;
-        final BoundType lowerBoundType = bounds.getLowerBoundType();
-        if (!BoundType.NONE.equals(lowerBoundType)) {
-            final ByteWriter writer = new ByteWriter();
-            try {
-                this.write(writer, bounds.getLowerBound());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(String.format("invalid lower bound %s for %s", bounds.getLowerBound(), this), e);
-            }
-            lowerBound = writer.getBytes();
-            if (!lowerBoundType.isInclusive())
-                lowerBound = ByteUtil.getNextKey(lowerBound);
-        }
-
-        // Get exclusive byte[] upper bound
-        byte[] upperBound = null;
-        final BoundType upperBoundType = bounds.getUpperBoundType();
-        if (!BoundType.NONE.equals(upperBoundType)) {
-            final ByteWriter writer = new ByteWriter();
-            try {
-                this.write(writer, bounds.getUpperBound());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(String.format("invalid upper bound %s for %s", bounds.getUpperBound(), this), e);
-            }
-            upperBound = writer.getBytes();
-            if (upperBoundType.isInclusive())
-                upperBound = ByteUtil.getNextKey(upperBound);
-        }
-
-        // Done
-        return new KeyRange(lowerBound, upperBound);
     }
 
     /**

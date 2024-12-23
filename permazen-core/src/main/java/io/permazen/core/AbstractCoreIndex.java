@@ -7,6 +7,7 @@ package io.permazen.core;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.core.util.CoreUtil;
 import io.permazen.encoding.Encoding;
 import io.permazen.index.Index;
 import io.permazen.kv.KVStore;
@@ -77,7 +78,7 @@ public abstract class AbstractCoreIndex<T> implements Index<T> {
      */
     <V> AbstractCoreIndex<T> filter(int index, Encoding<V> encoding, Bounds<V> bounds) {
         assert encoding == this.indexView.encodings[index];
-        final KeyRange range = encoding.getKeyRange(bounds);
+        final KeyRange range = CoreUtil.getKeyRange(encoding, bounds);
         return !range.isFull() ? this.filter(index, new KeyRanges(range)) : this;
     }
 }
