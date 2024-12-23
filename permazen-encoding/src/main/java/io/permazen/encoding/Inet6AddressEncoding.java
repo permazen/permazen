@@ -5,7 +5,7 @@
 
 package io.permazen.encoding;
 
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 
 import java.net.Inet6Address;
 import java.util.OptionalInt;
@@ -32,7 +32,7 @@ public class Inet6AddressEncoding extends AbstractInetAddressEncoding<Inet6Addre
     }
 
     @Override
-    protected int getLength(ByteReader reader) {
+    protected int getLength(ByteData.Reader reader) {
         return LENGTH;
     }
 

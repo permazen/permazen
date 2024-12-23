@@ -9,14 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Floats;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     private static final long serialVersionUID = 2791855034086017414L;
 
     private static final int NUM_BYTES = 4;
-    private static final byte[] END = new byte[NUM_BYTES];
+    private static final ByteData END = ByteData.zeros(NUM_BYTES);
 
     private final FloatEncoding floatType = new FloatEncoding(null);
 
@@ -44,20 +42,20 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     }
 
     @Override
-    public float[] read(ByteReader reader) {
+    public float[] read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<Float> list = new ArrayList<>();
         while (true) {
-            final byte[] next = reader.readBytes(NUM_BYTES);
-            if (Arrays.equals(next, END))
+            final ByteData next = reader.readBytes(NUM_BYTES);
+            if (next.equals(END))
                 break;
-            list.add(this.floatType.read(new ByteReader(next)));
+            list.add(this.floatType.read(next.newReader()));
         }
         return this.createArray(list);
     }
 
     @Override
-    public void write(ByteWriter writer, float[] array) {
+    public void write(ByteData.Writer writer, float[] array) {
         Preconditions.checkArgument(array != null, "null array");
         Preconditions.checkArgument(writer != null);
         final int length = this.getArrayLength(array);
@@ -67,11 +65,11 @@ public class FloatArrayEncoding extends Base64ArrayEncoding<float[], Float> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         while (true) {
-            final byte[] next = reader.readBytes(NUM_BYTES);
-            if (Arrays.equals(next, END))
+            final ByteData next = reader.readBytes(NUM_BYTES);
+            if (next.equals(END))
                 break;
         }
     }

@@ -7,9 +7,8 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -38,13 +37,13 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
 // Encoding
 
     @Override
-    public UUID read(ByteReader reader) {
+    public UUID read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return new UUID(ByteUtil.readLong(reader) ^ MASK, ByteUtil.readLong(reader) ^ MASK);
     }
 
     @Override
-    public void write(ByteWriter writer, UUID uuid) {
+    public void write(ByteData.Writer writer, UUID uuid) {
         Preconditions.checkArgument(uuid != null, "null uuid");
         Preconditions.checkArgument(writer != null);
         ByteUtil.writeLong(writer, uuid.getMostSignificantBits() ^ MASK);
@@ -52,7 +51,7 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(16);
     }

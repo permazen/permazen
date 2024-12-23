@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -61,7 +60,7 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
     }
 
     @Override
-    public BigDecimal read(ByteReader reader) {
+    public BigDecimal read(ByteData.Reader reader) {
 
         // Read sign byte
         Preconditions.checkArgument(reader != null);
@@ -109,7 +108,7 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
     }
 
     @Override
-    public void write(ByteWriter writer, BigDecimal value) {
+    public void write(ByteData.Writer writer, BigDecimal value) {
 
         // Sanity check
         Preconditions.checkArgument(writer != null);
@@ -117,7 +116,7 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
 
         // Handle zero
         if (value.signum() == 0) {
-            writer.writeByte(FLAG_ZERO);
+            writer.write(FLAG_ZERO);
             UnsignedIntEncoder.write(writer, value.scale());
             return;
         }
@@ -137,7 +136,7 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
         exponent = digits.length() - 1 - value.scale();
 
         // Write sign byte
-        writer.writeByte(negative ? FLAG_NEGATIVE : FLAG_POSITIVE);
+        writer.write(negative ? FLAG_NEGATIVE : FLAG_POSITIVE);
 
         // Write exponent
         LongEncoder.write(writer, negative ? -exponent : exponent);
@@ -149,17 +148,17 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
             assert digit >= 0 && digit < 10;
             nextByte = (nextByte << 4) | (digit + 1);
             if ((i & 1) == 1)
-                writer.writeByte(negative ? ~nextByte : nextByte);
+                writer.write(negative ? ~nextByte : nextByte);
         }
         if ((digits.length() & 1) == 1)
             nextByte <<= 4;
         else
             nextByte = 0;
-        writer.writeByte(negative ? ~nextByte : nextByte);
+        writer.write(negative ? ~nextByte : nextByte);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         final int flag = reader.readByte();
         reader.skip(LongEncoder.decodeLength(reader.peek()));
         if (flag == FLAG_ZERO)

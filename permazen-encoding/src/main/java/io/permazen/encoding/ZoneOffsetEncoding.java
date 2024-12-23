@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.ZoneOffset;
@@ -36,20 +35,20 @@ public class ZoneOffsetEncoding extends AbstractEncoding<ZoneOffset> {
 // Encoding
 
     @Override
-    public ZoneOffset read(ByteReader reader) {
+    public ZoneOffset read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return ZoneOffset.ofTotalSeconds(-(int)LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, ZoneOffset zoneOffset) {
+    public void write(ByteData.Writer writer, ZoneOffset zoneOffset) {
         Preconditions.checkArgument(zoneOffset != null, "null zoneOffset");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, -zoneOffset.getTotalSeconds());       // negated because e.g. +10:00 is before +5:00
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }

@@ -7,9 +7,8 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.OptionalInt;
 
@@ -31,7 +30,7 @@ public class FloatEncoding extends NumberEncoding<Float> {
     }
 
     @Override
-    public Float read(ByteReader reader) {
+    public Float read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         int bits = ByteUtil.readInt(reader);
         bits ^= (bits & SIGN_BIT) == 0 ? NEG_XOR : POS_XOR;
@@ -39,7 +38,7 @@ public class FloatEncoding extends NumberEncoding<Float> {
     }
 
     @Override
-    public void write(ByteWriter writer, Float value) {
+    public void write(ByteData.Writer writer, Float value) {
         Preconditions.checkArgument(writer != null);
         int bits = Float.floatToIntBits(value);
         bits ^= (bits & SIGN_BIT) != 0 ? NEG_XOR : POS_XOR;
@@ -47,7 +46,7 @@ public class FloatEncoding extends NumberEncoding<Float> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(4);
     }

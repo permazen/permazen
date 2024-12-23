@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.Instant;
@@ -37,13 +36,13 @@ public class LocalDateTimeEncoding extends AbstractEncoding<LocalDateTime> {
 // Encoding
 
     @Override
-    public LocalDateTime read(ByteReader reader) {
+    public LocalDateTime read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return LocalDateTime.ofEpochSecond(LongEncoder.read(reader), (int)LongEncoder.read(reader), ZoneOffset.UTC);
     }
 
     @Override
-    public void write(ByteWriter writer, LocalDateTime localDateTime) {
+    public void write(ByteData.Writer writer, LocalDateTime localDateTime) {
         Preconditions.checkArgument(localDateTime != null, "null localDateTime");
         Preconditions.checkArgument(writer != null);
         final Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
@@ -52,7 +51,7 @@ public class LocalDateTimeEncoding extends AbstractEncoding<LocalDateTime> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
         reader.skip(LongEncoder.decodeLength(reader.peek()));

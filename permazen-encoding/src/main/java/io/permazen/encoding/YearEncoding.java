@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.Year;
@@ -34,20 +33,20 @@ public class YearEncoding extends AbstractEncoding<Year> {
 // Encoding
 
     @Override
-    public Year read(ByteReader reader) {
+    public Year read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return Year.of((int)LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, Year year) {
+    public void write(ByteData.Writer writer, Year year) {
         Preconditions.checkArgument(year != null, "null year");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, year.getValue());
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }

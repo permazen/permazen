@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.OptionalInt;
 
@@ -26,7 +25,7 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     }
 
     @Override
-    public Boolean read(ByteReader reader) {
+    public Boolean read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final int value = reader.readByte();
         switch (value) {
@@ -40,14 +39,14 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     }
 
     @Override
-    public void write(ByteWriter writer, Boolean value) {
+    public void write(ByteData.Writer writer, Boolean value) {
         Preconditions.checkArgument(writer != null);
         Preconditions.checkArgument(value != null, "null value");
-        writer.writeByte(value ? TRUE_VALUE : FALSE_VALUE);
+        writer.write(value ? TRUE_VALUE : FALSE_VALUE);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(1);
     }

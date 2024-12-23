@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.LocalDate;
@@ -34,20 +33,20 @@ public class LocalDateEncoding extends AbstractEncoding<LocalDate> {
 // Encoding
 
     @Override
-    public LocalDate read(ByteReader reader) {
+    public LocalDate read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return LocalDate.ofEpochDay(LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, LocalDate localDate) {
+    public void write(ByteData.Writer writer, LocalDate localDate) {
         Preconditions.checkArgument(localDate != null, "null localDate");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, localDate.toEpochDay());
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }

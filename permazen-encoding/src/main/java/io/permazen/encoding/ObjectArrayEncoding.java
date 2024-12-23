@@ -9,8 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
     }
 
     @Override
-    public E[] read(ByteReader reader) {
+    public E[] read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<E> list = new ArrayList<>();
         while (true) {
@@ -67,18 +66,18 @@ public class ObjectArrayEncoding<E> extends ArrayEncoding<E[], E> {
     }
 
     @Override
-    public void write(ByteWriter writer, E[] array) {
+    public void write(ByteData.Writer writer, E[] array) {
         Preconditions.checkArgument(writer != null);
         for (E obj : array) {
             if (!this.inlineValue)
-                writer.writeByte(VALUE);
+                writer.write(VALUE);
             this.elementEncoding.write(writer, obj);
         }
-        writer.writeByte(END);
+        writer.write(END);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         while (true) {
             final int first = reader.readByte();

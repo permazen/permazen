@@ -8,9 +8,7 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -38,30 +36,30 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Abstra
 // Encoding
 
     @Override
-    public T read(ByteReader reader) {
+    public T read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final InetAddress addr;
         try {
-            addr = InetAddress.getByAddress(reader.readBytes(this.getLength(reader)));
+            addr = InetAddress.getByAddress(reader.readBytes(this.getLength(reader)).toByteArray());
         } catch (UnknownHostException e) {
             throw new RuntimeException("unexpected exception", e);
         }
         return this.addrType.cast(addr);
     }
 
-    protected abstract int getLength(ByteReader reader);
+    protected abstract int getLength(ByteData.Reader reader);
 
     @Override
-    public void write(ByteWriter writer, T addr) {
+    public void write(ByteData.Writer writer, T addr) {
         Preconditions.checkArgument(writer != null);
         Preconditions.checkArgument(addr != null);
-        final byte[] bytes = addr.getAddress();
-        assert bytes.length == this.getLength(new ByteReader(bytes));
-        writer.write(addr.getAddress());
+        final ByteData bytes = ByteData.of(addr.getAddress());
+        assert bytes.size() == this.getLength(bytes.newReader());
+        writer.write(bytes);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(this.getLength(reader));
     }
@@ -84,12 +82,12 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Abstra
 
     @Override
     public int compare(T addr1, T addr2) {
-        final byte[] bytes1 = addr1.getAddress();
-        final byte[] bytes2 = addr2.getAddress();
-        int diff = Integer.compare(bytes1.length, bytes2.length);
+        final ByteData bytes1 = ByteData.of(addr1.getAddress());
+        final ByteData bytes2 = ByteData.of(addr2.getAddress());
+        int diff = Integer.compare(bytes1.size(), bytes2.size());
         if (diff != 0)
             return diff;
-        return ByteUtil.compare(bytes1, bytes2);
+        return bytes1.compareTo(bytes2);
     }
 
     @Override

@@ -8,9 +8,8 @@ package io.permazen.encoding;
 import com.google.common.net.InetAddresses;
 
 import io.permazen.test.TestSupport;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import jakarta.mail.internet.InternetAddress;
 
@@ -63,15 +62,15 @@ public class EncodingTest extends TestSupport {
     }
 
     private <T> void testEncoding3(Encoding<T> encoding, T[] values) throws Exception {
-        final byte[][] encodings = new byte[values.length][];
+        final ByteData[] encodings = new ByteData[values.length];
         for (int i = 0; i < values.length; i++) {
             final T value = values[i];
 
             // Binary encoding
-            final ByteWriter writer = new ByteWriter();
+            final ByteData.Writer writer = ByteData.newWriter();
             encoding.write(writer, value);
-            encodings[i] = writer.getBytes();
-            final T value2 = encoding.read(new ByteReader(encodings[i]));
+            encodings[i] = writer.toByteData();
+            final T value2 = encoding.read(encodings[i].newReader());
             this.assertEquals(encoding, value2, value);
 
             // String encoding
@@ -125,8 +124,8 @@ public class EncodingTest extends TestSupport {
             // Check sort order
             if (i > 0) {
                 final T previous = values[i - 1];
-                final boolean bytesEqual = ByteUtil.compare(encodings[i - 1], encodings[i]) == 0;
-                final boolean bytesLessThan = ByteUtil.compare(encodings[i - 1], encodings[i]) < 0;
+                final boolean bytesEqual = encodings[i - 1].compareTo(encodings[i]) == 0;
+                final boolean bytesLessThan = encodings[i - 1].compareTo(encodings[i]) < 0;
                 final boolean fieldEqual = encoding.compare(previous, value) == 0;
                 final boolean fieldLessThan = encoding.compare(previous, value) < 0;
 

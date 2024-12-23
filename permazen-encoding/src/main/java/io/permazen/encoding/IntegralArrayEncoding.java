@@ -8,8 +8,7 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
     }
 
     @Override
-    public T read(ByteReader reader) {
+    public T read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<E> list = new ArrayList<>();
         while (true) {
@@ -54,17 +53,17 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
     }
 
     @Override
-    public void write(ByteWriter writer, T array) {
+    public void write(ByteData.Writer writer, T array) {
         Preconditions.checkArgument(array != null, "null array");
         Preconditions.checkArgument(writer != null);
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
             LongEncoder.write(writer, this.getIntegralEncoding().upCast(this.getArrayElement(array, i)));
-        writer.writeByte(END);
+        writer.write(END);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         while (true) {
             final int first = reader.peek();

@@ -8,8 +8,7 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.NaturalSortAware;
 import io.permazen.util.XMLUtil;
 
@@ -52,8 +51,8 @@ import java.util.OptionalInt;
  *  <li>All <i>non-null</i> values can be encoded/decoded into a {@link String} without losing information (see
  *      {@link #toString(Object) toString()} and {@link #fromString fromString()}). These strings must contain characters
  *      that are valid in an XML document only.
- *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]}
- *      array) without losing information (see {@link #read read()} and {@link #write write()}). Moreover, these binary strings,
+ *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string without
+ *      losing information (see {@link #read read()} and {@link #write write()}). Moreover, these binary strings,
  *      when sorted lexicographically as unsigned values, sort consistently with {@link #compare compare()}.
  *  <li>An {@link Encoding}'s string and binary encodings and sort ordering is guaranteed to <i>never change</i>, unless the
  *      {@link EncodingId} is also changed, which effectively defines a new encoding (in such scenarios, automatic schema
@@ -106,7 +105,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @throws IndexOutOfBoundsException if input is truncated
      * @throws IllegalArgumentException if {@code reader} is null
      */
-    T read(ByteReader reader);
+    T read(ByteData.Reader reader);
 
     /**
      * Write a value to the given output.
@@ -116,10 +115,10 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @throws IllegalArgumentException if {@code value} is null and this encoding does not support null
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    void write(ByteWriter writer, T value);
+    void write(ByteData.Writer writer, T value);
 
     /**
-     * Get the default value for this encoding encoded as a {@code byte[]} array.
+     * Get the default value for this encoding encoded as a byte string.
      *
      * <p>
      * The implementation in {@link Encoding} returns the binary encoding of the value returned by
@@ -128,14 +127,14 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @return encoded default value
      * @throws UnsupportedOperationException if this encoding does not have a default value
      */
-    default byte[] getDefaultValueBytes() {
-        final ByteWriter writer = new ByteWriter();
+    default ByteData getDefaultValueBytes() {
+        final ByteData.Writer writer = ByteData.newWriter();
         try {
             this.write(writer, this.getDefaultValue());
         } catch (IllegalArgumentException e) {
             throw new UnsupportedOperationException(String.format("%s does not have a default value", this));
         }
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
@@ -150,7 +149,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
     T getDefaultValue();
 
     /**
-     * Read and discard a {@code byte[]} encoded value from the given input.
+     * Read and discard an encoded value from the given input.
      *
      * <p>
      * If the value skipped over is invalid, this method may, but is not required to, throw {@link IllegalArgumentException}.
@@ -163,7 +162,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @throws IndexOutOfBoundsException if input is truncated
      * @throws IllegalArgumentException if {@code reader} is null
      */
-    void skip(ByteReader reader);
+    void skip(ByteData.Reader reader);
 
     /**
      * Encode a non-null value as a {@link String} for later decoding by {@link #fromString fromString()}.
@@ -346,7 +345,7 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link Encoding}
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    default void validateAndWrite(ByteWriter writer, Object obj) {
+    default void validateAndWrite(ByteData.Writer writer, Object obj) {
         this.write(writer, this.validate(obj));
     }
 
@@ -354,32 +353,33 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * Encode the given value into a {@code byte[]} array.
      *
      * <p>
-     * The implementation in {@link Encoding} creates a temporary {@link ByteWriter}
+     * The implementation in {@link Encoding} creates a temporary {@link ByteData.Writer}
      * and then delegates to {@link #write write()}.
      *
      * @param value value to encode, possibly null
      * @return encoded value
      * @throws IllegalArgumentException if {@code obj} is invalid
      */
-    default byte[] encode(T value) {
-        final ByteWriter writer = new ByteWriter();
+    default ByteData encode(T value) {
+        final ByteData.Writer writer = ByteData.newWriter();
         this.write(writer, value);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
-     * Decode a valid from the given {@code byte[]} array.
+     * Decode a valid from the given byte string.
      *
      * <p>
-     * The implementation in {@link Encoding} creates a temporary {@link ByteReader}
+     * The implementation in {@link Encoding} creates a temporary {@link ByteData.Reader}
      * and then delegates to {@link #read read()}.
      *
      * @param bytes encoded value
      * @return decoded value, possibly null
      * @throws IllegalArgumentException if {@code bytes} is null, invalid, or contains trailing garbage
      */
-    default T decode(byte[] bytes) {
-        final ByteReader reader = new ByteReader(bytes);
+    default T decode(ByteData bytes) {
+        Preconditions.checkArgument(bytes != null, "null bytes");
+        final ByteData.Reader reader = bytes.newReader();
         final T value = this.read(reader);
         if (reader.remain() > 0)
             throw new IllegalArgumentException("trailing garbage");

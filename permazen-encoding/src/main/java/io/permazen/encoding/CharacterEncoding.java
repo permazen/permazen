@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.OptionalInt;
 
@@ -27,7 +26,7 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
     }
 
     @Override
-    public Character read(ByteReader reader) {
+    public Character read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final int hi = reader.readByte();
         final int lo = reader.readByte();
@@ -35,16 +34,16 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
     }
 
     @Override
-    public void write(ByteWriter writer, Character value) {
+    public void write(ByteData.Writer writer, Character value) {
         Preconditions.checkArgument(writer != null);
         final int hi = (int)value >> 8;
         final int lo = (int)value & 0xff;
-        writer.writeByte(hi);
-        writer.writeByte(lo);
+        writer.write(hi);
+        writer.write(lo);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(2);
     }

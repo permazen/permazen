@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.util.OptionalInt;
@@ -27,20 +26,20 @@ public abstract class IntegralEncoding<T extends Number> extends NumberEncoding<
     }
 
     @Override
-    public T read(ByteReader reader) {
+    public T read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return this.downCast(LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, T value) {
+    public void write(ByteData.Writer writer, T value) {
         Preconditions.checkArgument(value != null, "null value");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, this.upCast(value));
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }

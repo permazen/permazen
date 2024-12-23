@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.Duration;
@@ -35,13 +34,13 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
 // Encoding
 
     @Override
-    public Duration read(ByteReader reader) {
+    public Duration read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return Duration.ofSeconds(LongEncoder.read(reader), (int)LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, Duration duration) {
+    public void write(ByteData.Writer writer, Duration duration) {
         Preconditions.checkArgument(duration != null, "null duration");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, duration.getSeconds());
@@ -49,7 +48,7 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
         reader.skip(LongEncoder.decodeLength(reader.peek()));

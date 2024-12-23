@@ -7,9 +7,8 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.BitSet;
@@ -56,13 +55,13 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
     }
 
     @Override
-    public BitSet read(ByteReader reader) {
+    public BitSet read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        return BitSet.valueOf(this.reverse(reader.readBytes(UnsignedIntEncoder.read(reader))));
+        return BitSet.valueOf(this.reverse(reader.readBytes(UnsignedIntEncoder.read(reader)).toByteArray()));
     }
 
     @Override
-    public void write(ByteWriter writer, BitSet bitSet) {
+    public void write(ByteData.Writer writer, BitSet bitSet) {
         Preconditions.checkArgument(writer != null);
         Preconditions.checkArgument(bitSet != null);
         final byte[] bytes = bitSet.toByteArray();
@@ -71,7 +70,7 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(UnsignedIntEncoder.read(reader));
     }
@@ -79,14 +78,14 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
     @Override
     public String toString(BitSet bitSet) {
         Preconditions.checkArgument(bitSet != null, "null bitSet");
-        return "[" + ByteUtil.toString(this.reverse(bitSet.toByteArray())) + "]";
+        return "[" + ByteUtil.toString(ByteData.of(this.reverse(bitSet.toByteArray()))) + "]";
     }
 
     @Override
     public BitSet fromString(String string) {
         Preconditions.checkArgument(string != null, "null string");
         Preconditions.checkArgument(string.matches("\\[([0-9a-f][0-9a-f])*\\]"), "invalid BitSet string");
-        return BitSet.valueOf(this.reverse(ByteUtil.parse(string.substring(1, string.length() - 1))));
+        return BitSet.valueOf(this.reverse(ByteData.fromHex(string.substring(1, string.length() - 1)).toByteArray()));
     }
 
     @Override

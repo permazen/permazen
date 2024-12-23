@@ -7,9 +7,8 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.OptionalInt;
 
@@ -31,7 +30,7 @@ public class DoubleEncoding extends NumberEncoding<Double> {
     }
 
     @Override
-    public Double read(ByteReader reader) {
+    public Double read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         long bits = ByteUtil.readLong(reader);
         bits ^= (bits & SIGN_BIT) == 0 ? NEG_XOR : POS_XOR;
@@ -39,7 +38,7 @@ public class DoubleEncoding extends NumberEncoding<Double> {
     }
 
     @Override
-    public void write(ByteWriter writer, Double value) {
+    public void write(ByteData.Writer writer, Double value) {
         Preconditions.checkArgument(writer != null);
         long bits = Double.doubleToLongBits(value);
         bits ^= (bits & SIGN_BIT) != 0 ? NEG_XOR : POS_XOR;
@@ -47,7 +46,7 @@ public class DoubleEncoding extends NumberEncoding<Double> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(8);
     }

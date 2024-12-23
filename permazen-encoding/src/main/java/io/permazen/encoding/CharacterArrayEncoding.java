@@ -9,8 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Chars;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.List;
 
@@ -35,19 +34,19 @@ public class CharacterArrayEncoding extends ArrayEncoding<char[], Character> {
     }
 
     @Override
-    public char[] read(ByteReader reader) {
+    public char[] read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return this.stringType.read(reader).toCharArray();
     }
 
     @Override
-    public void write(ByteWriter writer, char[] array) {
+    public void write(ByteData.Writer writer, char[] array) {
         Preconditions.checkArgument(writer != null);
         this.stringType.write(writer, new String(array));
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         this.stringType.skip(reader);
     }

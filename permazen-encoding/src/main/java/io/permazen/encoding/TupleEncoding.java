@@ -9,8 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import io.permazen.tuple.Tuple;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +62,7 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
 // Encoding
 
     @Override
-    public T read(ByteReader reader) {
+    public T read(ByteData.Reader reader) {
         final Object[] values = new Object[this.size];
         for (int i = 0; i < this.size; i++)
             values[i] = this.encodings.get(i).read(reader);
@@ -71,14 +70,14 @@ public abstract class TupleEncoding<T extends Tuple> extends AbstractEncoding<T>
     }
 
     @Override
-    public void write(ByteWriter writer, T tuple) {
+    public void write(ByteData.Writer writer, T tuple) {
         final List<Object> values = this.asList(tuple);
         for (int i = 0; i < this.size; i++)
             this.encodings.get(i).validateAndWrite(writer, values.get(i));
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         for (Encoding<?> encoding : this.encodings)
             encoding.skip(reader);
     }

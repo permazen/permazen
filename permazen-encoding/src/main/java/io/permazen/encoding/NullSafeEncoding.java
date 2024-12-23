@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.OptionalInt;
 
@@ -71,7 +70,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
 // Encoding
 
     @Override
-    public T read(ByteReader reader) {
+    public T read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         if (this.inline) {
             if (reader.peek() == NULL_SENTINEL) {
@@ -92,19 +91,19 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
     }
 
     @Override
-    public void write(ByteWriter writer, T value) {
+    public void write(ByteData.Writer writer, T value) {
         Preconditions.checkArgument(writer != null);
         if (value == null) {
-            writer.writeByte(NULL_SENTINEL);
+            writer.write(NULL_SENTINEL);
             return;
         }
         if (!this.inline)
-            writer.writeByte(NOT_NULL_SENTINEL);
+            writer.write(NOT_NULL_SENTINEL);
         this.inner.write(writer, value);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         if (this.inline) {
             final int prefix = reader.peek();

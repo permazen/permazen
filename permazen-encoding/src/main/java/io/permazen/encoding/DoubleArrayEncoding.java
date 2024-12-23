@@ -9,14 +9,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     private static final long serialVersionUID = 7502947488125172882L;
 
     private static final int NUM_BYTES = 8;
-    private static final byte[] END = new byte[NUM_BYTES];
+    private static final ByteData END = ByteData.zeros(NUM_BYTES);
 
     private final DoubleEncoding doubleType = new DoubleEncoding(null);
 
@@ -44,20 +42,20 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     }
 
     @Override
-    public double[] read(ByteReader reader) {
+    public double[] read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final ArrayList<Double> list = new ArrayList<>();
         while (true) {
-            final byte[] next = reader.readBytes(NUM_BYTES);
-            if (Arrays.equals(next, END))
+            final ByteData next = reader.readBytes(NUM_BYTES);
+            if (next.equals(END))
                 break;
-            list.add(this.doubleType.read(new ByteReader(next)));
+            list.add(this.doubleType.read(next.newReader()));
         }
         return this.createArray(list);
     }
 
     @Override
-    public void write(ByteWriter writer, double[] array) {
+    public void write(ByteData.Writer writer, double[] array) {
         Preconditions.checkArgument(array != null, "null array");
         Preconditions.checkArgument(writer != null);
         final int length = this.getArrayLength(array);
@@ -67,11 +65,11 @@ public class DoubleArrayEncoding extends Base64ArrayEncoding<double[], Double> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         while (true) {
-            final byte[] next = reader.readBytes(NUM_BYTES);
-            if (Arrays.equals(next, END))
+            final ByteData next = reader.readBytes(NUM_BYTES);
+            if (next.equals(END))
                 break;
         }
     }

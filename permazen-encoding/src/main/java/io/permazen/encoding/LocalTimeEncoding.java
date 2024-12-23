@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.LocalTime;
@@ -35,20 +34,20 @@ public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
 // Encoding
 
     @Override
-    public LocalTime read(ByteReader reader) {
+    public LocalTime read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return LocalTime.ofNanoOfDay(LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, LocalTime localTime) {
+    public void write(ByteData.Writer writer, LocalTime localTime) {
         Preconditions.checkArgument(localTime != null, "null localTime");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, localTime.toNanoOfDay());
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }

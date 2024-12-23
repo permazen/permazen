@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.time.MonthDay;
@@ -35,14 +34,14 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
 // Encoding
 
     @Override
-    public MonthDay read(ByteReader reader) {
+    public MonthDay read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final int value = UnsignedIntEncoder.read(reader);
         return MonthDay.of((value >> 5) + 1, (value & 0x1f) + 1);
     }
 
     @Override
-    public void write(ByteWriter writer, MonthDay monthDay) {
+    public void write(ByteData.Writer writer, MonthDay monthDay) {
         Preconditions.checkArgument(monthDay != null, "null monthDay");
         Preconditions.checkArgument(writer != null);
         final int month = monthDay.getMonthValue();
@@ -51,7 +50,7 @@ public class MonthDayEncoding extends AbstractEncoding<MonthDay> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(UnsignedIntEncoder.decodeLength(reader.peek()));
     }

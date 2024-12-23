@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.Instant;
@@ -35,13 +34,13 @@ public class InstantEncoding extends AbstractEncoding<Instant> {
 // Encoding
 
     @Override
-    public Instant read(ByteReader reader) {
+    public Instant read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return Instant.ofEpochSecond(LongEncoder.read(reader), (int)LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, Instant instant) {
+    public void write(ByteData.Writer writer, Instant instant) {
         Preconditions.checkArgument(instant != null, "null instant");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, instant.getEpochSecond());
@@ -49,7 +48,7 @@ public class InstantEncoding extends AbstractEncoding<Instant> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
         reader.skip(LongEncoder.decodeLength(reader.peek()));

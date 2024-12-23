@@ -9,8 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.BitSet;
 import java.util.List;
@@ -39,7 +38,7 @@ public class BooleanArrayEncoding extends ArrayEncoding<boolean[], Boolean> {
     }
 
     @Override
-    public boolean[] read(ByteReader reader) {
+    public boolean[] read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final BitSet bits = new BitSet();
         int count = 0;
@@ -67,7 +66,7 @@ loop:   while (true) {
     }
 
     @Override
-    public void write(ByteWriter writer, boolean[] array) {
+    public void write(ByteData.Writer writer, boolean[] array) {
         Preconditions.checkArgument(writer != null);
         int value = 0;
         for (int i = 0; i < array.length; i++) {
@@ -75,15 +74,15 @@ loop:   while (true) {
             final int shift = 2 * (3 - phase);
             value |= (array[i] ? TRUE : FALSE) << shift;
             if (phase == 3) {
-                writer.writeByte(value);
+                writer.write(value);
                 value = 0;
             }
         }
-        writer.writeByte(value);
+        writer.write(value);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         while (true) {
             int value = reader.readByte();

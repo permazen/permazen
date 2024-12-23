@@ -5,8 +5,7 @@
 
 package io.permazen.encoding;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.OptionalInt;
 
@@ -27,16 +26,16 @@ public class VoidEncoding extends PrimitiveEncoding<Void> {
     }
 
     @Override
-    public Void read(ByteReader reader) {
+    public Void read(ByteData.Reader reader) {
         return null;
     }
 
     @Override
-    public void write(ByteWriter writer, Void value) {
+    public void write(ByteData.Writer writer, Void value) {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
     }
 
     @Override

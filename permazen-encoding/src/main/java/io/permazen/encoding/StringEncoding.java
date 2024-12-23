@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.OptionalInt;
@@ -40,7 +39,7 @@ public class StringEncoding extends AbstractEncoding<String> {
     }
 
     @Override
-    public String read(ByteReader reader) {
+    public String read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final StringBuilder buf = new StringBuilder();
         while (true) {
@@ -64,7 +63,7 @@ public class StringEncoding extends AbstractEncoding<String> {
     }
 
     @Override
-    public void write(ByteWriter writer, String value) {
+    public void write(ByteData.Writer writer, String value) {
         Preconditions.checkArgument(writer != null);
         final int max = value.length();
         for (int i = 0; i < max; i++) {
@@ -72,19 +71,19 @@ public class StringEncoding extends AbstractEncoding<String> {
             switch (ch) {
             case END:
             case ESCAPE:
-                writer.writeByte(ESCAPE);
-                writer.writeByte(ch);
+                writer.write(ESCAPE);
+                writer.write(ch);
                 break;
             default:
                 UnsignedIntEncoder.write(writer, ch);
                 break;
             }
         }
-        writer.writeByte(END);
+        writer.write(END);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         int value = reader.readByte();
         while (true) {

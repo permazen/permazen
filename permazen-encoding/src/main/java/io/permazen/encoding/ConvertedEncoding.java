@@ -9,8 +9,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.OptionalInt;
 import java.util.function.Supplier;
@@ -120,17 +119,17 @@ public class ConvertedEncoding<T, S> extends AbstractEncoding<T> {
 // Encoding
 
     @Override
-    public T read(ByteReader reader) {
+    public T read(ByteData.Reader reader) {
         return this.converter.reverse().convert(this.delegate.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, T obj) {
+    public void write(ByteData.Writer writer, T obj) {
         this.delegate.write(writer, this.converter.convert(obj));
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         this.delegate.skip(reader);
     }
 

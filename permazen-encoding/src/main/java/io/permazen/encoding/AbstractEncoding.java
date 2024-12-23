@@ -8,6 +8,8 @@ package io.permazen.encoding;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import io.permazen.util.ByteData;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -31,7 +33,7 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     @SuppressWarnings("serial")
     private final Supplier<? extends T> defaultValueSupplier;
 
-    private transient byte[] defaultValueBytes;
+    private transient ByteData defaultValueBytes;
 
 // Constructors
 
@@ -116,10 +118,10 @@ public abstract class AbstractEncoding<T> implements Encoding<T>, Serializable {
     }
 
     @Override
-    public byte[] getDefaultValueBytes() {
+    public ByteData getDefaultValueBytes() {
         if (this.defaultValueBytes == null)
             this.defaultValueBytes = Encoding.super.getDefaultValueBytes();
-        return this.defaultValueBytes.clone();
+        return this.defaultValueBytes;
     }
 
 // Object

@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.math.BigInteger;
@@ -52,13 +51,15 @@ public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
     }
 
     @Override
-    public BigInteger read(ByteReader reader) {
+    public BigInteger read(ByteData.Reader reader) {
         final int numBytes = this.readSignedNumBytes(reader);
-        return numBytes == 0 ? BigInteger.ZERO : new BigInteger(reader.readBytes(numBytes < 0 ? -numBytes : numBytes));
+        if (numBytes == 0)
+            return BigInteger.ZERO;
+        return new BigInteger(reader.readBytes(numBytes < 0 ? -numBytes : numBytes).toByteArray());
     }
 
     @Override
-    public void write(ByteWriter writer, BigInteger value) {
+    public void write(ByteData.Writer writer, BigInteger value) {
         Preconditions.checkArgument(writer != null);
         Preconditions.checkArgument(value != null);
         if (value.signum() == 0) {
@@ -73,7 +74,7 @@ public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         final int numBytes = this.readSignedNumBytes(reader);
         if (numBytes > 0)
             reader.skip(numBytes);
@@ -82,7 +83,7 @@ public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
     }
 
     // Read flag value (number of bytes * signum) and validate the sign bit on the first (high-order) byte is consistent with it
-    private int readSignedNumBytes(ByteReader reader) {
+    private int readSignedNumBytes(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final long flag = LongEncoder.read(reader);
         Preconditions.checkArgument(flag >= -MAX_NUM_BYTES && flag <= MAX_NUM_BYTES, "invalid BigInteger flag byte");

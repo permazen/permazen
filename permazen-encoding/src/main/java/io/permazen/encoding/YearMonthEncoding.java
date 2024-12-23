@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.YearMonth;
@@ -35,13 +34,13 @@ public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
 // Encoding
 
     @Override
-    public YearMonth read(ByteReader reader) {
+    public YearMonth read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return YearMonth.of((int)LongEncoder.read(reader), (int)LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, YearMonth yearMonth) {
+    public void write(ByteData.Writer writer, YearMonth yearMonth) {
         Preconditions.checkArgument(yearMonth != null, "null yearMonth");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, yearMonth.getYear());
@@ -49,7 +48,7 @@ public class YearMonthEncoding extends AbstractEncoding<YearMonth> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
         reader.skip(LongEncoder.decodeLength(reader.peek()));

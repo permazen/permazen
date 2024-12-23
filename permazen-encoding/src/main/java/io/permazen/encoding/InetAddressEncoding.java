@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.net.InetAddress;
 import java.util.OptionalInt;
@@ -52,7 +51,7 @@ public class InetAddressEncoding extends AbstractInetAddressEncoding<InetAddress
     }
 
     @Override
-    protected int getLength(ByteReader reader) {
+    protected int getLength(ByteData.Reader reader) {
         switch (reader.readByte()) {
         case PREFIX_IPV4:
             return Inet4AddressEncoding.LENGTH;
@@ -64,16 +63,16 @@ public class InetAddressEncoding extends AbstractInetAddressEncoding<InetAddress
     }
 
     @Override
-    public void write(ByteWriter writer, InetAddress addr) {
+    public void write(ByteData.Writer writer, InetAddress addr) {
         Preconditions.checkArgument(writer != null);
         Preconditions.checkArgument(addr != null);
         final byte[] bytes = addr.getAddress();
         switch (bytes.length) {
         case Inet4AddressEncoding.LENGTH:
-            writer.writeByte(PREFIX_IPV4);
+            writer.write(PREFIX_IPV4);
             break;
         case Inet6AddressEncoding.LENGTH:
-            writer.writeByte(PREFIX_IPV6);
+            writer.write(PREFIX_IPV6);
             break;
         default:
             throw new RuntimeException("internal error");

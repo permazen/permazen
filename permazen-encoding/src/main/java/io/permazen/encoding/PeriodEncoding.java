@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.time.Period;
@@ -35,13 +34,13 @@ public class PeriodEncoding extends AbstractEncoding<Period> {
 // Encoding
 
     @Override
-    public Period read(ByteReader reader) {
+    public Period read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return Period.of((int)LongEncoder.read(reader), (int)LongEncoder.read(reader), (int)LongEncoder.read(reader));
     }
 
     @Override
-    public void write(ByteWriter writer, Period period) {
+    public void write(ByteData.Writer writer, Period period) {
         Preconditions.checkArgument(period != null, "null period");
         Preconditions.checkArgument(writer != null);
         LongEncoder.write(writer, period.getYears());
@@ -50,7 +49,7 @@ public class PeriodEncoding extends AbstractEncoding<Period> {
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(LongEncoder.decodeLength(reader.peek()));
         reader.skip(LongEncoder.decodeLength(reader.peek()));

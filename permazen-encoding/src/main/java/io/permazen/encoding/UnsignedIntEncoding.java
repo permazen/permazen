@@ -7,8 +7,7 @@ package io.permazen.encoding;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.OptionalInt;
@@ -37,20 +36,20 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
 // Encoding
 
     @Override
-    public Integer read(ByteReader reader) {
+    public Integer read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         return UnsignedIntEncoder.read(reader);
     }
 
     @Override
-    public void write(ByteWriter writer, Integer value) {
+    public void write(ByteData.Writer writer, Integer value) {
         Preconditions.checkArgument(value != null, "null value");
         Preconditions.checkArgument(writer != null);
         UnsignedIntEncoder.write(writer, value);
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(UnsignedIntEncoder.decodeLength(reader.peek()));
     }
