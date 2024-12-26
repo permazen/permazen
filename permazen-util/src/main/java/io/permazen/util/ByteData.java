@@ -458,14 +458,7 @@ public final class ByteData implements Comparable<ByteData> {
      */
     public void writeTo(ByteBuffer buf, int index) {
         Preconditions.checkArgument(buf != null, "null buf");
-
-        // A nefarious ByteBuffer could corrupt the data array, so we copy the data into a transfer buffer before writing
-        final byte[] xferBuf = new byte[Math.min(this.max - this.min, 1000)];
-        for (int xferLen, off = this.min; (xferLen = Math.min(this.max - off, xferBuf.length)) > 0; off += xferLen) {
-            System.arraycopy(this.data, off, xferBuf, 0, xferLen);
-            buf.put(index, xferBuf, 0, xferLen);
-            index += xferLen;
-        }
+        buf.put(index, this.data, this.min, this.size());
     }
 
 // Comparable
