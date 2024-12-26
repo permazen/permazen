@@ -800,10 +800,11 @@ public final class ByteData implements Comparable<ByteData> {
         public synchronized ByteData readBytes(int len) {
             if (len < 0)
                 throw new IndexOutOfBoundsException("negative length");
-            if (this.pos + len < 0 || this.pos + len > this.count)
+            final int newPos = this.pos + len;
+            if (newPos < 0 || newPos > this.count)
                 throw new IndexOutOfBoundsException("not enough remaining bytes");
-            final ByteData result = new ByteData(this.buf, this.pos, this.pos + len);
-            this.pos += len;
+            final ByteData result = new ByteData(this.buf, this.pos, newPos);
+            this.pos = newPos;
             return result;
         }
 
