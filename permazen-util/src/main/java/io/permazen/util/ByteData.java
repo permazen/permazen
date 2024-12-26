@@ -174,6 +174,30 @@ public final class ByteData implements Comparable<ByteData> {
         return new Writer(initialCapacity);
     }
 
+    /**
+     * Determine how many identical bytes there are at specified offsets in two instances.
+     *
+     * <p>
+     * A starting offset is given for each instance. This method returns the number of consecutive pairs of bytes that are
+     * equal in both instances, starting at the given offsets. The comparison stops when the a non-equal byte pair is found,
+     * or one of the offsets would exceed the length of the corresponding instance.
+     *
+     * @param data1 first instance
+     * @param data2 first instance
+     * @param off1 starting offset in {@code data1}
+     * @param off2 starting offset in {@code data2}
+     * @return the number of bytes that agree starting at {@code off1} in {@code data1} and {@code off2} in {@code data2}
+     * @throws IllegalArgumentException if {@code data1} or {@code data2} is null
+     * @throws IllegalArgumentException if {@code off1} or {@code off2} is out of bounds
+     */
+    public static int numEqual(ByteData data1, int off1, ByteData data2, int off2) {
+        Preconditions.checkArgument(data1 != null, "null data1");
+        Preconditions.checkArgument(data2 != null, "null data2");
+        Preconditions.checkArgument(off1 >= 0 && off1 <= data1.size(), "invalid off1");
+        Preconditions.checkArgument(off2 >= 0 && off2 <= data2.size(), "invalid off2");
+        return Arrays.mismatch(data1.data, data1.min + off1, data1.max, data2.data, data2.min + off2, data2.max);
+    }
+
 // Public Instance Methods
 
     /**
