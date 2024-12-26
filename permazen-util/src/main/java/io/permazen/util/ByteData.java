@@ -328,7 +328,7 @@ public final class ByteData implements Comparable<ByteData> {
      * @throws IndexOutOfBoundsException if {@code beginIndex} is out of bounds
      */
     public ByteData substring(int beginIndex) {
-        Objects.checkIndex(beginIndex, this.size());
+        Preconditions.checkArgument(beginIndex >= 0 && beginIndex <= this.size(), "index out of range");
         return new ByteData(this.data, this.min + beginIndex, this.max);
     }
 
@@ -631,7 +631,7 @@ public final class ByteData implements Comparable<ByteData> {
          * @throws IndexOutOfBoundsException if {@code size} is negative or greater than this instance's current size
          */
         public synchronized void truncate(int size) {
-            Objects.checkIndex(size, this.size);
+            Preconditions.checkArgument(size >= 0 && size <= this.size, "size out of range");
             this.size = size;
         }
 
