@@ -195,7 +195,13 @@ public final class ByteData implements Comparable<ByteData> {
         Preconditions.checkArgument(data2 != null, "null data2");
         Preconditions.checkArgument(off1 >= 0 && off1 <= data1.size(), "invalid off1");
         Preconditions.checkArgument(off2 >= 0 && off2 <= data2.size(), "invalid off2");
-        return Arrays.mismatch(data1.data, data1.min + off1, data1.max, data2.data, data2.min + off2, data2.max);
+        int mismatch = Arrays.mismatch(data1.data, data1.min + off1, data1.max, data2.data, data2.min + off2, data2.max);
+        if (mismatch < 0) {
+            final int len1 = data1.max - (data1.min + off1);
+            final int len2 = data2.max - (data2.min + off2);
+            mismatch = Math.min(len1, len2);
+        }
+        return mismatch;
     }
 
 // Public Instance Methods
