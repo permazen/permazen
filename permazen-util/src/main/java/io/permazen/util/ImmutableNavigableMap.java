@@ -44,6 +44,9 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> impl
     /**
      * Constructor.
      *
+     * <p>
+     * Sorts via natural ordering.
+     *
      * @param source data source
      * @throws IllegalArgumentException if {@code source} is null
      */
@@ -61,6 +64,24 @@ public class ImmutableNavigableMap<K, V> extends AbstractNavigableMap<K, V> impl
     @SuppressWarnings("unchecked")
     public ImmutableNavigableMap(NavigableMap<K, V> source, Comparator<? super K> comparator) {
         this((K[])checkNull(source).keySet().toArray(), (V[])source.values().toArray(), comparator);
+    }
+
+    /**
+     * Convenience constructor.
+     *
+     * <p>
+     * Sorts via natural ordering.
+     *
+     * <p>
+     * Equivalent to: {@code ImmutableNavigableMap(keys, vals, null)}.
+     *
+     * @param keys sorted key array; <i>this array is not copied and must be already sorted</i>
+     * @param vals value array corresponding to {@code keys}; <i>this array is not copied</i>
+     * @throws IllegalArgumentException if {@code keys} or {@code vals} is null
+     * @throws IllegalArgumentException if {@code keys} and {@code vals} have different lengths
+     */
+    public ImmutableNavigableMap(K[] keys, V[] vals) {
+        this(keys, vals, null);
     }
 
     /**
