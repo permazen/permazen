@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 
 import io.permazen.kv.KVPair;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -52,22 +53,19 @@ public final class KeyListEncoder {
      * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if {@code out} or {@code key} is null
      */
-    public static void write(OutputStream out, byte[] key, byte[] prev) throws IOException {
+    public static void write(OutputStream out, ByteData key, ByteData prev) throws IOException {
         Preconditions.checkArgument(out != null, "null out");
         Preconditions.checkArgument(key != null, "null key");
-        int prefixLength = 0;
-        if (prev != null) {
-            while (prefixLength < key.length && prefixLength < prev.length && key[prefixLength] == prev[prefixLength])
-                prefixLength++;
-        }
+        final int keySize = key.size();
+        final int prefixLength = prev != null ? ByteData.numEqual(key, 0, prev, 0) : 0;
         if (prefixLength > 1) {
-            final int suffixLength = key.length - prefixLength;
+            final int suffixLength = keySize - prefixLength;
             LongEncoder.write(out, ~(prefixLength - 2));
             UnsignedIntEncoder.write(out, suffixLength);
-            out.write(key, prefixLength, suffixLength);
+            key.substring(prefixLength).writeTo(out);
         } else {
-            LongEncoder.write(out, key.length);
-            out.write(key);
+            LongEncoder.write(out, keySize);
+            key.writeTo(out);
         }
     }
 
@@ -79,18 +77,15 @@ public final class KeyListEncoder {
      * @return number of bytes to be written by {@link #write write(out, key, prev)}
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public static int writeLength(byte[] key, byte[] prev) {
+    public static int writeLength(ByteData key, ByteData prev) {
         Preconditions.checkArgument(key != null, "null key");
-        int prefixLength = 0;
-        if (prev != null) {
-            while (prefixLength < key.length && prefixLength < prev.length && key[prefixLength] == prev[prefixLength])
-                prefixLength++;
-        }
+        final int keySize = key.size();
+        final int prefixLength = prev != null ? ByteData.numEqual(key, 0, prev, 0) : 0;
         if (prefixLength > 1) {
-            final int suffixLength = key.length - prefixLength;
+            final int suffixLength = keySize - prefixLength;
             return LongEncoder.encodeLength(~(prefixLength - 2)) + UnsignedIntEncoder.encodeLength(suffixLength) + suffixLength;
         } else
-            return LongEncoder.encodeLength(key.length) + key.length;
+            return LongEncoder.encodeLength(keySize) + keySize;
     }
 
     /**
@@ -104,15 +99,14 @@ public final class KeyListEncoder {
      * @throws IllegalArgumentException if {@code input} is null
      * @throws IllegalArgumentException if {@code input} contains invalid data
      */
-    public static byte[] read(InputStream input, byte[] prev) throws IOException {
+    public static ByteData read(InputStream input, ByteData prev) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
 
         // Get encoded length of prefix
         int keyLength = KeyListEncoder.readSignedInt(input);
-        final byte[] key;
-        int prefixLength;
+        final int prefixLength;
 
-        // Decode prefix length and read prefix, if any
+        // Decode prefix length (if any)
         if (keyLength < 0) {
             if (prev == null) {
                 throw new IllegalArgumentException(String.format(
@@ -120,28 +114,33 @@ public final class KeyListEncoder {
             }
             prefixLength = ~keyLength + 2;
             final int suffixLength = UnsignedIntEncoder.read(input);
-            keyLength = prefixLength + suffixLength;
-            if (keyLength < 0) {
+            if ((keyLength = prefixLength + suffixLength) < 0) {
                 throw new IllegalArgumentException(String.format(
                   "invalid prefix length %d plus suffix length %d", prefixLength, suffixLength));
             }
-            key = new byte[keyLength];
-            System.arraycopy(prev, 0, key, 0, prefixLength);
-        } else {
-            key = new byte[keyLength];
+        } else
             prefixLength = 0;
-        }
 
-        // Read suffix
-        while (prefixLength < key.length) {
-            final int num = input.read(key, prefixLength, key.length - prefixLength);
-            if (num == -1)
-                throw new EOFException();
-            prefixLength += num;
+        // Allocate buffer
+        final ByteData.Writer keyWriter = ByteData.newWriter(keyLength);
+
+        // Copy prefix bytes (if any)
+        if (prefixLength > 0)
+            keyWriter.write(prev.substring(0, prefixLength));
+
+        // Copy suffix bytes (if any)
+        final int suffixLength = keyLength - prefixLength;
+        if (suffixLength > 0) {
+            final byte[] suffix = new byte[suffixLength];
+            for (int r, off = 0; off < suffixLength; off += r) {
+                if ((r = input.read(suffix, off, suffixLength - off)) == -1)
+                    throw new EOFException();
+            }
+            keyWriter.write(suffix);
         }
 
         // Done
-        return key;
+        return keyWriter.toByteData();
     }
 
     /**
@@ -163,11 +162,11 @@ public final class KeyListEncoder {
         Preconditions.checkArgument(output != null, "null output");
 
         // Write pairs
-        byte[] prev = null;
+        ByteData prev = null;
         while (kvpairs.hasNext()) {
             final KVPair kv = kvpairs.next();
-            final byte[] key = kv.getKey();
-            final byte[] value = kv.getValue();
+            final ByteData key = kv.getKey();
+            final ByteData value = kv.getValue();
             KeyListEncoder.write(output, key, prev);
             KeyListEncoder.write(output, value, null);
             prev = key;
@@ -183,16 +182,19 @@ public final class KeyListEncoder {
      * @param kvpairs key/value pair iteration
      * @return encoded length of this instance
      * @throws IllegalArgumentException if {@code kvpairs} is null
+     * @throws IllegalArgumentException if the result is larger than {@link Long#MAX_VALUE}
      */
     public static long writePairsLength(Iterator<KVPair> kvpairs) {
         long total = 1;
-        byte[] prev = null;
+        ByteData prev = null;
         while (kvpairs.hasNext()) {
             final KVPair kv = kvpairs.next();
-            final byte[] key = kv.getKey();
-            final byte[] value = kv.getValue();
+            final ByteData key = kv.getKey();
+            final ByteData value = kv.getValue();
             total += KeyListEncoder.writeLength(key, prev);
             total += KeyListEncoder.writeLength(value, null);
+            if (total < 0)
+                throw new IllegalArgumentException("total is too large");
             prev = key;
         }
         return total;
@@ -224,7 +226,7 @@ public final class KeyListEncoder {
         return new AbstractIterator<KVPair>() {
 
             private final BufferedInputStream in = new BufferedInputStream(input, 1024);
-            private byte[] prev;
+            private ByteData prev;
 
             @Override
             protected KVPair computeNext() {
@@ -240,8 +242,8 @@ public final class KeyListEncoder {
                     this.in.reset();
 
                     // Read next k/v pair
-                    final byte[] key = KeyListEncoder.read(this.in, this.prev);
-                    final byte[] value = KeyListEncoder.read(this.in, null);
+                    final ByteData key = KeyListEncoder.read(this.in, this.prev);
+                    final ByteData value = KeyListEncoder.read(this.in, null);
                     this.prev = key;
 
                     // Done

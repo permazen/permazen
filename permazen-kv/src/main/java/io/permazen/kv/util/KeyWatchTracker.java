@@ -16,7 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.Mutations;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class KeyWatchTracker implements Closeable {
     public static final boolean DEFAULT_WEAK_REFERENCE = false;
 
     @GuardedBy("this")
-    private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);
+    private final TreeMap<ByteData, KeyInfo> keyInfos = new TreeMap<>();
     private final Cache<KeyFuture, KeyInfo> futureMap;
     private final ExecutorService notifyExecutor;
 
@@ -145,7 +145,7 @@ public class KeyWatchTracker implements Closeable {
      * @return a {@link ListenableFuture} that returns {@code key} when the value associated with {@code key} is modified
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public ListenableFuture<Void> register(byte[] key) {
+    public ListenableFuture<Void> register(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
@@ -154,7 +154,6 @@ public class KeyWatchTracker implements Closeable {
         KeyInfo keyInfo;
         synchronized (this) {
             if ((keyInfo = this.keyInfos.get(key)) == null) {
-                key = key.clone();                              // avoid external mutation of key contents
                 keyInfo = new KeyInfo(key);
                 this.keyInfos.put(key, keyInfo);
             }
@@ -183,7 +182,7 @@ public class KeyWatchTracker implements Closeable {
      * @return true if any watches were triggered, otherwise false
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public boolean trigger(byte[] key) {
+    public boolean trigger(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
@@ -207,7 +206,7 @@ public class KeyWatchTracker implements Closeable {
      * @return true if any watches were triggered, otherwise false
      * @throws IllegalArgumentException if {@code keys} is null
      */
-    public boolean trigger(Stream<byte[]> keys) {
+    public boolean trigger(Stream<ByteData> keys) {
 
         // Sanity check
         Preconditions.checkArgument(keys != null, "null keys");
@@ -243,7 +242,7 @@ public class KeyWatchTracker implements Closeable {
         // Extract KeyInfo objects for all keys in the range
         final ArrayList<KeyInfo> triggerList = new ArrayList<>();
         synchronized (this) {
-            final NavigableMap<byte[], KeyInfo> subMap = range.getMax() != null ?
+            final NavigableMap<ByteData, KeyInfo> subMap = range.getMax() != null ?
               this.keyInfos.subMap(range.getMin(), true, range.getMax(), false) :
               this.keyInfos.tailMap(range.getMin(), true);
             triggerList.addAll(subMap.values());
@@ -264,7 +263,6 @@ public class KeyWatchTracker implements Closeable {
      * @return true if any watches were triggered, otherwise false
      * @throws IllegalArgumentException if {@code mutations} is null
      */
-    @SuppressWarnings("rawtypes")   // https://bugs.openjdk.java.net/browse/JDK-8012685
     public boolean trigger(Mutations mutations) {
 
         // Sanity check
@@ -276,7 +274,7 @@ public class KeyWatchTracker implements Closeable {
             result |= removeRanges.map(this::trigger)
               .reduce(false, Boolean::logicalOr);
         }
-        try (Stream<byte[]> keys = Stream.concat(mutations.getPutPairs(), mutations.getAdjustPairs()).map(Map.Entry::getKey)) {
+        try (Stream<ByteData> keys = Stream.concat(mutations.getPutPairs(), mutations.getAdjustPairs()).map(Map.Entry::getKey)) {
             result |= keys.map(this::trigger)
               .reduce(false, Boolean::logicalOr);
         }
@@ -323,7 +321,7 @@ public class KeyWatchTracker implements Closeable {
 
         // Add all of their futures to this instance
         for (KeyInfo thatKeyInfo : thatKeyInfos) {
-            final byte[] key = thatKeyInfo.getKey();
+            final ByteData key = thatKeyInfo.getKey();
             KeyInfo thisKeyInfo;
             synchronized (this) {
                 if ((thisKeyInfo = this.keyInfos.get(key)) == null) {
@@ -374,16 +372,16 @@ public class KeyWatchTracker implements Closeable {
     // Note locking order: KeyInfo, then KeyWatchTracker
     private class KeyInfo {
 
-        private final byte[] key;
+        private final ByteData key;
         @GuardedBy("this")
         private final HashSet<KeyFuture> futures = new HashSet<>(1);
 
-        KeyInfo(byte[] key) {
+        KeyInfo(ByteData key) {
             assert key != null;
             this.key = key;
         }
 
-        public byte[] getKey() {
+        public ByteData getKey() {
             return this.key;
         }
 

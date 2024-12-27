@@ -7,12 +7,9 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
-
-import java.util.Arrays;
 
 /**
  * Support superclass for {@link KVStore} implementations.
@@ -34,7 +31,7 @@ import java.util.Arrays;
  *
  * <p>
  * A read-only {@link KVStore} implementation is possible by implementing only
- * {@link #getRange(byte[], byte[], boolean) getRange()}, and a read-write implementation by also
+ * {@link #getRange(ByteData, ByteData, boolean) getRange()}, and a read-write implementation by also
  * implementing {@link #put put()}. However, subclasses typically provide more efficient implementations
  * of the methods listed above.
  *
@@ -46,17 +43,17 @@ public abstract class AbstractKVStore implements KVStore {
     }
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         final KVPair pair = this.getAtLeast(key, ByteUtil.getNextKey(key));
         if (pair == null)
             return null;
-        assert Arrays.equals(pair.getKey(), key);
+        assert pair.getKey().equals(key);
         return pair.getValue();
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
+        if (minKey != null && maxKey != null && minKey.compareTo(maxKey) >= 0)
             return null;
         try (CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
             return i.hasNext() ? i.next() : null;
@@ -64,8 +61,8 @@ public abstract class AbstractKVStore implements KVStore {
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
+        if (minKey != null && maxKey != null && minKey.compareTo(maxKey) >= 0)
             return null;
         try (CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, true)) {
             return i.hasNext() ? i.next() : null;
@@ -73,17 +70,17 @@ public abstract class AbstractKVStore implements KVStore {
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         this.removeRange(key, ByteUtil.getNextKey(key));
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         try (CloseableIterator<KVPair> i = this.getRange(minKey, maxKey, false)) {
             while (i.hasNext()) {
                 i.next();
@@ -93,23 +90,23 @@ public abstract class AbstractKVStore implements KVStore {
     }
 
     @Override
-    public byte[] encodeCounter(long value) {
-        final ByteWriter writer = new ByteWriter(8);
+    public ByteData encodeCounter(long value) {
+        final ByteData.Writer writer = ByteData.newWriter(8);
         ByteUtil.writeLong(writer, value);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @Override
-    public long decodeCounter(byte[] value) {
-        Preconditions.checkArgument(value.length == 8, "invalid encoded counter value length != 8");
-        return ByteUtil.readLong(new ByteReader(value));
+    public long decodeCounter(ByteData value) {
+        Preconditions.checkArgument(value.size() == 8, "invalid encoded counter value size != 8");
+        return ByteUtil.readLong(value.newReader());
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         if (key == null)
             throw new NullPointerException("null key");
-        final byte[] previous = this.get(key);
+        final ByteData previous = this.get(key);
         if (previous == null)
             return;
         final long oldValue;

@@ -14,6 +14,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.kv.util.KeyListEncoder;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ImmutableNavigableMap;
@@ -44,16 +45,16 @@ import java.util.stream.Stream;
 public class Writes implements Cloneable, Mutations {
 
     private /*final*/ KeyRanges removes;
-    private /*final*/ NavigableMap<byte[], byte[]> puts;
-    private /*final*/ NavigableMap<byte[], Long> adjusts;
+    private /*final*/ NavigableMap<ByteData, ByteData> puts;
+    private /*final*/ NavigableMap<ByteData, Long> adjusts;
     private /*final*/ boolean immutable;
 
     public Writes() {
-        this(KeyRanges.empty(), new TreeMap<>(ByteUtil.COMPARATOR), new TreeMap<>(ByteUtil.COMPARATOR), false);
+        this(KeyRanges.empty(), new TreeMap<>(), new TreeMap<>(), false);
     }
 
     private Writes(KeyRanges removes,
-      NavigableMap<byte[], byte[]> puts, NavigableMap<byte[], Long> adjusts, boolean immutable) {
+      NavigableMap<ByteData, ByteData> puts, NavigableMap<ByteData, Long> adjusts, boolean immutable) {
         this.removes = removes;
         this.puts = puts;
         this.adjusts = adjusts;
@@ -74,24 +75,18 @@ public class Writes implements Cloneable, Mutations {
     /**
      * Get the written key/value pairs contained by this instance.
      *
-     * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays.
-     *
      * @return mapping from key to corresponding value
      */
-    public NavigableMap<byte[], byte[]> getPuts() {
+    public NavigableMap<ByteData, ByteData> getPuts() {
         return this.puts;
     }
 
     /**
      * Get the set of counter adjustments contained by this instance.
      *
-     * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays.
-     *
      * @return mapping from key to corresponding counter adjustment
      */
-    public NavigableMap<byte[], Long> getAdjusts() {
+    public NavigableMap<ByteData, Long> getAdjusts() {
         return this.adjusts;
     }
 
@@ -121,12 +116,12 @@ public class Writes implements Cloneable, Mutations {
     }
 
     @Override
-    public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+    public Stream<Map.Entry<ByteData, ByteData>> getPutPairs() {
         return this.getPuts().entrySet().stream();
     }
 
     @Override
-    public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+    public Stream<Map.Entry<ByteData, Long>> getAdjustPairs() {
         return this.getAdjusts().entrySet().stream();
     }
 
@@ -178,10 +173,10 @@ public class Writes implements Cloneable, Mutations {
 
         // Puts
         UnsignedIntEncoder.write(out, this.puts.size());
-        byte[] prev = null;
-        for (Map.Entry<byte[], byte[]> entry : this.puts.entrySet()) {
-            final byte[] key = entry.getKey();
-            final byte[] value = entry.getValue();
+        ByteData prev = null;
+        for (Map.Entry<ByteData, ByteData> entry : this.puts.entrySet()) {
+            final ByteData key = entry.getKey();
+            final ByteData value = entry.getValue();
             KeyListEncoder.write(out, key, prev);
             KeyListEncoder.write(out, value, null);
             prev = key;
@@ -190,8 +185,8 @@ public class Writes implements Cloneable, Mutations {
         // Adjusts
         UnsignedIntEncoder.write(out, this.adjusts.size());
         prev = null;
-        for (Map.Entry<byte[], Long> entry : this.adjusts.entrySet()) {
-            final byte[] key = entry.getKey();
+        for (Map.Entry<ByteData, Long> entry : this.adjusts.entrySet()) {
+            final ByteData key = entry.getKey();
             final long value = entry.getValue();
             KeyListEncoder.write(out, key, prev);
             LongEncoder.write(out, value);
@@ -203,6 +198,7 @@ public class Writes implements Cloneable, Mutations {
      * Calculate the number of bytes required to serialize this instance via {@link #serialize serialize()}.
      *
      * @return number of serialized bytes
+     * @throws IllegalArgumentException if the total exceeds {@link Long#MAX_VALUE}
      */
     public long serializedLength() {
 
@@ -210,24 +206,30 @@ public class Writes implements Cloneable, Mutations {
         long total = this.removes.serializedLength();
 
         // Puts
-        total += UnsignedIntEncoder.encodeLength(this.puts.size());
-        byte[] prev = null;
-        for (Map.Entry<byte[], byte[]> entry : this.puts.entrySet()) {
-            final byte[] key = entry.getKey();
-            final byte[] value = entry.getValue();
+        if ((total += UnsignedIntEncoder.encodeLength(this.puts.size())) < 0)
+            throw new IllegalArgumentException("total is too large");
+        ByteData prev = null;
+        for (Map.Entry<ByteData, ByteData> entry : this.puts.entrySet()) {
+            final ByteData key = entry.getKey();
+            final ByteData value = entry.getValue();
             total += KeyListEncoder.writeLength(key, prev);
             total += KeyListEncoder.writeLength(value, null);
+            if (total < 0)
+                throw new IllegalArgumentException("total is too large");
             prev = key;
         }
 
         // Adjusts
-        total += UnsignedIntEncoder.encodeLength(this.adjusts.size());
+        if ((total += UnsignedIntEncoder.encodeLength(this.adjusts.size())) < 0)
+            throw new IllegalArgumentException("total is too large");
         prev = null;
-        for (Map.Entry<byte[], Long> entry : this.adjusts.entrySet()) {
-            final byte[] key = entry.getKey();
+        for (Map.Entry<ByteData, Long> entry : this.adjusts.entrySet()) {
+            final ByteData key = entry.getKey();
             final long value = entry.getValue();
             total += KeyListEncoder.writeLength(key, prev);
             total += LongEncoder.encodeLength(value);
+            if (total < 0)
+                throw new IllegalArgumentException("total is too large");
             prev = key;
         }
 
@@ -269,38 +271,42 @@ public class Writes implements Cloneable, Mutations {
 
         // Get puts
         final int putCount = UnsignedIntEncoder.read(input);
-        final byte[][] putKeys = new byte[putCount][];
-        final byte[][] putVals = new byte[putCount][];
-        byte[] prev = null;
+        final ByteData[] putKeys = new ByteData[putCount];
+        final ByteData[] putVals = new ByteData[putCount];
+        ByteData prev = null;
         for (int i = 0; i < putCount; i++) {
             putKeys[i] = KeyListEncoder.read(input, prev);
+            if (prev != null && putKeys[i].compareTo(prev) <= 0)
+                throw new IllegalArgumentException("mis-ordered keys");
             putVals[i] = KeyListEncoder.read(input, null);
             prev = putKeys[i];
         }
-        final NavigableMap<byte[], byte[]> puts;
+        final NavigableMap<ByteData, ByteData> puts;
         if (immutable)
-            puts = new ImmutableNavigableMap<>(putKeys, putVals, ByteUtil.COMPARATOR);
+            puts = new ImmutableNavigableMap<>(putKeys, putVals);
         else {
-            puts = new TreeMap<>(ByteUtil.COMPARATOR);
+            puts = new TreeMap<>();
             for (int i = 0; i < putCount; i++)
                 puts.put(putKeys[i], putVals[i]);
         }
 
         // Get adjusts
         final int adjCount = UnsignedIntEncoder.read(input);
-        final byte[][] adjKeys = new byte[adjCount][];
+        final ByteData[] adjKeys = new ByteData[adjCount];
         final Long[] adjVals = new Long[adjCount];
         prev = null;
         for (int i = 0; i < adjCount; i++) {
             adjKeys[i] = KeyListEncoder.read(input, prev);
+            if (prev != null && adjKeys[i].compareTo(prev) <= 0)
+                throw new IllegalArgumentException("mis-ordered keys");
             adjVals[i] = LongEncoder.read(input);
             prev = adjKeys[i];
         }
-        final NavigableMap<byte[], Long> adjusts;
+        final NavigableMap<ByteData, Long> adjusts;
         if (immutable)
-            adjusts = new ImmutableNavigableMap<>(adjKeys, adjVals, ByteUtil.COMPARATOR);
+            adjusts = new ImmutableNavigableMap<>(adjKeys, adjVals);
         else {
-            adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
+            adjusts = new TreeMap<>();
             for (int i = 0; i < adjCount; i++)
                 adjusts.put(adjKeys[i], adjVals[i]);
         }
@@ -334,10 +340,6 @@ public class Writes implements Cloneable, Mutations {
 
     /**
      * Clone this instance.
-     *
-     * <p>
-     * This is a "mostly deep" clone: all of the mutations are copied, but the actual
-     * {@code byte[]} keys and values, which are already assumed non-mutable, are not copied.
      *
      * <p>
      * The returned clone will always be mutable, even if this instance is not.
@@ -374,10 +376,10 @@ public class Writes implements Cloneable, Mutations {
 
     @Override
     public String toString() {
-        final Converter<String, byte[]> byteConverter = ByteUtil.STRING_CONVERTER.reverse();
-        final ConvertedNavigableMap<String, String, byte[], byte[]> putsView
+        final Converter<String, ByteData> byteConverter = ByteUtil.STRING_CONVERTER.reverse();
+        final ConvertedNavigableMap<String, String, ByteData, ByteData> putsView
           = new ConvertedNavigableMap<>(this.puts, byteConverter, byteConverter);
-        final ConvertedNavigableMap<String, Long, byte[], Long> adjustsView
+        final ConvertedNavigableMap<String, Long, ByteData, Long> adjustsView
           = new ConvertedNavigableMap<>(this.adjusts, byteConverter, Converter.<Long>identity());
         final StringBuilder buf = new StringBuilder();
         buf.append(this.getClass().getSimpleName())
@@ -448,12 +450,12 @@ public class Writes implements Cloneable, Mutations {
         }
 
         @Override
-        public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+        public Stream<Map.Entry<ByteData, ByteData>> getPutPairs() {
             Preconditions.checkState(this.state == 1, "duplicate or out-of-order invocation");
             this.exhaustCurrentIterator();
-            final MapEntryIterator<byte[]> iterator = new MapEntryIterator<byte[]>(this.input) {
+            final MapEntryIterator<ByteData> iterator = new MapEntryIterator<ByteData>(this.input) {
                 @Override
-                protected byte[] readValue() throws IOException {
+                protected ByteData readValue() throws IOException {
                     return KeyListEncoder.read(this.input, null);
                 }
             };
@@ -463,7 +465,7 @@ public class Writes implements Cloneable, Mutations {
         }
 
         @Override
-        public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+        public Stream<Map.Entry<ByteData, Long>> getAdjustPairs() {
             Preconditions.checkState(this.state == 2, "duplicate or out-of-order invocation");
             this.exhaustCurrentIterator();
             final MapEntryIterator<Long> iterator = new MapEntryIterator<Long>(this.input) {
@@ -485,12 +487,12 @@ public class Writes implements Cloneable, Mutations {
 
 // InputIterator
 
-    private abstract static class MapEntryIterator<V> extends UnmodifiableIterator<Map.Entry<byte[], V>> {
+    private abstract static class MapEntryIterator<V> extends UnmodifiableIterator<Map.Entry<ByteData, V>> {
 
         protected final InputStream input;
 
         private int remain = -1;
-        private byte[] prev;
+        private ByteData prev;
 
         MapEntryIterator(InputStream input) {
             Preconditions.checkArgument(input != null, "null input");
@@ -504,14 +506,16 @@ public class Writes implements Cloneable, Mutations {
         }
 
         @Override
-        public Map.Entry<byte[], V> next() {
+        public Map.Entry<ByteData, V> next() {
             this.init();
             if (this.remain == 0)
                 throw new NoSuchElementException();
-            final byte[] key;
+            final ByteData key;
             final V value;
             try {
                 key = KeyListEncoder.read(this.input, this.prev);
+                if (this.prev != null && key.compareTo(this.prev) <= 0)
+                    throw new IllegalArgumentException("mis-ordered keys");
                 value = this.readValue();
             } catch (IOException e) {
                 throw new RuntimeException(e);

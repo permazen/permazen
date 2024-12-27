@@ -7,10 +7,10 @@ package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.google.common.primitives.Bytes;
 
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -19,7 +19,7 @@ import io.permazen.util.CloseableIterator;
  */
 public abstract class PrefixKVStore extends ForwardingKVStore {
 
-    private final byte[] keyPrefix;
+    private final ByteData keyPrefix;
 
     /**
      * Constructor.
@@ -27,18 +27,18 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
      * @param keyPrefix prefix for all keys
      * @throws IllegalArgumentException if {@code keyPrefix} is null
      */
-    public PrefixKVStore(byte[] keyPrefix) {
+    public PrefixKVStore(ByteData keyPrefix) {
         Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");
-        this.keyPrefix = keyPrefix.clone();
+        this.keyPrefix = keyPrefix;
     }
 
     /**
      * Get the {@code byte[]} key prefix associated with this instance.
      *
-     * @return (a copy of) this instance's key prefix
+     * @return this instance's key prefix
      */
-    public final byte[] getKeyPrefix() {
-        return this.keyPrefix.clone();
+    public final ByteData getKeyPrefix() {
+        return this.keyPrefix;
     }
 
     /**
@@ -49,7 +49,7 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
      * @return view of all keys in {@code kvstore} with prefix {@code keyPrefix}
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static PrefixKVStore create(final KVStore kvstore, byte[] keyPrefix) {
+    public static PrefixKVStore create(final KVStore kvstore, ByteData keyPrefix) {
         Preconditions.checkArgument(kvstore != null, "null kvstore");
         Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");
         return new PrefixKVStore(keyPrefix) {
@@ -63,82 +63,80 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         return this.delegate().get(this.addPrefix(key));
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         final KVPair pair = this.delegate().getAtLeast(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey));
         if (pair == null)
             return null;
-        assert ByteUtil.isPrefixOf(this.keyPrefix, pair.getKey());
+        assert pair.getKey().startsWith(this.keyPrefix);
         return new KVPair(this.removePrefix(pair.getKey()), pair.getValue());
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         final KVPair pair = this.delegate().getAtMost(this.addMaxPrefix(maxKey), this.addMinPrefix(minKey));
         if (pair == null)
             return null;
-        assert ByteUtil.isPrefixOf(this.keyPrefix, pair.getKey());
+        assert pair.getKey().startsWith(this.keyPrefix);
         return new KVPair(this.removePrefix(pair.getKey()), pair.getValue());
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         final CloseableIterator<KVPair> i = this.delegate().getRange(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey), reverse);
         return CloseableIterator.wrap(
           Iterators.transform(i, pair -> new KVPair(this.removePrefix(pair.getKey()), pair.getValue())), i);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         this.delegate().put(this.addPrefix(key), value);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         this.delegate().remove(this.addPrefix(key));
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         this.delegate().removeRange(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey));
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         this.delegate().adjustCounter(this.addPrefix(key), amount);
     }
 
 // Key (un)prefixing
 
-    private byte[] addPrefix(byte[] key) {
+    private ByteData addPrefix(ByteData key) {
         if (key == null)
             return null;
-        return Bytes.concat(this.keyPrefix, key);
+        return this.keyPrefix.concat(key);
     }
 
-    private byte[] addMinPrefix(byte[] minKey) {
+    private ByteData addMinPrefix(ByteData minKey) {
         if (minKey == null)
-            return this.keyPrefix.clone();
+            return this.keyPrefix;
         return this.addPrefix(minKey);
     }
 
-    private byte[] addMaxPrefix(byte[] maxKey) {
+    private ByteData addMaxPrefix(ByteData maxKey) {
         if (maxKey == null)
-            return this.keyPrefix.length > 0 ? ByteUtil.getKeyAfterPrefix(this.keyPrefix) : null;
+            return !this.keyPrefix.isEmpty() ? ByteUtil.getKeyAfterPrefix(this.keyPrefix) : null;
         return this.addPrefix(maxKey);
     }
 
-    private byte[] removePrefix(byte[] key) {
-        if (!ByteUtil.isPrefixOf(this.keyPrefix, key)) {
+    private ByteData removePrefix(ByteData key) {
+        if (!key.startsWith(this.keyPrefix)) {
             throw new IllegalArgumentException(String.format(
               "read key %s not having %s as a prefix", ByteUtil.toString(key), ByteUtil.toString(this.keyPrefix)));
         }
-        final byte[] suffix = new byte[key.length - this.keyPrefix.length];
-        System.arraycopy(key, this.keyPrefix.length, suffix, 0, suffix.length);
-        return suffix;
+        return key.substring(this.keyPrefix.size());
     }
 }

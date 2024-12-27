@@ -15,6 +15,7 @@ import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.KeyWatchTracker;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableRefs;
 
 import jakarta.annotation.PostConstruct;
@@ -219,7 +220,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
 // Key Watches
 
-    synchronized ListenableFuture<Void> watchKey(byte[] key) {
+    synchronized ListenableFuture<Void> watchKey(ByteData key) {
         Preconditions.checkState(this.started, "not started");
         if (this.keyWatchTracker == null)
             this.keyWatchTracker = new KeyWatchTracker();

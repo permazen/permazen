@@ -5,7 +5,7 @@
 
 package io.permazen.kv;
 
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,7 +96,7 @@ public class KeyRangesTest extends KeyRangeTestSupport {
 
     @Test(dataProvider = "asList")
     public void testAsList(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
-        final byte[] key = b(keystr);
+        final ByteData key = b(keystr);
         final List<KeyRange> list = ranges.asList();
         final KeyRange[] neighbors = ranges.findKey(key);
         if (contains == -1)
@@ -195,15 +195,17 @@ public class KeyRangesTest extends KeyRangeTestSupport {
         for (int i = 0; i < 100000; i++) {
 
             // Get bounds
-            byte[] minKey;
-            byte[] maxKey;
+            ByteData minKey;
+            ByteData maxKey;
             do {
-                minKey = new byte[1 << this.random.nextInt(4)];
-                this.random.nextBytes(minKey);
-                maxKey = this.random.nextInt(7) != 0 ? new byte[1 << this.random.nextInt(4)] : null;
-                if (maxKey != null)
-                    this.random.nextBytes(maxKey);
-            } while (maxKey != null && ByteUtil.compare(maxKey, minKey) < 0);
+                final byte[] minKeyBytes = new byte[1 << this.random.nextInt(4)];
+                this.random.nextBytes(minKeyBytes);
+                final byte[] maxKeyBytes = this.random.nextInt(7) != 0 ? new byte[1 << this.random.nextInt(4)] : null;
+                if (maxKeyBytes != null)
+                    this.random.nextBytes(maxKeyBytes);
+                minKey = ByteData.of(minKeyBytes);
+                maxKey = maxKeyBytes != null ? ByteData.of(maxKeyBytes) : null;
+            } while (maxKey != null && maxKey.compareTo(minKey) < 0);
 
             // Create new range
             final KeyRange range = new KeyRange(minKey, maxKey);
@@ -221,9 +223,9 @@ public class KeyRangesTest extends KeyRangeTestSupport {
                         expected.add(prev);
                         continue;
                     }
-                    if (ByteUtil.compare(prev.getMin(), range.getMin()) < 0)
+                    if (prev.getMin().compareTo(range.getMin()) < 0)
                         expected.add(new KeyRange(prev.getMin(), range.getMin()));
-                    if (range.getMax() != null && (prev.getMax() == null || ByteUtil.compare(range.getMax(), prev.getMax()) < 0))
+                    if (range.getMax() != null && (prev.getMax() == null || range.getMax().compareTo(prev.getMax()) < 0))
                         expected.add(new KeyRange(range.getMax(), prev.getMax()));
                 }
             }
@@ -252,7 +254,7 @@ public class KeyRangesTest extends KeyRangeTestSupport {
         Assert.assertEquals(ranges3, KeyRanges.empty());
         Assert.assertTrue(ranges3.isEmpty());
 
-        final byte[] b1 = this.randomBytes(false);
+        final ByteData b1 = this.randomBytes(false);
         Assert.assertEquals(ranges.contains(b1), !inverse.contains(b1),
           "ranges " + ranges + " and inverse " + inverse + " agree on containing " + s(b1));
 
@@ -310,8 +312,8 @@ public class KeyRangesTest extends KeyRangeTestSupport {
 
     @DataProvider(name = "empty")
     private Object[][] emptyKeyRanges() throws Exception {
-        final KeyRange empty1 = new KeyRange(new byte[0], new byte[0]);
-        final KeyRange empty2 = new KeyRange(new byte[] { 33 }, new byte[] { 33 });
+        final KeyRange empty1 = new KeyRange(ByteData.empty(), ByteData.empty());
+        final KeyRange empty2 = new KeyRange(ByteData.of(33), ByteData.of(33));
         return new KeyRanges[][] {
             { new KeyRanges() },
             { new KeyRanges(empty1) },

@@ -8,4 +8,9 @@
         <Method name="findNext"/>
         <Bug pattern="DC_DOUBLECHECK"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.kv.util.MemoryKVStore"/>
+        <Field name="map"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
 </FindBugsFilter>

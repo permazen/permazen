@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+import io.permazen.util.ByteData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,13 +90,13 @@ public class Reads extends KeyRanges {
         }
 
         // Check for read/write conflicts
-        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+        try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
             if (puts.map(Map.Entry::getKey).anyMatch(this::contains))
                 return true;
         }
 
         // Check for read/adjust conflicts
-        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+        try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
             if (adjusts.map(Map.Entry::getKey).anyMatch(this::contains))
                 return true;
         }
@@ -193,10 +194,10 @@ public class Reads extends KeyRanges {
         }
 
         // Check for read/write conflicts
-        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-            for (Iterator<Map.Entry<byte[], byte[]>> i = puts.iterator(); i.hasNext(); ) {
-                final Map.Entry<byte[], byte[]> entry = i.next();
-                final byte[] key = entry.getKey();
+        try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
+            for (Iterator<Map.Entry<ByteData, ByteData>> i = puts.iterator(); i.hasNext(); ) {
+                final Map.Entry<ByteData, ByteData> entry = i.next();
+                final ByteData key = entry.getKey();
                 if (this.contains(key)) {
                     conflictList.add(new ReadWriteConflict(key));
                     if (returnFirst)
@@ -206,10 +207,10 @@ public class Reads extends KeyRanges {
         }
 
         // Check for read/adjust conflicts
-        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-            for (Iterator<Map.Entry<byte[], Long>> i = adjusts.iterator(); i.hasNext(); ) {
-                final Map.Entry<byte[], Long> entry = i.next();
-                final byte[] key = entry.getKey();
+        try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
+            for (Iterator<Map.Entry<ByteData, Long>> i = adjusts.iterator(); i.hasNext(); ) {
+                final Map.Entry<ByteData, Long> entry = i.next();
+                final ByteData key = entry.getKey();
                 if (this.contains(key)) {
                     conflictList.add(new ReadAdjustConflict(key));
                     if (returnFirst)

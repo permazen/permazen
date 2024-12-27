@@ -11,9 +11,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +28,7 @@ import java.util.NavigableSet;
  * </ul>
  */
 @SuppressWarnings("serial")
-public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
+public class KVNavigableSet extends AbstractKVNavigableSet<ByteData> {
 
 // Constructors
 
@@ -50,7 +48,7 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
      * @param prefix prefix defining minimum and maximum keys
      * @throws NullPointerException if {@code prefix} is null
      */
-    public KVNavigableSet(KVStore kv, byte[] prefix) {
+    public KVNavigableSet(KVStore kv, ByteData prefix) {
         this(kv, false, KeyRange.forPrefix(prefix), null);
     }
 
@@ -77,25 +75,25 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code kv} or {@code bounds} is null
      */
-    private KVNavigableSet(KVStore kv, boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<byte[]> bounds) {
+    private KVNavigableSet(KVStore kv, boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<ByteData> bounds) {
         super(kv, false, reversed, keyRange, keyFilter, bounds);
     }
 
 // Methods
 
     @Override
-    public Comparator<byte[]> comparator() {
-        return this.reversed ? Collections.reverseOrder(ByteUtil.COMPARATOR) : ByteUtil.COMPARATOR;
+    public Comparator<ByteData> comparator() {
+        return this.reversed ? Collections.reverseOrder() : null;
     }
 
     @Override
     public boolean remove(Object obj) {
-        if (!(obj instanceof byte[]))
+        if (!(obj instanceof ByteData))
             return false;
-        final byte[] key = (byte[])obj;
+        final ByteData key = (ByteData)obj;
         if (!this.isVisible(key))
             return false;
-        final byte[] value = this.kv.get(key);
+        final ByteData value = this.kv.get(key);
         if (value == null)
             return false;
         this.kv.remove(key);
@@ -106,30 +104,30 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
     public void clear() {
         if (this.keyFilter != null)
             throw new UnsupportedOperationException("clear() not supported when KeyFilter configured");
-        final byte[] minKey = this.keyRange != null ? this.keyRange.getMin() : null;
-        final byte[] maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
+        final ByteData minKey = this.keyRange != null ? this.keyRange.getMin() : null;
+        final ByteData maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
         this.kv.removeRange(minKey, maxKey);
         return;
     }
 
     @Override
-    protected void encode(ByteWriter writer, Object obj) {
-        Preconditions.checkArgument(obj instanceof byte[], "value is not a byte[]");
-        writer.write((byte[])obj);
+    protected void encode(ByteData.Writer writer, Object obj) {
+        Preconditions.checkArgument(obj instanceof ByteData, "value is not a ByteData");
+        writer.write((ByteData)obj);
     }
 
     @Override
-    protected byte[] decode(ByteReader reader) {
+    protected ByteData decode(ByteData.Reader reader) {
         return reader.getBytes();
     }
 
     @Override
-    protected NavigableSet<byte[]> createSubSet(boolean newReversed,
-      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<byte[]> newBounds) {
+    protected NavigableSet<ByteData> createSubSet(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<ByteData> newBounds) {
         return new KVNavigableSet(this.kv, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
-    static Bounds<byte[]> createBounds(KeyRange keyRange) {
+    static Bounds<ByteData> createBounds(KeyRange keyRange) {
         return keyRange != null ? new Bounds<>(keyRange.getMin(), keyRange.getMax()) : new Bounds<>();
     }
 }

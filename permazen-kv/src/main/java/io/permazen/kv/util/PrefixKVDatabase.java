@@ -8,6 +8,7 @@ package io.permazen.kv.util;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
+import io.permazen.util.ByteData;
 
 import java.util.Map;
 
@@ -26,7 +27,7 @@ import java.util.Map;
 public class PrefixKVDatabase implements KVDatabase {
 
     private final KVDatabase db;
-    private final byte[] keyPrefix;
+    private final ByteData keyPrefix;
 
     /**
      * Constructor.
@@ -35,11 +36,11 @@ public class PrefixKVDatabase implements KVDatabase {
      * @param keyPrefix prefix for all keys
      * @throws IllegalArgumentException if {@code db} or {@code keyPrefix} is null
      */
-    public PrefixKVDatabase(KVDatabase db, byte[] keyPrefix) {
+    public PrefixKVDatabase(KVDatabase db, ByteData keyPrefix) {
         Preconditions.checkArgument(db != null, "null db");
         Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");
         this.db = db;
-        this.keyPrefix = keyPrefix.clone();
+        this.keyPrefix = keyPrefix;
     }
 
     /**
@@ -54,10 +55,10 @@ public class PrefixKVDatabase implements KVDatabase {
     /**
      * Get the key prefix associated with this instance.
      *
-     * @return (a copy of) this instance's key prefix
+     * @return this instance's key prefix
      */
-    public final byte[] getKeyPrefix() {
-        return this.keyPrefix.clone();
+    public final ByteData getKeyPrefix() {
+        return this.keyPrefix;
     }
 
 // KVDatabase

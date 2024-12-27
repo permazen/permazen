@@ -7,9 +7,8 @@ package io.permazen.kv.mvcc;
 
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
-import io.permazen.kv.KVStore;
 import io.permazen.kv.util.MemoryKVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ImmutableNavigableMap;
 
@@ -20,8 +19,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Provides a {@link KVStore} view of an underlying {@link ConcurrentNavigableMap ConcurrentNavigableMap&lt;byte[], byte[]&gt;}
- * whose keys are sorted lexicographically as unsigned bytes.
+ * Provides an {@link AtomicKVStore} view of an underlying
+ * {@link ConcurrentNavigableMap ConcurrentNavigableMap&lt;ByteData, ByteData&gt;}.
  *
  * <p>
  * Implementaions are serializable if the underlying map is.
@@ -32,18 +31,19 @@ public class MemoryAtomicKVStore extends MemoryKVStore implements AtomicKVStore 
     private static final long serialVersionUID = -1764030312068037867L;
 
     /**
-     * Convenience constructor. Uses an internally constructed {@link ConcurrentSkipListMap}.
+     * Convenience constructor.
+     *
+     * <p>
+     * Uses an internally constructed {@link ConcurrentSkipListMap}.
      *
      * <p>
      * Equivalent to:
      * <blockquote><pre>
-     * MemoryAtomicKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
+     * MemoryAtomicKVStore(new ConcurrentSkipListMap&lt;ByteData, ByteData&gt;()
      * </pre></blockquote>
-     *
-     * @see ByteUtil#COMPARATOR
      */
     public MemoryAtomicKVStore() {
-        this(new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR));
+        this(new ConcurrentSkipListMap<>());
     }
 
     /**
@@ -55,46 +55,45 @@ public class MemoryAtomicKVStore extends MemoryKVStore implements AtomicKVStore 
      * @param map underlying map
      * @throws IllegalArgumentException if {@code map} is null
      * @throws IllegalArgumentException if an invalid comparator is detected (this check is not reliable)
-     * @see ByteUtil#COMPARATOR
      */
-    public MemoryAtomicKVStore(ConcurrentNavigableMap<byte[], byte[]> map) {
+    public MemoryAtomicKVStore(ConcurrentNavigableMap<ByteData, ByteData> map) {
         super(map);
     }
 
 // KVStore
 
     @Override
-    public synchronized byte[] get(byte[] key) {
+    public synchronized ByteData get(ByteData key) {
         return super.get(key);
     }
 
     @Override
-    public synchronized KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public synchronized KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         return super.getAtLeast(minKey, maxKey);
     }
 
     @Override
-    public synchronized KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public synchronized KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         return super.getAtMost(maxKey, minKey);
     }
 
     @Override
-    public synchronized CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public synchronized CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         return super.getRange(minKey, maxKey, reverse);
     }
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    public synchronized void put(ByteData key, ByteData value) {
         super.put(key, value);
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
+    public synchronized void remove(ByteData key) {
         super.remove(key);
     }
 
     @Override
-    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
+    public synchronized void removeRange(ByteData minKey, ByteData maxKey) {
         super.removeRange(minKey, maxKey);
     }
 
@@ -122,8 +121,8 @@ public class MemoryAtomicKVStore extends MemoryKVStore implements AtomicKVStore 
 
     private static class SnapshotKVStore extends MutableView implements CloseableKVStore {
 
-        SnapshotKVStore(NavigableMap<byte[], byte[]> map) {
-            super(new MemoryAtomicKVStore(new ImmutableNavigableMap<byte[], byte[]>(map, ByteUtil.COMPARATOR)), false);
+        SnapshotKVStore(NavigableMap<ByteData, ByteData> map) {
+            super(new MemoryAtomicKVStore(new ImmutableNavigableMap<ByteData, ByteData>(map)), false);
         }
 
         @Override

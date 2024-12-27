@@ -7,6 +7,7 @@ package io.permazen.kv.mvcc;
 
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
+import io.permazen.util.ByteData;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -31,20 +32,14 @@ public interface Mutations {
     /**
      * Get the written key/value pairs contained by this instance.
      *
-     * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays.
-     *
      * @return mapping from key to corresponding value
      */
-    Stream<Map.Entry<byte[], byte[]>> getPutPairs();
+    Stream<Map.Entry<ByteData, ByteData>> getPutPairs();
 
     /**
      * Get the counter adjustments contained by this instance.
      *
-     * <p>
-     * The caller must not modify any of the returned {@code byte[]} arrays.
-     *
      * @return mapping from key to corresponding counter adjustment
      */
-    Stream<Map.Entry<byte[], Long>> getAdjustPairs();
+    Stream<Map.Entry<ByteData, Long>> getAdjustPairs();
 }

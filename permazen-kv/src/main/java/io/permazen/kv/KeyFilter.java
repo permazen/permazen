@@ -5,6 +5,8 @@
 
 package io.permazen.kv;
 
+import io.permazen.util.ByteData;
+
 /**
  * A predicate for filtering {@code byte[]} keys that is also capable of efficiently jumping over
  * contiguous regions of uncontained keys.
@@ -21,7 +23,7 @@ public interface KeyFilter {
      * @return true if {@code key} is contained by this instance, otherwise false
      * @throws IllegalArgumentException if {@code key} is null
      */
-    boolean contains(byte[] key);
+    boolean contains(ByteData key);
 
     /**
      * Skip over the largest possible uncontained region in an upward direction.
@@ -42,7 +44,7 @@ public interface KeyFilter {
      *  or null if no key greater than or equal to {@code key} is contained by this instance
      * @throws IllegalArgumentException if {@code key} is null
      */
-    byte[] seekHigher(byte[] key);
+    ByteData seekHigher(ByteData key);
 
     /**
      * Skip over the largest possible uncontained region in a downward direction.
@@ -69,5 +71,5 @@ public interface KeyFilter {
      *  to indicate an upper bound greater than all {@code byte[]} keys (which implies {@code key} was also empty)
      * @throws IllegalArgumentException if {@code key} is null
      */
-    byte[] seekLower(byte[] key);
+    ByteData seekLower(ByteData key);
 }

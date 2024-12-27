@@ -12,7 +12,7 @@ import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -108,7 +108,7 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
      * @param prefix prefix defining minimum and maximum keys
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
-    protected AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, byte[] prefix) {
+    protected AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, ByteData prefix) {
         this(kv, prefixMode, reversed, KeyRange.forPrefix(prefix), null);
     }
 
@@ -130,8 +130,8 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
 
         // If possible use a straight KVStore iterator which is more efficient than a KVPairIterator
         if (!this.prefixMode && keyFilter == null) {
-            final byte[] minKey = keyRange != null ? keyRange.getMin() : null;
-            final byte[] maxKey = keyRange != null ? keyRange.getMax() : null;
+            final ByteData minKey = keyRange != null ? keyRange.getMin() : null;
+            final ByteData maxKey = keyRange != null ? keyRange.getMax() : null;
             this.pairIterator = this.kv.getRange(minKey, maxKey, this.reversed);
         } else
             this.pairIterator = new KVPairIterator(this.kv, keyRange, keyFilter, this.reversed);
@@ -151,7 +151,7 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
         final KVPair pair = this.pairIterator.next();
 
         // Decode key/value pair
-        final ByteReader keyReader = new ByteReader(pair.getKey());
+        final ByteData.Reader keyReader = pair.getKey().newReader();
         final E value = this.decodePair(pair, keyReader);
 
         // In non-prefix mode, there should not be anything remaining
@@ -167,7 +167,7 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
         // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
         if (this.prefixMode) {
             final KVPairIterator kvPairIterator = (KVPairIterator)this.pairIterator;
-            final byte[] prefix = keyReader.getBytes(0, keyReader.getOffset());
+            final ByteData prefix = keyReader.getBytes(0, keyReader.getOffset());
             kvPairIterator.setNextTarget(this.reversed ? prefix : ByteUtil.getKeyAfterPrefix(prefix));
         }
 
@@ -210,7 +210,7 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
      * @param keyReader key input
      * @return decoded iteration element
      */
-    protected abstract E decodePair(KVPair pair, ByteReader keyReader);
+    protected abstract E decodePair(KVPair pair, ByteData.Reader keyReader);
 
     /**
      * Remove the previously iterated value.

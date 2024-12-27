@@ -9,6 +9,7 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.TestKVDatabase;
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.util.ArrayList;
@@ -19,22 +20,22 @@ import org.testng.annotations.Test;
 
 public class BranchedKVTransactionTest extends TestSupport {
 
-    private static final byte[] KEY_00 = new byte[] { (byte)0x00 };
-    private static final byte[] KEY_01 = new byte[] { (byte)0x01 };
-    private static final byte[] KEY_02 = new byte[] { (byte)0x02 };
-    private static final byte[] KEY_03 = new byte[] { (byte)0x03 };
-    private static final byte[] KEY_04 = new byte[] { (byte)0x04 };
-    private static final byte[] KEY_05 = new byte[] { (byte)0x05 };
-    private static final byte[] KEY_06 = new byte[] { (byte)0x06 };
-    private static final byte[] KEY_07 = new byte[] { (byte)0x07 };
+    private static final ByteData KEY_00 = ByteData.of(0x00);
+    private static final ByteData KEY_01 = ByteData.of(0x01);
+    private static final ByteData KEY_02 = ByteData.of(0x02);
+    private static final ByteData KEY_03 = ByteData.of(0x03);
+    private static final ByteData KEY_04 = ByteData.of(0x04);
+    private static final ByteData KEY_05 = ByteData.of(0x05);
+    private static final ByteData KEY_06 = ByteData.of(0x06);
+    private static final ByteData KEY_07 = ByteData.of(0x07);
 
-    private static final byte[] VAL_01 = new byte[] { (byte)0x01 };
-    private static final byte[] VAL_02 = new byte[] { (byte)0x02 };
-    private static final byte[] VAL_03 = new byte[] { (byte)0x03 };
-    private static final byte[] VAL_04 = new byte[] { (byte)0x04 };
-    private static final byte[] VAL_05 = new byte[] { (byte)0x05 };
-    private static final byte[] VAL_06 = new byte[] { (byte)0x06 };
-    private static final byte[] VAL_07 = new byte[] { (byte)0x07 };
+    private static final ByteData VAL_01 = ByteData.of(0x01);
+    private static final ByteData VAL_02 = ByteData.of(0x02);
+    private static final ByteData VAL_03 = ByteData.of(0x03);
+    private static final ByteData VAL_04 = ByteData.of(0x04);
+    private static final ByteData VAL_05 = ByteData.of(0x05);
+    private static final ByteData VAL_06 = ByteData.of(0x06);
+    private static final ByteData VAL_07 = ByteData.of(0x07);
 
 // VIEW
 

@@ -8,6 +8,7 @@ package io.permazen.kv.util;
 import com.google.common.base.Converter;
 
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
 
@@ -24,12 +25,12 @@ public class XMLSerializerTest extends TestSupport {
     @Test
     public void testXMLSerializer() throws Exception {
 
-        final ConcurrentSkipListMap<byte[], byte[]> data1 = new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR);
+        final ConcurrentSkipListMap<ByteData, ByteData> data1 = new ConcurrentSkipListMap<>();
 
-        data1.put(b("8901"), b(""));
-        data1.put(b("0123"), b("4567"));
-        data1.put(b("33"), b("44444444"));
-        data1.put(b("22"), b(""));
+        data1.put(ByteData.fromHex("8901"), ByteData.empty());
+        data1.put(ByteData.fromHex("0123"), ByteData.fromHex("4567"));
+        data1.put(ByteData.fromHex("33"), ByteData.fromHex("44444444"));
+        data1.put(ByteData.fromHex("22"), ByteData.empty());
 
         final String expectedIndent =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -64,7 +65,7 @@ public class XMLSerializerTest extends TestSupport {
         Assert.assertEquals(actualIndent, expectedIndent);
         Assert.assertEquals(actualNodent, expectedNodent);
 
-        final ConcurrentSkipListMap<byte[], byte[]> data2 = new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR);
+        final ConcurrentSkipListMap<ByteData, ByteData> data2 = new ConcurrentSkipListMap<>();
         new XMLSerializer(new MemoryKVStore(data2)).read(new ByteArrayInputStream(xmlIndent));
         Assert.assertEquals(s(data1), s(data2));
 
@@ -73,8 +74,8 @@ public class XMLSerializerTest extends TestSupport {
         Assert.assertEquals(s(data1), s(data2));
     }
 
-    private static NavigableMap<String, String> s(NavigableMap<byte[], byte[]> map) {
-        final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
+    private static NavigableMap<String, String> s(NavigableMap<ByteData, ByteData> map) {
+        final Converter<String, ByteData> converter = ByteUtil.STRING_CONVERTER.reverse();
         return new ConvertedNavigableMap<>(map, converter, converter);
     }
 }

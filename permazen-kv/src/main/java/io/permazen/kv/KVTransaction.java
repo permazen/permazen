@@ -7,6 +7,8 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ByteData;
+
 import java.util.concurrent.Future;
 
 /**
@@ -37,10 +39,6 @@ import java.util.concurrent.Future;
  * if {@link #commit} or {@link #rollback} has already been invoked, or if the {@link KVTransaction} instance is no longer usable
  * for some other reason. In particular, implementations should throw {@link KVTransactionTimeoutException} if an operation
  * is attempted on a transaction that has been held open past some maximum allowed time limit.
- *
- * <p>
- * Implementations are responsible for ensuring modifications to {@code byte[]} arrays after method
- * invocations do no harm. This usually means {@code byte[]} array parameters and return values must be copied.
  *
  * <p>
  * Implementations are not required to support accessing keys that start with {@code 0xff},
@@ -171,7 +169,7 @@ public interface KVTransaction extends KVStore {
      * @see io.permazen.PermazenTransaction#getKey(io.permazen.PermazenObject) PermazenTransaction.getKey()
      * @see io.permazen.PermazenField#getKey(io.permazen.PermazenObject) PermazenField.getKey()
      */
-    Future<Void> watchKey(byte[] key);
+    Future<Void> watchKey(ByteData key);
 
     /**
      * Commit this transaction.

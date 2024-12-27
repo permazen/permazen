@@ -11,7 +11,7 @@ import com.google.common.collect.Iterators;
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.io.Serializable;
@@ -23,8 +23,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Provides a {@link KVStore} view of an underlying {@link ConcurrentNavigableMap ConcurrentNavigableMap&lt;byte[], byte[]&gt;}
- * whose keys are sorted lexicographically as unsigned bytes.
+ * Provides a {@link KVStore} view of an underlying {@link ConcurrentNavigableMap ConcurrentNavigableMap&lt;ByteData, ByteData&gt;}.
  *
  * <p>
  * Implementaions are serializable if the underlying map is.
@@ -35,21 +34,22 @@ public class MemoryKVStore extends AbstractKVStore implements Cloneable, Seriali
     private static final long serialVersionUID = -8112493152056118516L;
 
     @SuppressWarnings("serial")
-    protected /*final*/ ConcurrentNavigableMap<byte[], byte[]> map;
+    protected /*final*/ ConcurrentNavigableMap<ByteData, ByteData> map;
 
     /**
-     * Convenience constructor. Uses an internally constructed {@link ConcurrentSkipListMap}.
+     * Convenience constructor.
+     *
+     * <p>
+     * Uses an internally constructed {@link ConcurrentSkipListMap}.
      *
      * <p>
      * Equivalent to:
      * <blockquote><pre>
-     * MemoryKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
+     * MemoryKVStore(new ConcurrentSkipListMap&lt;ByteData, ByteData&gt;()
      * </pre></blockquote>
-     *
-     * @see ByteUtil#COMPARATOR
      */
     public MemoryKVStore() {
-        this(new ConcurrentSkipListMap<>(ByteUtil.COMPARATOR));
+        this(new ConcurrentSkipListMap<>());
     }
 
     /**
@@ -61,12 +61,11 @@ public class MemoryKVStore extends AbstractKVStore implements Cloneable, Seriali
      * @param map underlying map
      * @throws IllegalArgumentException if {@code map} is null
      * @throws IllegalArgumentException if an invalid comparator is detected (this check is not reliable)
-     * @see ByteUtil#COMPARATOR
      */
-    public MemoryKVStore(ConcurrentNavigableMap<byte[], byte[]> map) {
+    public MemoryKVStore(ConcurrentNavigableMap<ByteData, ByteData> map) {
         Preconditions.checkArgument(map != null, "null map");
-        Preconditions.checkArgument(map.comparator() != null
-          && map.comparator().compare(ByteUtil.parse("00"), ByteUtil.parse("ff")) < 0, "invalid comparator");
+        Preconditions.checkArgument(map.comparator() == null
+          || map.comparator().compare(ByteData.fromHex("00"), ByteData.fromHex("ff")) < 0, "invalid comparator");
         this.map = map;
     }
 
@@ -75,38 +74,37 @@ public class MemoryKVStore extends AbstractKVStore implements Cloneable, Seriali
      *
      * @return the underlying map
      */
-    public ConcurrentNavigableMap<byte[], byte[]> getNavigableMap() {
+    public ConcurrentNavigableMap<ByteData, ByteData> getNavigableMap() {
         return this.map;
     }
 
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
-        final byte[] value = this.map.get(key);
-        return value != null ? value.clone() : null;
+        return this.map.get(key);
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
-        final Map.Entry<byte[], byte[]> entry = minKey != null ? this.map.ceilingEntry(minKey) : this.map.firstEntry();
-        return entry != null && (maxKey == null || ByteUtil.compare(entry.getKey(), maxKey) < 0) ?
-          new KVPair(entry.getKey().clone(), entry.getValue().clone()) : null;
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
+        final Map.Entry<ByteData, ByteData> entry = minKey != null ? this.map.ceilingEntry(minKey) : this.map.firstEntry();
+        return entry != null && (maxKey == null || entry.getKey().compareTo(maxKey) < 0) ?
+          new KVPair(entry.getKey(), entry.getValue()) : null;
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
-        final Map.Entry<byte[], byte[]> entry = maxKey != null ? this.map.lowerEntry(maxKey) : this.map.lastEntry();
-        return entry != null && (minKey == null || ByteUtil.compare(entry.getKey(), minKey) >= 0) ?
-          new KVPair(entry.getKey().clone(), entry.getValue().clone()) : null;
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
+        final Map.Entry<ByteData, ByteData> entry = maxKey != null ? this.map.lowerEntry(maxKey) : this.map.lastEntry();
+        return entry != null && (minKey == null || entry.getKey().compareTo(minKey) >= 0) ?
+          new KVPair(entry.getKey(), entry.getValue()) : null;
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        NavigableMap<byte[], byte[]> rangeMap = this.map;
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
+        NavigableMap<ByteData, ByteData> rangeMap = this.map;
         if (minKey != null && maxKey != null) {
-            Preconditions.checkArgument(ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
+            Preconditions.checkArgument(minKey.compareTo(maxKey) <= 0, "minKey > maxKey");
             rangeMap = rangeMap.subMap(minKey, true, maxKey, false);
         } else if (minKey != null)
             rangeMap = rangeMap.tailMap(minKey, true);
@@ -115,24 +113,24 @@ public class MemoryKVStore extends AbstractKVStore implements Cloneable, Seriali
         if (reverse)
             rangeMap = rangeMap.descendingMap();
         return CloseableIterator.wrap(Iterators.transform(rangeMap.entrySet().iterator(),
-          entry -> new KVPair(entry.getKey().clone(), entry.getValue().clone())));
+          entry -> new KVPair(entry.getKey(), entry.getValue())));
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
-        this.map.put(key.clone(), value.clone());
+        this.map.put(key, value);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
         this.map.remove(key);
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         if (minKey == null && maxKey == null)
             this.map.clear();
         else if (minKey == null)
@@ -154,7 +152,7 @@ public class MemoryKVStore extends AbstractKVStore implements Cloneable, Seriali
             throw new RuntimeException(e);
         }
         if (clone.map instanceof ConcurrentSkipListMap)
-            clone.map = ((ConcurrentSkipListMap<byte[], byte[]>)clone.map).clone();
+            clone.map = ((ConcurrentSkipListMap<ByteData, ByteData>)clone.map).clone();
         else
             clone.map = new ConcurrentSkipListMap<>(clone.map);
         return clone;

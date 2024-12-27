@@ -7,7 +7,7 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,19 +117,18 @@ public final class KeyFilterUtil {
      */
     public static boolean isEmpty(KeyFilter keyFilter) {
         Preconditions.checkArgument(keyFilter != null, "null keyFilter");
-        return keyFilter.seekHigher(ByteUtil.EMPTY) == null;
+        return keyFilter.seekHigher(ByteData.empty()) == null;
     }
 
-    private static byte[] seek(KeyFilter[] keyFilters, byte[] key, boolean seekHigher, boolean preferHigher) {
+    private static ByteData seek(KeyFilter[] keyFilters, ByteData key, boolean seekHigher, boolean preferHigher) {
         Preconditions.checkArgument(key != null, "null key");
         assert keyFilters.length > 0;
         final boolean preferNull = seekHigher == preferHigher;
-        byte[] best = null;
+        ByteData best = null;
         for (int i = 0; i < keyFilters.length; i++) {
             final KeyFilter keyFilter = keyFilters[i];
-            final byte[] next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);
-            assert next == null
-              || (seekHigher ? ByteUtil.compare(next, key) >= 0 : key.length == 0 || ByteUtil.compare(next, key) <= 0);
+            final ByteData next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);
+            assert next == null || (seekHigher ? next.compareTo(key) >= 0 : key.isEmpty() || next.compareTo(key) <= 0);
             if (i == 0)
                 best = next;
             if (next == null) {
@@ -137,9 +136,9 @@ public final class KeyFilterUtil {
                     return null;
                 continue;
             }
-            assert next.length != 0 || key.length == 0;
+            assert !next.isEmpty() || key.isEmpty();
             if (i > 0 && best != null) {
-                final int diff = (!seekHigher && next.length == 0) ? 1 : ByteUtil.compare(next, best);
+                final int diff = (!seekHigher && next.isEmpty()) ? 1 : next.compareTo(best);
                 if (preferHigher ? diff < 0 : diff > 0)
                     continue;
             } else
@@ -168,7 +167,7 @@ public final class KeyFilterUtil {
         }
 
         @Override
-        public boolean contains(byte[] key) {
+        public boolean contains(ByteData key) {
             for (KeyFilter keyFilter : this.keyFilters) {
                 if (keyFilter.contains(key))
                     return true;
@@ -177,12 +176,12 @@ public final class KeyFilterUtil {
         }
 
         @Override
-        public byte[] seekHigher(byte[] key) {
+        public ByteData seekHigher(ByteData key) {
             return KeyFilterUtil.seek(this.keyFilters, key, true, false);
         }
 
         @Override
-        public byte[] seekLower(byte[] key) {
+        public ByteData seekLower(ByteData key) {
             return KeyFilterUtil.seek(this.keyFilters, key, false, true);
         }
     }
@@ -206,7 +205,7 @@ public final class KeyFilterUtil {
         }
 
         @Override
-        public boolean contains(byte[] key) {
+        public boolean contains(ByteData key) {
             for (KeyFilter keyFilter : this.keyFilters) {
                 if (!keyFilter.contains(key))
                     return false;
@@ -215,12 +214,12 @@ public final class KeyFilterUtil {
         }
 
         @Override
-        public byte[] seekHigher(byte[] key) {
+        public ByteData seekHigher(ByteData key) {
             return KeyFilterUtil.seek(this.keyFilters, key, true, true);
         }
 
         @Override
-        public byte[] seekLower(byte[] key) {
+        public ByteData seekLower(ByteData key) {
             return KeyFilterUtil.seek(this.keyFilters, key, false, false);
         }
     }

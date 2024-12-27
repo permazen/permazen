@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.util.AbstractXMLStreaming;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.io.InputStream;
@@ -80,8 +80,9 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @return the number of key/value pairs read
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code input} is null
+     * @throws IllegalArgumentException if there are more than {@link Long#MAX_VALUE} key/value pairs
      */
-    public int read(InputStream input) throws XMLStreamException {
+    public long read(InputStream input) throws XMLStreamException {
         Preconditions.checkArgument(input != null, "null input");
         return this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
     }
@@ -96,31 +97,34 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @return the number of key/value pairs read
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code reader} is null
+     * @throws IllegalArgumentException if there are more than {@link Long#MAX_VALUE} key/value pairs
      */
-    public int read(XMLStreamReader reader) throws XMLStreamException {
+    public long read(XMLStreamReader reader) throws XMLStreamException {
         Preconditions.checkArgument(reader != null, "null reader");
         this.expect(reader, false, ENTRIES_TAG);
-        int count;
-        for (count = 0; this.expect(reader, true, ENTRY_TAG); count++) {
+        long count = 0;
+        while (this.expect(reader, true, ENTRY_TAG)) {
             this.expect(reader, false, KEY_TAG);
-            byte[] key;
+            final ByteData key;
             try {
-                key = ByteUtil.parse(reader.getElementText());
+                key = ByteData.fromHex(reader.getElementText());
             } catch (IllegalArgumentException e) {
                 throw this.newInvalidInputException(reader, e, "invalid hexadecimal key");
             }
             if (!this.expect(reader, true, VALUE_TAG)) {
-                this.kv.put(key, ByteUtil.EMPTY);
+                this.kv.put(key, ByteData.empty());
                 continue;                           // closing </entry> tag alread read
             }
-            byte[] value;
+            final ByteData value;
             try {
-                value = ByteUtil.parse(reader.getElementText());
+                value = ByteData.fromHex(reader.getElementText());
             } catch (IllegalArgumentException e) {
                 throw this.newInvalidInputException(reader, e, "invalid hexadecimal value");
             }
             this.kv.put(key, value);
             this.expectClose(reader);               // read closing </entry> tag
+            if (++count < 0)
+                throw new IllegalArgumentException("too many key/value pairs");
         }
         return count;
     }
@@ -136,8 +140,9 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @return the number of key/value pairs written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code output} is null
+     * @throws IllegalArgumentException if there are more than {@link Long#MAX_VALUE} key/value pairs
      */
-    public int write(OutputStream output, boolean indent) throws XMLStreamException {
+    public long write(OutputStream output, boolean indent) throws XMLStreamException {
         Preconditions.checkArgument(output != null, "null output");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         if (indent)
@@ -157,8 +162,9 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @return the number of key/value pairs written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
+     * @throws IllegalArgumentException if there are more than {@link Long#MAX_VALUE} key/value pairs
      */
-    public int write(Writer writer, boolean indent) throws XMLStreamException {
+    public long write(Writer writer, boolean indent) throws XMLStreamException {
         Preconditions.checkArgument(writer != null, "null writer");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         if (indent)
@@ -184,22 +190,25 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @return the number of key/value pairs written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
+     * @throws IllegalArgumentException if there are more than {@link Long#MAX_VALUE} key/value pairs
      */
-    public int write(XMLStreamWriter writer, byte[] minKey, byte[] maxKey) throws XMLStreamException {
+    public long write(XMLStreamWriter writer, ByteData minKey, ByteData maxKey) throws XMLStreamException {
         Preconditions.checkArgument(writer != null, "null writer");
         writer.setDefaultNamespace(ENTRIES_TAG.getNamespaceURI());
         writer.writeStartElement(ENTRIES_TAG.getNamespaceURI(), ENTRIES_TAG.getLocalPart());
-        int count = 0;
+        long count = 0;
         try (CloseableIterator<KVPair> i = this.kv.getRange(minKey, maxKey)) {
             while (i.hasNext()) {
                 writer.writeStartElement(ENTRY_TAG.getNamespaceURI(), ENTRY_TAG.getLocalPart());
                 final KVPair pair = i.next();
-                this.writeElement(writer, KEY_TAG, pair.getKey());
-                final byte[] value = pair.getValue();
-                if (value.length > 0)
+                final ByteData key = pair.getKey();
+                final ByteData value = pair.getValue();
+                this.writeElement(writer, KEY_TAG, key);
+                if (!value.isEmpty())
                     this.writeElement(writer, VALUE_TAG, value);
                 writer.writeEndElement();
-                count++;
+                if (++count < 0)
+                    throw new IllegalArgumentException("too many key/value pairs");
             }
         }
         writer.writeEndElement();
@@ -209,7 +218,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
 
 // Internal methods
 
-    private void writeElement(XMLStreamWriter writer, QName element, byte[] value) throws XMLStreamException {
-        this.writeElement(writer, element, ByteUtil.toString(value));
+    private void writeElement(XMLStreamWriter writer, QName element, ByteData value) throws XMLStreamException {
+        this.writeElement(writer, element, value.toHex());
     }
 }

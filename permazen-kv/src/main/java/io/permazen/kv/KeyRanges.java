@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
 import io.permazen.kv.util.KeyListEncoder;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.ImmutableNavigableSet;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -134,7 +134,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @param key key in range; must not be null
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public KeyRanges(byte[] key) {
+    public KeyRanges(ByteData key) {
         this.ranges = new TreeSet<>(KeyRange.SORT_BY_MIN);
         this.ranges.add(new KeyRange(key));
         assert this.checkMinimal();
@@ -147,7 +147,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @param max maximum key (exclusive), or null for no maximum
      * @throws IllegalArgumentException if {@code min > max}
      */
-    public KeyRanges(byte[] min, byte[] max) {
+    public KeyRanges(ByteData min, ByteData max) {
         this(new KeyRange(min, max));
     }
 
@@ -181,12 +181,12 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
         Preconditions.checkArgument(input != null, "null input");
         final int count = UnsignedIntEncoder.read(input);
         final KeyRange[] array = new KeyRange[count];
-        byte[] prev = null;
+        ByteData prev = null;
         for (int i = 0; i < count; i++) {
-            final byte[] min = KeyListEncoder.read(input, prev);
-            final byte[] max = KeyListEncoder.read(input, min);
-            Preconditions.checkArgument(prev == null || ByteUtil.compare(min, prev) > 0, "invalid input");
-            array[i] = new KeyRange(min, Arrays.equals(min, max) ? null : max);         // map final [min, min) to [min, null]
+            final ByteData min = KeyListEncoder.read(input, prev);
+            final ByteData max = KeyListEncoder.read(input, min);
+            Preconditions.checkArgument(prev == null || min.compareTo(prev) > 0, "invalid input");
+            array[i] = new KeyRange(min, min.equals(max) ? null : max);         // map final [min, min) to [min, null]
             prev = max;
         }
         if (immutable)
@@ -211,7 +211,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @return instance containing all keys prefixed by {@code prefix}
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    public static KeyRanges forPrefix(byte[] prefix) {
+    public static KeyRanges forPrefix(ByteData prefix) {
         return new KeyRanges(KeyRange.forPrefix(prefix));
     }
 
@@ -307,7 +307,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *
      * @return minimum key contained by this instance (inclusive), or null if this instance {@link #isEmpty}
      */
-    public byte[] getMin() {
+    public ByteData getMin() {
         assert this.checkMinimal();
         return !this.ranges.isEmpty() ? this.ranges.first().getMin() : null;
     }
@@ -318,7 +318,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @return maximum key contained by this instance (exclusive),
      *  or null if there is no upper bound, or this instance {@link #isEmpty}
      */
-    public byte[] getMax() {
+    public ByteData getMax() {
         assert this.checkMinimal();
         return !this.ranges.isEmpty() ? this.ranges.last().getMax() : null;
     }
@@ -330,7 +330,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * @return prefixed instance
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    public KeyRanges prefixedBy(final byte[] prefix) {
+    public KeyRanges prefixedBy(final ByteData prefix) {
         assert this.checkMinimal();
         Preconditions.checkArgument(prefix != null, "null prefix");
         return new KeyRanges(this.ranges.stream().map(range -> range.prefixedBy(prefix)));
@@ -348,9 +348,9 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
             return KeyRanges.full();
         final TreeSet<KeyRange> inverseRanges = new TreeSet<>(KeyRange.SORT_BY_MIN);
         final KeyRange first = i.next();
-        byte[] lastMax = first.max;
-        if (first.min.length > 0)
-            inverseRanges.add(new KeyRange(ByteUtil.EMPTY, first.min));
+        ByteData lastMax = first.max;
+        if (!first.min.isEmpty())
+            inverseRanges.add(new KeyRange(ByteData.empty(), first.min));
         while (lastMax != null) {
             if (!i.hasNext()) {
                 inverseRanges.add(new KeyRange(lastMax, null));
@@ -443,7 +443,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      *  the containing {@link KeyRange} or nearest neighbor to the right (or null)
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public KeyRange[] findKey(byte[] key) {
+    public KeyRange[] findKey(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
@@ -675,10 +675,10 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     public void serialize(OutputStream out) throws IOException {
         assert this.checkMinimal();
         UnsignedIntEncoder.write(out, this.ranges.size());
-        byte[] prev = null;
+        ByteData prev = null;
         for (KeyRange range : this.ranges) {
-            final byte[] min = range.min;
-            final byte[] max = range.max;
+            final ByteData min = range.min;
+            final ByteData max = range.max;
             assert max != null || range == this.ranges.last();
             KeyListEncoder.write(out, min, prev);
             KeyListEncoder.write(out, max != null ? max : min, min);            // map final [min, null) to [min, min]
@@ -690,15 +690,18 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
      * Calculate the number of bytes required to serialize this instance via {@link #serialize serialize()}.
      *
      * @return number of serialized bytes
+     * @throws IllegalArgumentException if the total exceeds {@link Long#MAX_VALUE}
      */
     public long serializedLength() {
         long total = UnsignedIntEncoder.encodeLength(this.ranges.size());
-        byte[] prev = null;
+        ByteData prev = null;
         for (KeyRange range : this.ranges) {
-            final byte[] min = range.min;
-            final byte[] max = range.max;
+            final ByteData min = range.min;
+            final ByteData max = range.max;
             total += KeyListEncoder.writeLength(min, prev);
             total += KeyListEncoder.writeLength(max != null ? max : min, min);
+            if (total < 0)
+                throw new IllegalArgumentException("total is too large");
             prev = max;
         }
         return total;
@@ -722,7 +725,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
         return new UnmodifiableIterator<KeyRange>() {
 
             private int remain = -1;
-            private byte[] prev;
+            private ByteData prev;
 
             @Override
             public boolean hasNext() {
@@ -735,15 +738,17 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
                 this.init();
                 if (this.remain == 0)
                     throw new NoSuchElementException();
-                final byte[] min;
-                final byte[] max;
+                final ByteData min;
+                final ByteData max;
                 try {
                     min = KeyListEncoder.read(input, this.prev);
                     max = KeyListEncoder.read(input, min);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                final KeyRange range = new KeyRange(min, Arrays.equals(min, max) ? null : max);
+                if (this.prev != null && min.compareTo(prev) <= 0)
+                    throw new IllegalArgumentException("mis-ordered keys");
+                final KeyRange range = new KeyRange(min, min.equals(max) ? null : max);
                 this.prev = max;
                 this.remain--;
                 return range;
@@ -764,14 +769,14 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
 // KeyFilter
 
     @Override
-    public boolean contains(byte[] key) {
+    public boolean contains(ByteData key) {
         assert this.checkMinimal();
         final KeyRange[] neighbors = this.findKey(key);
         return neighbors[0] == neighbors[1] && neighbors[0] != null;
     }
 
     @Override
-    public byte[] seekHigher(byte[] key) {
+    public ByteData seekHigher(ByteData key) {
         assert this.checkMinimal();
         final KeyRange[] neighbors = this.findKey(key);
         if (neighbors[0] == neighbors[1])
@@ -780,14 +785,14 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     }
 
     @Override
-    public byte[] seekLower(byte[] key) {
+    public ByteData seekLower(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
         assert this.checkMinimal();
-        if (key.length == 0) {
+        if (key.isEmpty()) {
             if (this.ranges.isEmpty())
                 return null;
-            final byte[] lastMax = this.ranges.last().getMax();
-            return lastMax != null ? lastMax : ByteUtil.EMPTY;
+            final ByteData lastMax = this.ranges.last().getMax();
+            return lastMax != null ? lastMax : ByteData.empty();
         }
         final KeyRange[] neighbors = this.findKey(key);
         if (neighbors[0] == neighbors[1])
@@ -826,15 +831,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, Cloneable {
     public KeyRanges readOnlySnapshot() {
         if (this.ranges instanceof ImmutableNavigableSet)
             return this;
-        final KeyRanges clone;
-        try {
-            clone = (KeyRanges)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-        clone.ranges = new ImmutableNavigableSet<>(clone.ranges);
-        assert clone.checkMinimal();
-        return clone;
+        return new KeyRanges(new ImmutableNavigableSet<>(this.ranges));
     }
 
 // Object

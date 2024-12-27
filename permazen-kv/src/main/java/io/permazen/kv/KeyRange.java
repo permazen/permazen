@@ -6,12 +6,12 @@
 package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Bytes;
 
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Represents a contiguous range of {@code byte[]} keys, when keys are sorted in unsigned lexical order.
@@ -27,13 +27,13 @@ public class KeyRange {
     /**
      * The {@link KeyRange} containing the full range (i.e., all keys).
      */
-    public static final KeyRange FULL = new KeyRange(ByteUtil.EMPTY, null);
+    public static final KeyRange FULL = new KeyRange(ByteData.empty(), null);
 
     /**
      * Sorts instances by {@linkplain KeyRange#getMin min value}, then {@linkplain KeyRange#getMax max value}.
      */
     public static final Comparator<KeyRange> SORT_BY_MIN = Comparator
-      .comparing(KeyRange::getMin, ByteUtil::compare)
+      .comparing(KeyRange::getMin)
       .thenComparing(KeyRange::getMax, KeyRange::compare);
 
     /**
@@ -41,17 +41,17 @@ public class KeyRange {
      */
     public static final Comparator<KeyRange> SORT_BY_MAX = Comparator
       .comparing(KeyRange::getMax, KeyRange::compare)
-      .thenComparing(KeyRange::getMin, ByteUtil::compare);
+      .thenComparing(KeyRange::getMin);
 
     /**
-     * Lower bound (inclusive), or null for no minimum. Subclasses must <b>not</b> modify the array (to preserve immutability).
+     * Lower bound (inclusive), never null;
      */
-    protected final byte[] min;
+    protected final ByteData min;
 
     /**
-     * Upper bound (exclusive), or null for no maximum. Subclasses must <b>not</b> modify the array (to preserve immutability).
+     * Upper bound (exclusive), or null for no maximum.
      */
-    protected final byte[] max;
+    protected final ByteData max;
 
 // Constructors
 
@@ -63,14 +63,14 @@ public class KeyRange {
      * @throws IllegalArgumentException if {@code min} is null
      * @throws IllegalArgumentException if {@code min > max}
      */
-    public KeyRange(byte[] min, byte[] max) {
+    public KeyRange(ByteData min, ByteData max) {
         Preconditions.checkArgument(min != null, "null min");
         if (KeyRange.compare(min, max) > 0) {
             throw new IllegalArgumentException(String.format(
               "min = %s > max = %s", ByteUtil.toString(min), ByteUtil.toString(max)));
         }
-        this.min = min.clone();
-        this.max = max != null ? max.clone() : null;
+        this.min = min;
+        this.max = max;
     }
 
     /**
@@ -79,9 +79,9 @@ public class KeyRange {
      * @param key the key contained in the range
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public KeyRange(byte[] key) {
+    public KeyRange(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
-        this.min = key.clone();
+        this.min = key;
         this.max = ByteUtil.getNextKey(this.min);
     }
 
@@ -92,11 +92,11 @@ public class KeyRange {
      * @return range of keys prefixed by {@code prefix}
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    public static KeyRange forPrefix(byte[] prefix) {
+    public static KeyRange forPrefix(ByteData prefix) {
         Preconditions.checkArgument(prefix != null, "null prefix");
-        if (prefix.length == 0)
+        if (prefix.isEmpty())
             return KeyRange.FULL;
-        /*final*/ byte[] maxKey;
+        /*final*/ ByteData maxKey;
         try {
             maxKey = ByteUtil.getKeyAfterPrefix(prefix);
         } catch (IllegalArgumentException e) {
@@ -110,25 +110,19 @@ public class KeyRange {
     /**
      * Get range minimum (inclusive).
      *
-     * <p>
-     * This method returns a copy of the minimum, so changes do not affect this instance.
-     *
      * @return inclusivie minimum, never null
      */
-    public byte[] getMin() {
-        return this.min.clone();
+    public ByteData getMin() {
+        return this.min;
     }
 
     /**
      * Get range maximum (exclusive), or null if there is no upper bound.
      *
-     * <p>
-     * This method returns a copy of the maximum, so changes do not affect this instance.
-     *
      * @return exclusivie maximum, or null for none
      */
-    public byte[] getMax() {
-        return this.max == null ? null : this.max.clone();
+    public ByteData getMax() {
+        return this.max;
     }
 
     /**
@@ -163,7 +157,7 @@ public class KeyRange {
      * @return true if this range contains {@code key}
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public boolean contains(byte[] key) {
+    public boolean contains(ByteData key) {
         return this.compareTo(key) == 0;
     }
 
@@ -173,7 +167,7 @@ public class KeyRange {
      * @return true if this instance contains all keys
      */
     public boolean isFull() {
-        return this.min.length == 0 && this.max == null;
+        return this.min.isEmpty() && this.max == null;
     }
 
     /**
@@ -197,13 +191,13 @@ public class KeyRange {
      * @return true if this instance contains all keys having some common prefix, otherwise false
      */
     public boolean isPrefixRange() {
-        final byte[] keyAfterPrefix;
+        final ByteData keyAfterPrefix;
         try {
             keyAfterPrefix = ByteUtil.getKeyAfterPrefix(this.min);
         } catch (IllegalArgumentException e) {
             return this.max == null;    // this.min is either empty or contains all 0xff bytes
         }
-        return Arrays.equals(this.max, keyAfterPrefix);
+        return keyAfterPrefix.equals(this.max);
     }
 
     /**
@@ -212,7 +206,7 @@ public class KeyRange {
      * @return true if this instance contains no keys
      */
     public boolean isEmpty() {
-        return this.max != null && Arrays.equals(this.min, this.max);
+        return this.min.equals(this.max);
     }
 
     /**
@@ -223,12 +217,12 @@ public class KeyRange {
      * @return this range prefixed by {@code prefix}
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    public KeyRange prefixedBy(byte[] prefix) {
+    public KeyRange prefixedBy(ByteData prefix) {
         Preconditions.checkArgument(prefix != null, "null prefix");
-        final byte[] prefixedMin = Bytes.concat(prefix, this.min);
-        /*final*/ byte[] prefixedMax;
+        final ByteData prefixedMin = prefix.concat(this.min);
+        /*final*/ ByteData prefixedMax;
         if (this.max != null)
-            prefixedMax = Bytes.concat(prefix, this.max);
+            prefixedMax = prefix.concat(this.max);
         else {
             try {
                 prefixedMax = ByteUtil.getKeyAfterPrefix(prefix);
@@ -247,7 +241,7 @@ public class KeyRange {
      *  0 if this range contains {@code key}, or 1 if this range is right of {@code key},
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public int compareTo(byte[] key) {
+    public int compareTo(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
         if (KeyRange.compare(this.min, key) > 0)
             return 1;
@@ -260,18 +254,18 @@ public class KeyRange {
      * Compare two {@code byte[]} keys using unsigned lexical ordering, while also accepting
      * null values that represent "positive infinity".
      *
-     * @param key1 first key
-     * @param key2 second key
+     * @param key1 first key, or null for "positive infinity"
+     * @param key2 second key, or null for "positive infinity"
      * @return -1 if {@code key1 < key2}, 1 if {@code key1 > key2}, or zero if {@code key1 = key2}
      */
-    public static int compare(byte[] key1, byte[] key2) {
+    public static int compare(ByteData key1, ByteData key2) {
         if (key1 == null && key2 == null)
             return 0;
         if (key1 == null)
             return 1;
         if (key2 == null)
             return -1;
-        return ByteUtil.compare(key1, key2);
+        return key1.compareTo(key2);
     }
 
     /**
@@ -281,7 +275,7 @@ public class KeyRange {
      * @return the empty key range {@code [key,key)}
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public static KeyRange empty(byte[] key) {
+    public static KeyRange empty(ByteData key) {
         return new KeyRange(key, key);
     }
 
@@ -294,14 +288,14 @@ public class KeyRange {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final KeyRange that = (KeyRange)obj;
-        return Arrays.equals(this.min, that.min) && (this.max == null ? that.max == null : Arrays.equals(this.max, that.max));
+        return this.min.equals(that.min) && Objects.equals(this.max, that.max);
     }
 
     @Override
     public int hashCode() {
         return this.getClass().hashCode()
-          ^ Arrays.hashCode(this.min)
-          ^ (this.max != null ? Arrays.hashCode(this.max) : 0);
+          ^ this.min.hashCode()
+          ^ Objects.hashCode(this.max);
     }
 
     @Override

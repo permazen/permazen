@@ -8,6 +8,7 @@ package io.permazen.kv.mvcc;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRange;
+import io.permazen.util.ByteData;
 
 /**
  * Represents an MVCC conflict in which a key or range of keys that was read in one transaction was removed
@@ -28,7 +29,7 @@ public class ReadRemoveConflict extends Conflict {
      * @param key the single key that conflicted
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public ReadRemoveConflict(byte[] key) {
+    public ReadRemoveConflict(ByteData key) {
         this(new KeyRange(key));
     }
 

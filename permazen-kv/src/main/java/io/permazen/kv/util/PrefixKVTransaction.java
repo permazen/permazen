@@ -6,10 +6,10 @@
 package io.permazen.kv.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Bytes;
 
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVTransaction;
+import io.permazen.util.ByteData;
 
 import java.util.concurrent.Future;
 
@@ -36,7 +36,7 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
      * @param keyPrefix prefix for all keys
      * @throws IllegalArgumentException if {@code tx} or {@code keyPrefix} is null
      */
-    public PrefixKVTransaction(KVTransaction tx, byte[] keyPrefix) {
+    public PrefixKVTransaction(KVTransaction tx, ByteData keyPrefix) {
         this(tx, keyPrefix, null);
     }
 
@@ -50,7 +50,7 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
         this(db.getContainingKVDatabase().createTransaction(), db.getKeyPrefix(), db);
     }
 
-    private PrefixKVTransaction(KVTransaction tx, byte[] keyPrefix, PrefixKVDatabase db) {
+    private PrefixKVTransaction(KVTransaction tx, ByteData keyPrefix, PrefixKVDatabase db) {
         super(keyPrefix);
         Preconditions.checkArgument(tx != null, "null tx");
         this.tx = tx;
@@ -84,9 +84,9 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
-        return this.delegate().watchKey(Bytes.concat(this.db.getKeyPrefix(), key));
+        return this.delegate().watchKey(this.db.getKeyPrefix().concat(key));
     }
 
     @Override

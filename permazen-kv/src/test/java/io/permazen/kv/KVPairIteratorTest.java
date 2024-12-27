@@ -9,6 +9,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import io.permazen.kv.util.MemoryKVStore;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,14 +23,14 @@ import org.testng.annotations.Test;
 public class KVPairIteratorTest extends KeyRangeTestSupport {
 
     @Test(dataProvider = "iterations")
-    public void testIterations(byte[][] data, KeyRanges ranges, byte[][] results) throws Exception {
+    public void testIterations(ByteData[] data, KeyRanges ranges, ByteData[] results) throws Exception {
         if (results == null)
             results = data;
 
         // Fill KV store with data
-        final Function<byte[], KVPair> pairer = value -> new KVPair(value, value);
+        final Function<ByteData, KVPair> pairer = value -> new KVPair(value, value);
         final MemoryKVStore kv = new MemoryKVStore();
-        for (byte[] ba : data)
+        for (ByteData ba : data)
             kv.put(ba, ba);
 
         // Verify forward iterator matches what we expect
@@ -39,7 +40,7 @@ public class KVPairIteratorTest extends KeyRangeTestSupport {
         Assert.assertEquals(actualPairsForward, expectedPairsForward);
 
         // Verify reverse iterator matches what we expect
-        final ArrayList<byte[]> reversedResults = new ArrayList<>(Arrays.asList(results));
+        final ArrayList<ByteData> reversedResults = new ArrayList<>(Arrays.asList(results));
         Collections.reverse(reversedResults);
         final KVPairIterator reverseIterator = new KVPairIterator(kv, null, ranges, true);
         final List<KVPair> expectedPairsReverse = Lists.transform(reversedResults, pairer);

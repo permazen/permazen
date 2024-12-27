@@ -6,6 +6,7 @@
 package io.permazen.kv.mvcc;
 
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 
 /**
  * Represents an MVCC conflict in which a key that was read in one transaction was adjusted via
@@ -21,13 +22,10 @@ public class ReadAdjustConflict extends SingleKeyConflict {
     /**
      * Constructor.
      *
-     * <p>
-     * Note: the {@code key} is not copied, so the caller should not modify the data therein.
-     *
      * @param key the conflicting key
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public ReadAdjustConflict(byte[] key) {
+    public ReadAdjustConflict(ByteData key) {
         super("read/adjust", key);
     }
 }

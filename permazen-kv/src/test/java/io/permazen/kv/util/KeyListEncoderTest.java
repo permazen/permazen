@@ -9,6 +9,7 @@ import com.google.common.base.Converter;
 
 import io.permazen.kv.KVPair;
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
 
@@ -29,8 +30,8 @@ public class KeyListEncoderTest extends TestSupport {
             // Populate k/v store with random data
             final MemoryKVStore original = new MemoryKVStore();
             for (int j = 0; j < this.random.nextInt(100); j++) {
-                final byte[] key = this.rb(1 << this.random.nextInt(6));
-                final byte[] val = this.rb(1 << this.random.nextInt(12));
+                final ByteData key = this.rb(1 << this.random.nextInt(6));
+                final ByteData val = this.rb(1 << this.random.nextInt(12));
                 original.put(key, val);
             }
 
@@ -54,16 +55,16 @@ public class KeyListEncoderTest extends TestSupport {
         }
     }
 
-    private byte[] rb(int len) {
+    private ByteData rb(int len) {
         final byte[] b = new byte[this.random.nextInt(len) + 1];
         this.random.nextBytes(b);
-        return b;
+        return ByteData.of(b);
     }
 
-    private NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+    private NavigableMap<String, String> stringView(NavigableMap<ByteData, ByteData> byteMap) {
         if (byteMap == null)
             return null;
-        final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
+        final Converter<String, ByteData> converter = ByteUtil.STRING_CONVERTER.reverse();
         return new ConvertedNavigableMap<>(byteMap, converter, converter);
     }
 }

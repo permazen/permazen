@@ -45,7 +45,9 @@
         <module>permazen-kv-sqlite</module>
         <module>permazen-kv-test</module>
         <module>permazen-kv-xodus</module>
+-->
         <module>permazen-kv</module>
+<!--
         <module>permazen-main</module>
         <module>permazen-maven-plugin</module>
         <module>permazen-spring</module>

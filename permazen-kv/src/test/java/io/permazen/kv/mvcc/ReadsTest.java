@@ -8,6 +8,7 @@ package io.permazen.kv.mvcc;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,26 +37,26 @@ public class ReadsTest extends TestSupport {
         return new KeyRanges[][] {
             { KeyRanges.empty() },
             { KeyRanges.full() },
-            { new KeyRanges(KeyRange.forPrefix(b("0123")), KeyRange.forPrefix(b("33"))) },
+            { new KeyRanges(KeyRange.forPrefix(ByteData.fromHex("0123")), KeyRange.forPrefix(ByteData.fromHex("33"))) },
             { new KeyRanges(
-              new KeyRange(b(""), b("ffff")),
-              new KeyRange(b("ffffff"), null))
+              new KeyRange(ByteData.fromHex(""), ByteData.fromHex("ffff")),
+              new KeyRange(ByteData.fromHex("ffffff"), null))
             },
             { new KeyRanges(
-              new KeyRange(b("01"), b("0134")),
-              new KeyRange(b("022222"), b("0223")),
-              new KeyRange(b("30"), b("300000")),
-              new KeyRange(b("3333333333"), b("33333333333333")),
-              new KeyRange(b("4433333333"), b("44333344333333")),
-              new KeyRange(b("33433333"), b("434343")),
-              new KeyRange(b("99999999"), b("c0")))
+              new KeyRange(ByteData.fromHex("01"), ByteData.fromHex("0134")),
+              new KeyRange(ByteData.fromHex("022222"), ByteData.fromHex("0223")),
+              new KeyRange(ByteData.fromHex("30"), ByteData.fromHex("300000")),
+              new KeyRange(ByteData.fromHex("3333333333"), ByteData.fromHex("33333333333333")),
+              new KeyRange(ByteData.fromHex("4433333333"), ByteData.fromHex("44333344333333")),
+              new KeyRange(ByteData.fromHex("33433333"), ByteData.fromHex("434343")),
+              new KeyRange(ByteData.fromHex("99999999"), ByteData.fromHex("c0")))
             },
-            { new KeyRanges(b("01234567890a"), b("0123456789ff")) },
-            { new KeyRanges(b("01234567890a"), b("01234567ffff")) },
-            { new KeyRanges(b("01234567890a"), b("012345ffffff")) },
-            { new KeyRanges(b("01234567890a"), b("0123ffffffff")) },
-            { new KeyRanges(b("01234567890a"), b("01ffffffffff")) },
-            { new KeyRanges(b("01234567890a"), b("ffffffffffff")) },
+            { new KeyRanges(ByteData.fromHex("01234567890a"), ByteData.fromHex("0123456789ff")) },
+            { new KeyRanges(ByteData.fromHex("01234567890a"), ByteData.fromHex("01234567ffff")) },
+            { new KeyRanges(ByteData.fromHex("01234567890a"), ByteData.fromHex("012345ffffff")) },
+            { new KeyRanges(ByteData.fromHex("01234567890a"), ByteData.fromHex("0123ffffffff")) },
+            { new KeyRanges(ByteData.fromHex("01234567890a"), ByteData.fromHex("01ffffffffff")) },
+            { new KeyRanges(ByteData.fromHex("01234567890a"), ByteData.fromHex("ffffffffffff")) },
         };
     };
 }

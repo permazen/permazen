@@ -15,9 +15,8 @@ import io.permazen.kv.KeyRange;
 import io.permazen.util.AbstractIterationSet;
 import io.permazen.util.AbstractNavigableMap;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 
 import java.util.AbstractMap;
@@ -30,7 +29,12 @@ import java.util.Set;
 
 /**
  * {@link java.util.NavigableMap} support superclass for maps backed by keys and values encoded as {@code byte[]}
- * arrays in a {@link KVStore}, and whose key sort order is consistent with the {@code byte[]} key encoding.
+ * arrays in a {@link KVStore}.
+ *
+ * <p>
+ * The key sort order must be consistent with the corresponding key {@code ByteData} key encodings, i.e., unsigned lexicographical.
+ *
+ * <p>
  * There must be an equivalence between map keys and {@code byte[]} key encodings (i.e., there must be
  * only one valid encoding per map key).
  *
@@ -156,7 +160,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code kv} is null
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
-    protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, byte[] prefix) {
+    protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, ByteData prefix) {
         this(kv, prefixMode, KeyRange.forPrefix(prefix));
     }
 
@@ -201,14 +205,14 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     public V get(Object obj) {
 
         // Encode key and check visibility
-        final byte[] key = this.encodeVisibleKey(obj, false);
+        final ByteData key = this.encodeVisibleKey(obj, false);
         if (key == null)
             return null;
 
         // Find key, or some longer key with the same prefix in prefix mode
         final KVPair pair;
         if (this.prefixMode) {
-            byte[] maxKey;
+            ByteData maxKey;
             try {
                 maxKey = ByteUtil.getKeyAfterPrefix(key);
             } catch (IllegalArgumentException e) {
@@ -216,9 +220,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             }
             if ((pair = this.kv.getAtLeast(key, maxKey)) == null)
                 return null;
-            assert ByteUtil.isPrefixOf(key, pair.getKey());
+            assert pair.getKey().startsWith(key);
         } else {
-            final byte[] value = this.kv.get(key);
+            final ByteData value = this.kv.get(key);
             if (value == null)
                 return null;
             pair = new KVPair(key, value);
@@ -263,9 +267,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             return false;
         if (this.keyRange == null)
             return true;
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         this.encodeKey(writer, key);
-        return KeyRange.compare(writer.getBytes(), this.keyRange.getMin()) >= 0;
+        return KeyRange.compare(writer.toByteData(), this.keyRange.getMin()) >= 0;
     }
 
     @Override
@@ -274,9 +278,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             return false;
         if (this.keyRange == null)
             return true;
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         this.encodeKey(writer, key);
-        return KeyRange.compare(writer.getBytes(), this.keyRange.getMax()) < 0;
+        return KeyRange.compare(writer.toByteData(), this.keyRange.getMax()) < 0;
     }
 
     @Override
@@ -319,7 +323,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code obj} is not of the required Java type supported by this set
      * @throws IllegalArgumentException if {@code obj} is null and this set does not support null elements
      */
-    protected abstract void encodeKey(ByteWriter writer, Object obj);
+    protected abstract void encodeKey(ByteData.Writer writer, Object obj);
 
     /**
      * Decode a key object from an encoded {@code byte[]} key.
@@ -331,7 +335,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @param reader input for encoded bytes
      * @return decoded map key
      */
-    protected abstract K decodeKey(ByteReader reader);
+    protected abstract K decodeKey(ByteData.Reader reader);
 
     /**
      * Decode a value object from an encoded {@code byte[]} key/value pair.
@@ -350,7 +354,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code key} is null
      * @see #filterKeys filterKeys()
      */
-    protected boolean isVisible(byte[] key) {
+    protected boolean isVisible(ByteData key) {
         return (this.keyRange == null || this.keyRange.contains(key))
           && (this.keyFilter == null || this.keyFilter.contains(key));
     }
@@ -358,7 +362,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     /**
      * Encode the given key object, if possible, and verify the corresponding {@code byte[]} key is visible,
      * otherwise return null or throw an exception.
-     * Delegates to {@link #encodeKey(ByteWriter, Object)} to attempt the actual encoding.
+     * Delegates to {@link #encodeKey(ByteData.Writer, Object)} to attempt the actual encoding.
      *
      * @param obj key object to encode, possibly null
      * @param fail whether, if {@code obj} can't be encoded, to throw an exception (true) or return null (false)
@@ -366,8 +370,8 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code fail} is true and {@code obj} has the wrong type
      * @throws IllegalArgumentException if {@code fail} is true and the resulting key is not {@linkplain #isVisible visible}
      */
-    protected byte[] encodeVisibleKey(Object obj, boolean fail) {
-        final ByteWriter writer = new ByteWriter();
+    protected ByteData encodeVisibleKey(Object obj, boolean fail) {
+        final ByteData.Writer writer = ByteData.newWriter();
         try {
             this.encodeKey(writer, obj);
         } catch (IllegalArgumentException e) {
@@ -375,7 +379,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
                 return null;
             throw e;
         }
-        final byte[] key = writer.getBytes();
+        final ByteData key = writer.toByteData();
         if (this.keyRange != null && !this.keyRange.contains(key)) {
             if (fail)
                 throw new IllegalArgumentException(String.format("key is out of bounds: %s", obj));
@@ -393,18 +397,18 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * Derive a new {@link KeyRange} from (possibly) new element bounds. The given bounds must <i>not</i> ever be reversed.
      */
     private KeyRange buildKeyRange(Bounds<K> bounds) {
-        final byte[] minKey = this.keyRange != null ? this.keyRange.getMin() : null;
-        final byte[] maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
-        byte[] newMinKey;
-        byte[] newMaxKey;
+        final ByteData minKey = this.keyRange != null ? this.keyRange.getMin() : null;
+        final ByteData maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
+        ByteData newMinKey;
+        ByteData newMaxKey;
         switch (bounds.getLowerBoundType()) {
         case NONE:
             newMinKey = minKey;
             break;
         default:
-            final ByteWriter writer = new ByteWriter();
+            final ByteData.Writer writer = ByteData.newWriter();
             this.encodeKey(writer, bounds.getLowerBound());
-            newMinKey = writer.getBytes();
+            newMinKey = writer.toByteData();
             if (!bounds.getLowerBoundType().isInclusive())
                 newMinKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);
             if (minKey != null)
@@ -418,9 +422,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             newMaxKey = maxKey;
             break;
         default:
-            final ByteWriter writer = new ByteWriter();
+            final ByteData.Writer writer = ByteData.newWriter();
             this.encodeKey(writer, bounds.getUpperBound());
-            newMaxKey = writer.getBytes();
+            newMaxKey = writer.toByteData();
             if (bounds.getUpperBoundType().isInclusive())
                 newMaxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMaxKey) : ByteUtil.getNextKey(newMaxKey);
             if (maxKey != null)
@@ -432,8 +436,8 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
 
         // Avoid creating an inverted key range
         if (newMinKey == null)
-            newMinKey = ByteUtil.EMPTY;
-        else if (newMaxKey != null && ByteUtil.compare(newMinKey, newMaxKey) > 0)
+            newMinKey = ByteData.empty();
+        else if (newMaxKey != null && newMinKey.compareTo(newMaxKey) > 0)
             newMaxKey = newMinKey;
 
         // Build KeyRange
@@ -467,12 +471,12 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         }
 
         @Override
-        protected void encode(ByteWriter writer, Object obj) {
+        protected void encode(ByteData.Writer writer, Object obj) {
             AbstractKVNavigableMap.this.encodeKey(writer, obj);
         }
 
         @Override
-        protected K decode(ByteReader reader) {
+        protected K decode(ByteData.Reader reader) {
             return AbstractKVNavigableMap.this.decodeKey(reader);
         }
 
@@ -493,7 +497,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
               AbstractKVNavigableMap.this.reversed, AbstractKVNavigableMap.this.keyRange, AbstractKVNavigableMap.this.keyFilter) {
 
                 @Override
-                protected Map.Entry<K, V> decodePair(KVPair pair, ByteReader keyReader) {
+                protected Map.Entry<K, V> decodePair(KVPair pair, ByteData.Reader keyReader) {
                     final K key = AbstractKVNavigableMap.this.decodeKey(keyReader);
                     final V value = AbstractKVNavigableMap.this.decodeValue(pair);
                     return new MapEntry(key, value);

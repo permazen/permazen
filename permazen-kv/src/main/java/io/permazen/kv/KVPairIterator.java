@@ -7,10 +7,10 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -54,8 +54,8 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
     private final KeyFilter keyFilter;
 
     private KVPair currPair;            // cached value to return from next()
-    private byte[] nextKey;             // next key lower/upper bound to go fetch, or null to start at the beginning
-    private byte[] removeKey;           // next key to remove if remove() invoked
+    private ByteData nextKey;           // next key lower/upper bound to go fetch, or null to start at the beginning
+    private ByteData removeKey;         // next key to remove if remove() invoked
     private boolean finished;
 
 // Constructors
@@ -84,7 +84,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
      * @param prefix range prefix
      * @throws IllegalArgumentException if any parameter is null
      */
-    public KVPairIterator(KVStore kv, byte[] prefix) {
+    public KVPairIterator(KVStore kv, ByteData prefix) {
         this(kv, prefix, false);
     }
 
@@ -99,7 +99,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
      * @param reverse true to iterate in a reverse direction, false to iterate in a forward direction
      * @throws IllegalArgumentException if any parameter is null
      */
-    public KVPairIterator(KVStore kv, byte[] prefix, boolean reverse) {
+    public KVPairIterator(KVStore kv, ByteData prefix, boolean reverse) {
         this(kv, KeyRange.forPrefix(prefix), null, reverse);
     }
 
@@ -168,7 +168,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
      * @return true if key is both in range and not filtered out
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public boolean isVisible(byte[] key) {
+    public boolean isVisible(ByteData key) {
         Preconditions.checkArgument(kv != null, "null kv");
         return (this.keyRange == null || this.keyRange.contains(key))
           && (this.keyFilter == null || this.keyFilter.contains(key));
@@ -197,21 +197,17 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
      * @param targetKey next lower bound (exclusive) if going forward, or upper bound (exclusive) if going backward;
      *  or null to restart this instance at the beginning of its iteration
      */
-    public void setNextTarget(byte[] targetKey) {
-
-        // Clone target key to avoid mutation
-        if (targetKey != null)
-            targetKey = targetKey.clone();
+    public void setNextTarget(ByteData targetKey) {
 
         // Ensure target is not prior to the beginning of the range
         if (this.keyRange != null) {
             if (this.reverse) {
-                final byte[] maxKey = this.keyRange.getMax();
-                if (maxKey != null && (targetKey == null || ByteUtil.compare(targetKey, maxKey) > 0))
+                final ByteData maxKey = this.keyRange.getMax();
+                if (maxKey != null && (targetKey == null || targetKey.compareTo(maxKey) > 0))
                     targetKey = maxKey;
             } else {
-                final byte[] minKey = this.keyRange.getMin();
-                if (targetKey == null || ByteUtil.compare(targetKey, minKey) < 0)
+                final ByteData minKey = this.keyRange.getMin();
+                if (targetKey == null || targetKey.compareTo(minKey) < 0)
                     targetKey = minKey;
             }
         }
@@ -248,7 +244,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
                 this.finished = true;
                 return false;
             }
-            final byte[] key = pair.getKey();
+            final ByteData key = pair.getKey();
 
             // Check key range
             if (this.keyRange != null && !this.keyRange.contains(key)) {
@@ -260,15 +256,15 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
             if (this.keyFilter == null)
                 break;
             if (!this.reverse) {
-                final byte[] nextHigher = this.keyFilter.seekHigher(key);
-                if (nextHigher != null && Arrays.equals(nextHigher, key))
+                final ByteData nextHigher = this.keyFilter.seekHigher(key);
+                if (nextHigher != null && nextHigher.equals(key))
                     break;
                 this.nextKey = nextHigher;
             } else {
                 if (this.keyFilter.contains(key))
                     break;
-                this.nextKey = key.length > 0 ? this.keyFilter.seekLower(key) : null;
-                assert this.nextKey == null || key.length == 0 || ByteUtil.compare(this.nextKey, key) <= 0;
+                this.nextKey = !key.isEmpty() ? this.keyFilter.seekLower(key) : null;
+                assert this.nextKey == null || key.isEmpty() || this.nextKey.compareTo(key) <= 0;
             }
 
             // We have skipped over the filtered-out key range, so try again if there is any left
@@ -292,7 +288,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
 
         // Get next element
         final KVPair pair = this.currPair;
-        final byte[] key = pair.getKey().clone();
+        final ByteData key = pair.getKey();
         this.removeKey = key;
 
         // Set up next advance
@@ -305,7 +301,7 @@ public class KVPairIterator implements CloseableIterator<KVPair> {
 
     @Override
     public void remove() {
-        final byte[] removeKeyCopy;
+        final ByteData removeKeyCopy;
         synchronized (this) {
             if ((removeKeyCopy = this.removeKey) == null)
                 throw new IllegalStateException();

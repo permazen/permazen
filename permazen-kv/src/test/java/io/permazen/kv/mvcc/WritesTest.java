@@ -11,6 +11,7 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
 
@@ -146,10 +147,10 @@ public class WritesTest extends TestSupport {
         try (Stream<KeyRange> removes = onlineMutations.getRemoveRanges()) {
             removes.iterator().forEachRemaining(writes3.getRemoves()::add);
         }
-        try (Stream<Map.Entry<byte[], byte[]>> puts = onlineMutations.getPutPairs()) {
+        try (Stream<Map.Entry<ByteData, ByteData>> puts = onlineMutations.getPutPairs()) {
             puts.iterator().forEachRemaining(put -> writes3.getPuts().put(put.getKey(), put.getValue()));
         }
-        try (Stream<Map.Entry<byte[], Long>> adjusts = onlineMutations.getAdjustPairs()) {
+        try (Stream<Map.Entry<ByteData, Long>> adjusts = onlineMutations.getAdjustPairs()) {
             adjusts.iterator().forEachRemaining(adjust -> writes3.getAdjusts().put(adjust.getKey(), adjust.getValue()));
         }
         assert writes3.toString().equals(writes2.toString()) :
@@ -195,17 +196,21 @@ public class WritesTest extends TestSupport {
           "ACTUAL:\n  " + actualView + "\nEXPECTED:\n  " + expectedView + "\n");
     }
 
-    private NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+    private NavigableMap<String, String> stringView(NavigableMap<ByteData, ByteData> byteMap) {
         if (byteMap == null)
             return null;
-        final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
+        final Converter<String, ByteData> converter = ByteUtil.STRING_CONVERTER.reverse();
         return new ConvertedNavigableMap<>(byteMap, converter, converter);
     }
 
-    private NavigableMap<String, Long> stringView2(NavigableMap<byte[], Long> byteMap) {
+    private NavigableMap<String, Long> stringView2(NavigableMap<ByteData, Long> byteMap) {
         if (byteMap == null)
             return null;
-        final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
+        final Converter<String, ByteData> converter = ByteUtil.STRING_CONVERTER.reverse();
         return new ConvertedNavigableMap<>(byteMap, converter, Converter.<Long>identity());
+    }
+
+    private static ByteData b(String s) {
+        return ByteData.fromHex(s);
     }
 }

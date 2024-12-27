@@ -18,7 +18,7 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.kv.util.UnmodifiableKVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -57,52 +57,52 @@ public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 // KVStore
 
     @Override
-    public byte[] get(final byte[] key) {
+    public ByteData get(final ByteData key) {
         return this.computeInTransaction(kv -> kv.get(key));
     }
 
     @Override
-    public KVPair getAtLeast(final byte[] minKey, final byte[] maxKey) {
+    public KVPair getAtLeast(final ByteData minKey, final ByteData maxKey) {
         return this.computeInTransaction(kv -> kv.getAtLeast(minKey, maxKey));
     }
 
     @Override
-    public KVPair getAtMost(final byte[] maxKey, final byte[] minKey) {
+    public KVPair getAtMost(final ByteData maxKey, final ByteData minKey) {
         return this.computeInTransaction(kv -> kv.getAtMost(maxKey, minKey));
     }
 
     @Override
-    public KVPairIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        return new KVPairIterator(this, new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey), null, reverse);
+    public KVPairIterator getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
+        return new KVPairIterator(this, new KeyRange(minKey != null ? minKey : ByteData.empty(), maxKey), null, reverse);
     }
 
     @Override
-    public void put(final byte[] key, final byte[] value) {
+    public void put(final ByteData key, final ByteData value) {
         this.doInTransaction(kv -> kv.put(key, value));
     }
 
     @Override
-    public void remove(final byte[] key) {
+    public void remove(final ByteData key) {
         this.doInTransaction(kv -> kv.remove(key));
     }
 
     @Override
-    public void removeRange(final byte[] minKey, final byte[] maxKey) {
+    public void removeRange(final ByteData minKey, final ByteData maxKey) {
         this.doInTransaction(kv -> kv.removeRange(minKey, maxKey));
     }
 
     @Override
-    public void adjustCounter(final byte[] key, final long amount) {
+    public void adjustCounter(final ByteData key, final long amount) {
         this.doInTransaction(kv -> kv.adjustCounter(key, amount));
     }
 
     @Override
-    public byte[] encodeCounter(final long value) {
+    public ByteData encodeCounter(final long value) {
         return this.computeInTransaction(kv -> kv.encodeCounter(value));
     }
 
     @Override
-    public long decodeCounter(final byte[] bytes) {
+    public long decodeCounter(final ByteData bytes) {
         return this.computeInTransaction(kv -> kv.decodeCounter(bytes));
     }
 

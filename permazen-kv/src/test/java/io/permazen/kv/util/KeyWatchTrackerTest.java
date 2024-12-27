@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -19,9 +20,9 @@ import org.testng.annotations.Test;
 
 public class KeyWatchTrackerTest extends TestSupport {
 
-    private static final byte[] B1 = new byte[] { (byte)12 };
-    private static final byte[] B2 = new byte[] { (byte)34 };
-    private static final byte[] B3 = new byte[] { (byte)56 };
+    private static final ByteData B1 = ByteData.of(12);
+    private static final ByteData B2 = ByteData.of(34);
+    private static final ByteData B3 = ByteData.of(56);
 
     @Test
     private void testTrigger1() throws Exception {
@@ -90,7 +91,7 @@ public class KeyWatchTrackerTest extends TestSupport {
         Thread.sleep(1100);
 
         for (int i = 0; i < 1000; i++)
-            tracker.register(new byte[] { (byte)i });
+            tracker.register(ByteData.of(i));
         Thread.sleep(1100);
 
         // This should have an immediate spurious trigger

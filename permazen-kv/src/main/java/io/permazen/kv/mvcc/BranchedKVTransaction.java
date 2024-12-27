@@ -16,11 +16,10 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableRefs;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -241,61 +240,61 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
 // KVStore
 
     @Override
-    public synchronized byte[] get(byte[] key) {
+    public synchronized ByteData get(ByteData key) {
         this.checkState(State.OPEN);
         return this.view.get(key);
     }
 
     @Override
-    public synchronized KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public synchronized KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         this.checkState(State.OPEN);
         return this.view.getAtLeast(minKey, maxKey);
     }
 
     @Override
-    public synchronized KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public synchronized KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         this.checkState(State.OPEN);
         return this.view.getAtMost(minKey, maxKey);
     }
 
     @Override
-    public synchronized CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public synchronized CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         this.checkState(State.OPEN);
         return this.view.getRange(minKey, maxKey, reverse);
     }
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    public synchronized void put(ByteData key, ByteData value) {
         this.checkState(State.OPEN);
         this.view.put(key, value);
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
+    public synchronized void remove(ByteData key) {
         this.checkState(State.OPEN);
         this.view.remove(key);
     }
 
     @Override
-    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
+    public synchronized void removeRange(ByteData minKey, ByteData maxKey) {
         this.checkState(State.OPEN);
         this.view.removeRange(minKey, maxKey);
     }
 
     @Override
-    public synchronized byte[] encodeCounter(long value) {
+    public synchronized ByteData encodeCounter(long value) {
         this.checkState(State.OPEN);
         return this.view.encodeCounter(value);
     }
 
     @Override
-    public synchronized long decodeCounter(byte[] value) {
+    public synchronized long decodeCounter(ByteData value) {
         this.checkState(State.OPEN);
         return this.view.decodeCounter(value);
     }
 
     @Override
-    public synchronized void adjustCounter(byte[] key, long amount) {
+    public synchronized void adjustCounter(ByteData key, long amount) {
         this.checkState(State.OPEN);
         this.view.adjustCounter(key, amount);
     }
@@ -325,7 +324,7 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException();
     }
 
@@ -422,8 +421,8 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
     // Check whether any key/value pair in "range" differs between "oldKV" and "newKV"
     private void checkForConflicts(KeyRange range, KVStore oldKV, KVStore newKV) {
         if (range.isSingleKey()) {
-            final byte[] key = range.getMin();
-            final Optional<byte[]> keyOpt = Optional.of(key);
+            final ByteData key = range.getMin();
+            final Optional<ByteData> keyOpt = Optional.of(key);
             final KVPair oldPair = keyOpt.map(oldKV::get).map(value -> new KVPair(key, value)).orElse(null);
             final KVPair newPair = keyOpt.map(newKV::get).map(value -> new KVPair(key, value)).orElse(null);
             this.checkForConflicts(oldPair, newPair);
@@ -454,22 +453,22 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
         // If either iteration is exhausted, the other is not, so there is a conflict
         if (oldPair == null)
             throw new TransactionConflictException(this, new ReadWriteConflict(newPair.getKey()));
-        final byte[] oldKey = oldPair.getKey();
+        final ByteData oldKey = oldPair.getKey();
         if (newPair == null)
             throw new TransactionConflictException(this, new ReadRemoveConflict(oldKey));
 
         // See if one key is "earlier" than then other
-        final byte[] newKey = newPair.getKey();
-        int diff = ByteUtil.compare(oldKey, newKey);
+        final ByteData newKey = newPair.getKey();
+        int diff = oldKey.compareTo(newKey);
         if (diff > 0)
             throw new TransactionConflictException(this, new ReadWriteConflict(newKey));
         if (diff < 0)
             throw new TransactionConflictException(this, new ReadRemoveConflict(oldKey));
 
         // The keys are the same, so the compare values
-        final byte[] oldValue = oldPair.getValue();
-        final byte[] newValue = newPair.getValue();
-        if (!Arrays.equals(oldValue, newValue))
+        final ByteData oldValue = oldPair.getValue();
+        final ByteData newValue = newPair.getValue();
+        if (!oldValue.equals(newValue))
             throw new TransactionConflictException(this, new ReadWriteConflict(oldKey));
 
         // Done
@@ -512,12 +511,12 @@ public class BranchedKVTransaction implements KVTransaction, CloseableKVStore {
         private final RetryTransactionProvider provider;
 
         Retryer(Object obj) {
-            Preconditions.checkArgument(obj != null, "transaction option \"" + RETRY_PROVIDER_OPTION + "\" is null");
+            Preconditions.checkArgument(obj != null, String.format("transaction option \"%s\" is null", RETRY_PROVIDER_OPTION));
             try {
                 this.provider = (RetryTransactionProvider)obj;
             } catch (ClassCastException e) {
-                throw new IllegalArgumentException(
-                  "transaction option \"" + RETRY_PROVIDER_OPTION + "\" is not a RetryTransactionProvider", e);
+                throw new IllegalArgumentException(String.format(
+                  "transaction option \"%s\" is not a %s", RETRY_PROVIDER_OPTION, RetryTransactionProvider.class.getName()), e);
             }
         }
 

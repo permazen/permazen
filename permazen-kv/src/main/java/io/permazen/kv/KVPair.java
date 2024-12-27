@@ -7,32 +7,29 @@ package io.permazen.kv;
 
 import com.google.common.base.Preconditions;
 
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
  * A key/value pair.
  *
  * <p>
- * Note: the internal byte arrays are not copied; therefore, values passed to the constructor
- * or returned from the accessor methods must not be modified if instances are to remain immutable.
- * To ensure safety, use {@link #clone}.
+ * Instances are immutable and thread-safe.
  */
-public class KVPair implements Cloneable {
+public class KVPair {
 
-    private /*final*/ byte[] key;
-    private /*final*/ byte[] value;
+    private final ByteData key;
+    private final ByteData value;
 
     /**
-     * Constructor. The given arrays are copied.
+     * Constructor.
      *
      * @param key key
      * @param value value
      * @throws IllegalArgumentException if {@code key} or {@code value} is null
      */
-    public KVPair(byte[] key, byte[] value) {
+    public KVPair(ByteData key, ByteData value) {
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
         this.key = key;
@@ -40,12 +37,12 @@ public class KVPair implements Cloneable {
     }
 
     /**
-     * Constructor. The given key and value arrays are copied.
+     * Constructor.
      *
      * @param entry map entry
      * @throws IllegalArgumentException if {@code entry} or its key or value is null
      */
-    public KVPair(Map.Entry<byte[], byte[]> entry) {
+    public KVPair(Map.Entry<ByteData, ByteData> entry) {
         Preconditions.checkArgument(entry != null, "null entry");
         this.key = entry.getKey();
         this.value = entry.getValue();
@@ -58,7 +55,7 @@ public class KVPair implements Cloneable {
      *
      * @return the key
      */
-    public byte[] getKey() {
+    public ByteData getKey() {
         return this.key;
     }
 
@@ -67,46 +64,17 @@ public class KVPair implements Cloneable {
      *
      * @return the value
      */
-    public byte[] getValue() {
+    public ByteData getValue() {
         return this.value;
-    }
-
-// Cloneable
-
-    /**
-     * Deep-clone this instance. Copys this instance as well as the key and value {@code byte[]} arrays.
-     *
-     * @return cloned instance
-     */
-    @Override
-    public KVPair clone() {
-        final KVPair clone;
-        try {
-            clone = (KVPair)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-        clone.key = clone.key.clone();
-        clone.value = clone.value.clone();
-        return clone;
     }
 
 // Object
 
     @Override
     public String toString() {
-        return "{" + ByteUtil.toString(this.key) + "," + ByteUtil.toString(this.value) + "}";
+        return "{" + this.key.toHex(64) + "," + this.value.toHex(64) + "}";
     }
 
-    /**
-     * Compare for equality.
-     *
-     * <p>
-     * Two {@link KVPair} instances are equal if the keys and values both match
-     * according to {@link Arrays#equals(byte[], byte[])}.
-     *
-     * @return true if objects are equal
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
@@ -114,20 +82,11 @@ public class KVPair implements Cloneable {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final KVPair that = (KVPair)obj;
-        return Arrays.equals(this.key, that.key) && Arrays.equals(this.value, that.value);
+        return this.key.equals(that.key) && this.value.equals(that.value);
     }
 
-    /**
-     * Calculate hash code.
-     *
-     * <p>
-     * The hash code of a {@link KVPair} is the exclusive-OR of the hash codes of the key
-     * and the value, each according to {@link Arrays#hashCode(byte[])}.
-     *
-     * @return hash value for this instance
-     */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(this.key) ^ Arrays.hashCode(this.value);
+        return this.key.hashCode() ^ this.value.hashCode();
     }
 }

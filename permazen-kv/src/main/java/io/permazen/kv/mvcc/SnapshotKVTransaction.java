@@ -15,6 +15,7 @@ import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KVTransactionTimeoutException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -151,7 +152,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public synchronized ListenableFuture<Void> watchKey(byte[] key) {
+    public synchronized ListenableFuture<Void> watchKey(ByteData key) {
         this.checkAlive();
         return this.kvdb.watchKey(key);
     }

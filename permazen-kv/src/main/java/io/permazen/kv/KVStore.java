@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -33,7 +34,7 @@ import java.util.stream.Stream;
  *
  * <p>
  * With respect to thread safety, the set of possible "operations" includes accessing the {@link CloseableIterator}
- * returned by {@link #getRange getRange()}; see {@link #getRange(byte[], byte[], boolean) getRange()} for details.
+ * returned by {@link #getRange getRange()}; see {@link #getRange(ByteData, ByteData, boolean) getRange()} for details.
  *
  * <p><b>Lock-free Counters</b></p>
  *
@@ -56,9 +57,6 @@ public interface KVStore {
     /**
      * Get the value associated with the given key, if any.
      *
-     * <p>
-     * Modifications to the returned {@code byte[]} array do not affect this instance.
-     *
      * @param key key
      * @return value associated with key, or null if not found
      * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
@@ -66,7 +64,7 @@ public interface KVStore {
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
-    byte[] get(byte[] key);
+    ByteData get(ByteData key);
 
     /**
      * Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
@@ -79,16 +77,13 @@ public interface KVStore {
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
      * then this method returns null.
      *
-     * <p>
-     * Modifications to the returned {@code byte[]} arrays do not affect this instance.
-     *
      * @param minKey minimum key (inclusive), or null for no minimum (get the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (no upper bound)
      * @return smallest key/value pair with {@code key >= minKey} and {@code key < maxKey}, or null if none exists
      * @throws StaleKVTransactionException if an underlying transaction is no longer usable
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    KVPair getAtLeast(byte[] minKey, byte[] maxKey);
+    KVPair getAtLeast(ByteData minKey, ByteData maxKey);
 
     /**
      * Get the key/value pair having the largest key strictly less than the given maximum, if any.
@@ -101,16 +96,13 @@ public interface KVStore {
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
      * then this method behaves as if {@code maxKey} were null.
      *
-     * <p>
-     * Modifications to the returned {@code byte[]} arrays do not affect this instance.
-     *
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
      * @param minKey minimum key (inclusive), or null for no minimum (no lower bound)
      * @return largest key/value pair with {@code key < maxKey} and {@code key >= minKey}, or null if none exists
      * @throws StaleKVTransactionException if an underlying transaction is no longer usable
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    KVPair getAtMost(byte[] maxKey, byte[] minKey);
+    KVPair getAtMost(ByteData maxKey, ByteData minKey);
 
     /**
      * Iterate the key/value pairs in the specified range. The returned {@link CloseableIterator}'s
@@ -140,9 +132,6 @@ public interface KVStore {
      * Invokers of this method are encouraged to {@link java.io.Closeable#close close()} the returned iterators,
      * though this is not required for correct behavior.
      *
-     * <p>
-     * Modifications to the returned {@link KVPair} key and value {@code byte[]} arrays do not affect this instance.
-     *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
      * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
@@ -151,14 +140,14 @@ public interface KVStore {
      * @throws StaleKVTransactionException if an underlying transaction is no longer usable
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse);
+    CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse);
 
     /**
      * Iterate the key/value pairs in the specified range in the forward direction.
      *
      * <p>
      * This is a convenience method, equivalent to:
-     * {@link #getRange(byte[], byte[], boolean) getRange}{@code (minKey, maxKey, false)}.
+     * {@link #getRange(ByteData, ByteData, boolean) getRange}{@code (minKey, maxKey, false)}.
      *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
@@ -167,7 +156,7 @@ public interface KVStore {
      * @throws StaleKVTransactionException if an underlying transaction is no longer usable
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    default CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey) {
+    default CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey) {
         return this.getRange(minKey, maxKey, false);
     }
 
@@ -176,7 +165,7 @@ public interface KVStore {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     * {@link #getRange(byte[], byte[], boolean) getRange}{@code (range.getMin(), range.getMax(), false)}.
+     * {@link #getRange(ByteData, ByteData, boolean) getRange}{@code (range.getMin(), range.getMax(), false)}.
      *
      * @param range range of keys to iterate
      * @return iteration of key/value pairs in {@code range}
@@ -199,7 +188,7 @@ public interface KVStore {
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} or {@code value} is null
      */
-    void put(byte[] key, byte[] value);
+    void put(ByteData key, ByteData value);
 
     /**
      * Remove the key/value pair with the given key, if it exists.
@@ -210,7 +199,7 @@ public interface KVStore {
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
-    void remove(byte[] key);
+    void remove(ByteData key);
 
     /**
      * Remove all key/value pairs whose keys are in a given range.
@@ -232,7 +221,7 @@ public interface KVStore {
      * @throws StaleKVTransactionException if an underlying transaction is no longer usable
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    void removeRange(byte[] minKey, byte[] maxKey);
+    void removeRange(ByteData minKey, ByteData maxKey);
 
     /**
      * Remove all key/value pairs whose keys are in a given range.
@@ -259,7 +248,7 @@ public interface KVStore {
      * @throws StaleKVTransactionException if an underlying transaction is no longer usable
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    byte[] encodeCounter(long value);
+    ByteData encodeCounter(long value);
 
     /**
      * Decode a counter value previously encoded by {@link #encodeCounter encodeCounter()}.
@@ -271,7 +260,7 @@ public interface KVStore {
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code value} is null
      */
-    long decodeCounter(byte[] value);
+    long decodeCounter(ByteData value);
 
     /**
      * Adjust the counter at the given key by the given amount.
@@ -291,7 +280,7 @@ public interface KVStore {
      * @throws RetryKVTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
-    void adjustCounter(byte[] key, long amount);
+    void adjustCounter(ByteData key, long amount);
 
     /**
      * Apply all the given {@link Mutations} to this instance.
@@ -317,8 +306,8 @@ public interface KVStore {
         Preconditions.checkArgument(mutations != null, "null mutations");
         try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
             removes.iterator().forEachRemaining(remove -> {
-                final byte[] min = remove.getMin();
-                final byte[] max = remove.getMax();
+                final ByteData min = remove.getMin();
+                final ByteData max = remove.getMax();
                 assert min != null;
                 if (max != null && ByteUtil.isConsecutive(min, max))
                     this.remove(min);
@@ -326,10 +315,10 @@ public interface KVStore {
                     this.removeRange(min, max);
             });
         }
-        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+        try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
             puts.iterator().forEachRemaining(entry -> this.put(entry.getKey(), entry.getValue()));
         }
-        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+        try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
             adjusts.iterator().forEachRemaining(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
         }
     }

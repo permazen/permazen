@@ -7,11 +7,11 @@ package io.permazen.kv.util;
 
 import io.permazen.test.TestSupport;
 import io.permazen.util.Bounds;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class KVNavigableMapTest extends TestSupport {
     public void testKVNavigableMap() throws Exception {
 
         // Create reference map
-        final TreeMap<byte[], byte[]> map1 = new TreeMap<>(ByteUtil.COMPARATOR);
+        final TreeMap<ByteData, ByteData> map1 = new TreeMap<>();
 
         // Create k/v map
         final MemoryKVStore kv2 = new MemoryKVStore();
@@ -38,8 +38,8 @@ public class KVNavigableMapTest extends TestSupport {
 
         // Verify they behave the same
         for (int i = 0; i < 250; i++) {
-            final byte[][] keys = this.randKeys(4);
-            final Consumer<NavigableMap<byte[], byte[]>> op;
+            final ByteData[] keys = this.randKeys(4);
+            final Consumer<NavigableMap<ByteData, ByteData>> op;
             switch (this.random.nextInt(4)) {
             case 0:
                 op = map -> map.put(keys[0], keys[1]);
@@ -57,8 +57,8 @@ public class KVNavigableMapTest extends TestSupport {
                 throw new RuntimeException();
             }
 
-            final TreeMap<byte[], byte[]> snap1 = new TreeMap<>(map1);
-            final TreeMap<byte[], byte[]> snap2 = new TreeMap<>(map2);
+            final TreeMap<ByteData, ByteData> snap1 = new TreeMap<>(map1);
+            final TreeMap<ByteData, ByteData> snap2 = new TreeMap<>(map2);
             try {
                 this.verifySame(0, map1, map2);
             } catch (AssertionError e) {
@@ -69,17 +69,17 @@ public class KVNavigableMapTest extends TestSupport {
         }
     }
 
-    public String toString(Bounds<byte[]> bounds) {
+    public String toString(Bounds<ByteData> bounds) {
         final String lowerBound = ByteUtil.STRING_CONVERTER.convert(bounds.getLowerBound());
         final String upperBound = ByteUtil.STRING_CONVERTER.convert(bounds.getUpperBound());
         return "" + new Bounds<String>(lowerBound, bounds.getLowerBoundType(), upperBound, bounds.getUpperBoundType());
     }
 
-    public void verifySame(int depth, NavigableMap<byte[], byte[]> map1, NavigableMap<byte[], byte[]> map2) {
+    public void verifySame(int depth, NavigableMap<ByteData, ByteData> map1, NavigableMap<ByteData, ByteData> map2) {
         if (++depth >= 5)
             return;
         //this.log.info("START verifySame() depth={}", depth);
-        final byte[][] keys = this.randKeys(25);
+        final ByteData[] keys = this.randKeys(25);
         final boolean[] boos = new boolean[] {
             this.random.nextBoolean(),
             this.random.nextBoolean(),
@@ -156,15 +156,15 @@ public class KVNavigableMapTest extends TestSupport {
         //this.log.info("FINISH verifySame() depth={}", depth);
     }
 
-    private byte[] randKey() {
+    private ByteData randKey() {
         final int len = this.random.nextInt(3);
         final byte[] r = new byte[len];
         this.random.nextBytes(r);
-        return r;
+        return ByteData.of(r);
     }
 
-    private byte[][] randKeys(int max) {
-        final byte[][] r = new byte[max][];
+    private ByteData[] randKeys(int max) {
+        final ByteData[] r = new ByteData[max];
         for (int i = 0; i < r.length; i++)
             r[i] = this.randKey();
         return r;
@@ -172,14 +172,14 @@ public class KVNavigableMapTest extends TestSupport {
 
     @SuppressWarnings("unchecked")
     private void checkSameResult(int depth,
-      NavigableMap<byte[], byte[]> map1,
-      NavigableMap<byte[], byte[]> map2,
-      Function<NavigableMap<byte[], byte[]>, Object> func, String format, Object... params) {
+      NavigableMap<ByteData, ByteData> map1,
+      NavigableMap<ByteData, ByteData> map2,
+      Function<NavigableMap<ByteData, ByteData>, Object> func, String format, Object... params) {
 
         // Format description
         for (int i = 0; i < params.length; i++) {
-            if (params[i] instanceof byte[])
-                params[i] = ByteUtil.toString((byte[])params[i]);
+            if (params[i] instanceof ByteData)
+                params[i] = ((ByteData)params[i]).toHex();
         }
         final String desc = String.format(format, params);
 
@@ -248,7 +248,7 @@ public class KVNavigableMapTest extends TestSupport {
 
         // Recurse on sub-maps
         if (o1 instanceof NavigableMap && (o1 != map1 || o2 != map2))
-            this.verifySame(depth, (NavigableMap<byte[], byte[]>)o1, (NavigableMap<byte[], byte[]>)o2);
+            this.verifySame(depth, (NavigableMap<ByteData, ByteData>)o1, (NavigableMap<ByteData, ByteData>)o2);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -278,10 +278,9 @@ public class KVNavigableMapTest extends TestSupport {
             }
             return;
         }
-        if (o1 instanceof byte[] && o2 instanceof byte[]) {
-            if (!Arrays.equals((byte[])o1, (byte[])o2)) {
-                throw new AssertionError("different byte[] arrays: "
-                  + ByteUtil.toString((byte[])o1) + " vs. " + ByteUtil.toString((byte[])o2));
+        if (o1 instanceof ByteData && o2 instanceof ByteData) {
+            if (!Objects.equals(o1, o2)) {
+                throw new AssertionError("different byte[] arrays: " + ((ByteData)o1).toHex() + " vs. " + ((ByteData)o2).toHex());
             }
             return;
         }
@@ -309,21 +308,21 @@ public class KVNavigableMapTest extends TestSupport {
                 }
             }
         }
-        throw new AssertionError("unrecognized type(s): "
+        throw new AssertionError("non-equal with unrecognized type(s): "
           + o1 + " (a " + o1.getClass() + ") vs. "
           + o2 + " (a " + o2.getClass() + ")");
     }
 
-    public static NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+    public static NavigableMap<String, String> stringView(NavigableMap<ByteData, ByteData> byteMap) {
         if (byteMap == null)
             return null;
-        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap,
+        return new ConvertedNavigableMap<String, String, ByteData, ByteData>(byteMap,
           ByteUtil.STRING_CONVERTER.reverse(), ByteUtil.STRING_CONVERTER.reverse());
     }
 
-    public static NavigableSet<String> stringView(NavigableSet<byte[]> byteSet) {
+    public static NavigableSet<String> stringView(NavigableSet<ByteData> byteSet) {
         if (byteSet == null)
             return null;
-        return new ConvertedNavigableSet<String, byte[]>(byteSet, ByteUtil.STRING_CONVERTER.reverse());
+        return new ConvertedNavigableSet<String, ByteData>(byteSet, ByteUtil.STRING_CONVERTER.reverse());
     }
 }

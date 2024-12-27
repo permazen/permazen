@@ -9,6 +9,7 @@ import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.ForwardingKVStore;
 import io.permazen.kv.util.MemoryKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.util.Map;
@@ -119,7 +120,7 @@ public class TestKVDatabase implements KVDatabase {
         }
 
         @Override
-        public Future<Void> watchKey(byte[] key) {
+        public Future<Void> watchKey(ByteData key) {
             throw new UnsupportedOperationException();
         }
 

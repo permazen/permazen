@@ -14,9 +14,8 @@ import io.permazen.kv.KeyFilterUtil;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.AbstractNavigableSet;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 
 import java.util.NavigableSet;
@@ -24,7 +23,10 @@ import java.util.NoSuchElementException;
 
 /**
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}
- * keys in a {@link KVStore} and whose sort order is consistent with their {@code byte[]} key encoding.
+ * array keys in a {@link KVStore}.
+ *
+ * <p>
+ * The key sort order must be consistent with the corresponding key {@code ByteData} key encodings, i.e., unsigned lexicographical.
  *
  * <p>
  * There must be an equivalence between elements and {@code byte[]} key encodings (i.e., there must be
@@ -33,7 +35,7 @@ import java.util.NoSuchElementException;
  * <p><b>Subclass Methods</b></p>
  *
  * <p>
- * Subclasses must implement the {@linkplain #encode(ByteWriter, Object) encode()} and {@linkplain #decode decode()}
+ * Subclasses must implement the {@linkplain #encode(ByteData.Writer, Object) encode()} and {@linkplain #decode decode()}
  * methods to convert elements to/from {@code byte[]} keys (associated values are ignored), and
  * {@link #createSubSet(boolean, KeyRange, KeyFilter, Bounds) createSubSet()}
  * to allow creating reversed and restricted range sub-sets.
@@ -122,7 +124,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     /**
-     * Convenience constructor for when the range of visible {@link KVStore} keys is all keys sharing a given {@code byte[]} prefix.
+     * Convenience constructor for when the range of visible {@link KVStore} keys is all keys sharing a given prefix.
      *
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
@@ -130,7 +132,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code kv} is null
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
-    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, byte[] prefix) {
+    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, ByteData prefix) {
         this(kv, prefixMode, KeyRange.forPrefix(prefix));
     }
 
@@ -183,7 +185,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         final KVPair pair = this.firstPair();
         if (pair == null)
             throw new NoSuchElementException();
-        return this.decode(new ByteReader(pair.getKey()));
+        return this.decode(pair.getKey().newReader());
     }
 
     @Override
@@ -191,7 +193,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         final KVPair pair = this.lastPair();
         if (pair == null)
             throw new NoSuchElementException();
-        return this.decode(new ByteReader(pair.getKey()));
+        return this.decode(pair.getKey().newReader());
     }
 
     @Override
@@ -199,8 +201,8 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         final KVPair pair = this.firstPair();
         if (pair == null)
             return null;
-        final byte[] key = pair.getKey();
-        final E elem = this.decode(new ByteReader(key));
+        final ByteData key = pair.getKey();
+        final E elem = this.decode(key.newReader());
         this.kv.remove(key);
         return elem;
     }
@@ -210,8 +212,8 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         final KVPair pair = this.lastPair();
         if (pair == null)
             return null;
-        final byte[] key = pair.getKey();
-        final E elem = this.decode(new ByteReader(key));
+        final ByteData key = pair.getKey();
+        final E elem = this.decode(key.newReader());
         this.kv.remove(key);
         return elem;
     }
@@ -231,13 +233,13 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
               this.kv.getAtLeast(this.keyRange.getMin(), this.keyRange.getMax()) :
               this.kv.getAtLeast(null, null);
         } else {
-            final byte[][] bounds = this.initialBounds();
+            final ByteData[] bounds = this.initialBounds();
             if (bounds == null)
                 return null;
             while (true) {
                 if ((pair = this.kv.getAtLeast(bounds[0], bounds[1])) == null)
                     return null;
-                final byte[] key = pair.getKey();
+                final ByteData key = pair.getKey();
                 assert this.keyRange == null || this.keyRange.contains(key);
                 if (this.keyFilter.contains(key))
                     break;
@@ -256,13 +258,13 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
               this.kv.getAtMost(this.keyRange.getMax(), this.keyRange.getMin()) :
               this.kv.getAtMost(null, null);
         } else {
-            final byte[][] bounds = this.initialBounds();
+            final ByteData[] bounds = this.initialBounds();
             if (bounds == null)
                 return null;
             while (true) {
                 if ((pair = this.kv.getAtMost(bounds[1], bounds[0])) == null)
                     return null;
-                final byte[] key = pair.getKey();
+                final ByteData key = pair.getKey();
                 assert this.keyRange == null || this.keyRange.contains(key);
                 if (this.keyFilter.contains(key))
                     break;
@@ -275,30 +277,30 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     // Create bounds that intersect the keyRange (if any) and the keyFilter (which must exist)
-    private byte[][] initialBounds() {
+    private ByteData[] initialBounds() {
         assert this.keyFilter != null;
-        final byte[][] bounds = this.keyRange != null ?
-          new byte[][] { this.keyRange.getMin(), this.keyRange.getMax() } :
-          new byte[][] { ByteUtil.EMPTY, null };
+        final ByteData[] bounds = this.keyRange != null ?
+          new ByteData[] { this.keyRange.getMin(), this.keyRange.getMax() } :
+          new ByteData[] { ByteData.empty(), null };
         if (!this.seekHigher(bounds) || !this.seekLower(bounds))
             return null;
         return bounds;
     }
 
-    private boolean seekHigher(byte[][] bounds) {
-        final byte[] higherKey = this.keyFilter.seekHigher(bounds[0]);
-        assert higherKey == null || ByteUtil.compare(higherKey, bounds[0]) >= 0;
+    private boolean seekHigher(ByteData[] bounds) {
+        final ByteData higherKey = this.keyFilter.seekHigher(bounds[0]);
+        assert higherKey == null || higherKey.compareTo(bounds[0]) >= 0;
         return (bounds[0] = higherKey) != null;
     }
 
-    private boolean seekLower(byte[][] bounds) {
-        final byte[] startKey = bounds[1] != null ? bounds[1] : ByteUtil.EMPTY;
-        final byte[] lowerKey = this.keyFilter.seekLower(startKey);
-        assert lowerKey == null || startKey.length == 0 || ByteUtil.compare(lowerKey, startKey) <= 0;
-        assert lowerKey == null || lowerKey.length > 0 || startKey.length == 0;
+    private boolean seekLower(ByteData[] bounds) {
+        final ByteData startKey = bounds[1] != null ? bounds[1] : ByteData.empty();
+        final ByteData lowerKey = this.keyFilter.seekLower(startKey);
+        assert lowerKey == null || startKey.isEmpty() || lowerKey.compareTo(startKey) <= 0;
+        assert lowerKey == null || !lowerKey.isEmpty() || startKey.isEmpty();
         if (lowerKey == null)
             return false;
-        bounds[1] = lowerKey.length != 0 ? lowerKey : null;
+        bounds[1] = !lowerKey.isEmpty() ? lowerKey : null;
         return true;
     }
 
@@ -307,14 +309,14 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     public boolean contains(Object obj) {
 
         // Encode key and check visibility
-        final byte[] key = this.encodeVisible(obj, false);
+        final ByteData key = this.encodeVisible(obj, false);
         if (key == null)
             return false;
 
         // Find key, or some longer key with the same prefix in prefix mode
         final KVPair pair;
         if (this.prefixMode) {
-            byte[] maxKey;
+            ByteData maxKey;
             try {
                 maxKey = ByteUtil.getKeyAfterPrefix(key);
             } catch (IllegalArgumentException e) {
@@ -322,7 +324,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             }
             if ((pair = this.kv.getAtLeast(key, maxKey)) == null)
                 return false;
-            assert ByteUtil.isPrefixOf(key, pair.getKey());
+            assert pair.getKey().startsWith(key);
             return true;
         } else
             return this.kv.get(key) != null;
@@ -333,7 +335,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         return new AbstractKVIterator<E>(this.kv, this.prefixMode, this.reversed, this.keyRange, this.keyFilter) {
 
             @Override
-            protected E decodePair(KVPair pair, ByteReader keyReader) {
+            protected E decodePair(KVPair pair, ByteData.Reader keyReader) {
                 return AbstractKVNavigableSet.this.decode(keyReader);
             }
 
@@ -369,9 +371,9 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             return false;
         if (this.keyRange == null)
             return true;
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         this.encode(writer, elem);
-        return KeyRange.compare(writer.getBytes(), this.keyRange.getMin()) >= 0;
+        return KeyRange.compare(writer.toByteData(), this.keyRange.getMin()) >= 0;
     }
 
     @Override
@@ -380,9 +382,9 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             return false;
         if (this.keyRange == null)
             return true;
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         this.encode(writer, elem);
-        return KeyRange.compare(writer.getBytes(), this.keyRange.getMax()) < 0;
+        return KeyRange.compare(writer.toByteData(), this.keyRange.getMax()) < 0;
     }
 
     @Override
@@ -425,7 +427,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code obj} is not of the required Java type supported by this set
      * @throws IllegalArgumentException if {@code obj} is null and this set does not support null elements
      */
-    protected abstract void encode(ByteWriter writer, Object obj);
+    protected abstract void encode(ByteData.Writer writer, Object obj);
 
     /**
      * Decode an element from a {@code byte[]} key.
@@ -437,7 +439,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @param reader input for encoded bytes
      * @return decoded set element
      */
-    protected abstract E decode(ByteReader reader);
+    protected abstract E decode(ByteData.Reader reader);
 
     /**
      * Determine if the given {@code byte[]} key is visible in this set according to the configured
@@ -448,7 +450,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code key} is null
      * @see #filterKeys filterKeys()
      */
-    protected boolean isVisible(byte[] key) {
+    protected boolean isVisible(ByteData key) {
         return (this.keyRange == null || this.keyRange.contains(key))
           && (this.keyFilter == null || this.keyFilter.contains(key));
     }
@@ -456,7 +458,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     /**
      * Encode the given object, if possible, and verify corresponding {@code byte[]} key is visible,
      * otherwise return null or throw an exception.
-     * Delegates to {@link #encode(ByteWriter, Object)} to attempt the actual encoding.
+     * Delegates to {@link #encode(ByteData.Writer, Object)} to attempt the actual encoding.
      *
      * @param obj object to encode, possibly null
      * @param fail whether, if {@code obj} can't be encoded, to throw an exception (true) or return null (false)
@@ -464,8 +466,8 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code fail} is true and {@code obj} has the wrong type
      * @throws IllegalArgumentException if {@code fail} is true and the resulting key is not {@linkplain #isVisible visible}
      */
-    protected byte[] encodeVisible(Object obj, boolean fail) {
-        final ByteWriter writer = new ByteWriter();
+    protected ByteData encodeVisible(Object obj, boolean fail) {
+        final ByteData.Writer writer = ByteData.newWriter();
         try {
             this.encode(writer, obj);
         } catch (IllegalArgumentException e) {
@@ -473,7 +475,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
                 return null;
             throw e;
         }
-        final byte[] key = writer.getBytes();
+        final ByteData key = writer.toByteData();
         if (this.keyRange != null && !this.keyRange.contains(key)) {
             if (fail)
                 throw new IllegalArgumentException(String.format("value is out of bounds: %s", obj));
@@ -491,18 +493,18 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * Derive a new {@link KeyRange} from (possibly) new element bounds. The given bounds must <i>not</i> ever be reversed.
      */
     private KeyRange buildKeyRange(Bounds<E> bounds) {
-        final byte[] minKey = this.keyRange != null ? this.keyRange.getMin() : null;
-        final byte[] maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
-        byte[] newMinKey;
-        byte[] newMaxKey;
+        final ByteData minKey = this.keyRange != null ? this.keyRange.getMin() : null;
+        final ByteData maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
+        ByteData newMinKey;
+        ByteData newMaxKey;
         switch (bounds.getLowerBoundType()) {
         case NONE:
             newMinKey = minKey;
             break;
         default:
-            final ByteWriter writer = new ByteWriter();
+            final ByteData.Writer writer = ByteData.newWriter();
             this.encode(writer, bounds.getLowerBound());
-            newMinKey = writer.getBytes();
+            newMinKey = writer.toByteData();
             if (!bounds.getLowerBoundType().isInclusive())
                 newMinKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);
             if (minKey != null)
@@ -516,9 +518,9 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             newMaxKey = maxKey;
             break;
         default:
-            final ByteWriter writer = new ByteWriter();
+            final ByteData.Writer writer = ByteData.newWriter();
             this.encode(writer, bounds.getUpperBound());
-            newMaxKey = writer.getBytes();
+            newMaxKey = writer.toByteData();
             if (bounds.getUpperBoundType().isInclusive())
                 newMaxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMaxKey) : ByteUtil.getNextKey(newMaxKey);
             if (maxKey != null)
@@ -527,6 +529,6 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
                 newMaxKey = ByteUtil.max(newMaxKey, minKey);
             break;
         }
-        return new KeyRange(newMinKey != null ? newMinKey : ByteUtil.EMPTY, newMaxKey);
+        return new KeyRange(newMinKey != null ? newMinKey : ByteData.empty(), newMaxKey);
     }
 }

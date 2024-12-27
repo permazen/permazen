@@ -12,10 +12,10 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -165,12 +165,12 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
 // KVStore
 
     @Override
-    public synchronized byte[] get(byte[] key) {
+    public synchronized ByteData get(ByteData key) {
 
         // Check puts
-        byte[] value = this.writes.getPuts().get(key);
+        ByteData value = this.writes.getPuts().get(key);
         if (value != null)
-            return this.applyCounterAdjustment(key, value).clone();
+            return this.applyCounterAdjustment(key, value);
 
         // Check removes
         if (this.writes.getRemoves().contains(key))
@@ -184,19 +184,19 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
 
         // Apply counter adjustments
         if (value != null)                                          // we can ignore adjustments of missing values
-            value = this.applyCounterAdjustment(key, value).clone();
+            value = this.applyCounterAdjustment(key, value);
 
         // Done
         return value;
     }
 
     @Override
-    public synchronized CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public synchronized CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         return new RangeIterator(minKey, maxKey, reverse);
     }
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    public synchronized void put(ByteData key, ByteData value) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
@@ -208,11 +208,11 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
         this.writes.getAdjusts().remove(key);
 
         // Record the put
-        this.writes.getPuts().put(key.clone(), value.clone());
+        this.writes.getPuts().put(key, value);
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
+    public synchronized void remove(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
@@ -230,7 +230,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
     }
 
     @Override
-    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
+    public synchronized void removeRange(ByteData minKey, ByteData maxKey) {
 
         // Sanity check
         Preconditions.checkState(!this.readOnly, "instance is read-only");
@@ -238,7 +238,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
 
         // Realize minKey
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
 
         // Overwrite any puts and counter adjustments
         if (maxKey != null) {
@@ -254,7 +254,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
     }
 
     @Override
-    public byte[] encodeCounter(long value) {
+    public ByteData encodeCounter(long value) {
         final KVStore currentKV;
         synchronized (this) {
             currentKV = this.kv;
@@ -263,7 +263,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
     }
 
     @Override
-    public long decodeCounter(byte[] bytes) {
+    public long decodeCounter(ByteData bytes) {
         final KVStore currentKV;
         synchronized (this) {
             currentKV = this.kv;
@@ -272,14 +272,14 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
     }
 
     @Override
-    public synchronized void adjustCounter(byte[] key, long amount) {
+    public synchronized void adjustCounter(ByteData key, long amount) {
 
         // Sanity check
         Preconditions.checkState(!this.readOnly, "instance is read-only");
         Preconditions.checkState(MutableView.isAllowWrites(), "writes disallowed while read tracking is disabled");
 
         // Check puts
-        final byte[] putValue = this.writes.getPuts().get(key);
+        final ByteData putValue = this.writes.getPuts().get(key);
         if (putValue != null) {
             final long value;
             try {
@@ -352,7 +352,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
 // Internal methods
 
     // Apply accumulated counter adjustments to the value, if any. If no adjustment necessary, returns same "value" object.
-    private synchronized byte[] applyCounterAdjustment(byte[] key, byte[] value) {
+    private synchronized ByteData applyCounterAdjustment(ByteData key, ByteData value) {
 
         // Is there an adjustment of this key?
         assert key != null;
@@ -369,19 +369,19 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
         }
 
         // Adjust counter value by accumulated adjustment value and re-encode
-        final byte[] adjustedValue = this.kv.encodeCounter(counterValue + adjust);
+        final ByteData adjustedValue = this.kv.encodeCounter(counterValue + adjust);
         assert adjustedValue != null;
         return adjustedValue;
     }
 
     // Record that keys were read in the range [minKey, maxKey)
     // This method must be invoked while continuously synchronized with the read
-    private void recordReads(byte[] minKey, byte[] maxKey) {
+    private void recordReads(ByteData minKey, ByteData maxKey) {
 
         // Sanity check
         assert Thread.holdsLock(this);
         assert minKey != null;
-        assert maxKey == null || ByteUtil.compare(minKey, maxKey) < 0;
+        assert maxKey == null || minKey.compareTo(maxKey) < 0;
 
         // Not tracking reads?
         if (this.reads == null || WITHOUT_READ_TRACKING.get() != null)
@@ -412,16 +412,16 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
         // Locking order: (1) RangeIterator (2) MutableView
 
         private final boolean reverse;          // iteration direction
-        private final byte[] limit;             // limit of iteration; exclusive if forward, inclusive if reverse
+        private final ByteData limit;           // limit of iteration; exclusive if forward, inclusive if reverse
 
         @GuardedBy("this")
         private KVStore kv;                     // underlying k/v store corresponding to this.kviter
         @GuardedBy("this")
-        private byte[] cursor;                  // current position; inclusive if forward, exclusive if reverse
+        private ByteData cursor;                // current position; inclusive if forward, exclusive if reverse
         @GuardedBy("this")
         private KVPair next;                    // the next k/v pair queued up, or null if not found yet
         @GuardedBy("this")
-        private byte[] removeKey;               // key to remove if remove() is invoked
+        private ByteData removeKey;             // key to remove if remove() is invoked
         @GuardedBy("this")
         private boolean finished;
 
@@ -437,12 +437,12 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
         @GuardedBy("this")
         private boolean putdone;                // no more pairs left in puts
 
-        RangeIterator(byte[] minKey, byte[] maxKey, boolean reverse) {
+        RangeIterator(ByteData minKey, ByteData maxKey, boolean reverse) {
             assert Thread.holdsLock(MutableView.this);
 
             // Realize minKey
             if (minKey == null)
-                minKey = ByteUtil.EMPTY;
+                minKey = ByteData.empty();
 
             // Initialize cursor
             this.kv = MutableView.this.kv;
@@ -488,7 +488,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                 return false;
 
             // Keep track of starting range of keys read from the underlying k/v store
-            byte[] readStart;
+            ByteData readStart;
 
             // Find the next underlying k/v pair, if we don't already have it. Whenever we access the underlying KVStore
             // we synchronize on this MutableView; this prevents it from changing out from under us while we're using it,
@@ -534,11 +534,10 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                             final KeyRange removeRange = ranges[0];
 
                             // If the removed range contains the starting cursor as well, we can shrink our recorded read range
-                            final byte[] removeRangeEnd = this.reverse ? removeRange.getMin() : removeRange.getMax();
+                            final ByteData removeRangeEnd = this.reverse ? removeRange.getMin() : removeRange.getMax();
                             if (this.reverse) {
-                                final byte[] removeRangeStart = removeRange.getMax();
-                                if (readStart != null
-                                  && (removeRangeStart == null || ByteUtil.compare(readStart, removeRangeStart) <= 0))
+                                final ByteData removeRangeStart = removeRange.getMax();
+                                if (readStart != null && (removeRangeStart == null || readStart.compareTo(removeRangeStart) <= 0))
                                     readStart = removeRangeEnd;
                             } else if (removeRange.contains(readStart))
                                 readStart = removeRangeEnd;
@@ -546,15 +545,15 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                             // Find the end of the remove range (if any)
                             if (removeRangeEnd == null
                              || this.isPastLimit(removeRangeEnd)
-                             || (this.reverse && Arrays.equals(removeRangeEnd, this.limit))) {
+                             || (this.reverse && removeRangeEnd.equals(this.limit))) {
                                 this.closeKVStoreIterator();
                                 break;
                             }
 
                             // Skip over it and restart iterator
                             this.closeKVStoreIterator();
-                            final byte[] iterMin;
-                            final byte[] iterMax;
+                            final ByteData iterMin;
+                            final ByteData iterMax;
                             if (this.reverse) {
                                 iterMin = this.limit;
                                 iterMax = removeRangeEnd;
@@ -573,7 +572,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
 
                 // Find next put pair, if we don't already have it
                 if (!this.putdone && this.putnext == null) {
-                    final Map.Entry<byte[], byte[]> putEntry;
+                    final Map.Entry<ByteData, ByteData> putEntry;
                     if (this.reverse) {
                         putEntry = this.cursor != null ?
                           MutableView.this.writes.getPuts().lowerEntry(this.cursor) :
@@ -584,7 +583,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                         this.putnext = null;
                         this.putdone = true;
                     } else
-                        this.putnext = new KVPair(putEntry.getKey().clone(), putEntry.getValue().clone());
+                        this.putnext = new KVPair(putEntry.getKey(), putEntry.getValue());
                 }
 
                 // Figure out which pair appears first (k/v or put); if there's a tie, the put wins
@@ -598,8 +597,8 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                     this.kvnext = null;
                 } else {
                     final int diff = this.reverse ?
-                      ByteUtil.compare(this.kvnext.getKey(), this.putnext.getKey()) :
-                      ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
+                      this.kvnext.getKey().compareTo(this.putnext.getKey()) :
+                      this.putnext.getKey().compareTo(this.kvnext.getKey());
                     if (diff <= 0) {
                         this.next = this.putnext;
                         this.putnext = null;
@@ -612,8 +611,8 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                 }
 
                 // Record that we read from everything we just scanned over in the underlying KVStore
-                final byte[] skipMin;
-                final byte[] skipMax;
+                final ByteData skipMin;
+                final ByteData skipMax;
                 if (this.reverse) {
                     skipMin = this.next != null ? this.next.getKey() : this.limit;
                     skipMax = readStart;
@@ -621,7 +620,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
                     skipMin = readStart;
                     skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : this.limit;
                 }
-                if (skipMin != null && (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0))
+                if (skipMin != null && (skipMax == null || skipMin.compareTo(skipMax) < 0))
                     MutableView.this.recordReads(skipMin, skipMax);
             }
 
@@ -632,7 +631,7 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
             }
 
             // Apply any counter adjustment to the retrieved value, if appropriate
-            final byte[] adjustedValue = MutableView.this.applyCounterAdjustment(this.next.getKey(), this.next.getValue());
+            final ByteData adjustedValue = MutableView.this.applyCounterAdjustment(this.next.getKey(), this.next.getValue());
             if (adjustedValue != this.next.getValue())
                 this.next = new KVPair(this.next.getKey(), adjustedValue);
 
@@ -643,14 +642,14 @@ public class MutableView extends AbstractKVStore implements DeltaKVStore, Clonea
             return true;
         }
 
-        private boolean isPastLimit(byte[] key) {
+        private boolean isPastLimit(ByteData key) {
             return this.isPast(key, this.limit);
         }
 
-        private boolean isPast(byte[] key, byte[] mark) {
+        private boolean isPast(ByteData key, ByteData mark) {
             return this.reverse ?
-              mark == null || ByteUtil.compare(key, mark) < 0 :
-              mark != null && ByteUtil.compare(key, mark) >= 0;
+              mark == null || key.compareTo(mark) < 0 :
+              mark != null && key.compareTo(mark) >= 0;
         }
 
         private void closeKVStoreIterator() {
