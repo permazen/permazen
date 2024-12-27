@@ -12,6 +12,7 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Writes;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.LongEncoder;
@@ -35,13 +36,13 @@ import org.testng.annotations.Test;
 
 public abstract class AtomicKVStoreTest extends KVTestSupport {
 
-    private static final byte[] KEY1 = new byte[] { (byte)0x10 };
-    private static final byte[] KEY2 = new byte[] { (byte)0x20 };
-    private static final byte[] KEY3 = new byte[] { (byte)0x18 };
+    private static final ByteData KEY1 = ByteData.of(0x10);
+    private static final ByteData KEY2 = ByteData.of(0x20);
+    private static final ByteData KEY3 = ByteData.of(0x18);
 
-    private static final byte[] VAL1 = new byte[] { (byte)0xee };
-    private static final byte[] VAL2 = new byte[] { (byte)0xff };
-    private static final byte[] VAL3 = new byte[] { (byte)0xaa };
+    private static final ByteData VAL1 = ByteData.of(0xee);
+    private static final ByteData VAL2 = ByteData.of(0xff);
+    private static final ByteData VAL3 = ByteData.of(0xaa);
 
     private File dir;
 
@@ -93,7 +94,7 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         kv.start();
 
         // Test
-        final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
+        final TreeMap<ByteData, ByteData> map = new TreeMap<>();
         for (int count = 0; count < 200; count++) {
             this.log.trace("[{}] next iteration", count);
             Writes writes;
@@ -210,12 +211,12 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         // Subclass can do something here
     }
 
-    private Writes getPuts(int count, TreeMap<byte[], byte[]> map) {
+    private Writes getPuts(int count, TreeMap<ByteData, ByteData> map) {
         final Writes writes = new Writes();
         for (int i = 0; i < 16; i++) {
-            final byte[] key = new byte[] { (byte)this.random.nextInt(0xff) };
-            final byte[] key2 = new byte[] { (byte)this.random.nextInt(0xff), (byte)this.random.nextInt(0xff) };
-            final byte[] value = LongEncoder.encode((1 << i) + i);
+            final ByteData key = ByteData.of((byte)this.random.nextInt(0xff));
+            final ByteData key2 = ByteData.of((byte)this.random.nextInt(0xff), (byte)this.random.nextInt(0xff));
+            final ByteData value = LongEncoder.encode((1 << i) + i);
             this.log.trace("[{}]: PUT: {} -> {}", count, ByteUtil.toString(key), ByteUtil.toString(value));
             writes.getPuts().put(key, value);
             this.log.trace("[{}]: PUT: {} -> {}", count, ByteUtil.toString(key2), ByteUtil.toString(value));
@@ -226,19 +227,19 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         return writes;
     }
 
-    private Writes getRemoves(int count, TreeMap<byte[], byte[]> map) {
+    private Writes getRemoves(int count, TreeMap<ByteData, ByteData> map) {
         final Writes writes = new Writes();
         for (int i = 0; i < 9; i++) {
             if (this.random.nextInt(5) > 0) {
-                final byte[] key = new byte[] { (byte)this.random.nextInt(0xff) };
+                final ByteData key = ByteData.of((byte)this.random.nextInt(0xff));
                 this.log.trace("[{}]: REMOVE: {}", count, ByteUtil.toString(key));
                 writes.getRemoves().add(new KeyRange(key));
                 map.remove(key);
             } else {
-                final byte[] x = this.random.nextInt(10) == 0 ? new byte[0] : new byte[] { (byte)this.random.nextInt(0xff) };
-                final byte[] y = this.random.nextInt(10) == 0 ? null : new byte[] { (byte)this.random.nextInt(0xff) };
-                final byte[] minKey = y == null || ByteUtil.compare(x, y) < 0 ? x : y;
-                final byte[] maxKey = y == null || ByteUtil.compare(x, y) < 0 ? y : x;
+                final ByteData x = this.random.nextInt(10) == 0 ? ByteData.empty() : ByteData.of((byte)this.random.nextInt(0xff));
+                final ByteData y = this.random.nextInt(10) == 0 ? null : ByteData.of((byte)this.random.nextInt(0xff));
+                final ByteData minKey = y == null || x.compareTo(y) < 0 ? x : y;
+                final ByteData maxKey = y == null || x.compareTo(y) < 0 ? y : x;
                 this.log.trace("[{}]: REMOVE: [{}, {})", count, ByteUtil.toString(minKey), ByteUtil.toString(maxKey));
                 writes.getRemoves().add(new KeyRange(minKey, maxKey));
                 if (maxKey == null)
@@ -250,12 +251,12 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         return writes;
     }
 
-    private TreeMap<byte[], byte[]> read(int count, AtomicKVStore kv) {
-        return this.read(count, kv, ByteUtil.EMPTY, null);
+    private TreeMap<ByteData, ByteData> read(int count, AtomicKVStore kv) {
+        return this.read(count, kv, ByteData.empty(), null);
     }
 
-    private TreeMap<byte[], byte[]> read(int count, AtomicKVStore lkv, byte[] minKey, byte[] maxKey) {
-        final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
+    private TreeMap<ByteData, ByteData> read(int count, AtomicKVStore lkv, ByteData minKey, ByteData maxKey) {
+        final TreeMap<ByteData, ByteData> map = new TreeMap<>();
         this.log.trace("[{}]: reading kv store", count);
         final KVStore kv;
         final CloseableKVStore snapshot;
@@ -280,14 +281,14 @@ public abstract class AtomicKVStoreTest extends KVTestSupport {
         return map;
     }
 
-    private void compare(TreeMap<byte[], byte[]> map1, TreeMap<byte[], byte[]> map2) {
+    private void compare(TreeMap<ByteData, ByteData> map1, TreeMap<ByteData, ByteData> map2) {
         final NavigableMap<String, String> smap1 = stringView(map1);
         final NavigableMap<String, String> smap2 = stringView(map2);
         Assert.assertEquals(smap1, smap2, "\n*** ACTUAL:\n" + smap1 + "\n*** EXPECTED:\n" + smap2 + "\n");
     }
 
-    private TreeMap<byte[], byte[]> asMap(KVStore kvstore) {
-        final TreeMap<byte[], byte[]> map = new TreeMap<>(ByteUtil.COMPARATOR);
+    private TreeMap<ByteData, ByteData> asMap(KVStore kvstore) {
+        final TreeMap<ByteData, ByteData> map = new TreeMap<>();
         try (CloseableIterator<KVPair> i = kvstore.getRange(null, null)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();

@@ -12,6 +12,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.util.XMLSerializer;
 import io.permazen.test.TestSupport;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
@@ -81,7 +82,7 @@ public abstract class KVTestSupport extends TestSupport {
      * @param maxKey maximum key
      * @return exception thrown during query, or null if successful
      */
-    protected RuntimeException showKV(KVStore kv, String label, byte[] minKey, byte[] maxKey) {
+    protected RuntimeException showKV(KVStore kv, String label, ByteData minKey, ByteData maxKey) {
         final String xml;
         try {
             xml = this.toXmlString(kv, minKey, maxKey);
@@ -99,7 +100,7 @@ public abstract class KVTestSupport extends TestSupport {
         return this.toXmlString(kv, null, null);
     }
 
-    protected String toXmlString(KVStore kv, byte[] minKey, byte[] maxKey) {
+    protected String toXmlString(KVStore kv, ByteData minKey, ByteData maxKey) {
         try (ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
@@ -112,27 +113,35 @@ public abstract class KVTestSupport extends TestSupport {
         }
     }
 
-    protected String s(KVPair pair) {
+    protected static String s(ByteData data) {
+        return ByteUtil.toString(data);
+    }
+
+    protected static ByteData b(String string) {
+        return ByteData.fromHex(string);
+    }
+
+    protected static String s(KVPair pair) {
         return pair != null ? ("[" + s(pair.getKey()) + ", " + s(pair.getValue()) + "]") : "null";
     }
 
     protected static KVPair kv(String... key) {
         if (key.length != 1 && key.length != 2)
             throw new IllegalArgumentException();
-        return new KVPair(b(key[0]), key.length > 1 ? b(key[1]) : new byte[0]);
+        return new KVPair(b(key[0]), key.length > 1 ? b(key[1]) : ByteData.empty());
     }
 
-    public static NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+    public static NavigableMap<String, String> stringView(NavigableMap<ByteData, ByteData> byteMap) {
         if (byteMap == null)
             return null;
-        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap,
+        return new ConvertedNavigableMap<String, String, ByteData, ByteData>(byteMap,
           ByteUtil.STRING_CONVERTER.reverse(), ByteUtil.STRING_CONVERTER.reverse());
     }
 
-    public static NavigableSet<String> stringView(NavigableSet<byte[]> byteSet) {
+    public static NavigableSet<String> stringView(NavigableSet<ByteData> byteSet) {
         if (byteSet == null)
             return null;
-        return new ConvertedNavigableSet<String, byte[]>(byteSet, ByteUtil.STRING_CONVERTER.reverse());
+        return new ConvertedNavigableSet<String, ByteData>(byteSet, ByteUtil.STRING_CONVERTER.reverse());
     }
 
     protected void tryNtimes(KVDatabase kvdb, Consumer<KVTransaction> consumer) {

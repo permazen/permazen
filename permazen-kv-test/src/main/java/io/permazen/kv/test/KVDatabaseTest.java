@@ -17,6 +17,7 @@ import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.MemoryKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -162,7 +164,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // tx 1
         this.log.info("testSimpleStuff() on {}: starting tx1", store);
         this.tryNtimes(store, tx -> {
-            final byte[] x = tx.get(b("01"));
+            final ByteData x = tx.get(b("01"));
             if (x != null)
                 Assert.assertEquals(tx.get(b("01")), b("02"));          // transaction was retried even though it succeeded
             tx.put(b("01"), b("02"));
@@ -173,9 +175,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // tx 2
         this.log.info("testSimpleStuff() on {}: starting tx2", store);
         this.tryNtimes(store, tx -> {
-            final byte[] x = tx.get(b("01"));
+            final ByteData x = tx.get(b("01"));
             Assert.assertNotNull(x);
-            Assert.assertTrue(Arrays.equals(x, b("02")) || Arrays.equals(x, b("03")));
+            Assert.assertTrue(Objects.equals(x, b("02")) || Objects.equals(x, b("03")));
             tx.put(b("01"), b("03"));
             Assert.assertEquals(tx.get(b("01")), b("03"));
         });
@@ -184,7 +186,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // tx 3
         this.log.info("testSimpleStuff() on {}: starting tx3", store);
         this.tryNtimes(store, tx -> {
-            final byte[] x = tx.get(b("01"));
+            final ByteData x = tx.get(b("01"));
             Assert.assertEquals(x, b("03"));
             tx.put(b("10"), b("01"));
         });
@@ -206,7 +208,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.tryNtimes(store, kvt -> {
             kvt.setReadOnly(false);
             kvt.put(b("10"), b("dd"));
-            final byte[] x = kvt.get(b("10"));
+            final ByteData x = kvt.get(b("10"));
             Assert.assertEquals(x, b("dd"));
         });
         this.log.info("testSimpleStuff() on {}: committed tx4", store);
@@ -215,10 +217,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testSimpleStuff() on {}: starting tx5", store);
         this.tryNtimes(store, kvt -> {
             kvt.setReadOnly(true);
-            final byte[] x = kvt.get(b("10"));
+            final ByteData x = kvt.get(b("10"));
             Assert.assertEquals(x, b("dd"));
             kvt.put(b("10"), b("ee"));
-            final byte[] y = kvt.get(b("10"));
+            final ByteData y = kvt.get(b("10"));
             Assert.assertEquals(y, b("ee"));
         });
         this.log.info("testSimpleStuff() on {}: committed tx5", store);
@@ -227,7 +229,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testSimpleStuff() on {}: starting tx6", store);
         this.tryNtimes(store, kvt -> {
             kvt.setReadOnly(true);
-            final byte[] x = kvt.get(b("10"));
+            final ByteData x = kvt.get(b("10"));
             Assert.assertEquals(x, b("dd"));
         });
         this.log.info("testSimpleStuff() on {}: committed tx6", store);
@@ -243,7 +245,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testReadOnly() on {}: initializing database", store);
         this.tryNtimes(store, tx -> {
             tx.removeRange(null, null);
-            tx.put(ByteUtil.EMPTY, ByteUtil.EMPTY);
+            tx.put(ByteData.empty(), ByteData.empty());
         });
         this.log.info("testReadOnly() on {}: done initializing database", store);
 
@@ -251,8 +253,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.log.info("testReadOnly() on {}: testing setReadOnly() before access", store);
         this.tryNtimes(store, tx -> {
             tx.setReadOnly(true);
-            final byte[] value1 = tx.get(ByteUtil.EMPTY);
-            Assert.assertEquals(value1, ByteUtil.EMPTY);
+            final ByteData value1 = tx.get(ByteData.empty());
+            Assert.assertEquals(value1, ByteData.empty());
             Assert.assertTrue(tx.isReadOnly());
         });
         this.log.info("testReadOnly() on {}: done testing setReadOnly() after access", store);
@@ -261,28 +263,28 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         if (this.supportsReadOnlyAfterDataAccess()) {
             this.log.info("testReadOnly() on {}: testing setReadOnly()", store);
             this.tryNtimes(store, tx -> {
-                final byte[] value1 = tx.get(ByteUtil.EMPTY);
-                Assert.assertEquals(value1, ByteUtil.EMPTY);
+                final ByteData value1 = tx.get(ByteData.empty());
+                Assert.assertEquals(value1, ByteData.empty());
                 tx.setReadOnly(true);
-                final byte[] value2 = tx.get(ByteUtil.EMPTY);
-                Assert.assertEquals(value2, ByteUtil.EMPTY);
+                final ByteData value2 = tx.get(ByteData.empty());
+                Assert.assertEquals(value2, ByteData.empty());
                 Assert.assertTrue(tx.isReadOnly());
             });
             this.log.info("testReadOnly() on {}: done testing setReadOnly()", store);
         }
     }
 
-    private byte[] randomBytes(int index) {
+    private ByteData randomBytes(int index) {
         final byte[] array = new byte[this.random.nextInt(10) + 1];
         this.random.nextBytes(array);
         array[0] = (byte)index;
-        return array;
+        return ByteData.of(array);
     }
 
     @Test(dataProvider = "kvdbs")
     public void testSortOrder(KVDatabase store) throws Exception {
         int index = 0;
-        final byte[][][] pairs = new byte[][][] {
+        final ByteData[][] pairs = new ByteData[][] {
             { b(""),        this.randomBytes(index++) },
             { b("00"),      this.randomBytes(index++) },
             { b("0000"),    this.randomBytes(index++) },
@@ -316,7 +318,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         // Write data
         this.log.info("testSortOrder() on {}: writing data", store);
         this.tryNtimes(store, tx -> {
-            for (byte[][] pair : pairs)
+            for (ByteData[] pair : pairs)
                 tx.put(pair[0], pair[1]);
         });
 
@@ -326,9 +328,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             try (CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
                 int index2 = 0;
                 while (i.hasNext()) {
-                    final byte[][] pair = pairs[index2];
+                    final ByteData[] pair = pairs[index2];
                     final KVPair kvpair = i.next();
-                    Assert.assertTrue(Arrays.equals(kvpair.getKey(), pair[0]) && Arrays.equals(kvpair.getValue(), pair[1]),
+                    Assert.assertTrue(kvpair.getKey().equals(pair[0]) && kvpair.getValue().equals(pair[1]),
                       String.format("expected pair { %s, %s } but got { %s, %s } at index %d",
                        ByteUtil.toString(pair[0]), ByteUtil.toString(pair[1]),
                        ByteUtil.toString(kvpair.getKey()), ByteUtil.toString(kvpair.getValue()),
@@ -537,7 +539,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         if (expected != null) {
             final KVTransaction tx2 = this.threads[0].submit(() -> this.createKVTransaction(store)).get();
             this.showKV(tx2, "TX2 of " + store);
-            byte[] val = this.threads[0].submit(new Reader(tx2, expected.getKey())).get();
+            ByteData val = this.threads[0].submit(new Reader(tx2, expected.getKey())).get();
             Assert.assertEquals(val, expected.getValue());
             tx2.rollback();
         }
@@ -571,8 +573,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 if (txs[i] == null)
                     continue;
                 finished = false;
-                final Future<?> rf = this.threads[i].submit(new Reader(txs[i], new byte[] { (byte)i }, true));
-                final Future<?> wf = this.threads[i].submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02")));
+                final Future<?> rf = this.threads[i].submit(new Reader(txs[i], ByteData.of((byte)i), true));
+                final Future<?> wf = this.threads[i].submit(new Writer(txs[i], ByteData.of((byte)(i + 128)), b("02")));
                 for (Future<?> f : new Future<?>[] { rf, wf }) {
                     try {
                         f.get();
@@ -669,7 +671,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Keep an in-memory record of what is in the committed database
-        final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
+        final TreeMap<ByteData, ByteData> committedData = new TreeMap<>();
 
         // Run transactions
         for (int i = 0; i < this.getSequentialTransactionLoopCount(); i++) {
@@ -701,7 +703,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Populate database with some data
-        final TreeMap<byte[], byte[]> committedData = new TreeMap<>(ByteUtil.COMPARATOR);
+        final TreeMap<ByteData, ByteData> committedData = new TreeMap<>();
         final RandomTask populateTask = new RandomTask(-1, store, committedData, this.random.nextLong());
         this.log.info("testMultipleThreadsTransaction() populating database with random data");
         populateTask.run();
@@ -770,8 +772,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         this.tryNtimes(store, tx -> {
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
                 removes.iterator().forEachRemaining(remove -> {
-                    final byte[] min = remove.getMin();
-                    final byte[] max = remove.getMax();
+                    final ByteData min = remove.getMin();
+                    final ByteData max = remove.getMax();
                     assert min != null;
                     if (max != null && ByteUtil.isConsecutive(min, max))
                         tx.remove(min);
@@ -779,21 +781,21 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         tx.removeRange(min, max);
                 });
             }
-            try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+            try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
                 puts.iterator().forEachRemaining(entry -> tx.put(entry.getKey(), entry.getValue()));
             }
-            try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+            try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
                 adjusts.iterator().forEachRemaining(entry -> tx.adjustCounter(entry.getKey(), entry.getValue()));
             }
         });
-        final TreeMap<byte[], byte[]> expected = task.readDatabase();
+        final TreeMap<ByteData, ByteData> expected = task.readDatabase();
 
         // Clear database
         this.tryNtimes(store, tx -> tx.removeRange(null, null));
 
         // Apply them using apply()
         this.tryNtimes(store, tx -> tx.apply(mutations));
-        final TreeMap<byte[], byte[]> actual = task.readDatabase();
+        final TreeMap<ByteData, ByteData> actual = task.readDatabase();
 
         // Verify equal
         Assert.assertEquals(stringView(actual), stringView(expected), "apply() failed:"
@@ -811,7 +813,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private final KVDatabase store;
         private final Random random;
         private final boolean randomSleeps;
-        private final TreeMap<byte[], byte[]> committedData;            // tracks actual committed data, if known
+        private final TreeMap<ByteData, ByteData> committedData;            // tracks actual committed data, if known
         private final NavigableMap<String, String> committedDataView;
         private final ArrayList<String> log = new ArrayList<>(KVDatabaseTest.this.getRandomTaskMaxIterations());
 
@@ -821,7 +823,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             this(id, store, null, seed);
         }
 
-        public RandomTask(int id, KVDatabase store, TreeMap<byte[], byte[]> committedData, long seed) {
+        public RandomTask(int id, KVDatabase store, TreeMap<ByteData, ByteData> committedData, long seed) {
             super("Random[" + id + "," + (committedData != null ? "SEQ" : "PAR") + "]");
             this.id = id;
             this.store = store;
@@ -857,9 +859,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         private void test() throws Exception {
 
             // Keep track of key/value pairs that we know should exist in the transaction
-            final TreeMap<byte[], byte[]> knownValues = new TreeMap<>(ByteUtil.COMPARATOR);
+            final TreeMap<ByteData, ByteData> knownValues = new TreeMap<>();
             final NavigableMap<String, String> knownValuesView = stringView(knownValues);
-            final TreeSet<byte[]> putValues = new TreeSet<>(ByteUtil.COMPARATOR);
+            final TreeSet<ByteData> putValues = new TreeSet<>();
             final NavigableSet<String> putValuesView = stringView(putValues);
 
             // Keep track of known empty ranges
@@ -884,8 +886,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
 
             // Save a copy of committed data
-            final TreeMap<byte[], byte[]> previousCommittedData = this.committedData != null ?
-              (TreeMap<byte[], byte[]>)this.committedData.clone() : null;
+            final TreeMap<ByteData, ByteData> previousCommittedData = this.committedData != null ?
+              (TreeMap<ByteData, ByteData>)this.committedData.clone() : null;
             //final NavigableMap<String, String> previousCommittedDataView = stringView(previousCommittedData);
 
             // Verify committed data is still accurate
@@ -900,10 +902,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             try {
                 final int limit = this.r(KVDatabaseTest.this.getRandomTaskMaxIterations());
                 for (int j = 0; j < limit; j++) {
-                    byte[] key;
-                    byte[] val;
-                    byte[] min;
-                    byte[] max;
+                    ByteData key;
+                    ByteData val;
+                    ByteData min;
+                    ByteData max;
                     KVPair pair;
                     int option = this.r(62);
                     boolean knownValuesChanged = false;
@@ -944,11 +946,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         min = this.rb(1, true);
                         do {
                             max = this.rb2(this.r(2) + 1, 20);
-                        } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                        } while (max != null && min != null && min.compareTo(max) > 0);
                         pair = tx.getAtLeast(min, max);
                         this.log("getAtLeast: {},{} -> {}", s(min), s(max), s(pair));
-                        assert pair == null || ByteUtil.compare(pair.getKey(), min) >= 0;
-                        assert pair == null || max == null || ByteUtil.compare(pair.getKey(), max) < 0;
+                        assert pair == null || pair.getKey().compareTo(min) >= 0;
+                        assert pair == null || max == null || pair.getKey().compareTo(max) < 0;
                         if (pair == null) {
                             assert (max != null ? knownValues.subMap(min, max) : knownValues.tailMap(min)).isEmpty() :
                               this + ": getAtLeast(" + s(min) + "," + s(max) + ") returned " + null + " but"
@@ -971,11 +973,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         max = this.rb(1, true);
                         do {
                             min = this.rb2(this.r(2) + 1, 20);
-                        } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                        } while (max != null && min != null && min.compareTo(max) > 0);
                         pair = tx.getAtMost(max, min);
                         this.log("getAtMost: {},{} -> {}", s(max), s(min), s(pair));
-                        assert pair == null || min == null || ByteUtil.compare(pair.getKey(), min) >= 0;
-                        assert pair == null || ByteUtil.compare(pair.getKey(), max) < 0;
+                        assert pair == null || min == null || pair.getKey().compareTo(min) >= 0;
+                        assert pair == null || pair.getKey().compareTo(max) < 0;
                         if (pair == null) {
                             assert (min != null ? knownValues.subMap(min, max) : knownValues.headMap(max)).isEmpty() :
                               this + ": getAtMost(" + s(max) + "," + s(min) + ") returned " + null + " but"
@@ -993,7 +995,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                           + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                           + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
                         knownEmpty.add(new KeyRange(
-                          pair != null ? ByteUtil.getNextKey(pair.getKey()) : min != null ? min : ByteUtil.EMPTY,
+                          pair != null ? ByteUtil.getNextKey(pair.getKey()) : min != null ? min : ByteData.empty(),
                           max));
                         knownValuesChanged = true;
                     } else if (option < 50) {                                       // remove
@@ -1010,7 +1012,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         min = this.rb2(2, 20);
                         do {
                             max = this.rb2(2, 30);
-                        } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                        } while (max != null && min != null && min.compareTo(max) > 0);
                         this.log("removeRange: {} to {}", s(min), s(max));
                         tx.removeRange(min, max);
                         if (min == null && max == null) {
@@ -1026,11 +1028,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                             knownValues.subMap(min, max).clear();
                             putValues.subSet(min, max).clear();
                         }
-                        knownEmpty.add(new KeyRange(min != null ? min : ByteUtil.EMPTY, max));
+                        knownEmpty.add(new KeyRange(min != null ? min : ByteData.empty(), max));
                         knownValuesChanged = true;
                     } else if (option < 60) {                                       // adjustCounter
                         key = this.rb(1, false);
-                        key[0] = (byte)(key[0] & 0x0f);
+                        key = ByteData.of((byte)(key.byteAt(0) & 0x0f));
                         val = tx.get(key);
                         long counter = -1;
                         if (val != null) {
@@ -1044,13 +1046,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                         }
                         if (val == null) {
                             counter = this.random.nextLong();
-                            final byte[] encodedCounter = tx.encodeCounter(counter);
+                            final ByteData encodedCounter = tx.encodeCounter(counter);
                             tx.put(key, encodedCounter);
                             putValues.add(key);
                             this.log("adj: initialize {} to {}", s(key), s(encodedCounter));
                         }
                         final long adj = this.random.nextInt(1 << this.random.nextInt(24)) - 1024;
-                        final byte[] encodedCounter = tx.encodeCounter(counter + adj);
+                        final ByteData encodedCounter = tx.encodeCounter(counter + adj);
                         this.log("adj: {} by {} -> should now be {}", s(key), adj, s(encodedCounter));
                         tx.adjustCounter(key, adj);
                         knownValues.put(key, encodedCounter);
@@ -1076,11 +1078,11 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     }
 
                     // Verify everything we know to be there is there
-                    for (Map.Entry<byte[], byte[]> entry : knownValues.entrySet()) {
-                        final byte[] knownKey = entry.getKey();
-                        final byte[] expected = entry.getValue();
-                        final byte[] actual = tx.get(knownKey);
-                        assert actual != null && ByteUtil.compare(actual, expected) == 0 :
+                    for (Map.Entry<ByteData, ByteData> entry : knownValues.entrySet()) {
+                        final ByteData knownKey = entry.getKey();
+                        final ByteData expected = entry.getValue();
+                        final ByteData actual = tx.get(knownKey);
+                        assert actual != null && actual.compareTo(expected) == 0 :
                           this + ": tx has " + s(actual) + " for key " + s(knownKey) + " but"
                           + "\n  knowns=" + knownValuesView + "\n  puts=" + putValuesView
                           + "\n  emptys=" + knownEmpty + "\n  tx=" + this.toString(tx);
@@ -1145,7 +1147,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             if (this.committedData != null) {
 
                 // Read actual content
-                final TreeMap<byte[], byte[]> actual = new TreeMap<>(ByteUtil.COMPARATOR);
+                final TreeMap<ByteData, ByteData> actual = new TreeMap<>();
                 final NavigableMap<String, String> actualView = stringView(actual);
                 actual.putAll(this.readDatabase());
 
@@ -1177,15 +1179,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
                         // Make a definite mutation
                         KVPair pair = kvt.getAtLeast(null, null);
-                        byte[] key;
-                        byte[] val;
+                        ByteData key;
+                        ByteData val;
                         if (pair != null) {
                             key = pair.getKey();
                             val = pair.getValue();
-                            if (val.length == 0)
+                            if (val.isEmpty())
                                 val = this.rb(2, false);
                             else
-                                val[0] += (byte)77;
+                                val = ByteData.of((byte)(val.byteAt(0) + 77)).concat(val.substring(1));
                         } else {
                             key = this.rb(1, false);
                             val = this.rb(2, false);
@@ -1213,10 +1215,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         public void performRandomAccess(KVStore tx) {
             final int limit = this.r(KVDatabaseTest.this.getRandomTaskMaxIterations());
             for (int j = 0; j < limit; j++) {
-                byte[] key;
-                byte[] val;
-                byte[] min;
-                byte[] max;
+                ByteData key;
+                ByteData val;
+                ByteData min;
+                ByteData max;
                 KVPair pair;
                 int option = this.r(62);
                 boolean knownValuesChanged = false;
@@ -1231,13 +1233,13 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     min = this.rb(1, true);
                     do {
                         max = this.rb2(this.r(2) + 1, 20);
-                    } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                    } while (max != null && min != null && min.compareTo(max) > 0);
                     tx.getAtLeast(min, max);
                 } else if (option < 40) {                                       // getAtMost
                     max = this.rb(1, true);
                     do {
                         min = this.rb2(this.r(2) + 1, 20);
-                    } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                    } while (max != null && min != null && min.compareTo(max) > 0);
                     tx.getAtMost(max, min);
                 } else if (option < 50) {                                       // remove
                     key = this.rb(1, false);
@@ -1248,7 +1250,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     min = this.rb2(2, 20);
                     do {
                         max = this.rb2(2, 30);
-                    } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
+                    } while (max != null && min != null && min.compareTo(max) > 0);
                     tx.removeRange(min, max);
                 } else if (option < 60) {                                       // adjustCounter
                     key = this.rb(1, false);
@@ -1264,12 +1266,12 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         }
 
-        public TreeMap<byte[], byte[]> readDatabase() {
+        public TreeMap<ByteData, ByteData> readDatabase() {
             return KVDatabaseTest.this.tryNtimesWithResult(this.store, RandomTask.this::readDatabase);
         }
 
-        private TreeMap<byte[], byte[]> readDatabase(KVStore tx) {
-            final TreeMap<byte[], byte[]> values = new TreeMap<>(ByteUtil.COMPARATOR);
+        private TreeMap<ByteData, ByteData> readDatabase(KVStore tx) {
+            final TreeMap<ByteData, ByteData> values = new TreeMap<>();
             try (CloseableIterator<KVPair> i = tx.getRange(null, null, false)) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
@@ -1322,15 +1324,15 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             return this.random.nextInt(max);
         }
 
-        private byte[] rb(int len, boolean allowFF) {
+        private ByteData rb(int len, boolean allowFF) {
             final byte[] b = new byte[this.r(len) + 1];
             this.random.nextBytes(b);
             if (!allowFF && b[0] == (byte)0xff)
                 b[0] = (byte)random.nextInt(0xff);
-            return b;
+            return ByteData.of(b);
         }
 
-        private byte[] rb2(int len, int nullchance) {
+        private ByteData rb2(int len, int nullchance) {
             if (this.r(nullchance) == 0)
                 return null;
             return this.rb(len, true);
@@ -1344,24 +1346,24 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
 // Reader
 
-    public class Reader implements Callable<byte[]> {
+    public class Reader implements Callable<ByteData> {
 
         final KVTransaction tx;
-        final byte[] key;
+        final ByteData key;
         final boolean range;
 
-        public Reader(KVTransaction tx, byte[] key, boolean range) {
+        public Reader(KVTransaction tx, ByteData key, boolean range) {
             this.tx = tx;
             this.key = key;
             this.range = range;
         }
 
-        public Reader(KVTransaction tx, byte[] key) {
+        public Reader(KVTransaction tx, ByteData key) {
             this(tx, key, false);
         }
 
         @Override
-        public byte[] call() {
+        public ByteData call() {
             if (this.range) {
                 if (KVDatabaseTest.this.log.isTraceEnabled())
                     KVDatabaseTest.this.log.trace("reading at least {} in {}", s(this.key), this.tx);
@@ -1371,7 +1373,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             } else {
                 if (KVDatabaseTest.this.log.isTraceEnabled())
                     KVDatabaseTest.this.log.trace("reading {} in {}", s(this.key), this.tx);
-                final byte[] value = this.tx.get(this.key);
+                final ByteData value = this.tx.get(this.key);
                 KVDatabaseTest.this.log.info("finished reading {} -> {} in {}", s(this.key), s(value), this.tx);
                 return value;
             }
@@ -1383,10 +1385,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     public class Writer implements Runnable {
 
         final KVTransaction tx;
-        final byte[] key;
-        final byte[] value;
+        final ByteData key;
+        final ByteData value;
 
-        public Writer(KVTransaction tx, byte[] key, byte[] value) {
+        public Writer(KVTransaction tx, ByteData key, ByteData value) {
             this.tx = tx;
             this.key = key;
             this.value = value;
