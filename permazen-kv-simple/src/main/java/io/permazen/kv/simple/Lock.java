@@ -8,6 +8,7 @@ package io.permazen.kv.simple;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRange;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.util.Comparator;
@@ -51,7 +52,7 @@ class Lock extends KeyRange {
      * @throws IllegalArgumentException if {@code owner} is null
      * @throws IllegalArgumentException if {@code min > max}
      */
-    Lock(LockOwner owner, byte[] min, byte[] max, boolean write) {
+    Lock(LockOwner owner, ByteData min, ByteData max, boolean write) {
         super(min, max);
         Preconditions.checkArgument(owner != null, "null owner");
         this.owner = owner;
@@ -126,8 +127,8 @@ class Lock extends KeyRange {
         }
 
         // Merge locks
-        final byte[] newMin = KeyRange.compare(this.min, that.min) < 0 ? this.min : that.min;
-        final byte[] newMax = KeyRange.compare(this.max, that.max) > 0 ? this.max : that.max;
+        final ByteData newMin = KeyRange.compare(this.min, that.min) < 0 ? this.min : that.min;
+        final ByteData newMax = KeyRange.compare(this.max, that.max) > 0 ? this.max : that.max;
         return new Lock(this.owner, newMin, newMax, this.write || that.write);
     }
 
@@ -155,7 +156,7 @@ class Lock extends KeyRange {
     /**
      * Get a search key for use with instances sorted via {@link #MIN_COMPARATOR}.
      */
-    public static Lock getMinKey(byte[] min, boolean write) {
+    public static Lock getMinKey(ByteData min, boolean write) {
         Preconditions.checkArgument(min != null, "null min");
         return new Lock(DUMMY_OWNER, min, min, write);
     }
@@ -163,7 +164,7 @@ class Lock extends KeyRange {
     /**
      * Get a search key for use with instances sorted via {@link #MAX_COMPARATOR}.
      */
-    public static Lock getMaxKey(byte[] max, boolean write) {
+    public static Lock getMaxKey(ByteData max, boolean write) {
         Preconditions.checkArgument(max != null, "null max");
         return new Lock(DUMMY_OWNER, max, max, write);
     }

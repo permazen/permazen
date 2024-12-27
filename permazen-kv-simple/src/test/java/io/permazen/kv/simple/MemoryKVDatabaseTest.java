@@ -8,6 +8,7 @@ package io.permazen.kv.simple;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.test.KVDatabaseTest;
+import io.permazen.util.ByteData;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -136,7 +137,7 @@ public class MemoryKVDatabaseTest extends KVDatabaseTest {
             this.log("creating transaction");
             final KVTransaction tx = this.store.createTransaction();
             this.log("-> put()");
-            tx.put(new byte[0], new byte[0]);
+            tx.put(ByteData.empty(), ByteData.empty());
             this.log("<- put()");
             synchronized (this) {
                 this.ready = true;
@@ -170,7 +171,7 @@ public class MemoryKVDatabaseTest extends KVDatabaseTest {
             this.log("creating transaction");
             final KVTransaction tx = this.store.createTransaction();
             this.log("-> get()");
-            tx.get(new byte[0]);
+            tx.get(ByteData.empty());
             this.log("<- get()");
             tx.commit();
         }

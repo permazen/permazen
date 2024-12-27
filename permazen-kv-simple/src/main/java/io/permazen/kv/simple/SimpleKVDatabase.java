@@ -18,6 +18,7 @@ import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.KeyWatchTracker;
 import io.permazen.kv.util.MemoryKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import jakarta.annotation.PostConstruct;
@@ -26,7 +27,6 @@ import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -208,7 +208,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
 // Key Watches
 
-    synchronized ListenableFuture<Void> watchKey(byte[] key) {
+    synchronized ListenableFuture<Void> watchKey(ByteData key) {
         if (this.keyWatchTracker == null)
             this.keyWatchTracker = new KeyWatchTracker();
         return this.keyWatchTracker.register(key);
@@ -266,14 +266,14 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
                   .map(Del.class::cast);
             }
             @Override
-            public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+            public Stream<Map.Entry<ByteData, ByteData>> getPutPairs() {
                 return mutations.stream()
                   .filter(Put.class::isInstance)
                   .map(Put.class::cast)
                   .map(Put::toMapEntry);
             }
             @Override
-            public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+            public Stream<Map.Entry<ByteData, Long>> getAdjustPairs() {
                 return Stream.empty();
             }
         }, true);
@@ -312,10 +312,10 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
 // SimpleKVTransaction hooks
 
-    synchronized byte[] get(SimpleKVTransaction tx, byte[] key) {
+    synchronized ByteData get(SimpleKVTransaction tx, ByteData key) {
 
         // Sanity check
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
+        Preconditions.checkArgument(key.isEmpty() || key.ubyteAt(0) != 0xff, "key starts with 0xff");
         this.checkUsable(tx);
         this.checkState(tx);
 
@@ -329,33 +329,33 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         return this.kv.get(key);
     }
 
-    synchronized KVPair getAtLeast(SimpleKVTransaction tx, byte[] minKey, final byte[] maxKey) {
+    synchronized KVPair getAtLeast(SimpleKVTransaction tx, ByteData minKey, final ByteData maxKey) {
 
         // Realize minKey
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
 
         // Sanity check
         this.checkUsable(tx);
         this.checkState(tx);
-        if (maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+        if (maxKey != null && minKey.compareTo(maxKey) >= 0)
             return null;
 
         // Save original min key for locking purposes
-        final byte[] originalMinKey = minKey;
+        final ByteData originalMinKey = minKey;
 
         // Look for a mutation starting before minKey but containing it
-        if (minKey.length > 0) {
+        if (!minKey.isEmpty()) {
             final Mutation overlap = tx.findMutation(minKey);
             if (overlap != null) {
                 if (overlap instanceof Put) {
                     final Put put = (Put)overlap;
-                    assert Arrays.equals(put.getKey(), minKey);
+                    assert put.getKey().equals(minKey);
                     return new KVPair(put.getKey(), put.getValue());
                 }
                 assert overlap instanceof Del;
-                final byte[] max = overlap.getMax();
-                if (max == null || (maxKey != null && ByteUtil.compare(max, maxKey) >= 0))
+                final ByteData max = overlap.getMax();
+                if (max == null || (maxKey != null && max.compareTo(maxKey) >= 0))
                     return null;
                 minKey = max;
             }
@@ -373,8 +373,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             mutations = mutations.tailSet(Mutation.key(minKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.first() : null;
             final KVPair entry = this.kv.getAtLeast(minKey, maxKey);
-            assert entry == null || ByteUtil.compare(entry.getKey(), minKey) >= 0;
-            assert entry == null || maxKey == null || ByteUtil.compare(entry.getKey(), maxKey) < 0;
+            assert entry == null || entry.getKey().compareTo(minKey) >= 0;
+            assert entry == null || maxKey == null || entry.getKey().compareTo(maxKey) < 0;
 
             // Handle the case where neither is found
             if (mutation == null && entry == null)
@@ -383,7 +383,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             // Check for whether mutation or kvstore wins (i.e., which is first)
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) <= 0)) {
                 if (mutation instanceof Del) {
-                    if ((minKey = mutation.getMax()) == null || (maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0))
+                    if ((minKey = mutation.getMax()) == null || (maxKey != null && minKey.compareTo(maxKey) >= 0))
                         return null;
                     continue;
                 }
@@ -394,16 +394,16 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
     }
 
-    synchronized KVPair getAtMost(SimpleKVTransaction tx, byte[] maxKey, byte[] minKey) {
+    synchronized KVPair getAtMost(SimpleKVTransaction tx, ByteData maxKey, ByteData minKey) {
 
         // Realize minKey
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
 
         // Sanity check
         this.checkUsable(tx);
         this.checkState(tx);
-        if (maxKey != null && ByteUtil.compare(minKey, maxKey) >= 0)
+        if (maxKey != null && minKey.compareTo(maxKey) >= 0)
             return null;
 
         // Get read lock
@@ -418,8 +418,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
                 mutations = mutations.headSet(Mutation.key(maxKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.last() : null;
             final KVPair entry = this.kv.getAtMost(maxKey, minKey);
-            assert entry == null || ByteUtil.compare(entry.getKey(), minKey) >= 0;
-            assert entry == null || maxKey == null || ByteUtil.compare(entry.getKey(), maxKey) < 0;
+            assert entry == null || entry.getKey().compareTo(minKey) >= 0;
+            assert entry == null || maxKey == null || entry.getKey().compareTo(maxKey) < 0;
 
             // Handle the case where neither is found
             if (mutation == null && entry == null)
@@ -428,12 +428,12 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             // Check for whether mutation or kvstore wins (i.e., which is first)
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) >= 0)) {
                 if (mutation instanceof Del) {
-                    if ((maxKey = mutation.getMin()) == null || ByteUtil.compare(minKey, maxKey) >= 0)
+                    if ((maxKey = mutation.getMin()) == null || minKey.compareTo(maxKey) >= 0)
                         return null;
                     continue;
                 }
                 final Put put = (Put)mutation;
-                if (ByteUtil.compare(put.getKey(), minKey) < 0) {
+                if (put.getKey().compareTo(minKey) < 0) {
                     assert entry == null;       // because otherwise minKey > mutation >= entry so entry should not have been found
                     return null;
                 }
@@ -443,20 +443,20 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
     }
 
-    synchronized void put(SimpleKVTransaction tx, byte[] key, byte[] value) {
+    synchronized void put(SimpleKVTransaction tx, ByteData key, ByteData value) {
 
         // Sanity check
         if (value == null)
             throw new NullPointerException();
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
+        Preconditions.checkArgument(key.isEmpty() || key.ubyteAt(0) != 0xff, "key starts with 0xff");
         this.checkUsable(tx);
         this.checkState(tx);
-        final byte[] keyNext = ByteUtil.getNextKey(key);
+        final ByteData keyNext = ByteUtil.getNextKey(key);
 
         // Check transaction mutations
         final Mutation mutation = tx.findMutation(key);
         if (mutation instanceof Put) {
-            assert Arrays.equals(((Put)mutation).getKey(), key);
+            assert ((Put)mutation).getKey().equals(key);
 
             // Replace Put with new Put
             tx.mutations.remove(mutation);
@@ -465,8 +465,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
             // Split [Del] -> [Del*, Put, Del*]  *if needed
             final Del del = (Del)mutation;
-            final byte[] delMin = del.getMin();
-            final byte[] delMax = del.getMax();
+            final ByteData delMin = del.getMin();
+            final ByteData delMax = del.getMax();
             tx.mutations.remove(del);
             if (KeyRange.compare(delMin, key) < 0)
                 tx.mutations.add(new Del(delMin, key));
@@ -481,18 +481,18 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
     }
 
-    synchronized void remove(SimpleKVTransaction tx, byte[] key) {
+    synchronized void remove(SimpleKVTransaction tx, ByteData key) {
 
         // Sanity check
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
+        Preconditions.checkArgument(key.isEmpty() || key.ubyteAt(0) != 0xff, "key starts with 0xff");
         this.checkUsable(tx);
         this.checkState(tx);
-        final byte[] keyNext = ByteUtil.getNextKey(key);
+        final ByteData keyNext = ByteUtil.getNextKey(key);
 
         // Check transaction mutations
         final Mutation mutation = tx.findMutation(key);
         if (mutation instanceof Put) {
-            assert Arrays.equals(((Put)mutation).getKey(), key);
+            assert ((Put)mutation).getKey().equals(key);
 
             // Replace Put with Del
             tx.mutations.remove(mutation);
@@ -505,11 +505,11 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
     }
 
-    synchronized void removeRange(SimpleKVTransaction tx, byte[] minKey, byte[] maxKey) {
+    synchronized void removeRange(SimpleKVTransaction tx, ByteData minKey, ByteData maxKey) {
 
         // Realize minKey
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
 
         // Sanity check
         int diff = KeyRange.compare(minKey, maxKey);
@@ -518,14 +518,14 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         this.checkState(tx);
         if (diff == 0)                                                          // range is empty
             return;
-        final byte[] originalMinKey = minKey;
-        final byte[] originalMaxKey = maxKey;
+        final ByteData originalMinKey = minKey;
+        final ByteData originalMaxKey = maxKey;
 
         // Deal with partial overlap at the left end of the range
-        if (minKey.length > 0) {
+        if (!minKey.isEmpty()) {
             final Mutation leftMutation = tx.findMutation(minKey);
             if (leftMutation instanceof Put) {
-                assert Arrays.equals(((Put)leftMutation).getKey(), minKey);
+                assert ((Put)leftMutation).getKey().equals(minKey);
                 tx.mutations.remove(leftMutation);                                          // overwritten by this change
             } else if (leftMutation instanceof Del) {
                 final Del del = (Del)leftMutation;
@@ -557,9 +557,9 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
 
         // Remove all mutations in the middle
-        if (originalMinKey.length == 0 && originalMaxKey == null)
+        if (originalMinKey.isEmpty() && originalMaxKey == null)
             tx.mutations.clear();
-        else if (originalMinKey.length == 0)
+        else if (originalMinKey.isEmpty())
             tx.mutations.headSet(Mutation.key(originalMaxKey)).clear();
         else if (originalMaxKey == null)
             tx.mutations.tailSet(Mutation.key(originalMinKey)).clear();
@@ -638,7 +638,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 
 // Internal methods
 
-    private /*synchronized*/ void getLock(SimpleKVTransaction tx, byte[] minKey, byte[] maxKey, boolean write) {
+    private /*synchronized*/ void getLock(SimpleKVTransaction tx, ByteData minKey, ByteData maxKey, boolean write) {
 
         // Attempt to get the lock
         assert Thread.holdsLock(this);

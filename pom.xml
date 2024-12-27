@@ -39,7 +39,9 @@
         <module>permazen-kv-mvstore</module>
         <module>permazen-kv-mysql</module>
         <module>permazen-kv-raft</module>
+-->
         <module>permazen-kv-simple</module>
+<!--
         <module>permazen-kv-spanner</module>
         <module>permazen-kv-sql</module>
         <module>permazen-kv-sqlite</module>

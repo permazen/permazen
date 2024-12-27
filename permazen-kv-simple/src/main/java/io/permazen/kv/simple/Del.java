@@ -6,17 +6,18 @@
 package io.permazen.kv.simple;
 
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 
 /**
  * Represents the deletion of a range of key/value pairs in a {@link SimpleKVTransaction}.
  */
 class Del extends Mutation {
 
-    Del(byte[] min) {
+    Del(ByteData min) {
         super(min);
     }
 
-    Del(byte[] min, byte[] max) {
+    Del(ByteData min, ByteData max) {
         super(min, max);
     }
 

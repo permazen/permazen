@@ -8,6 +8,7 @@ package io.permazen.kv.simple;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRanges;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public class LockManager {
      * @throws IllegalArgumentException if {@code minKey > maxKey}
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */
-    public LockResult lock(LockOwner owner, byte[] minKey, byte[] maxKey, boolean write, long waitTimeout)
+    public LockResult lock(LockOwner owner, ByteData minKey, ByteData maxKey, boolean write, long waitTimeout)
       throws InterruptedException {
         synchronized (this.lockObject) {
 
@@ -209,7 +210,7 @@ public class LockManager {
      * @param write if range must be write locked; if false, may be either read or write locked
      * @return true if the range is locked for writes by {@code owner}
      */
-    public boolean isLocked(LockOwner owner, byte[] minKey, byte[] maxKey, boolean write) {
+    public boolean isLocked(LockOwner owner, ByteData minKey, ByteData maxKey, boolean write) {
         synchronized (this.lockObject) {
             Preconditions.checkArgument(owner != null, "null owner");
             KeyRanges ranges = new KeyRanges(minKey, maxKey);
@@ -304,8 +305,8 @@ public class LockManager {
     private long checkLock(Lock lock, List<Lock> mergers) {
 
         // Get lock's min & max
-        final byte[] lockMin = lock.getMin();
-        final byte[] lockMax = lock.getMax();
+        final ByteData lockMin = lock.getMin();
+        final ByteData lockMax = lock.getMax();
 
     startOver:
         while (true) {

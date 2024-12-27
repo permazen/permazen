@@ -10,20 +10,19 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.util.KeyWatchTracker;
-
-import java.util.Arrays;
+import io.permazen.util.ByteData;
 
 /**
  * Represents an outstanding {@link SimpleKVTransaction} mutation.
  */
 abstract class Mutation extends KeyRange {
 
-    protected Mutation(byte[] min, byte[] max) {
+    protected Mutation(ByteData min, ByteData max) {
         super(min, max);
-        Preconditions.checkArgument(max == null || !Arrays.equals(min, max), "empty range");
+        Preconditions.checkArgument(max == null || !min.equals(max), "empty range");
     }
 
-    protected Mutation(byte[] value) {
+    protected Mutation(ByteData value) {
         super(value);
     }
 
@@ -33,7 +32,7 @@ abstract class Mutation extends KeyRange {
         return keyWatchTracker.trigger(this);
     }
 
-    public static Mutation key(byte[] value) {
+    public static Mutation key(ByteData value) {
         return new Mutation(value) {
             @Override
             public void apply(KVStore kv) {

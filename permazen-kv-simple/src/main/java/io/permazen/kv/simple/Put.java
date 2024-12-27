@@ -9,9 +9,9 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVStore;
 import io.permazen.kv.util.KeyWatchTracker;
+import io.permazen.util.ByteData;
 
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -22,23 +22,23 @@ import java.util.Map;
  */
 class Put extends Mutation {
 
-    private final byte[] value;
+    private final ByteData value;
 
-    Put(byte[] key, byte[] value) {
+    Put(ByteData key, ByteData value) {
         super(key);
         Preconditions.checkArgument(value != null, "null value");
-        this.value = value.clone();
+        this.value = value;
     }
 
-    public byte[] getKey() {
+    public ByteData getKey() {
         return this.getMin();
     }
 
-    public byte[] getValue() {
-        return this.value.clone();
+    public ByteData getValue() {
+        return this.value;
     }
 
-    public Map.Entry<byte[], byte[]> toMapEntry() {
+    public Map.Entry<ByteData, ByteData> toMapEntry() {
         return new AbstractMap.SimpleEntry<>(this.getKey(), this.getValue());
     }
 
@@ -59,11 +59,11 @@ class Put extends Mutation {
         if (!super.equals(obj))
             return false;
         final Put that = (Put)obj;
-        return Arrays.equals(this.value, that.value);
+        return this.value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ Arrays.hashCode(this.value);
+        return super.hashCode() ^ this.value.hashCode();
     }
 }

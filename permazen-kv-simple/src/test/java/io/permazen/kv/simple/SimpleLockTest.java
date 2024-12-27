@@ -7,7 +7,7 @@ package io.permazen.kv.simple;
 
 import io.permazen.kv.KVPair;
 import io.permazen.kv.test.KVTestSupport;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -23,10 +23,10 @@ public class SimpleLockTest extends KVTestSupport {
         // Setup databse
         this.db = new MemoryKVDatabase();
         SimpleKVTransaction tx = db.createTransaction();
-        tx.put(ByteUtil.parse("01"), ByteUtil.parse("aaaa"));
-        tx.put(ByteUtil.parse("0101"), ByteUtil.parse("bbbb"));
-        tx.put(ByteUtil.parse("0102"), ByteUtil.parse("cccc"));
-        tx.put(ByteUtil.parse("02"), ByteUtil.parse("dddd"));
+        tx.put(ByteData.fromHex("01"), ByteData.fromHex("aaaa"));
+        tx.put(ByteData.fromHex("0101"), ByteData.fromHex("bbbb"));
+        tx.put(ByteData.fromHex("0102"), ByteData.fromHex("cccc"));
+        tx.put(ByteData.fromHex("02"), ByteData.fromHex("dddd"));
         tx.commit();
 
         // Start threads
@@ -108,7 +108,7 @@ public class SimpleLockTest extends KVTestSupport {
             // Delete range, which creates write lock
             SimpleLockTest.this.waitForStep(1);
             SimpleLockTest.this.log.debug("Thread1 performing step 1");
-            this.tx.removeRange(ByteUtil.parse("01"), ByteUtil.parse("02"));
+            this.tx.removeRange(ByteData.fromHex("01"), ByteData.fromHex("02"));
             SimpleLockTest.this.step++;
 
             // Commit transaction
@@ -135,12 +135,12 @@ public class SimpleLockTest extends KVTestSupport {
             SimpleLockTest.this.waitForStep(2);
             SimpleLockTest.this.log.debug("Thread2 performing step 2");
             SimpleLockTest.this.step++;
-            KVPair pair1 = this.tx.getAtLeast(ByteUtil.parse("01"), null);
+            KVPair pair1 = this.tx.getAtLeast(ByteData.fromHex("01"), null);
 
             // Do second query
             SimpleLockTest.this.waitForStep(4);
             SimpleLockTest.this.log.debug("Thread2 performing step 4");
-            KVPair pair2 = this.tx.getAtLeast(ByteUtil.parse("01"), null);
+            KVPair pair2 = this.tx.getAtLeast(ByteData.fromHex("01"), null);
             SimpleLockTest.this.step++;
 
             // They should return the same result!

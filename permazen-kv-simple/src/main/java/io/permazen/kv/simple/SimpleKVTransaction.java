@@ -16,10 +16,10 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.CloseableForwardingKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
-import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -70,44 +70,44 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     }
 
     @Override
-    public ListenableFuture<Void> watchKey(byte[] key) {
+    public ListenableFuture<Void> watchKey(ByteData key) {
         return this.kvdb.watchKey(key);
     }
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         return this.kvdb.get(this, key);
     }
 
     @Override
-    public KVPair getAtLeast(byte[] min, byte[] max) {
+    public KVPair getAtLeast(ByteData min, ByteData max) {
         return this.kvdb.getAtLeast(this, min, max);
     }
 
     @Override
-    public KVPair getAtMost(byte[] max, byte[] min) {
+    public KVPair getAtMost(ByteData max, ByteData min) {
         return this.kvdb.getAtMost(this, max, min);
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
         return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         this.kvdb.put(this, key, value);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         this.kvdb.remove(this, key);
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         this.kvdb.removeRange(this, minKey, maxKey);
     }
 
@@ -156,7 +156,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
 
     // Find the mutation that overlaps with the given key, if any.
     // This method assumes we are already synchronized on the associated database.
-    Mutation findMutation(byte[] key) {
+    Mutation findMutation(ByteData key) {
 
         // Sanity check during unit testing
         assert Thread.holdsLock(this.kvdb);
@@ -189,9 +189,9 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
 
     private boolean hasEmpties() {
         for (Mutation mutation : this.mutations) {
-            final byte[] minKey = mutation.getMin();
-            final byte[] maxKey = mutation.getMax();
-            if (minKey != null && maxKey != null && Arrays.equals(minKey, maxKey))
+            final ByteData minKey = mutation.getMin();
+            final ByteData maxKey = mutation.getMax();
+            if (minKey != null && maxKey != null && minKey.equals(maxKey))
                 return true;
         }
         return false;
