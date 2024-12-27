@@ -667,7 +667,7 @@ public final class ByteData implements Comparable<ByteData> {
                     minNewLength2 = Integer.MAX_VALUE;
 
                 // Determine the new buffer size
-                final int newLength = Math.min(minNewLength, minNewLength2);
+                final int newLength = Math.max(minNewLength, minNewLength2);
 
                 // Allocate the new buffer and replace existing
                 final byte[] newBuf = new byte[newLength];
