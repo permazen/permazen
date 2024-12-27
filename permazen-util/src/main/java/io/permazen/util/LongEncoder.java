@@ -429,7 +429,7 @@ public final class LongEncoder {
      * @param value value to encode
      * @return encoded value
      */
-    private static ByteData encode(long value) {
+    public static ByteData encode(long value) {
         final byte[] buf = new byte[MAX_ENCODED_LENGTH];
         int len = 1;
         if (value < MIN_SINGLE_BYTE_VALUE) {
