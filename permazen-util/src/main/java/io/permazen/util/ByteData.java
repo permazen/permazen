@@ -321,19 +321,24 @@ public final class ByteData implements Comparable<ByteData> {
     }
 
     /**
-     * Obtain an instance containing a substring of this instance.
+     * Obtain an instance containing a substring of the data contained by this instance.
      *
      * @param beginIndex starting offset (inclusive)
      * @return substring of this instance from {@code beginIndex} to the end of this instance
      * @throws IndexOutOfBoundsException if {@code beginIndex} is out of bounds
      */
     public ByteData substring(int beginIndex) {
-        Preconditions.checkArgument(beginIndex >= 0 && beginIndex <= this.size(), "index out of range");
+        if (beginIndex == 0)
+            return this;
+        final int size = this.max - this.min;
+        if (beginIndex == size)
+            return EMPTY;
+        Preconditions.checkArgument(beginIndex >= 0 && beginIndex <= size, "index out of range");
         return new ByteData(this.data, this.min + beginIndex, this.max);
     }
 
     /**
-     * Obtain an instance containing a substring of this instance.
+     * Obtain an instance containing a substring of the data contained by this instance.
      *
      * @param beginIndex starting offset (inclusive)
      * @param endIndex ending offset (exclusive)
@@ -341,7 +346,12 @@ public final class ByteData implements Comparable<ByteData> {
      * @throws IndexOutOfBoundsException if {@code beginIndex} and/or {@code endIndex} is invalid
      */
     public ByteData substring(int beginIndex, int endIndex) {
-        Objects.checkFromToIndex(beginIndex, endIndex, this.size());
+        final int size = this.max - this.min;
+        if (beginIndex == 0 && endIndex == size)
+            return this;
+        Objects.checkFromToIndex(beginIndex, endIndex, size);
+        if (beginIndex == endIndex)
+            return EMPTY;
         return new ByteData(this.data, this.min + beginIndex, this.min + endIndex);
     }
 
