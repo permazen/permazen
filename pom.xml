@@ -53,7 +53,9 @@
         <module>permazen-kv</module>
 <!--
         <module>permazen-main</module>
+-->
         <module>permazen-maven-plugin</module>
+<!--
         <module>permazen-spring</module>
 -->
         <module>permazen-test</module>
