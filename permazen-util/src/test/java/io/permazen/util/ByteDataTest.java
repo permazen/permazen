@@ -114,7 +114,7 @@ public class ByteDataTest extends TestSupport {
           .equals(Arrays.asList(0x01, 0x99, 0x01));
 
         ByteData.Reader r = data2.newReader();
-        assert r.getBytes().equals(data2);
+        assert r.getByteData().equals(data2);
         r.read();
         r.read();
         r.read();
@@ -124,7 +124,7 @@ public class ByteDataTest extends TestSupport {
         } catch (IndexOutOfBoundsException e) {
             // expected
         }
-        assert r.getBytes().equals(data2);
+        assert r.getByteData().equals(data2);
 
         ByteData.Writer w = ByteData.newWriter();
         w.write(0x01);
@@ -176,6 +176,6 @@ public class ByteDataTest extends TestSupport {
         assert r.readRemaining().equals(ByteData.of(7));
         r.unread(5);
         assert r.readRemaining().equals(data5.substring(2));
-        assert r.getBytes().equals(data5);
+        assert r.getByteData().equals(data5);
     }
 }

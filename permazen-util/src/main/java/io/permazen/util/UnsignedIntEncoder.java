@@ -238,7 +238,7 @@ public final class UnsignedIntEncoder {
             if ((r = input.read(array, off, array.length - off)) == -1)
                 throw new EOFException();
         }
-        return UnsignedIntEncoder.read(new ByteData.Reader(array));
+        return UnsignedIntEncoder.read(ByteData.of(array).newReader());
     }
 
     /**
@@ -257,7 +257,7 @@ public final class UnsignedIntEncoder {
         array[0] = first;
         if (array.length > 1)
             buf.get(array, 1, array.length - 1);
-        return UnsignedIntEncoder.read(new ByteData.Reader(array));
+        return UnsignedIntEncoder.read(ByteData.of(array).newReader());
     }
 
     /**

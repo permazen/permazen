@@ -167,7 +167,7 @@ public abstract class AbstractKVIterator<E> implements CloseableIterator<E> {
         // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
         if (this.prefixMode) {
             final KVPairIterator kvPairIterator = (KVPairIterator)this.pairIterator;
-            final ByteData prefix = keyReader.getBytes(0, keyReader.getOffset());
+            final ByteData prefix = keyReader.dataReadSoFar();
             kvPairIterator.setNextTarget(this.reversed ? prefix : ByteUtil.getKeyAfterPrefix(prefix));
         }
 

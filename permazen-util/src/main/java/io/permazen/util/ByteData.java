@@ -221,7 +221,23 @@ public final class ByteData implements Comparable<ByteData> {
      * @return data input stream
      */
     public Reader newReader() {
-        return new Reader(this);
+        return new Reader(this, this.min, this.size());
+    }
+
+    /**
+     * Create a {@link Reader} input stream from this instance starting at the given offset.
+     *
+     * <p>
+     * Equivalent to: {@code substring(off).newReader()}.
+     *
+     * @param off starting offset
+     * @return data input stream starting at offset {@code off}
+     * @throws IndexOutOfBoundsException if {@code off} is out of bounds
+     */
+    public Reader newReader(int off) {
+        final int size = this.size();
+        Preconditions.checkArgument(off >= 0 && off <= size, "invalid offset");
+        return new Reader(this, this.min + off, size - off);
     }
 
     /**
@@ -691,50 +707,26 @@ public final class ByteData implements Comparable<ByteData> {
 // Reader
 
     /**
-     * Reads out data from an underlying {@link ByteData} instance.
+     * Reads out the data from an underlying {@link ByteData} instance.
      *
      * <p>
      * Instances are thread safe and fully support {@link InputStream#available} and mark/reset.
      */
     public static final class Reader extends ByteArrayInputStream {
 
-        private final int start;
+        private final ByteData data;
 
-        private Reader(ByteData data) {
-            super(data.data, data.min, data.size());
-            this.start = data.min;
+        private Reader(ByteData data, int off, int len) {
+            super(data.data, off, len);
+            assert off >= 0 && len >= 0 && off + len >= 0 && off + len <= data.data.length;
+            this.data = data;
         }
 
         /**
-         * Constructor.
+         * Peek at the next byte, if any.
          *
-         * @param data input data buffer
-         */
-        public Reader(byte[] data) {
-            super(data);
-            Preconditions.checkArgument(data != null, "null data");
-            synchronized (this) {
-                this.start = 0;
-            }
-        }
-
-        /**
-         * Constructor.
-         *
-         * @param data input data buffer
-         * @param off starting offset into data buffer
-         * @param len number of bytes to read from data buffer
-         */
-        public Reader(byte[] data, int off, int len) {
-            super(data, off, len);
-            Preconditions.checkArgument(data != null, "null data");
-            synchronized (this) {
-                this.start = off;
-            }
-        }
-
-        /**
-         * Peek at next byte, if any.
+         * <p>
+         * This does not change the current read offset.
          *
          * @return next byte (0-255)
          * @throws IndexOutOfBoundsException if there are no more bytes
@@ -758,7 +750,10 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Unread the previously read byte. Equivalent to {@code unread(1)}.
+         * Unread the previously read byte.
+         *
+         * <p>
+         * Equivalent to {@code unread(1)}.
          *
          * @throws IndexOutOfBoundsException if zero bytes have been read
          */
@@ -767,17 +762,18 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Unread the given number of previously read bytes.
+         * Unread the specified number of previously read bytes.
+         *
+         * <p>
+         * Upon return this instance's current offset will be decremented by {@code len} bytes.
          *
          * @param len the number of bytes to unread
-         * @throws IndexOutOfBoundsException if fewer than {@code len} bytes have been read
-         * @throws IndexOutOfBoundsException if {@code len} is negative
+         * @throws IndexOutOfBoundsException if {@code len} is negative or greater than the number of bytes that have been read
          */
         public synchronized void unread(int len) {
-            if (len < 0)
-                throw new IndexOutOfBoundsException("negative length");
-            if (this.pos - len < this.start)
-                throw new IndexOutOfBoundsException("not enough previous bytes");
+            final int maxLen = this.pos - this.data.min;
+            if (len < 0 || len > maxLen)
+                throw new IndexOutOfBoundsException(String.format("invalid length %d not in the range 0..%d", len, maxLen));
             this.pos -= len;
         }
 
@@ -791,85 +787,82 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Get the current offset into the original {@link ByteData} buffer.
+         * Get the current offset into the underlying data.
          *
          * @return current offset
          */
         public synchronized int getOffset() {
-            return this.pos - this.start;
+            return this.pos - this.data.min;
         }
 
         /**
-         * Read the specified number of bytes.
+         * Read out the specified number of bytes.
          *
          * @param len number of bytes to read
          * @return bytes read
-         * @throws IndexOutOfBoundsException if fewer than {@code len} bytes remain
-         * @throws IndexOutOfBoundsException if {@code len} is negative
+         * @throws IndexOutOfBoundsException if {@code len} is negative or greater than the number of bytes remaining
          */
         public synchronized ByteData readBytes(int len) {
-            if (len < 0)
-                throw new IndexOutOfBoundsException("negative length");
-            final int newPos = this.pos + len;
-            if (newPos < 0 || newPos > this.count)
-                throw new IndexOutOfBoundsException("not enough remaining bytes");
-            final ByteData result = new ByteData(this.buf, this.pos, newPos);
-            this.pos = newPos;
+            final int offset = this.pos - this.data.min;
+            final ByteData result;
+            try {
+                result = this.data.substring(offset, offset + len);
+            } catch (IndexOutOfBoundsException e) {
+                final int maxLen = this.count - this.pos;
+                throw new IndexOutOfBoundsException(String.format("invalid length %d not in the range 0..%d", len, maxLen));
+            }
+            this.pos += len;
             return result;
         }
 
         /**
-         * Read all the of remaining bytes and advance the read position to the end.
+         * Obtain a {@link ByteData} instance containing all of the data read from this instance so far.
          *
-         * @return copy of the remaining data
+         * <p>
+         * This does not change the current read offset.
+         *
+         * @return all data read so far
+         */
+        public synchronized ByteData dataReadSoFar() {
+            return this.data.substring(0, this.pos - this.data.min);
+        }
+
+        /**
+         * Obtain a {@link ByteData} instance containing all of the data read not yet read from this instance.
+         *
+         * <p>
+         * This does not change the current read offset.
+         *
+         * @return all unread data
+         */
+        public synchronized ByteData dataNotYetRead() {
+            return this.data.substring(this.pos - this.data.min);
+        }
+
+        /**
+         * Read out all remaining bytes.
+         *
+         * <p>
+         * Upon return this instance's current offset will be positioned at the end of the data.
+         *
+         * @return bytes read
          */
         public synchronized ByteData readRemaining() {
-            return this.readBytes(this.remain());
+            final ByteData result = this.dataNotYetRead();
+            this.pos = this.count;
+            return result;
         }
 
         /**
-         * Absolute read a range of bytes from the original {@code ByteData} buffer.
+         * Obtain the {@link ByteData} instance underlying this reader.
          *
          * <p>
-         * This does not change the read position.
-         *
-         * @param off starting offset into original buffer
-         * @param len number of bytes to copy
-         * @return copy of the specified byte range
-         * @throws IndexOutOfBoundsException if {@code off} and/or {@code len} is negative or out of bounds
-         */
-        public synchronized ByteData getBytes(int off, int len) {
-            if (off < 0 || len < 0)
-                throw new IndexOutOfBoundsException("invalid off/len");
-            if ((off += this.start) < 0 || off + len < 0 || off + len > this.count)
-                throw new IndexOutOfBoundsException("not enough remaining bytes");
-            return new ByteData(this.buf, off, off + len);
-        }
-
-        /**
-         * Absolute read a range of bytes from the original {@code ByteData} buffer to the end of the buffer.
-         *
-         * <p>
-         * This does not change the read position.
-         *
-         * @param off starting offset into original buffer
-         * @return copy of the specified byte range
-         * @throws IndexOutOfBoundsException if {@code off} is out of bounds
-         */
-        public synchronized ByteData getBytes(int off) {
-            return this.getBytes(off, this.count - this.pos);
-        }
-
-        /**
-         * Absolute read all the of bytes in the original {@code ByteData} buffer.
-         *
-         * <p>
-         * This does not change the read position.
+         * This does not change the current read offset.
          *
          * @return copy of the entire buffer
          */
-        public synchronized ByteData getBytes() {
-            return new ByteData(this.buf, this.start, this.count);
+        public ByteData getByteData() {
+            return this.data;
         }
     }
 }

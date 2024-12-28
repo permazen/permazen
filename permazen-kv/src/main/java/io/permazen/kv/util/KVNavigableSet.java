@@ -118,7 +118,7 @@ public class KVNavigableSet extends AbstractKVNavigableSet<ByteData> {
 
     @Override
     protected ByteData decode(ByteData.Reader reader) {
-        return reader.getBytes();
+        return reader.readRemaining();
     }
 
     @Override

@@ -581,7 +581,7 @@ public final class LongEncoder {
             if ((r = input.read(array, off, array.length - off)) == -1)
                 throw new EOFException();
         }
-        return LongEncoder.read(new ByteData.Reader(array));
+        return LongEncoder.read(ByteData.of(array).newReader());
     }
 
     /**
@@ -600,7 +600,7 @@ public final class LongEncoder {
         array[0] = first;
         if (array.length > 1)
             buf.get(array, 1, array.length - 1);
-        return LongEncoder.read(new ByteData.Reader(array));
+        return LongEncoder.read(ByteData.of(array).newReader());
     }
 
     /**
