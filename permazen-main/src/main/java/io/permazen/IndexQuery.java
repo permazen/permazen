@@ -17,6 +17,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaId;
+import io.permazen.util.ByteData;
 import io.permazen.util.TypeTokens;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  */
 class IndexQuery {
 
-    private static final KeyRange NULL_RANGE = new KeyRange(new byte[] { (byte)0xff }, null);
+    private static final KeyRange NULL_RANGE = new KeyRange(ByteData.of(0xff), null);
 
     final PermazenSchemaItem schemaItem;            // a REPRESENTATIVE schema item
 

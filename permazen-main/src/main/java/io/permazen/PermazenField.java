@@ -16,6 +16,7 @@ import io.permazen.core.ObjType;
 import io.permazen.core.StaleTransactionException;
 import io.permazen.kv.KVDatabase;
 import io.permazen.schema.SchemaField;
+import io.permazen.util.ByteData;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -113,7 +114,7 @@ public abstract class PermazenField extends PermazenSchemaItem {
      * @return the corresonding {@link KVDatabase} key or key prefix
      * @throws IllegalArgumentException if {@code pobj} is null or has the wrong object type
      */
-    public byte[] getKey(PermazenObject pobj) {
+    public ByteData getKey(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
         return this.getSchemaItem().getKey(pobj.getObjId());
     }

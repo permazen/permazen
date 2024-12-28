@@ -59,6 +59,7 @@ import io.permazen.schema.SchemaId;
 import io.permazen.tuple.Tuple2;
 import io.permazen.tuple.Tuple3;
 import io.permazen.tuple.Tuple4;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ConvertedNavigableMap;
 import io.permazen.util.ConvertedNavigableSet;
@@ -501,7 +502,7 @@ public class PermazenTransaction {
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      * @see Transaction#getKey(ObjId) Transaction.getKey()
      */
-    public byte[] getKey(PermazenObject pobj) {
+    public ByteData getKey(PermazenObject pobj) {
         Preconditions.checkArgument(pobj != null, "null pobj");
         return this.tx.getKey(pobj.getObjId());
     }
