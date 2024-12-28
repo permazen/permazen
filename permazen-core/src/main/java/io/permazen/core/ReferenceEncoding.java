@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.NullSafeEncoding;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -88,7 +88,7 @@ public class ReferenceEncoding extends NullSafeEncoding<ObjId> {
 // Encoding
 
     @Override
-    public void write(ByteWriter writer, ObjId id) {
+    public void write(ByteData.Writer writer, ObjId id) {
         super.write(writer, this.checkAllowed(id));
     }
 

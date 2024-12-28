@@ -6,15 +6,13 @@
 package io.permazen.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Bytes;
 
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyFilterUtil;
 import io.permazen.kv.KeyRanges;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.List;
  */
 class EncodingsFilter implements KeyFilter {
 
-    private final byte[] prefix;
+    private final ByteData prefix;
     private final Encoding<?>[] encodings;
     private final KeyFilter[] filters;
 
@@ -41,16 +39,16 @@ class EncodingsFilter implements KeyFilter {
      * @param encodings encodings
      * @throws IllegalArgumentException if {@code encodings} is null
      */
-    EncodingsFilter(byte[] prefix, Encoding<?>... encodings) {
+    EncodingsFilter(ByteData prefix, Encoding<?>... encodings) {
         Preconditions.checkArgument(encodings != null, "null encodings");
-        this.prefix = prefix != null ? prefix.clone() : ByteUtil.EMPTY;
+        this.prefix = prefix != null ? prefix : ByteData.empty();
         this.encodings = encodings;
         for (Encoding<?> encoding : this.encodings)
             Preconditions.checkArgument(encoding != null, "null encoding");
         this.filters = new KeyFilter[this.encodings.length];
     }
 
-    EncodingsFilter(byte[] prefix, Encoding<?>[] encodings, KeyFilter[] filters, int start, int end) {
+    EncodingsFilter(ByteData prefix, Encoding<?>[] encodings, KeyFilter[] filters, int start, int end) {
         this(prefix, Arrays.copyOfRange(encodings, start, end));
         Preconditions.checkArgument(filters != null && filters.length == encodings.length, "bogus filters");
         for (int i = 0; i < this.encodings.length; i++)
@@ -133,37 +131,37 @@ class EncodingsFilter implements KeyFilter {
 // KeyFilter
 
     @Override
-    public boolean contains(byte[] key) {
-        final byte[] next = this.seekHigher(key);
-        assert next == null || ByteUtil.compare(next, key) >= 0;
-        return next != null && Arrays.equals(next, key);
+    public boolean contains(ByteData key) {
+        final ByteData next = this.seekHigher(key);
+        assert next == null || next.compareTo(key) >= 0;
+        return next != null && next.equals(key);
     }
 
     @Override
-    public byte[] seekHigher(byte[] key) {
+    public ByteData seekHigher(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
 
         // Check prefix
-        if (!ByteUtil.isPrefixOf(this.prefix, key)) {
-            if (ByteUtil.compare(key, this.prefix) > 0)
+        if (!key.startsWith(this.prefix)) {
+            if (key.compareTo(this.prefix) > 0)
                 return null;
             return this.prefix;
         }
 
         // Check fields
-        final ByteReader reader = new ByteReader(key, this.prefix.length);
+        final ByteData.Reader reader = key.newReader(this.prefix.size());
         for (int i = 0; i < this.encodings.length; i++) {
 
             // If zero bytes are left, we have to stop at the next key (zero bytes can never be a valid encoded field value)
             final int fieldStart = reader.getOffset();
             if (reader.remain() == 0)
-                return ByteUtil.getNextKey(reader.getBytes(0, fieldStart));
+                return ByteUtil.getNextKey(reader.dataReadSoFar());
 
             // Attempt to decode next field value
             if (!this.decodeValue(this.encodings[i], reader))
-                return ByteUtil.getNextKey(reader.getBytes(0, reader.getOffset()));
+                return ByteUtil.getNextKey(reader.dataReadSoFar());
 
             // Check filter, if any
             final KeyFilter filter = this.filters[i];
@@ -171,11 +169,11 @@ class EncodingsFilter implements KeyFilter {
                 continue;
 
             // Get the bytes corresponding to the decoded field value
-            final byte[] fieldValue = Arrays.copyOfRange(key, fieldStart, reader.getOffset());
+            final ByteData fieldValue = key.substring(fieldStart, reader.getOffset());
 
             // Determine whether those bytes are contained in this field's filter, or if not, get lower bound on next value that is
-            final byte[] next = filter.seekHigher(fieldValue);
-            assert next == null || ByteUtil.compare(next, fieldValue) >= 0;
+            final ByteData next = filter.seekHigher(fieldValue);
+            assert next == null || next.compareTo(fieldValue) >= 0;
 
             // If field value is beyond upper limit of filter, advance to the next possible value of the previous field (if any)
             if (next == null) {
@@ -183,16 +181,16 @@ class EncodingsFilter implements KeyFilter {
                     return null;
                 assert fieldStart > 0;
                 try {
-                    return ByteUtil.getKeyAfterPrefix(reader.getBytes(0, fieldStart));
+                    return ByteUtil.getKeyAfterPrefix(key.substring(0, fieldStart));
                 } catch (IllegalArgumentException e) {
                     return null;
                 }
             }
 
             // If field's filter does not contain the field value, advance to the next possible encoded value
-            if (!Arrays.equals(next, fieldValue)) {
-                final byte[] keyFromNext = Bytes.concat(reader.getBytes(0, fieldStart), next);
-                return ByteUtil.compare(keyFromNext, key) > 0 ? keyFromNext : ByteUtil.getNextKey(key);
+            if (!next.equals(fieldValue)) {
+                final ByteData keyFromNext = key.substring(0, fieldStart).concat(next);
+                return keyFromNext.compareTo(key) > 0 ? keyFromNext : ByteUtil.getNextKey(key);
             }
         }
 
@@ -201,15 +199,15 @@ class EncodingsFilter implements KeyFilter {
     }
 
     @Override
-    public byte[] seekLower(byte[] key) {
+    public ByteData seekLower(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
 
         // Check prefix and handle max upper bound
-        boolean fromTheTop = key.length == 0;
-        if (!fromTheTop && !ByteUtil.isPrefixOf(this.prefix, key)) {
-            if (ByteUtil.compare(key, this.prefix) < 0)
+        boolean fromTheTop = key.isEmpty();
+        if (!fromTheTop && !key.startsWith(this.prefix)) {
+            if (key.compareTo(this.prefix) < 0)
                 return null;
             fromTheTop = true;
         }
@@ -217,16 +215,16 @@ class EncodingsFilter implements KeyFilter {
             try {
                 return ByteUtil.getKeyAfterPrefix(this.prefix);
             } catch (IllegalArgumentException e) {
-                return ByteUtil.EMPTY;                              // prefix is empty or all 0xff's
+                return ByteData.empty();                            // prefix is empty or all 0xff's
             }
         }
 
         // Check fields in order, building a concatenated upper bound. We can only proceed from one field to the next
         // when the first field is validly decoded, the corresponding filter exists, and filter.nextLower() returns
         // the same field value we decoded. Otherwise we have to stop because any smaller field value could possibly be valid.
-        final ByteReader reader = new ByteReader(key, this.prefix.length);
-        final ByteWriter writer = new ByteWriter(key.length);
-        writer.write(key, 0, this.prefix.length);
+        final ByteData.Reader reader = key.newReader(this.prefix.size());
+        final ByteData.Writer writer = ByteData.newWriter(key.size());
+        writer.write(key.substring(0, this.prefix.size()));
         for (int i = 0; i < this.encodings.length; i++) {
             final Encoding<?> encoding = this.encodings[i];
             final KeyFilter filter = this.filters[i];
@@ -237,25 +235,25 @@ class EncodingsFilter implements KeyFilter {
             final int fieldStop = reader.getOffset();
 
             // Get (partially) decoded field value
-            final byte[] fieldValue = Arrays.copyOfRange(key, fieldStart, fieldStop);
+            final ByteData fieldValue = key.substring(fieldStart, fieldStop);
 
             // If there is no filter (or nothing to filter), stop if decode failed, otherwise proceed
-            if (filter == null || fieldValue.length == 0) {
+            if (filter == null || fieldValue.isEmpty()) {
                 writer.write(fieldValue);
                 if (!decodeOK)
                     break;
-                assert fieldValue.length > 0;
+                assert !fieldValue.isEmpty();
                 continue;
             }
 
             // Apply filter to the (partially) decoded field value; if null returned, retreat to previous field
-            final byte[] next = filter.seekLower(fieldValue);
-            assert next == null || fieldValue.length == 0 || ByteUtil.compare(next, fieldValue) <= 0;
+            final ByteData next = filter.seekLower(fieldValue);
+            assert next == null || fieldValue.isEmpty() || next.compareTo(fieldValue) <= 0;
             if (next == null)
                 break;
 
             // If filter returned a strictly lower upper bound, or decode failed, we have to stop now
-            if (!Arrays.equals(next, fieldValue) || !decodeOK) {
+            if (!next.equals(fieldValue) || !decodeOK) {
                 writer.write(next);
                 break;
             }
@@ -265,12 +263,12 @@ class EncodingsFilter implements KeyFilter {
         }
 
         // Done
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
 // Internal methods
 
-    private boolean decodeValue(Encoding<?> encoding, ByteReader reader) {
+    private boolean decodeValue(Encoding<?> encoding, ByteData.Reader reader) {
         try {
             encoding.read(reader);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {

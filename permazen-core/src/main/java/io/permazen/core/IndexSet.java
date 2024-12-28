@@ -10,6 +10,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.util.NavigableSet;
@@ -22,13 +23,13 @@ import java.util.NavigableSet;
 class IndexSet<E> extends EncodingSet<E> {
 
     // Primary constructor
-    IndexSet(KVStore kv, Encoding<E> entryType, boolean prefixMode, byte[] prefix) {
+    IndexSet(KVStore kv, Encoding<E> entryType, boolean prefixMode, ByteData prefix) {
         super(kv, entryType, prefixMode, prefix);
     }
 
     // Internal constructor
     private IndexSet(KVStore kv, Encoding<E> entryType, boolean prefixMode, boolean reversed,
-      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
+      ByteData prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
         super(kv, entryType, prefixMode, reversed, prefix, keyRange, keyFilter, bounds);
     }
 

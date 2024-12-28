@@ -12,7 +12,7 @@ import io.permazen.core.util.ObjIdMap;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.schema.SchemaField;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
@@ -25,7 +25,7 @@ public abstract class Field<T> extends SchemaItem {
 
     final ObjType objType;
     final TypeToken<T> typeToken;
-    final byte[] encodedStorageId;
+    final ByteData encodedStorageId;
 
     Field(ObjType objType, SchemaField field, TypeToken<T> typeToken) {
         super(objType.getSchema(), field, field.getName());
@@ -99,7 +99,7 @@ public abstract class Field<T> extends SchemaItem {
     public abstract boolean hasDefaultValue(Transaction tx, ObjId id);
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object.
+     * Get the key in the underlying key/value store corresponding to this field in the specified object.
      *
      * <p>
      * Notes:
@@ -114,17 +114,17 @@ public abstract class Field<T> extends SchemaItem {
      * @throws IllegalArgumentException if {@code id} is null or has the wrong object type
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id) {
+    public ByteData getKey(ObjId id) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
         Preconditions.checkArgument(id.getStorageId() == this.objType.getStorageId(), "invalid id");
 
         // Build key
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         id.writeTo(writer);
         UnsignedIntEncoder.write(writer, this.storageId);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
 // FieldSwitch
@@ -152,20 +152,20 @@ public abstract class Field<T> extends SchemaItem {
     /**
      * Build the key (or key prefix) for this field in the given object.
      */
-    byte[] buildKey(ObjId id) {
-        final ByteWriter writer = new ByteWriter(ObjId.NUM_BYTES + this.encodedStorageId.length);
+    ByteData buildKey(ObjId id) {
+        final ByteData.Writer writer = ByteData.newWriter(ObjId.NUM_BYTES + this.encodedStorageId.size());
         id.writeTo(writer);
         writer.write(this.encodedStorageId);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
      * Build the key (or key prefix) for a field with the given storage ID in the given object.
      */
-    static byte[] buildKey(ObjId id, int storageId) {
-        final ByteWriter writer = new ByteWriter(ObjId.NUM_BYTES + UnsignedIntEncoder.encodeLength(storageId));
+    static ByteData buildKey(ObjId id, int storageId) {
+        final ByteData.Writer writer = ByteData.newWriter(ObjId.NUM_BYTES + UnsignedIntEncoder.encodeLength(storageId));
         id.writeTo(writer);
         UnsignedIntEncoder.write(writer, storageId);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 }

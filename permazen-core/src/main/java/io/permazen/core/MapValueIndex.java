@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVPairIterator;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 
 import java.util.NavigableMap;
 import java.util.Set;
@@ -67,11 +67,11 @@ public class MapValueIndex<K, V> extends ComplexSubFieldIndex<NavigableMap<K, V>
 
     @Override
     @SuppressWarnings("unchecked")
-    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, ByteData prefix) {
         final EncodingMap<?, ?> fieldMap = (EncodingMap<?, ?>)tx.readMapField(referrer, this.getField().parent.name, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
-            final ByteReader reader = new ByteReader(i.next().getKey());
-            reader.skip(prefix.length);
+            final ByteData.Reader reader = i.next().getKey().newReader();
+            reader.skip(prefix.size());
             final Object key = fieldMap.keyEncoding.read(reader);
             if (remove)
                 fieldMap.remove(key);

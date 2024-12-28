@@ -7,6 +7,7 @@ package io.permazen.core;
 
 import io.permazen.core.util.XMLObjectSerializer;
 import io.permazen.kv.test.KVTestSupport;
+import io.permazen.util.ByteData;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +29,7 @@ public abstract class CoreAPITestSupport extends KVTestSupport {
     /**
      * Dump KV portion to the log.
      */
-    protected void showKV(Transaction tx, String label, byte[] minKey, byte[] maxKey) {
+    protected void showKV(Transaction tx, String label, ByteData minKey, ByteData maxKey) {
         this.showKV(tx.getKVTransaction(), label, minKey, maxKey);
     }
 

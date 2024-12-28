@@ -14,8 +14,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.schema.ListSchemaField;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +51,7 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object
+     * Get the key in the underlying key/value store corresponding to this field in the specified object
      * and the specified list index.
      *
      * @param id object ID
@@ -62,17 +61,17 @@ public class ListField<E> extends CollectionField<List<E>, E> {
      * @throws IllegalArgumentException if {@code index} is negative
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id, int index) {
+    public ByteData getKey(ObjId id, int index) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
         Preconditions.checkArgument(index >= 0, "negative index");
 
         // Build key
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         writer.write(super.getKey(id));
         Encodings.UNSIGNED_INT.write(writer, index);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @Override
@@ -121,10 +120,10 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
-    void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
+    void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteData content, ByteData value, ByteData.Writer writer) {
         assert subField == this.elementField;
         writer.write(value);
         id.writeTo(writer);
-        writer.write(reader);
+        writer.write(content);
     }
 }

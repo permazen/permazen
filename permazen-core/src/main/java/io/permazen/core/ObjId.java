@@ -8,9 +8,8 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KeyRange;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.io.Serializable;
@@ -64,12 +63,12 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
     }
 
     /**
-     * Constructor that reads an encoded instance from the given {@link ByteReader}.
+     * Constructor that reads an encoded instance from the given {@link ByteData.Reader}.
      *
      * @param reader input for binary encoding of an instance
      * @throws IllegalArgumentException if {@code reader} contains invalid data
      */
-    public ObjId(ByteReader reader) {
+    public ObjId(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null, "null reader");
         this.value = ByteUtil.readLong(reader);
         this.validateStorageId();
@@ -104,7 +103,7 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
      * @return object type storage ID
      */
     public int getStorageId() {
-        return UnsignedIntEncoder.read(new ByteReader(this.getBytes()));
+        return UnsignedIntEncoder.read(this.getBytes().newReader());
     }
 
     /**
@@ -112,10 +111,10 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
      *
      * @return binary encoding
      */
-    public byte[] getBytes() {
-        final ByteWriter writer = new ByteWriter(NUM_BYTES);
+    public ByteData getBytes() {
+        final ByteData.Writer writer = ByteData.newWriter(NUM_BYTES);
         this.writeTo(writer);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
@@ -132,7 +131,7 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
      *
      * @param writer destination
      */
-    public void writeTo(ByteWriter writer) {
+    public void writeTo(ByteData.Writer writer) {
         ByteUtil.writeLong(writer, this.value);
     }
 
@@ -167,18 +166,18 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
      */
     public static KeyRange getKeyRange(int storageId) {
         Preconditions.checkArgument(storageId > 0, "invalid non-positive storage ID");
-        final ByteWriter writer = new ByteWriter(NUM_BYTES);
+        final ByteData.Writer writer = ByteData.newWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
-        return KeyRange.forPrefix(writer.getBytes());
+        return KeyRange.forPrefix(writer.toByteData());
     }
 
     private static ObjId getFill(int storageId, int value) {
         Preconditions.checkArgument(storageId > 0, "invalid non-positive storage ID");
-        final ByteWriter writer = new ByteWriter(NUM_BYTES);
+        final ByteData.Writer writer = ByteData.newWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
-        for (int remain = NUM_BYTES - writer.getLength(); remain > 0; remain--)
-            writer.writeByte(value);
-        return new ObjId(new ByteReader(writer));
+        for (int remain = NUM_BYTES - writer.size(); remain > 0; remain--)
+            writer.write(value);
+        return new ObjId(writer.toByteData().newReader());
     }
 
 // Object
@@ -188,16 +187,7 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
      */
     @Override
     public String toString() {
-        final ByteWriter writer = new ByteWriter(NUM_BYTES);
-        this.writeTo(writer);
-        final byte[] buf = writer.getBytes();
-        final char[] result = new char[NUM_BYTES * 2];
-        int off = 0;
-        for (byte b : buf) {
-            result[off++] = Character.forDigit((b >> 4) & 0x0f, 16);
-            result[off++] = Character.forDigit(b & 0x0f, 16);
-        }
-        return new String(result);
+        return this.getBytes().toHex();
     }
 
     @Override
@@ -226,36 +216,33 @@ public final class ObjId implements Comparable<ObjId>, Serializable {
 
     @Override
     public int compareTo(ObjId that) {
-        return ByteUtil.compare(this.getBytes(), that.getBytes());
+        return Long.compareUnsigned(this.value, that.value);
     }
 
 // Internal methods
 
-    private static ByteReader buildRandom(int storageId) {
+    private static ByteData.Reader buildRandom(int storageId) {
         if (storageId <= 0)
             throw new IllegalArgumentException(String.format("invalid storage ID %d", storageId));
-        final ByteWriter writer = new ByteWriter(NUM_BYTES);
+        final ByteData.Writer writer = ByteData.newWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
-        final byte[] randomPart = new byte[NUM_BYTES - writer.getLength()];
+        final byte[] randomPart = new byte[NUM_BYTES - writer.size()];
         ObjId.RANDOM.get().nextBytes(randomPart);
         writer.write(randomPart);
-        return new ByteReader(writer);
+        return writer.toByteData().newReader();
     }
 
-    private static ByteReader parseString(String string) {
-        if (string == null)
-            throw new IllegalArgumentException("null string");
-        if (string.length() != NUM_BYTES * 2)
-            throw new IllegalArgumentException(String.format("invalid object ID \"%s\"", string));
-        final byte[] buf = new byte[NUM_BYTES];
-        int off = 0;
-        for (int i = 0; i < buf.length; i++) {
-            final int digit1 = Character.digit(string.charAt(off++), 16);
-            final int digit2 = Character.digit(string.charAt(off++), 16);
-            if (digit1 == -1 || digit2 == -1)
-                throw new IllegalArgumentException(String.format("invalid object ID \"%s\"", string));
-            buf[i] = (byte)((digit1 << 4) | digit2);
+    private static ByteData.Reader parseString(String string) {
+        Preconditions.checkArgument(string != null, "invalid object ID: null string");
+        final ByteData bytes;
+        try {
+            bytes = ByteData.fromHex(string);
+            final int size = bytes.size();
+            if (size != NUM_BYTES)
+                throw new IllegalArgumentException(String.format("wrong length %d != %d", size, NUM_BYTES));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format("invalid object ID \"%s\"", string), e);
         }
-        return new ByteReader(buf);
+        return bytes.newReader();
     }
 }

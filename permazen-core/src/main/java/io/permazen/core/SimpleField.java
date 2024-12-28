@@ -10,9 +10,8 @@ import com.google.common.base.Preconditions;
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.encoding.Encoding;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
@@ -178,14 +177,14 @@ public class SimpleField<T> extends Field<T> {
      * @return encoded value, or null if value is the default value
      * @throws IllegalArgumentException if {@code obj} cannot be encoded
      */
-    byte[] encode(Object obj) {
-        final ByteWriter writer = new ByteWriter();
+    ByteData encode(Object obj) {
+        final ByteData.Writer writer = ByteData.newWriter();
         try {
             this.encoding.validateAndWrite(writer, obj);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(String.format("can't set %s to value %s: %s", this, obj, e.getMessage()), e);
         }
-        final byte[] result = writer.getBytes();
-        return Arrays.equals(result, this.encoding.getDefaultValueBytes()) ? null : result;
+        final ByteData result = writer.toByteData();
+        return result.equals(this.encoding.getDefaultValueBytes()) ? null : result;
     }
 }

@@ -11,8 +11,7 @@ import com.google.common.collect.Lists;
 import io.permazen.encoding.AbstractEncoding;
 import io.permazen.encoding.Encoding;
 import io.permazen.encoding.EncodingId;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.Collections;
@@ -64,7 +63,7 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
 // Encoding
 
     @Override
-    public EnumValue read(ByteReader reader) {
+    public EnumValue read(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         final int ordinal = UnsignedIntEncoder.read(reader);
         try {
@@ -76,13 +75,13 @@ class EnumValueBaseEncoding extends AbstractEncoding<EnumValue> {
     }
 
     @Override
-    public void write(ByteWriter writer, EnumValue value) {
+    public void write(ByteData.Writer writer, EnumValue value) {
         Preconditions.checkArgument(writer != null);
         UnsignedIntEncoder.write(writer, this.validate(value).getOrdinal());
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         UnsignedIntEncoder.skip(reader);
     }

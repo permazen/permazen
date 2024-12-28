@@ -8,6 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.schema.SimpleSchemaField;
+import io.permazen.util.ByteData;
 
 import java.util.NavigableSet;
 
@@ -40,7 +41,7 @@ public class SetElementIndex<E> extends CollectionElementIndex<NavigableSet<E>, 
     }
 
     @Override
-    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, ByteData prefix) {
         final NavigableSet<?> set = tx.readSetField(referrer, this.getField().parent.name, false);
         set.remove(target);
         if (!remove)

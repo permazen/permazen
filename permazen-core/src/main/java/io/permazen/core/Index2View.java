@@ -9,6 +9,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.encoding.Tuple2Encoding;
 import io.permazen.kv.KeyFilter;
 import io.permazen.tuple.Tuple2;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
@@ -39,7 +40,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
      * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    Index2View(byte[] prefix, boolean prefixMode,
+    Index2View(ByteData prefix, boolean prefixMode,
       Encoding<V1> value1Encoding, Encoding<V2> value2Encoding, Encoding<T> targetEncoding) {
         super(prefix, prefixMode, value1Encoding, value2Encoding, targetEncoding);
     }
@@ -127,7 +128,7 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
 
 // Suffix view
 
-    public Index1View<V2, T> asIndex1View(byte[] keyPrefix) {
+    public Index1View<V2, T> asIndex1View(ByteData keyPrefix) {
 
         // Create IndexView
         Index1View<V2, T> indexView = new Index1View<>(keyPrefix,

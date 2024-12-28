@@ -10,6 +10,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KVTransaction;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 
 import java.util.concurrent.Future;
 
@@ -68,7 +69,7 @@ class DetachedKVTransaction extends ForwardingKVStore implements KVTransaction {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException("detached transaction");
     }
 

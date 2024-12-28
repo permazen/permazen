@@ -15,8 +15,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.schema.MapSchemaField;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ImmutableNavigableMap;
 
@@ -112,7 +111,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object
+     * Get the key in the underlying key/value store corresponding to this field in the specified object
      * and the specified map key.
      *
      * @param id object ID
@@ -121,16 +120,16 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
      * @throws IllegalArgumentException if {@code id} is null or has the wrong object type
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id, K key) {
+    public ByteData getKey(ObjId id, K key) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
 
         // Build key
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         writer.write(super.getKey(id));
         this.keyField.encoding.write(writer, key);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @Override
@@ -248,14 +247,14 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
+    void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteData content, ByteData value, ByteData.Writer writer) {
         if (subField == this.keyField) {
-            writer.write(reader);
+            writer.write(content);
             id.writeTo(writer);
         } else if (subField == this.valueField) {
             writer.write(value);
             id.writeTo(writer);
-            writer.write(reader);
+            writer.write(content);
         } else
             throw new RuntimeException("internal error");
     }

@@ -14,7 +14,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.util.NavigableMap;
@@ -26,13 +26,13 @@ import java.util.NavigableSet;
 abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
     // Primary constructor
-    private IndexMap(KVStore kv, Encoding<K> keyType, byte[] prefix) {
+    private IndexMap(KVStore kv, Encoding<K> keyType, ByteData prefix) {
         super(kv, keyType, true, prefix);
     }
 
     // Internal constructor
     private IndexMap(KVStore kv, Encoding<K> keyType, boolean reversed,
-      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
+      ByteData prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(kv, keyType, true, reversed, prefix, keyRange, keyFilter, bounds);
     }
 
@@ -56,19 +56,19 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
 
     @Override
     protected V decodeValue(KVPair pair) {
-        final ByteReader reader = new ByteReader(pair.getKey());
-        assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
-        reader.skip(this.prefix.length);
+        assert pair.getKey().startsWith(this.prefix);
+        final ByteData.Reader reader = pair.getKey().newReader();
+        reader.skip(this.prefix.size());
         this.keyEncoding.skip(reader);
-        return this.decodeValue(reader.getBytes(0, reader.getOffset()));
+        return this.decodeValue(reader.dataReadSoFar());
     }
 
     /**
      * Decode index map value.
      *
-     * @param keyPrefix the portion of the {@code byte[]} key encoding the corresponding map key
+     * @param keyPrefix the portion of the key encoding the corresponding map key
      */
-    protected abstract V decodeValue(byte[] keyPrefix);
+    protected abstract V decodeValue(ByteData keyPrefix);
 
 // OfValues
 
@@ -103,7 +103,7 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
     // IndexMap
 
         @Override
-        protected NavigableSet<E> decodeValue(byte[] keyPrefix) {
+        protected NavigableSet<E> decodeValue(ByteData keyPrefix) {
             IndexSet<E> indexSet = new IndexSet<>(this.kv,
               this.indexView.getTargetEncoding(), this.indexView.prefixMode, keyPrefix);
             final KeyFilter targetFilter = this.indexView.getFilter(1);
@@ -148,7 +148,7 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
     // IndexMap
 
         @Override
-        protected CoreIndex1<V2, T> decodeValue(byte[] keyPrefix) {
+        protected CoreIndex1<V2, T> decodeValue(ByteData keyPrefix) {
             return new CoreIndex1<>(this.kv, this.indexView.asIndex1View(keyPrefix));
         }
     }
@@ -186,7 +186,7 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
     // IndexMap
 
         @Override
-        protected CoreIndex2<V2, V3, T> decodeValue(byte[] keyPrefix) {
+        protected CoreIndex2<V2, V3, T> decodeValue(ByteData keyPrefix) {
             return new CoreIndex2<>(this.kv, this.indexView.asIndex2View(keyPrefix));
         }
     }
@@ -224,7 +224,7 @@ abstract class IndexMap<K, V> extends EncodingMap<K, V> {
     // IndexMap
 
         @Override
-        protected CoreIndex3<V2, V3, V4, T> decodeValue(byte[] keyPrefix) {
+        protected CoreIndex3<V2, V3, V4, T> decodeValue(ByteData keyPrefix) {
             return new CoreIndex3<>(this.kv, this.indexView.asIndex3View(keyPrefix));
         }
     }

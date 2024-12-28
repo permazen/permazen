@@ -11,10 +11,8 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -52,8 +50,8 @@ class JSMap<K, V> extends EncodingMap<K, V> {
 
     @Override
     public V put(final K keyObj, final V valueObj) {
-        final byte[] key;
-        final byte[] value;
+        final ByteData key;
+        final ByteData value;
         try {
             key = this.encodeVisibleKey(keyObj, true);
             value = this.encodeValue(valueObj);
@@ -64,7 +62,7 @@ class JSMap<K, V> extends EncodingMap<K, V> {
         return this.tx.mutateAndNotify(this.id, () -> this.doPut(keyObj, valueObj, key, value));
     }
 
-    private V doPut(final K keyObj, final V newValueObj, byte[] key, byte[] newValue) {
+    private V doPut(final K keyObj, final V newValueObj, ByteData key, ByteData newValue) {
 
         // Check for deleted assignment of key and/or value
         if (this.field.keyField instanceof ReferenceField)
@@ -73,7 +71,7 @@ class JSMap<K, V> extends EncodingMap<K, V> {
             this.tx.checkDeletedAssignment(this.id, (ReferenceField)this.field.valueField, (ObjId)newValueObj);
 
         // Get old value, if any
-        final byte[] oldValue = this.tx.kvt.get(key);
+        final ByteData oldValue = this.tx.kvt.get(key);
         final V oldValueObj;
         if (oldValue != null) {
 
@@ -81,7 +79,7 @@ class JSMap<K, V> extends EncodingMap<K, V> {
             oldValueObj = this.decodeValue(new KVPair(key, oldValue));
 
             // Optimize if no change
-            if (Arrays.equals(newValue, oldValue))
+            if (newValue.equals(oldValue))
                 return oldValueObj;
 
             // Remove index entries for old value
@@ -114,17 +112,17 @@ class JSMap<K, V> extends EncodingMap<K, V> {
 
     @Override
     public V remove(Object keyObj) {
-        final byte[] key = this.encodeVisibleKey(keyObj, false);
+        final ByteData key = this.encodeVisibleKey(keyObj, false);
         if (key == null)
             return null;
         final K canonicalKey = this.keyEncoding.validate(keyObj);
         return this.tx.mutateAndNotify(this.id, () -> this.doRemove(canonicalKey, key));
     }
 
-    private V doRemove(final K keyObj, byte[] key) {
+    private V doRemove(final K keyObj, ByteData key) {
 
         // Get old value, if any
-        final byte[] oldValue = this.tx.kvt.get(key);
+        final ByteData oldValue = this.tx.kvt.get(key);
         if (oldValue == null)
             return null;
         final V valueObj = this.decodeValue(new KVPair(key, oldValue));
@@ -169,8 +167,8 @@ class JSMap<K, V> extends EncodingMap<K, V> {
         }
 
         // Get key range
-        final byte[] rangeMinKey = this.keyRange.getMin();
-        final byte[] rangeMaxKey = this.keyRange.getMax();
+        final ByteData rangeMinKey = this.keyRange.getMin();
+        final ByteData rangeMaxKey = this.keyRange.getMax();
 
         // Delete index entries
         if (this.field.keyField.indexed)
@@ -192,14 +190,14 @@ class JSMap<K, V> extends EncodingMap<K, V> {
         return new JSMap<>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
-    private byte[] encodeValue(Object obj) {
-        final ByteWriter writer = new ByteWriter();
+    private ByteData encodeValue(Object obj) {
+        final ByteData.Writer writer = ByteData.newWriter();
         this.field.valueField.encoding.validateAndWrite(writer, obj);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @Override
     protected V decodeValue(KVPair pair) {
-        return this.field.valueField.encoding.read(new ByteReader(pair.getValue()));
+        return this.field.valueField.encoding.read(pair.getValue().newReader());
     }
 }

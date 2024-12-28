@@ -13,19 +13,16 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRanges;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ImmutableNavigableMap;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -360,9 +357,12 @@ public class SchemaBundle {
         schemaModel.validate();
         final SchemaId schemaId = schemaModel.getSchemaId();
 
+        // Debug
+        //this.log.info("*** BEFORE ADD SCHEMA \"{}\" @ {}:{}", schemaId, schemaIndex, "\n" + this.encoded);
+
         // Copy this instance's encoded tables
-        final TreeMap<Integer, byte[]> schemaBytes = new TreeMap<>(this.encoded.getSchemaBytes());
-        final TreeMap<Integer, byte[]> storageIdBytes = new TreeMap<>(this.encoded.getStorageIdBytes());
+        final TreeMap<Integer, ByteData> schemaBytes = new TreeMap<>(this.encoded.getSchemaBytes());
+        final TreeMap<Integer, ByteData> storageIdBytes = new TreeMap<>(this.encoded.getStorageIdBytes());
         final HashMap<SchemaId, Integer> newStorageIdsBySchemaId = new HashMap<>(this.storageIdsBySchemaId);
 
         // Track whether anything actually changes
@@ -373,9 +373,9 @@ public class SchemaBundle {
         if (schemaIsNew) {
 
             // Encode schema model
-            final ByteWriter writer = new ByteWriter();
+            final ByteData.Writer writer = ByteData.newWriter();
             Layout.encodeSchema(writer, schemaModel);
-            final byte[] encodedSchema = writer.getBytes();
+            final ByteData encodedSchema = writer.toByteData();
 
             // Add to schema table
             if (schemaIndex == 0)
@@ -412,17 +412,17 @@ public class SchemaBundle {
             }
 
             // Encode this item's schema ID
-            final ByteWriter idWriter = new ByteWriter();
+            final ByteData.Writer idWriter = ByteData.newWriter();
             Encodings.STRING.write(idWriter, itemSchemaId.getId());
-            final byte[] encodedItemSchemaId = idWriter.getBytes();
+            final ByteData encodedItemSchemaId = idWriter.toByteData();
 
             // If item has an explicit storage ID, check it doesn't conflict with any existing assignments and assign it
             if (modelStorageId != 0) {
-                final byte[] prevSchemaIdBytes = storageIdBytes.put(modelStorageId, encodedItemSchemaId);
-                if (prevSchemaIdBytes != null && !Arrays.equals(prevSchemaIdBytes, encodedItemSchemaId)) {
+                final ByteData prevSchemaIdBytes = storageIdBytes.put(modelStorageId, encodedItemSchemaId);
+                if (prevSchemaIdBytes != null && !prevSchemaIdBytes.equals(encodedItemSchemaId)) {
 
                     // Decode the conflicting schema ID
-                    final SchemaId prevSchemaId = new SchemaId(Encodings.STRING.read(new ByteReader(prevSchemaIdBytes)));
+                    final SchemaId prevSchemaId = new SchemaId(Encodings.STRING.read(prevSchemaIdBytes.newReader()));
 
                     // Get a random example schema item that is using this schema ID
                     final SchemaItem prevItem = this.schemaItemsBySchemaId.get(prevSchemaId);
@@ -471,8 +471,8 @@ public class SchemaBundle {
         Preconditions.checkArgument(schema != null, "schema not found");
 
         // Copy this instance's encoded tables
-        final TreeMap<Integer, byte[]> schemaBytes = new TreeMap<>(this.encoded.getSchemaBytes());
-        final TreeMap<Integer, byte[]> storageIdBytes = new TreeMap<>(this.encoded.getStorageIdBytes());
+        final TreeMap<Integer, ByteData> schemaBytes = new TreeMap<>(this.encoded.getSchemaBytes());
+        final TreeMap<Integer, ByteData> storageIdBytes = new TreeMap<>(this.encoded.getStorageIdBytes());
 
         // Get schema's table index
         final int schemaIndex = schema.getSchemaIndex();
@@ -678,8 +678,8 @@ public class SchemaBundle {
      */
     public static class Encoded {
 
-        private final ImmutableNavigableMap<Integer, byte[]> schemaBytes;
-        private final ImmutableNavigableMap<Integer, byte[]> storageIdBytes;
+        private final ImmutableNavigableMap<Integer, ByteData> schemaBytes;
+        private final ImmutableNavigableMap<Integer, ByteData> storageIdBytes;
 
     // Constructors
 
@@ -690,7 +690,7 @@ public class SchemaBundle {
          * @param storageIdBytes encoded storage ID table
          * @throws IllegalArgumentException if either parameter is null
          */
-        public Encoded(NavigableMap<Integer, byte[]> schemaBytes, NavigableMap<Integer, byte[]> storageIdBytes) {
+        public Encoded(NavigableMap<Integer, ByteData> schemaBytes, NavigableMap<Integer, ByteData> storageIdBytes) {
 
             // Sanity check
             Preconditions.checkArgument(schemaBytes != null, "null schemaBytes");
@@ -704,9 +704,6 @@ public class SchemaBundle {
         /**
          * Copy constructor.
          *
-         * <p>
-         * This performs a deep copy of the {@code byte[]} arrays in the original.
-         *
          * @param original instance to copy
          * @throws IllegalArgumentException if {@code original} is null
          */
@@ -714,12 +711,6 @@ public class SchemaBundle {
             Preconditions.checkArgument(original != null, "null original");
             this.schemaBytes = new ImmutableNavigableMap<>(original.schemaBytes);
             this.storageIdBytes = new ImmutableNavigableMap<>(original.storageIdBytes);
-            this.copyByteArrays(this.schemaBytes);
-            this.copyByteArrays(this.storageIdBytes);
-        }
-
-        private void copyByteArrays(NavigableMap<Integer, byte[]> table) {
-            table.entrySet().forEach(entry -> entry.setValue(entry.getValue().clone()));
         }
 
     // Accessors
@@ -729,7 +720,7 @@ public class SchemaBundle {
          *
          * @return encoded table mapping schema index to {@link SchemaModel}
          */
-        public NavigableMap<Integer, byte[]> getSchemaBytes() {
+        public NavigableMap<Integer, ByteData> getSchemaBytes() {
             return this.schemaBytes;
         }
 
@@ -738,7 +729,7 @@ public class SchemaBundle {
          *
          * @return encoded table mapping storage ID to {@link SchemaId}
          */
-        public NavigableMap<Integer, byte[]> getStorageIdBytes() {
+        public NavigableMap<Integer, ByteData> getStorageIdBytes() {
             return this.storageIdBytes;
         }
 
@@ -757,23 +748,23 @@ public class SchemaBundle {
             Preconditions.checkArgument(kv != null, "null kv");
 
             // Initialize
-            final TreeMap<Integer, byte[]> schemaBytes = new TreeMap<>();
-            final TreeMap<Integer, byte[]> storageIdBytes = new TreeMap<>();
+            final TreeMap<Integer, ByteData> schemaBytes = new TreeMap<>();
+            final TreeMap<Integer, ByteData> storageIdBytes = new TreeMap<>();
 
             // Read tables
-            final byte[] schemaPrefix = Layout.getSchemaTablePrefix();
-            final byte[] storageIdPrefix = Layout.getStorageIdTablePrefix();
-            final byte[] endOfStorageIdTable = ByteUtil.getKeyAfterPrefix(storageIdPrefix);
+            final ByteData schemaPrefix = Layout.getSchemaTablePrefix();
+            final ByteData storageIdPrefix = Layout.getStorageIdTablePrefix();
+            final ByteData endOfStorageIdTable = ByteUtil.getKeyAfterPrefix(storageIdPrefix);
             try (CloseableIterator<KVPair> i = kv.getRange(schemaPrefix, endOfStorageIdTable)) {
                 while (i.hasNext()) {
                     final KVPair pair = i.next();
-                    final byte[] key = pair.getKey();
+                    final ByteData key = pair.getKey();
 
                     // Which table are we reading now?
-                    final boolean storageIds = ByteUtil.isPrefixOf(storageIdPrefix, key);
+                    final boolean storageIds = key.startsWith(storageIdPrefix);
 
                     // Parse this entry's index (schema index or storage ID)
-                    final ByteReader reader = new ByteReader(key, storageIds ? storageIdPrefix.length : schemaPrefix.length);
+                    final ByteData.Reader reader = key.newReader(storageIds ? storageIdPrefix.size() : schemaPrefix.size());
                     final int index = UnsignedIntEncoder.read(reader);
                     if (index <= 0) {
                         throw new InconsistentDatabaseException(String.format(
@@ -808,7 +799,7 @@ public class SchemaBundle {
             this.writeTable(kv, Layout.getStorageIdTablePrefix(), this.storageIdBytes);
         }
 
-        private void writeTable(KVStore kv, byte[] prefix, NavigableMap<Integer, byte[]> table) {
+        private void writeTable(KVStore kv, ByteData prefix, NavigableMap<Integer, ByteData> table) {
             table.forEach((index, bytes) -> kv.put(Layout.buildTableKey(prefix, index), bytes));
         }
 
@@ -826,9 +817,9 @@ public class SchemaBundle {
             assert schemaBundle.schemaIdsByStorageId.isEmpty();
 
             // Decode the Storage ID Table
-            for (Map.Entry<Integer, byte[]> entry : storageIdBytes.entrySet()) {
+            for (Map.Entry<Integer, ByteData> entry : storageIdBytes.entrySet()) {
                 final int storageId = entry.getKey();
-                final ByteReader reader = new ByteReader(entry.getValue());
+                final ByteData.Reader reader = entry.getValue().newReader();
                 assert storageId > 0;
 
                 // Decode schema ID
@@ -860,17 +851,15 @@ public class SchemaBundle {
             assert schemaBundle.schemasBySchemaIndex.isEmpty();
 
             // Decode the Schema Table
-            for (Map.Entry<Integer, byte[]> entry : this.schemaBytes.entrySet()) {
+            for (Map.Entry<Integer, ByteData> entry : this.schemaBytes.entrySet()) {
                 final int schemaIndex = entry.getKey();
-                final ByteReader reader = new ByteReader(entry.getValue());
+                final ByteData schemaData = entry.getValue();
                 assert schemaIndex > 0;
 
                 // Decode schema model
                 final SchemaModel schemaModel;
                 try {
-                    schemaModel = Layout.decodeSchema(reader);
-                    if (reader.remain() > 0)
-                        throw new InvalidSchemaException("entry contains trailing garbage");
+                    schemaModel = Layout.decodeSchema(schemaData);
                 } catch (InvalidSchemaException e) {
                     throw new IllegalArgumentException(String.format(
                       "invalid encoded schema at schema index %d: %s", schemaIndex, e.getMessage()), e);
@@ -894,7 +883,7 @@ public class SchemaBundle {
 
         @Override
         public int hashCode() {
-            return Encoded.hashMap(this.schemaBytes) ^ Encoded.hashMap(this.storageIdBytes);
+            return this.schemaBytes.hashCode() ^ this.storageIdBytes.hashCode();
         }
 
         @Override
@@ -904,8 +893,8 @@ public class SchemaBundle {
             if (obj == null || obj.getClass() != this.getClass())
                 return false;
             final Encoded that = (Encoded)obj;
-            return Encoded.equalMaps(this.schemaBytes, that.schemaBytes)
-              && Encoded.equalMaps(this.storageIdBytes, that.storageIdBytes);
+            return this.schemaBytes.equals(that.schemaBytes)
+              && this.storageIdBytes.equals(that.storageIdBytes);
         }
 
         // For debugging
@@ -915,14 +904,14 @@ public class SchemaBundle {
             for (int i = 0; i < 2; i++) {
                 final boolean schemaTable = i == 0;
                 final String label = schemaTable ? "Schema Table" : "Storage ID Table";
-                final NavigableMap<Integer, byte[]> map = schemaTable ? schemaBytes : storageIdBytes;
+                final NavigableMap<Integer, ByteData> map = schemaTable ? schemaBytes : storageIdBytes;
                 buf.append(label).append(':');
                 map.forEach((index, data) -> {
                     buf.append(String.format("%n%d: %s", index, ByteUtil.toString(data)));
                     if (!schemaTable) {           // decode the SchemaId
                         try {
                             buf.append(String.format(" (%s)",
-                              Encodings.STRING.toString(Encodings.STRING.read(new ByteReader(data)))));
+                              Encodings.STRING.toString(Encodings.STRING.read(data.newReader()))));
                         } catch (IllegalArgumentException e) {
                             buf.append(String.format(" (can't decode: %s)", e));
                         }
@@ -932,37 +921,6 @@ public class SchemaBundle {
                     buf.append('\n');
             }
             return buf.toString();
-        }
-
-        private static int hashMap(NavigableMap<Integer, byte[]> map) {
-            int hash = 0;
-            for (Map.Entry<Integer, byte[]> entry : map.entrySet()) {
-                hash ^= entry.getKey();
-                hash ^= Arrays.hashCode(entry.getValue());
-            }
-            return hash;
-        }
-
-        private static boolean equalMaps(NavigableMap<Integer, byte[]> map1, NavigableMap<Integer, byte[]> map2) {
-            if (map1 == map2)
-                return true;
-            if (map1.size() != map2.size())
-                return false;
-            final Iterator<Map.Entry<Integer, byte[]>> i1 = map1.entrySet().iterator();
-            final Iterator<Map.Entry<Integer, byte[]>> i2 = map2.entrySet().iterator();
-            while (i1.hasNext()) {
-                final Map.Entry<Integer, byte[]> entry1 = i1.next();
-                final Map.Entry<Integer, byte[]> entry2 = i2.next();
-                final int key1 = entry1.getKey();
-                final int key2 = entry2.getKey();
-                if (key1 != key2)
-                    return false;
-                final byte[] value1 = entry1.getValue();
-                final byte[] value2 = entry2.getValue();
-                if (!Arrays.equals(value1, value2))
-                    return false;
-            }
-            return true;
         }
     }
 }

@@ -21,16 +21,14 @@ import io.permazen.kv.util.CloseableForwardingKVStore;
 import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ImmutableNavigableMap;
 import io.permazen.util.NavigableSets;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -943,13 +942,13 @@ public class Transaction {
         assert Thread.holdsLock(this);
 
         // Create a new, unique key
-        final ByteWriter keyWriter = new ByteWriter();
+        final ByteData.Writer keyWriter = ByteData.newWriter();
         for (int attempts = 0; attempts < MAX_GENERATED_KEY_ATTEMPTS; attempts++) {
             final ObjId id = new ObjId(storageId);
             id.writeTo(keyWriter);
-            if (this.kvt.get(keyWriter.getBytes()) == null)
+            if (this.kvt.get(keyWriter.toByteData()) == null)
                 return id;
-            keyWriter.reset(0);
+            keyWriter.reset();
         }
 
         // Give up
@@ -973,7 +972,7 @@ public class Transaction {
         this.updateObjInfo(id, schema.getSchemaIndex(), schema, objType);
 
         // Write object schema index entry
-        this.kvt.put(Layout.buildSchemaIndexKey(id, schema.getSchemaIndex()), ByteUtil.EMPTY);
+        this.kvt.put(Layout.buildSchemaIndexKey(id, schema.getSchemaIndex()), ByteData.empty());
 
         // Initialize counters to zero
         if (!objType.counterFields.isEmpty()) {
@@ -983,11 +982,11 @@ public class Transaction {
 
         // Write simple field index entries
         objType.indexedSimpleFields
-          .forEach(field -> this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY));
+          .forEach(field -> this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteData.empty()));
 
         // Write composite index entries
         for (CompositeIndex index : objType.compositeIndexes.values())
-            this.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteUtil.EMPTY);
+            this.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteData.empty());
 
         // Notify listeners
         if (!this.disableListenerNotifications && this.createListeners != null) {
@@ -1170,8 +1169,8 @@ public class Transaction {
             field.removeIndexEntries(this, id);
 
         // Delete object meta-data and all field content
-        final byte[] minKey = info.getId().getBytes();
-        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
+        final ByteData minKey = info.getId().getBytes();
+        final ByteData maxKey = ByteUtil.getKeyAfterPrefix(minKey);
         this.kvt.removeRange(minKey, maxKey);
 
         // Delete object's schema index entry
@@ -1398,34 +1397,32 @@ public class Transaction {
 
             // Copy object meta-data and all field content in one key range sweep
             final KeyRange srcKeyRange = KeyRange.forPrefix(srcId.getBytes());
-            final ByteWriter dstWriter = new ByteWriter();
+            final ByteData.Writer dstWriter = ByteData.newWriter();
             dstWriter.write(dstId.getBytes());
-            final int dstMark = dstWriter.mark();
+            final int dstMark = dstWriter.size();
             try (CloseableIterator<KVPair> i = srcTx.kvt.getRange(srcKeyRange)) {
                 while (i.hasNext()) {
                     final KVPair kv = i.next();
                     assert srcKeyRange.contains(kv.getKey());
-                    final ByteReader srcReader = new ByteReader(kv.getKey());
-                    srcReader.skip(ObjId.NUM_BYTES);
-                    dstWriter.reset(dstMark);
-                    dstWriter.write(srcReader);
-                    dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
+                    dstWriter.truncate(dstMark);
+                    dstWriter.write(kv.getKey().substring(ObjId.NUM_BYTES));
+                    dstTx.kvt.put(dstWriter.toByteData(), kv.getValue());
                 }
             }
 
             // Add schema index entry
-            dstTx.kvt.put(Layout.buildSchemaIndexKey(dstId, dstSchema.getSchemaIndex()), ByteUtil.EMPTY);
+            dstTx.kvt.put(Layout.buildSchemaIndexKey(dstId, dstSchema.getSchemaIndex()), ByteData.empty());
 
             // Create object's simple (non-subfield) field index entries
             for (SimpleField<?> field : dstType.indexedSimpleFields) {
-                final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
-                final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
-                dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
+                final ByteData fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
+                final ByteData indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
+                dstTx.kvt.put(indexKey, ByteData.empty());
             }
 
             // Create object's composite index entries
             for (CompositeIndex index : dstType.compositeIndexes.values())
-                dstTx.kvt.put(Transaction.buildCompositeIndexEntry(dstTx, dstId, index), ByteUtil.EMPTY);
+                dstTx.kvt.put(Transaction.buildCompositeIndexEntry(dstTx, dstId, index), ByteData.empty());
 
             // Create object's complex field index entries
             for (ComplexField<?> field : dstType.complexFields.values()) {
@@ -1496,7 +1493,7 @@ public class Transaction {
         if (this.deleteMonitors == null)
             this.deleteMonitors = new LongMap<>();
         for (int objTypeStorageId : this.schemaBundle.getObjTypeStorageIds()) {
-            final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+            final ByteData objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
             if (new DeleteMonitorPredicate(objTypeBytes).test(monitor))
                 this.deleteMonitors.computeIfAbsent((long)objTypeStorageId, i -> new HashSet<>(3)).add(monitor);
         }
@@ -1520,7 +1517,7 @@ public class Transaction {
         if (this.deleteMonitors != null) {
             final DeleteMonitor monitor = new DeleteMonitor(path, filters, listener);
             for (int objTypeStorageId : this.schemaBundle.getObjTypeStorageIds()) {
-                final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+                final ByteData objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
                 if (new DeleteMonitorPredicate(objTypeBytes).test(monitor))
                     this.removeFromMappedSet(this.deleteMonitors, objTypeStorageId, monitor);
             }
@@ -1682,10 +1679,10 @@ public class Transaction {
                     @Override
                     @SuppressWarnings("shadow")
                     public <T> Void caseSimpleField(SimpleField<T> oldField) {
-                        final byte[] key = Field.buildKey(id, oldField.storageId);
-                        final byte[] oldValue = Transaction.this.kvt.get(key);
+                        final ByteData key = Field.buildKey(id, oldField.storageId);
+                        final ByteData oldValue = Transaction.this.kvt.get(key);
                         oldValueMap.put(oldField.name, oldValue != null ?
-                          oldField.encoding.read(new ByteReader(oldValue)) : oldField.encoding.getDefaultValue());
+                          oldField.encoding.read(oldValue.newReader()) : oldField.encoding.getDefaultValue());
                         return null;
                     }
 
@@ -1699,8 +1696,8 @@ public class Transaction {
                     @Override
                     @SuppressWarnings("shadow")
                     public Void caseCounterField(CounterField oldField) {
-                        final byte[] key = Field.buildKey(id, oldField.storageId);
-                        final byte[] oldValue = Transaction.this.kvt.get(key);
+                        final ByteData key = Field.buildKey(id, oldField.storageId);
+                        final ByteData oldValue = Transaction.this.kvt.get(key);
                         oldValueMap.put(oldField.name, oldValue != null ? Transaction.this.kvt.decodeCounter(oldValue) : 0L);
                         return null;
                     }
@@ -1742,14 +1739,14 @@ public class Transaction {
                     final boolean reset = newField == null;
 
                     // Add/remove indexes as needed
-                    final byte[] key = Field.buildKey(id, oldField.storageId);
+                    final ByteData key = Field.buildKey(id, oldField.storageId);
                     if (oldField.indexed && (reset || !newField.indexed)) {
-                        final byte[] value = Transaction.this.kvt.get(key);
+                        final ByteData value = Transaction.this.kvt.get(key);
                         Transaction.this.kvt.remove(Transaction.buildSimpleIndexEntry(oldField, id, value));
                     }
                     if (newField != null && newField.indexed && (reset || !oldField.indexed)) {
-                        final byte[] value = !reset ? Transaction.this.kvt.get(key) : null;
-                        Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, value), ByteUtil.EMPTY);
+                        final ByteData value = !reset ? Transaction.this.kvt.get(key) : null;
+                        Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, value), ByteData.empty());
                     }
 
                     // Reset field value if needed
@@ -1818,7 +1815,7 @@ public class Transaction {
                 @SuppressWarnings("shadow")
                 public <T> Void caseSimpleField(SimpleField<T> newField) {
                     if (newField.indexed)
-                        Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, null), ByteUtil.EMPTY);
+                        Transaction.this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, null), ByteData.empty());
                     return null;
                 }
 
@@ -1831,7 +1828,7 @@ public class Transaction {
                 @Override
                 @SuppressWarnings("shadow")
                 public Void caseCounterField(CounterField newField) {
-                    final byte[] key = Field.buildKey(id, newField.storageId);
+                    final ByteData key = Field.buildKey(id, newField.storageId);
                     Transaction.this.kvt.put(key, Transaction.this.kvt.encodeCounter(0L));
                     return null;
                 }
@@ -1844,7 +1841,7 @@ public class Transaction {
         newType.compositeIndexes.forEach((name, newIndex) -> {
             final Index oldIndex = oldType.compositeIndexes.get(name);
             if (oldIndex == null || !oldIndex.getSchemaId().equals(newIndex.getSchemaId()))
-                this.kvt.put(this.buildCompositeIndexEntry(id, newIndex), ByteUtil.EMPTY);
+                this.kvt.put(this.buildCompositeIndexEntry(id, newIndex), ByteData.empty());
         });
 
     //////// Update object schema and corresponding schema index entry
@@ -1856,7 +1853,7 @@ public class Transaction {
         // Update object schema index entry
         final int oldSchemaIndex = oldSchema.getSchemaIndex();
         this.kvt.remove(Layout.buildSchemaIndexKey(id, oldSchemaIndex));
-        this.kvt.put(Layout.buildSchemaIndexKey(id, newSchemaIndex), ByteUtil.EMPTY);
+        this.kvt.put(Layout.buildSchemaIndexKey(id, newSchemaIndex), ByteData.empty());
 
     //////// Notify listeners
 
@@ -2039,11 +2036,11 @@ public class Transaction {
             throw new UnknownFieldException(info.getObjType(), name, "simple field");
 
         // Read field
-        final byte[] key = field.buildKey(id);
-        final byte[] value = this.kvt.get(key);
+        final ByteData key = field.buildKey(id);
+        final ByteData value = this.kvt.get(key);
 
         // Decode value
-        return value != null ? field.encoding.read(new ByteReader(value)) : field.encoding.getDefaultValue();
+        return value != null ? field.encoding.read(value.newReader()) : field.encoding.getDefaultValue();
     }
 
     /**
@@ -2086,13 +2083,13 @@ public class Transaction {
             this.checkDeletedAssignment(id, (ReferenceField)field, (ObjId)newObj);
 
         // Get new value
-        final byte[] key = field.buildKey(id);
-        final byte[] newValue = field.encode(newObj);
+        final ByteData key = field.buildKey(id);
+        final ByteData newValue = field.encode(newObj);
 
         // Before setting the new value, read the old value if one of the following is true:
         //  - The field is being monitored -> we need to filter out "changes" that don't actually change anything
         //  - The field is indexed -> we need the old value so we can remove the old index entry
-        byte[] oldValue = null;
+        ByteData oldValue = null;
         if (field.indexed
           || field.compositeIndexMap != null
           || (!this.disableListenerNotifications && this.hasFieldMonitor(id, field.storageId))) {
@@ -2101,7 +2098,7 @@ public class Transaction {
             oldValue = this.kvt.get(key);
 
             // Compare new to old value
-            if (oldValue != null ? newValue != null && Arrays.equals(oldValue, newValue) : newValue == null)
+            if (Objects.equals(oldValue, newValue))
                 return;
         }
 
@@ -2114,7 +2111,7 @@ public class Transaction {
         // Update simple index, if any
         if (field.indexed) {
             this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, oldValue));
-            this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, newValue), ByteUtil.EMPTY);
+            this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, newValue), ByteData.empty());
         }
 
         // Update affected composite indexes, if any
@@ -2122,44 +2119,51 @@ public class Transaction {
             for (CompositeIndex index : field.compositeIndexMap.keySet()) {
 
                 // Build old composite index entry
-                final ByteWriter oldWriter = new ByteWriter();
+                final ByteData.Writer oldWriter = ByteData.newWriter();
                 UnsignedIntEncoder.write(oldWriter, index.storageId);
                 int fieldStart = -1;
                 int fieldEnd = -1;
                 for (SimpleField<?> otherField : index.fields) {
-                    final byte[] otherValue;
-                    if (otherField == field) {
-                        fieldStart = oldWriter.getLength();
+                    final ByteData otherValue;
+                    if (otherField == field) {                                      // end of index entry prefix
+                        fieldStart = oldWriter.size();
                         otherValue = oldValue;
                     } else
                         otherValue = this.kvt.get(otherField.buildKey(id));         // can be null (if field has default value)
-                    oldWriter.write(otherValue != null ? otherValue : otherField.encoding.getDefaultValueBytes());
-                    if (otherField == field)
-                        fieldEnd = oldWriter.getLength();
+                    final ByteData otherValueEncoded = otherValue != null ? otherValue : otherField.encoding.getDefaultValueBytes();
+                    oldWriter.write(otherValueEncoded);
+                    if (otherField == field)                                        // start of index entry suffix
+                        fieldEnd = oldWriter.size();
                 }
                 assert fieldStart != -1;
                 assert fieldEnd != -1;
                 id.writeTo(oldWriter);
 
                 // Remove old composite index entry
-                final byte[] oldIndexEntry = oldWriter.getBytes();
+                final ByteData oldIndexEntry = oldWriter.toByteData();
                 this.kvt.remove(oldIndexEntry);
 
-                // Patch in new field value to create new composite index entry
-                final ByteWriter newWriter = new ByteWriter(oldIndexEntry.length);
-                newWriter.write(oldIndexEntry, 0, fieldStart);
-                newWriter.write(newValue != null ? newValue : field.encoding.getDefaultValueBytes());
-                newWriter.write(oldIndexEntry, fieldEnd, oldIndexEntry.length - fieldEnd);
+                // Capture the index entry's prefix and suffix which surround the field value
+                final ByteData indexEntryPrefix = oldIndexEntry.substring(0, fieldStart);
+                final ByteData indexEntrySuffix = oldIndexEntry.substring(fieldEnd);
+
+                // Build the new composite index entry
+                final ByteData newValueEncoded = newValue != null ? newValue : field.encoding.getDefaultValueBytes();
+                final ByteData.Writer newWriter = ByteData.newWriter(
+                  indexEntryPrefix.size() + newValueEncoded.size() + indexEntrySuffix.size());
+                newWriter.write(indexEntryPrefix);
+                newWriter.write(newValueEncoded);
+                newWriter.write(indexEntrySuffix);
 
                 // Add new composite index entry
-                this.kvt.put(newWriter.getBytes(), ByteUtil.EMPTY);
+                final ByteData newIndexEntry = newWriter.toByteData();
+                this.kvt.put(newIndexEntry, ByteData.empty());
             }
         }
 
         // Notify monitors
         if (!this.disableListenerNotifications) {
-            final Object oldObj = oldValue != null ?
-              field.encoding.read(new ByteReader(oldValue)) : field.encoding.getDefaultValue();
+            final Object oldObj = oldValue != null ? field.encoding.read(oldValue.newReader()) : field.encoding.getDefaultValue();
             this.addSimpleFieldChangeNotification(field, id, oldObj, newObj);
         }
     }
@@ -2217,15 +2221,16 @@ public class Transaction {
      * @param value encoded field value, or null for default value
      * @return index key
      */
-    private static byte[] buildSimpleIndexEntry(SimpleField<?> field, ObjId id, byte[] value) {
+    private static ByteData buildSimpleIndexEntry(SimpleField<?> field, ObjId id, ByteData value) {
         if (value == null)
             value = field.encoding.getDefaultValueBytes();
         final int storageId = field.storageId;
-        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(storageId) + value.length + ObjId.NUM_BYTES);
+        final int entryLength = UnsignedIntEncoder.encodeLength(storageId) + value.size() + ObjId.NUM_BYTES;
+        final ByteData.Writer writer = ByteData.newWriter(entryLength);
         UnsignedIntEncoder.write(writer, storageId);
         writer.write(value);
         id.writeTo(writer);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
@@ -2310,8 +2315,8 @@ public class Transaction {
             throw new UnknownFieldException(info.getObjType(), name, "counter field");
 
         // Read field
-        final byte[] key = field.buildKey(id);
-        final byte[] value = this.kvt.get(key);
+        final ByteData key = field.buildKey(id);
+        final ByteData value = this.kvt.get(key);
 
         // Decode value
         return value != null ? this.kvt.decodeCounter(value) : 0;
@@ -2352,7 +2357,7 @@ public class Transaction {
             throw new UnknownFieldException(info.getObjType(), name, "counter field");
 
         // Set value
-        final byte[] key = field.buildKey(id);
+        final ByteData key = field.buildKey(id);
         this.kvt.put(key, this.kvt.encodeCounter(value));
     }
 
@@ -2468,7 +2473,7 @@ public class Transaction {
     }
 
     /**
-     * Get the {@code byte[]} key prefix in the underlying key/value store corresponding to the specified object.
+     * Get the key prefix in the underlying key/value store corresponding to the specified object.
      *
      * <p>
      * Notes:
@@ -2485,7 +2490,7 @@ public class Transaction {
      * @see Field#getKey(ObjId) Field.getKey()
      * @see io.permazen.PermazenTransaction#getKey(io.permazen.PermazenObject) PermazenTransaction.getKey()
      */
-    public synchronized byte[] getKey(ObjId id) {
+    public synchronized ByteData getKey(ObjId id) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
@@ -2979,7 +2984,7 @@ public class Transaction {
         // Do slow check
         final NavigableSet<Integer> fieldStorageIds = NavigableSets.intersection(
           objType.fieldsByStorageId.navigableKeySet(), this.fieldMonitors.navigableKeySet());
-        final byte[] objTypeBytes = ObjId.getMin(objType.storageId).getBytes();
+        final ByteData objTypeBytes = ObjId.getMin(objType.storageId).getBytes();
         for (int fieldStorageId : fieldStorageIds) {
             if (this.fieldMonitors.get(fieldStorageId).stream().anyMatch(new FieldMonitorPredicate(objTypeBytes, fieldStorageId)))
                 return true;
@@ -3472,10 +3477,11 @@ public class Transaction {
                 // Build the key prefix for the target object ID in this field's index
                 assert field.getIndex().storageId == field.storageId;
                 final int fieldStorageId = field.storageId;
-                final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(fieldStorageId) + ObjId.NUM_BYTES);
+                final int prefixLength = UnsignedIntEncoder.encodeLength(fieldStorageId) + ObjId.NUM_BYTES;
+                final ByteData.Writer writer = ByteData.newWriter(prefixLength);
                 UnsignedIntEncoder.write(writer, fieldStorageId);
                 target.writeTo(writer);
-                final byte[] prefix = writer.getBytes();
+                final ByteData prefix = writer.toByteData();
 
                 // Query the index to get all objects referring to the target object through this field (in any schema)
                 final IndexSet<ObjId> indexSet = new IndexSet<>(this.kvt, Encodings.OBJ_ID, true, prefix);
@@ -3510,23 +3516,23 @@ public class Transaction {
         return (TreeMap<Integer, NavigableSet<ObjId>>)(Object)result;
     }
 
-    private byte[] buildCompositeIndexEntry(ObjId id, CompositeIndex index) {
+    private ByteData buildCompositeIndexEntry(ObjId id, CompositeIndex index) {
         return Transaction.buildCompositeIndexEntry(this, id, index);
     }
 
-    private static byte[] buildDefaultCompositeIndexEntry(ObjId id, CompositeIndex index) {
+    private static ByteData buildDefaultCompositeIndexEntry(ObjId id, CompositeIndex index) {
         return Transaction.buildCompositeIndexEntry(null, id, index);
     }
 
-    private static byte[] buildCompositeIndexEntry(Transaction tx, ObjId id, CompositeIndex index) {
-        final ByteWriter writer = new ByteWriter();
+    private static ByteData buildCompositeIndexEntry(Transaction tx, ObjId id, CompositeIndex index) {
+        final ByteData.Writer writer = ByteData.newWriter();
         UnsignedIntEncoder.write(writer, index.storageId);
         for (SimpleField<?> field : index.fields) {
-            final byte[] value = tx != null ? tx.kvt.get(field.buildKey(id)) : null;
+            final ByteData value = tx != null ? tx.kvt.get(field.buildKey(id)) : null;
             writer.write(value != null ? value : field.encoding.getDefaultValueBytes());
         }
         id.writeTo(writer);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
 // Listener snapshots
@@ -3737,9 +3743,9 @@ public class Transaction {
 
     private abstract static class MonitorPredicate<M extends Monitor<?>> implements Predicate<M> {
 
-        private final byte[] objTypeBytes;
+        private final ByteData objTypeBytes;
 
-        MonitorPredicate(byte[] objTypeBytes) {
+        MonitorPredicate(ByteData objTypeBytes) {
             this.objTypeBytes = objTypeBytes;
         }
 
@@ -3761,7 +3767,7 @@ public class Transaction {
 
         private final int fieldStorageId;
 
-        FieldMonitorPredicate(byte[] objTypeBytes, int fieldStorageId) {
+        FieldMonitorPredicate(ByteData objTypeBytes, int fieldStorageId) {
             super(objTypeBytes);
             this.fieldStorageId = fieldStorageId;
         }
@@ -3782,7 +3788,7 @@ public class Transaction {
     // Matches DeleteMonitors who monitor the specified object type
     private static final class DeleteMonitorPredicate extends MonitorPredicate<DeleteMonitor> {
 
-        DeleteMonitorPredicate(byte[] objTypeBytes) {
+        DeleteMonitorPredicate(ByteData objTypeBytes) {
             super(objTypeBytes);
         }
 
@@ -3842,7 +3848,7 @@ public class Transaction {
         for (Schema otherSchema : this.schemaBundle.getSchemasBySchemaId().values()) {
             for (ObjType objType : otherSchema.getObjTypes().values()) {
                 final int objTypeStorageId = objType.storageId;
-                final byte[] objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
+                final ByteData objTypeBytes = ObjId.getMin(objTypeStorageId).getBytes();
 
                 // Add flags for FieldMonitors
                 for (Field<?> field : objType.fieldsAndSubFields.values()) {

@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,7 +98,7 @@ public abstract class Index extends SchemaItem {
     public abstract AbstractCoreIndex<ObjId> getIndex(Transaction tx);
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value tuple in this index.
+     * Get the key in the underlying key/value store corresponding to the given value tuple in this index.
      *
      * <p>
      * The returned key will be the prefix of all index entries with the given value tuple over all objects.
@@ -110,19 +110,19 @@ public abstract class Index extends SchemaItem {
      * @throws IllegalArgumentException if any value in {@code values} has the wrong type
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(Object... values) {
+    public ByteData getKey(Object... values) {
         Preconditions.checkArgument(values != null, "null values");
         Preconditions.checkArgument(values.length == this.encodings.size(), "wrong number of values");
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         Encodings.UNSIGNED_INT.write(writer, this.storageId);
         int i = 0;
         for (Encoding<?> encoding : this.encodings)
             encoding.validateAndWrite(writer, values[i++]);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value tuple and target object
+     * Get the key in the underlying key/value store corresponding to the given value tuple and target object
      * in this index.
      *
      * @param id target object ID
@@ -133,12 +133,12 @@ public abstract class Index extends SchemaItem {
      * @throws IllegalArgumentException if any value in {@code values} has the wrong type
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id, Object... values) {
+    public ByteData getKey(ObjId id, Object... values) {
         Preconditions.checkArgument(id != null, "null id");
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         writer.write(this.getKey(values));
         id.writeTo(writer);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
 // IndexSwitch

@@ -9,6 +9,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.schema.SimpleSchemaField;
+import io.permazen.util.ByteData;
 
 import java.util.Collections;
 import java.util.NavigableSet;
@@ -54,7 +55,7 @@ public abstract class SimpleIndex<T> extends Index {
     public abstract CoreIndex1<T, ObjId> getIndex(Transaction tx);
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value in this index.
+     * Get the key in the underlying key/value store corresponding to the given value in this index.
      *
      * <p>
      * The returned key will be the prefix of all index entries with the given value over all objects.
@@ -63,12 +64,12 @@ public abstract class SimpleIndex<T> extends Index {
      * @return the corresponding {@link KVDatabase} key
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(T value) {
+    public ByteData getKey(T value) {
         return this.getKey(new Object[] { value });
     }
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to the given value and target object
+     * Get the key in the underlying key/value store corresponding to the given value and target object
      * in this index.
      *
      * @param id target object ID
@@ -76,7 +77,7 @@ public abstract class SimpleIndex<T> extends Index {
      * @return the corresponding {@link KVDatabase} key
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id, T value) {
+    public ByteData getKey(ObjId id, T value) {
         return this.getKey(id, new Object[] { value });
     }
 

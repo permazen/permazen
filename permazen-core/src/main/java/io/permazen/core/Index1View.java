@@ -7,6 +7,7 @@ package io.permazen.core;
 
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyFilter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 /**
@@ -38,7 +39,7 @@ class Index1View<V, T> extends AbstractIndexView {
      * @param targetEncoding index target encoding
      * @throws IllegalArgumentException if any parameter is null is null or empty
      */
-    Index1View(byte[] prefix, boolean prefixMode, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
+    Index1View(ByteData prefix, boolean prefixMode, Encoding<V> valueEncoding, Encoding<T> targetEncoding) {
         super(prefix, prefixMode, valueEncoding, targetEncoding);
     }
 

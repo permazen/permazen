@@ -11,6 +11,7 @@ import io.permazen.encoding.Encoding;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyFilterUtil;
 import io.permazen.kv.KeyRanges;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import java.util.Arrays;
  */
 abstract class AbstractIndexView {
 
-    final byte[] prefix;                    // prefix that is always expected and skipped over
+    final ByteData prefix;                // prefix that is always expected and skipped over
     final boolean prefixMode;               // whether this instance requires prefix mode (i.e., entire key not consumed)
     final Encoding<?>[] encodings;          // the encodings of the indexed values
     final KeyFilter[] filters;              // the filter that applies to each encoding, or null
@@ -34,8 +35,8 @@ abstract class AbstractIndexView {
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      * @throws IllegalArgumentException if {@code filter} is null or empty
      */
-    protected AbstractIndexView(byte[] prefix, boolean prefixMode, Encoding<?>... encodings) {
-        Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
+    protected AbstractIndexView(ByteData prefix, boolean prefixMode, Encoding<?>... encodings) {
+        Preconditions.checkArgument(prefix != null && !prefix.isEmpty(), "null/empty prefix");
         Preconditions.checkArgument(encodings != null, "null encodings");
         this.prefix = prefix;
         this.prefixMode = prefixMode;

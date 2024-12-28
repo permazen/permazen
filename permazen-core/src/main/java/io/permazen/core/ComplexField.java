@@ -12,9 +12,8 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KeyRange;
 import io.permazen.schema.ComplexSchemaField;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.UnsignedIntEncoder;
 
@@ -78,8 +77,8 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param id object id
      */
     void deleteContent(Transaction tx, ObjId id) {
-        final byte[] minKey = this.buildKey(id);
-        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
+        final ByteData minKey = this.buildKey(id);
+        final ByteData maxKey = ByteUtil.getKeyAfterPrefix(minKey);
         this.deleteContent(tx, minKey, maxKey);
     }
 
@@ -91,7 +90,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param maxKey maximum key
      * @see #removeIndexEntries(Transaction, ObjId)
      */
-    void deleteContent(Transaction tx, byte[] minKey, byte[] maxKey) {
+    void deleteContent(Transaction tx, ByteData minKey, ByteData maxKey) {
         tx.kvt.removeRange(minKey, maxKey);
     }
 
@@ -104,9 +103,9 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param contentKey the content key
      * @param contentValue the value associated with the content key, or null if not needed
      */
-    void addIndexEntry(Transaction tx, ObjId id, SimpleField<?> subField, byte[] contentKey, byte[] contentValue) {
+    void addIndexEntry(Transaction tx, ObjId id, SimpleField<?> subField, ByteData contentKey, ByteData contentValue) {
         Preconditions.checkArgument(subField.indexed, "not indexed");
-        tx.kvt.put(this.buildIndexEntry(id, subField, contentKey, contentValue), ByteUtil.EMPTY);
+        tx.kvt.put(this.buildIndexEntry(id, subField, contentKey, contentValue), ByteData.empty());
     }
 
     /**
@@ -118,18 +117,17 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param contentKey the content key
      * @param contentValue the value associated with the content key, or null if not needed
      */
-    void removeIndexEntry(Transaction tx, ObjId id, SimpleField<?> subField, byte[] contentKey, byte[] contentValue) {
+    void removeIndexEntry(Transaction tx, ObjId id, SimpleField<?> subField, ByteData contentKey, ByteData contentValue) {
         Preconditions.checkArgument(subField.indexed, "not indexed");
         tx.kvt.remove(this.buildIndexEntry(id, subField, contentKey, contentValue));
     }
 
-    private byte[] buildIndexEntry(ObjId id, SimpleField<?> subField, byte[] contentKey, byte[] contentValue) {
-        final ByteReader contentKeyReader = new ByteReader(contentKey);
-        contentKeyReader.skip(ObjId.NUM_BYTES + this.storageIdLength);                  // skip to content
-        final ByteWriter writer = new ByteWriter();
+    private ByteData buildIndexEntry(ObjId id, SimpleField<?> subField, ByteData contentKey, ByteData contentValue) {
+        final ByteData.Writer writer = ByteData.newWriter();
         UnsignedIntEncoder.write(writer, subField.storageId);
-        this.buildIndexEntry(id, subField, contentKeyReader, contentValue, writer);
-        return writer.getBytes();
+        final ByteData content = contentKey.substring(ObjId.NUM_BYTES + this.storageIdLength);
+        this.buildIndexEntry(id, subField, content, contentValue, writer);
+        return writer.toByteData();
     }
 
     /**
@@ -137,11 +135,12 @@ public abstract class ComplexField<T> extends Field<T> {
      *
      * @param id object id
      * @param subField indexed sub-field
-     * @param reader reader of content key, positioned just after the object ID and the storage ID for this field
+     * @param content content key data, which lives just after the object ID and the storage ID for this field
      * @param value the value associated with the content key, or null if not needed
      * @param writer writer for the index entry, with the sub-field's storage ID already written
      */
-    abstract void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer);
+    abstract void buildIndexEntry(ObjId id, SimpleField<?> subField,
+      ByteData content, ByteData value, ByteData.Writer writer);
 
     /**
      * Add all index entries for the given object and sub-field.
@@ -152,8 +151,8 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     void addIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField) {
         Preconditions.checkArgument(subField.indexed, "not indexed");
-        final byte[] prefix = this.buildKey(id);
-        final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
+        final ByteData prefix = this.buildKey(id);
+        final ByteData prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
         try (CloseableIterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();
@@ -184,7 +183,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField) {
-        final byte[] prefix = this.buildKey(id);
+        final ByteData prefix = this.buildKey(id);
         this.removeIndexEntries(tx, id, subField, prefix, ByteUtil.getKeyAfterPrefix(prefix));
     }
 
@@ -195,7 +194,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param id object id
      * @param subField sub-field of this field
      */
-    void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField, byte[] minKey, byte[] maxKey) {
+    void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField, ByteData minKey, ByteData maxKey) {
         Preconditions.checkArgument(subField.indexed, "not indexed");
         try (CloseableIterator<KVPair> i = tx.kvt.getRange(minKey, maxKey)) {
             while (i.hasNext()) {

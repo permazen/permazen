@@ -8,6 +8,7 @@ package io.permazen.core;
 import io.permazen.kv.mvcc.MemoryAtomicKVStore;
 import io.permazen.kv.simple.SimpleKVDatabase;
 import io.permazen.schema.SchemaModel;
+import io.permazen.util.ByteData;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +23,8 @@ public class UserMetaDataTest extends CoreAPITestSupport {
 
         // Setup database with meta-data
         final MemoryAtomicKVStore kvstore = new MemoryAtomicKVStore();
-        kvstore.put(Layout.getUserMetaDataKeyPrefix(), new byte[] { 1, 2, 3});
+        final ByteData metaData = ByteData.of(1, 2, 3);
+        kvstore.put(Layout.getUserMetaDataKeyPrefix(), metaData);
 
         // Create database
         final SimpleKVDatabase kv = new SimpleKVDatabase(kvstore, 100, 500);
@@ -59,7 +61,7 @@ public class UserMetaDataTest extends CoreAPITestSupport {
 
         // Verify meta-data still there
 
-        final byte[] data = kvstore.get(Layout.getUserMetaDataKeyPrefix());
-        Assert.assertEquals(data, new byte[] { 1, 2, 3 });
+        final ByteData data = kvstore.get(Layout.getUserMetaDataKeyPrefix());
+        Assert.assertEquals(data, metaData);
     }
 }

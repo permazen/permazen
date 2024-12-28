@@ -11,14 +11,12 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.schema.SchemaModel;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
@@ -83,35 +81,30 @@ public final class Layout {
      */
     public static final int OBJECT_FLAGS_VALID_BITS = 0x00;
 
-    private static final byte[] METADATA_PREFIX = new byte[] { (byte)METADATA_PREFIX_BYTE };
+    private static final ByteData METADATA_PREFIX = ByteData.of(METADATA_PREFIX_BYTE);
 
-    private static final byte[] FORMAT_VERSION_KEY = new byte[] {
-      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_FORMAT_VERSION_BYTE,
-      (byte)'P', (byte)'e', (byte)'r', (byte)'m', (byte)'a', (byte)'z', (byte)'e', (byte)'n', (byte)0x00
-    };
+    private static final ByteData FORMAT_VERSION_KEY = ByteData.of(
+      METADATA_PREFIX_BYTE, METADATA_FORMAT_VERSION_BYTE, 'P', 'e', 'r', 'm', 'a', 'z', 'e', 'n', 0x00);
 
-    private static final byte[] SCHEMA_TABLE_PREFIX = new byte[] {
-      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_SCHEMA_TABLE_BYTE
-    };
+    private static final ByteData SCHEMA_TABLE_PREFIX = ByteData.of(
+      METADATA_PREFIX_BYTE, METADATA_SCHEMA_TABLE_BYTE);
 
-    private static final byte[] STORAGE_ID_TABLE_PREFIX = new byte[] {          // must immediately follow SCHEMA_TABLE_PREFIX
-      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_STORAGE_ID_TABLE_BYTE
-    };
+    // This must immediately follow SCHEMA_TABLE_PREFIX
+    private static final ByteData STORAGE_ID_TABLE_PREFIX = ByteData.of(
+      METADATA_PREFIX_BYTE, METADATA_STORAGE_ID_TABLE_BYTE);
 
-    private static final byte[] SCHEMA_INDEX_PREFIX = new byte[] {
-      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_SCHEMA_INDEX_BYTE
-    };
+    private static final ByteData SCHEMA_INDEX_PREFIX = ByteData.of(
+      METADATA_PREFIX_BYTE, METADATA_SCHEMA_INDEX_BYTE);
 
-    private static final byte[] USER_META_DATA_KEY_PREFIX = new byte[] {
-      (byte)METADATA_PREFIX_BYTE, (byte)METADATA_USER_META_DATA_BYTE
-    };
+    private static final ByteData USER_META_DATA_KEY_PREFIX = ByteData.of(
+      METADATA_PREFIX_BYTE, METADATA_USER_META_DATA_BYTE);
 
     // Sanity check assumptions
     static {
-        final byte[] schemaPrefix = Layout.getSchemaTablePrefix();
-        final byte[] storageIdPrefix = Layout.getStorageIdTablePrefix();
-        Preconditions.checkState(schemaPrefix.length == storageIdPrefix.length);
-        Preconditions.checkState(Arrays.equals(storageIdPrefix, ByteUtil.getKeyAfterPrefix(schemaPrefix)));
+        final ByteData schemaPrefix = Layout.getSchemaTablePrefix();
+        final ByteData storageIdPrefix = Layout.getStorageIdTablePrefix();
+        Preconditions.checkState(schemaPrefix.size() == storageIdPrefix.size());
+        Preconditions.checkState(storageIdPrefix.equals(ByteUtil.getKeyAfterPrefix(schemaPrefix)));
     }
 
     private Layout() {
@@ -122,8 +115,8 @@ public final class Layout {
      *
      * @return meta-data prefix bytes
      */
-    public static byte[] getMetaDataKeyPrefix() {
-        return METADATA_PREFIX.clone();
+    public static ByteData getMetaDataKeyPrefix() {
+        return METADATA_PREFIX;
     }
 
     /**
@@ -134,8 +127,8 @@ public final class Layout {
      *
      * @return meta-data prefix bytes
      */
-    public static byte[] getFormatVersionKey() {
-        return FORMAT_VERSION_KEY.clone();
+    public static ByteData getFormatVersionKey() {
+        return FORMAT_VERSION_KEY;
     }
 
     /**
@@ -143,8 +136,8 @@ public final class Layout {
      *
      * @return schema table key prefix
      */
-    public static byte[] getSchemaTablePrefix() {
-        return SCHEMA_TABLE_PREFIX.clone();
+    public static ByteData getSchemaTablePrefix() {
+        return SCHEMA_TABLE_PREFIX;
     }
 
     /**
@@ -152,8 +145,8 @@ public final class Layout {
      *
      * @return storage ID table key prefix
      */
-    public static byte[] getStorageIdTablePrefix() {
-        return STORAGE_ID_TABLE_PREFIX.clone();
+    public static ByteData getStorageIdTablePrefix() {
+        return STORAGE_ID_TABLE_PREFIX;
     }
 
     /**
@@ -165,13 +158,13 @@ public final class Layout {
      * @throws IllegalArgumentException if {@code index} is zero or negative
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    public static byte[] buildTableKey(byte[] prefix, int index) {
+    public static ByteData buildTableKey(ByteData prefix, int index) {
         Preconditions.checkArgument(prefix != null, "null prefix");
         Preconditions.checkArgument(index > 0, "index <= 0");
-        final ByteWriter writer = new ByteWriter(prefix.length + UnsignedIntEncoder.encodeLength(index));
+        final ByteData.Writer writer = ByteData.newWriter(prefix.size() + UnsignedIntEncoder.encodeLength(index));
         writer.write(prefix);
         UnsignedIntEncoder.write(writer, index);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
@@ -179,8 +172,8 @@ public final class Layout {
      *
      * @return object schema index key prefix
      */
-    public static byte[] getSchemaIndexKeyPrefix() {
-        return SCHEMA_INDEX_PREFIX.clone();
+    public static ByteData getSchemaIndexKeyPrefix() {
+        return SCHEMA_INDEX_PREFIX;
     }
 
     /**
@@ -188,8 +181,8 @@ public final class Layout {
      *
      * @return user meta-data key prefix
      */
-    public static byte[] getUserMetaDataKeyPrefix() {
-        return USER_META_DATA_KEY_PREFIX.clone();
+    public static ByteData getUserMetaDataKeyPrefix() {
+        return USER_META_DATA_KEY_PREFIX;
     }
 
     /**
@@ -213,33 +206,38 @@ public final class Layout {
      * @throws IllegalArgumentException if {@code id} is null
      * @throws IllegalArgumentException if {@code schemaIndex} is non-positive
      */
-    public static byte[] buildSchemaIndexKey(ObjId id, int schemaIndex) {
+    public static ByteData buildSchemaIndexKey(ObjId id, int schemaIndex) {
         Preconditions.checkArgument(id != null, "null id");
         Preconditions.checkArgument(schemaIndex > 0, "non-positive schemaIndex");
-        final ByteWriter writer = new ByteWriter(SCHEMA_INDEX_PREFIX.length
+        final ByteData.Writer writer = ByteData.newWriter(SCHEMA_INDEX_PREFIX.size()
           + UnsignedIntEncoder.encodeLength(schemaIndex) + ObjId.NUM_BYTES);
         writer.write(SCHEMA_INDEX_PREFIX);
         UnsignedIntEncoder.write(writer, schemaIndex);
         id.writeTo(writer);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     /**
      * Decode schema XML from a schema table entry.
      *
-     * @param reader compressed XML input
+     * @param schemaData compressed XML input
      * @return decoded schema model
      * @throws InvalidSchemaException if data or schema is invalid
-     * @throws IllegalArgumentException if {@code value} is null
+     * @throws IllegalArgumentException if {@code schemaData} is null
      */
-    public static SchemaModel decodeSchema(ByteReader reader) {
+    public static SchemaModel decodeSchema(ByteData schemaData) {
 
         // Sanity check
-        Preconditions.checkArgument(reader != null, "null reader");
+        Preconditions.checkArgument(schemaData != null, "null schemaData");
 
         // Decompress and decode XML
-        try (InflaterInputStream input = new InflaterInputStream(reader.asInputStream())) {
-            return SchemaModel.fromXML(input);
+        try (
+          ByteData.Reader reader = schemaData.newReader();
+          InflaterInputStream input = new InflaterInputStream(reader)) {
+            final SchemaModel schemaModel = SchemaModel.fromXML(input);
+            if (reader.remain() > 0)
+                throw new InvalidSchemaException("compressed schema XML contains trailing garbage");
+            return schemaModel;
         } catch (IOException e) {
             throw new InvalidSchemaException(String.format("error in compressed schema XML data: %s", e.getMessage()), e);
         }
@@ -252,7 +250,7 @@ public final class Layout {
      * @param schemaModel schema model
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static void encodeSchema(ByteWriter writer, SchemaModel schemaModel) {
+    public static void encodeSchema(ByteData.Writer writer, SchemaModel schemaModel) {
 
         // Sanity check
         Preconditions.checkArgument(writer != null, "null writer");
@@ -260,7 +258,7 @@ public final class Layout {
 
         // Encode and compress XML
         final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
-        try (DeflaterOutputStream output = new DeflaterOutputStream(writer.asOutputStream(), deflater)) {
+        try (DeflaterOutputStream output = new DeflaterOutputStream(writer, deflater)) {
             schemaModel.toXML(output, true, false);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
@@ -313,7 +311,7 @@ public final class Layout {
         Layout.copyRange(src, dst, schemaIndexRange.getMax(), metaDataRange.getMax());
     }
 
-    private static void copyRange(KVStore src, KVStore dst, byte[] minKey, byte[] maxKey) {
+    private static void copyRange(KVStore src, KVStore dst, ByteData minKey, ByteData maxKey) {
         try (CloseableIterator<KVPair> i = src.getRange(minKey, maxKey)) {
             while (i.hasNext()) {
                 final KVPair pair = i.next();

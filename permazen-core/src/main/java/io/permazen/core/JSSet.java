@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.util.Iterator;
 import java.util.NavigableSet;
@@ -48,7 +48,7 @@ class JSSet<E> extends EncodingSet<E> {
 
     @Override
     public boolean add(final E newValue) {
-        final byte[] key;
+        final ByteData key;
         try {
             key = this.encodeVisible(newValue, true);
         } catch (IllegalArgumentException e) {
@@ -57,7 +57,7 @@ class JSSet<E> extends EncodingSet<E> {
         return this.tx.mutateAndNotify(this.id, () -> this.doAdd(newValue, key));
     }
 
-    private boolean doAdd(final E newValue, byte[] key) {
+    private boolean doAdd(final E newValue, ByteData key) {
 
         // Check for deleted assignement
         if (this.field.elementField instanceof ReferenceField)
@@ -68,7 +68,7 @@ class JSSet<E> extends EncodingSet<E> {
             return false;
 
         // Add element and index entry
-        this.tx.kvt.put(key, ByteUtil.EMPTY);
+        this.tx.kvt.put(key, ByteData.empty());
         if (this.field.elementField.indexed)
             this.field.addIndexEntry(this.tx, this.id, this.field.elementField, key, null);
 
@@ -103,8 +103,8 @@ class JSSet<E> extends EncodingSet<E> {
         }
 
         // Get key range
-        final byte[] rangeMinKey = this.keyRange.getMin();
-        final byte[] rangeMaxKey = this.keyRange.getMax();
+        final ByteData rangeMinKey = this.keyRange.getMin();
+        final ByteData rangeMaxKey = this.keyRange.getMax();
 
         // Delete index entries
         if (this.field.elementField.indexed)
@@ -120,14 +120,14 @@ class JSSet<E> extends EncodingSet<E> {
 
     @Override
     public boolean remove(Object obj) {
-        final byte[] key = this.encodeVisible(obj, false);
+        final ByteData key = this.encodeVisible(obj, false);
         if (key == null)
             return false;
         final E canonicalElement = this.encoding.validate(obj);                    // should never throw exception
         return this.tx.mutateAndNotify(this.id, () -> this.doRemove(canonicalElement, key));
     }
 
-    private boolean doRemove(final E oldValue, byte[] key) {
+    private boolean doRemove(final E oldValue, ByteData key) {
 
         // See if already removed
         if (this.tx.kvt.get(key) == null)

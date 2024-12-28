@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.core.util.ObjIdMap;
 import io.permazen.schema.ReferenceSchemaField;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 
 import java.util.Collections;
 import java.util.Set;
@@ -127,9 +127,9 @@ public class ReferenceField extends SimpleField<ObjId> {
         }
 
         // Handle simple field case
-        final byte[] value = srcTx.kvt.get(this.buildKey(id));
+        final ByteData value = srcTx.kvt.get(this.buildKey(id));
         if (value == null)
             return;
-        dstTx.checkDeletedAssignment(id, this, this.encoding.read(new ByteReader(value)));
+        dstTx.checkDeletedAssignment(id, this, this.encoding.read(value.newReader()));
     }
 }

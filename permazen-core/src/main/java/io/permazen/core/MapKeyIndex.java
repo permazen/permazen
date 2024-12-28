@@ -8,6 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.schema.SimpleSchemaField;
+import io.permazen.util.ByteData;
 
 import java.util.NavigableMap;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class MapKeyIndex<K, V> extends ComplexSubFieldIndex<NavigableMap<K, V>, 
 
     @Override
     @SuppressWarnings("unchecked")
-    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, ByteData prefix) {
         final NavigableMap<?, ?> map = tx.readMapField(referrer, this.getField().parent.name, false);
         final Object value = map.remove(target);
         if (!remove)

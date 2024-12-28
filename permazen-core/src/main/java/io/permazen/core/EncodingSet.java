@@ -13,9 +13,8 @@ import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.util.AbstractKVNavigableSet;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +30,7 @@ import java.util.Comparator;
 abstract class EncodingSet<E> extends AbstractKVNavigableSet<E> {
 
     final Encoding<E> encoding;
-    final byte[] prefix;
+    final ByteData prefix;
 
     /**
      * Primary constructor.
@@ -43,7 +42,7 @@ abstract class EncodingSet<E> extends AbstractKVNavigableSet<E> {
      * @throws IllegalArgumentException if {@code encoding} is null
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    EncodingSet(KVStore kv, Encoding<E> encoding, boolean prefixMode, byte[] prefix) {
+    EncodingSet(KVStore kv, Encoding<E> encoding, boolean prefixMode, ByteData prefix) {
         this(kv, encoding, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<>());
     }
 
@@ -65,11 +64,11 @@ abstract class EncodingSet<E> extends AbstractKVNavigableSet<E> {
      * @throws IllegalArgumentException if {@code prefix} is not null but {@code keyRange} does not restrict within {@code prefix}
      */
     EncodingSet(KVStore kv, Encoding<E> encoding, boolean prefixMode, boolean reversed,
-      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
+      ByteData prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
         super(kv, prefixMode, reversed, keyRange, keyFilter, bounds);
         Preconditions.checkArgument(encoding != null, "null encoding");
         Preconditions.checkArgument(prefix != null, "null prefix");
-        Preconditions.checkArgument(prefix.length == 0 || keyRange != null, "null keyRange");
+        Preconditions.checkArgument(prefix.isEmpty() || keyRange != null, "null keyRange");
         if (keyRange != null && !KeyRange.forPrefix(prefix).contains(keyRange)) {
             throw new IllegalArgumentException(String.format(
               "%s does not restrict to prefix %s", keyRange, ByteUtil.toString(prefix)));
@@ -84,15 +83,15 @@ abstract class EncodingSet<E> extends AbstractKVNavigableSet<E> {
     }
 
     @Override
-    protected void encode(ByteWriter writer, Object obj) {
+    protected void encode(ByteData.Writer writer, Object obj) {
         writer.write(this.prefix);
         this.encoding.validateAndWrite(writer, obj);
     }
 
     @Override
-    protected E decode(ByteReader reader) {
-        assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
-        reader.skip(this.prefix.length);
+    protected E decode(ByteData.Reader reader) {
+        assert reader.dataNotYetRead().startsWith(this.prefix);
+        reader.skip(this.prefix.size());
         return this.encoding.read(reader);
     }
 }

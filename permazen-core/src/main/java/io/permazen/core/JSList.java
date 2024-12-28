@@ -10,15 +10,13 @@ import com.google.common.base.Preconditions;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KeyRange;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
@@ -35,7 +33,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     private final ObjId id;
     private final ListField<E> field;
     private final Encoding<E> elementType;
-    private final byte[] contentPrefix;
+    private final ByteData contentPrefix;
 
 // Constructors
 
@@ -56,12 +54,12 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     public E get(int index) {
 
         // Find list entry
-        final byte[] value = this.tx.kvt.get(this.buildKey(index));
+        final ByteData value = this.tx.kvt.get(this.buildKey(index));
         if (value == null)
             throw new IndexOutOfBoundsException(String.format("index = %d", index));
 
         // Decode list element
-        return this.elementType.read(new ByteReader(value));
+        return this.elementType.read(value.newReader());
     }
 
     @Override
@@ -71,10 +69,10 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         final KVPair pair = this.tx.kvt.getAtMost(ByteUtil.getKeyAfterPrefix(this.contentPrefix), this.contentPrefix);
         if (pair == null)
             return 0;
-        assert ByteUtil.isPrefixOf(this.contentPrefix, pair.getKey());
+        assert pair.getKey().startsWith(this.contentPrefix);
 
         // Decode index from key to get size
-        return UnsignedIntEncoder.read(new ByteReader(pair.getKey(), this.contentPrefix.length)) + 1;
+        return UnsignedIntEncoder.read(pair.getKey().newReader(this.contentPrefix.size())) + 1;
     }
 
     @Override
@@ -90,11 +88,11 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     private E doSet(final int index, final E newElem) {
 
         // Build new key and value
-        final byte[] key = this.buildKey(index);
-        final byte[] newValue = this.buildValue(newElem);
+        final ByteData key = this.buildKey(index);
+        final ByteData newValue = this.buildValue(newElem);
 
         // Get existing list entry at that index, if any
-        final byte[] oldValue = this.tx.kvt.get(key);
+        final ByteData oldValue = this.tx.kvt.get(key);
         if (oldValue == null)
             throw new IndexOutOfBoundsException(String.format("index = %d", index));
 
@@ -103,11 +101,11 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             this.tx.checkDeletedAssignment(this.id, (ReferenceField)this.field.elementField, (ObjId)newElem);
 
         // Optimize if no change
-        if (Arrays.equals(newValue, oldValue))
+        if (newValue.equals(oldValue))
             return newElem;
 
         // Decode previous entry
-        final E oldElem = this.elementType.read(new ByteReader(oldValue));
+        final E oldElem = this.elementType.read(oldValue.newReader());
 
         // Update list content and index
         this.tx.kvt.put(key, newValue);
@@ -151,7 +149,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         }
 
         // Encode elements
-        final ArrayList<byte[]> values = elems.stream()
+        final ArrayList<ByteData> values = elems.stream()
           .map(this::buildValue)
           .collect(Collectors.toCollection(() -> new ArrayList<>(numElems)));
 
@@ -163,8 +161,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
         // Add entries
         for (int i = 0; i < numElems; i++) {
-            final byte[] key = this.buildKey(index);
-            final byte[] value = values.get(i);
+            final ByteData key = this.buildKey(index);
+            final ByteData value = values.get(i);
             final E elem = elems.get(i);
 
             // Update list content and index
@@ -238,7 +236,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         // Notify field monitors
         if (!this.tx.disableListenerNotifications) {
             for (int i = min; i < max; i++) {
-                final byte[] oldValue = this.tx.kvt.get(this.buildKey(i));
+                final ByteData oldValue = this.tx.kvt.get(this.buildKey(i));
                 if (oldValue == null)
                     throw new InconsistentDatabaseException(String.format("list entry at index %d not found", i));
                 this.tx.addFieldChangeNotification(new ListFieldRemoveNotifier<>(this.field, this.id, i, oldValue));
@@ -275,8 +273,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         while (len-- > 0) {
 
             // Read value at src
-            final byte[] srcKey = this.buildKey(src);
-            final byte[] value = this.tx.kvt.get(srcKey);
+            final ByteData srcKey = this.buildKey(src);
+            final ByteData value = this.tx.kvt.get(srcKey);
             if (value == null)
                 throw new InconsistentDatabaseException(String.format("list entry at index %d not found", src));
 
@@ -285,7 +283,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 this.field.removeIndexEntry(this.tx, this.id, this.field.elementField, srcKey, value);
 
             // Write value to dst
-            final byte[] dstKey = this.buildKey(dst);
+            final ByteData dstKey = this.buildKey(dst);
             this.tx.kvt.put(dstKey, value);
 
             // Add index entry for value at dst
@@ -300,8 +298,8 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         // Delete the old list entries that did not get overwritten; only happens when deleting items
         if (to < from) {
             final int newSize = size - (from - to);
-            final byte[] minKey = this.buildKey(newSize);
-            final byte[] maxKey = ByteUtil.getKeyAfterPrefix(this.contentPrefix);
+            final ByteData minKey = this.buildKey(newSize);
+            final ByteData maxKey = ByteUtil.getKeyAfterPrefix(this.contentPrefix);
             this.tx.kvt.removeRange(minKey, maxKey);
         }
     }
@@ -309,25 +307,25 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
     private void deleteIndexEntries(int min, int max) {
         assert this.field.elementField.indexed;
         for (int i = min; i < max; i++) {
-            final byte[] key = this.buildKey(i);
-            final byte[] value = this.tx.kvt.get(key);
+            final ByteData key = this.buildKey(i);
+            final ByteData value = this.tx.kvt.get(key);
             if (value == null)
                 throw new InconsistentDatabaseException(String.format("list entry at index %d not found", i));
             this.field.removeIndexEntry(this.tx, this.id, this.field.elementField, key, value);
         }
     }
 
-    private byte[] buildKey(int index) {
+    private ByteData buildKey(int index) {
         if (index < 0)
             throw new IndexOutOfBoundsException(String.format("index = %d", index));
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         writer.write(this.contentPrefix);
         UnsignedIntEncoder.write(writer, index);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
-    private byte[] buildValue(E elem) {
-        final ByteWriter writer = new ByteWriter();
+    private ByteData buildValue(E elem) {
+        final ByteData.Writer writer = ByteData.newWriter();
         try {
             this.elementType.validateAndWrite(writer, elem);
         } catch (IllegalArgumentException e) {
@@ -335,7 +333,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             throw new IllegalArgumentException(String.format(
               "list containing %s can't hold values of type %s", this.elementType, invalidType), e);
         }
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
 // Iter
@@ -372,10 +370,9 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             if (this.finished)
                 throw new NoSuchElementException();
             final KVPair pair = this.i.next();
-            final ByteReader keyReader = new ByteReader(pair.getKey());
-            keyReader.skip(JSList.this.contentPrefix.length);
+            final ByteData.Reader keyReader = pair.getKey().newReader(JSList.this.contentPrefix.size());
             this.removeIndex = UnsignedIntEncoder.read(keyReader);
-            return JSList.this.elementType.read(new ByteReader(pair.getValue()));
+            return JSList.this.elementType.read(pair.getValue().newReader());
         }
 
         @Override

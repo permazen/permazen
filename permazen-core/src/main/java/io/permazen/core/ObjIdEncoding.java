@@ -8,8 +8,7 @@ package io.permazen.core;
 import com.google.common.base.Preconditions;
 
 import io.permazen.encoding.AbstractEncoding;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.OptionalInt;
 
@@ -38,18 +37,18 @@ public class ObjIdEncoding extends AbstractEncoding<ObjId> {
 // Encoding
 
     @Override
-    public ObjId read(ByteReader reader) {
+    public ObjId read(ByteData.Reader reader) {
         return new ObjId(reader);
     }
 
     @Override
-    public void write(ByteWriter writer, ObjId id) {
+    public void write(ByteData.Writer writer, ObjId id) {
         Preconditions.checkArgument(writer != null);
         writer.write(id.getBytes());
     }
 
     @Override
-    public void skip(ByteReader reader) {
+    public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
         reader.skip(ObjId.NUM_BYTES);
     }

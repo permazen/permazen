@@ -6,8 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.schema.SchemaId;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.Optional;
@@ -36,10 +35,10 @@ class ObjInfo {
         assert id != null;
         this.tx = tx;
         this.id = id;
-        final byte[] value = tx.kvt.get(this.id.getBytes());
+        final ByteData value = tx.kvt.get(this.id.getBytes());
         if (value == null)
             throw new DeletedObjectException(tx, this.id);
-        final ByteReader reader = new ByteReader(value);
+        final ByteData.Reader reader = value.newReader();
         this.schemaIndex = UnsignedIntEncoder.read(reader);
         if (this.schemaIndex == 0)
             throw new InvalidObjectVersionException(this.id, this.schemaIndex, null);
@@ -99,10 +98,10 @@ class ObjInfo {
 
     public static void write(Transaction tx, ObjId id, int schemaIndex) {
         assert schemaIndex > 0;
-        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(schemaIndex));
+        final ByteData.Writer writer = ByteData.newWriter(UnsignedIntEncoder.encodeLength(schemaIndex));
         Encodings.UNSIGNED_INT.write(writer, schemaIndex);
-        //writer.writeByte(flags);                          // we can omit a zero flags byte
-        tx.kvt.put(id.getBytes(), writer.getBytes());
+        //writer.write(flags);                              // we can omit a zero flags byte
+        tx.kvt.put(id.getBytes(), writer.toByteData());
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVPairIterator;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.List;
@@ -62,11 +62,11 @@ public class ListElementIndex<E> extends CollectionElementIndex<List<E>, E> {
     // Note: as we delete list elements, the index of remaining elements will decrease by one each time.
     // However, the KVPairIterator always reflects the current state so we'll see updated list indexes.
     @Override
-    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix) {
+    void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, ByteData prefix) {
         final List<?> list = tx.readListField(referrer, this.getField().parent.name, false);
         for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
-            final ByteReader reader = new ByteReader(i.next().getKey());
-            reader.skip(prefix.length);
+            final ByteData.Reader reader = i.next().getKey().newReader();
+            reader.skip(prefix.size());
             final int listIndex = UnsignedIntEncoder.read(reader);
             if (remove)
                 list.remove(listIndex);

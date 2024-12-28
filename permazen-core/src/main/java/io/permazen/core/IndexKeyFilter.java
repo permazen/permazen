@@ -12,7 +12,7 @@ import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 class IndexKeyFilter implements KeyFilter {
 
     private final KVStore kv;
-    private final byte[] prefix;                                // prefix to always skip over
+    private final ByteData prefix;                              // prefix to always skip over
     private final Encoding<?>[] encodings;                      // fields to decode after prefix
     private final KeyFilter[] filters;                          // filters to apply to fields
     private final int prefixLen;                                // how many fields are mandatory
@@ -60,9 +60,9 @@ class IndexKeyFilter implements KeyFilter {
      * @throws IllegalArgumentException if {@code prefixLen} is zero or out of range
      * @throws IllegalArgumentException if {@code filters} is not the same length as {@code encodings}
      */
-    IndexKeyFilter(KVStore kv, byte[] prefix, Encoding<?>[] encodings, KeyFilter[] filters, int prefixLen) {
+    IndexKeyFilter(KVStore kv, ByteData prefix, Encoding<?>[] encodings, KeyFilter[] filters, int prefixLen) {
         Preconditions.checkArgument(kv != null, "null kv");
-        Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
+        Preconditions.checkArgument(prefix != null && !prefix.isEmpty(), "null/empty prefix");
         Preconditions.checkArgument(encodings != null && encodings.length > 0, "null/empty encodings");
         Preconditions.checkArgument(filters != null && filters.length == encodings.length, "bogus filters");
         Preconditions.checkArgument(prefixLen >= 0 && prefixLen <= encodings.length, "invalid prefixLen");
@@ -88,12 +88,12 @@ class IndexKeyFilter implements KeyFilter {
 // KeyFilter
 
     @Override
-    public boolean contains(byte[] key) {
+    public boolean contains(ByteData key) {
 
         // Check prefix fields
-        final byte[] next = this.prefixFilter.seekHigher(key);
-        assert next == null || ByteUtil.compare(next, key) >= 0;
-        if (next == null || !Arrays.equals(next, key))
+        final ByteData next = this.prefixFilter.seekHigher(key);
+        assert next == null || next.compareTo(key) >= 0;
+        if (next == null || !next.equals(key))
             return false;
 
         // Do we have any suffix?
@@ -101,10 +101,10 @@ class IndexKeyFilter implements KeyFilter {
             return true;
 
         // Determine what part of "key" constituted the prefix + prefix fields
-        final ByteReader reader = new ByteReader(key, this.prefix.length);
+        final ByteData.Reader reader = key.newReader(this.prefix.size());
         for (Encoding<?> encoding : this.prefixFilter.getEncodings())
             encoding.skip(reader);
-        final byte[] suffixPrefix = reader.getBytes(0, reader.getOffset());
+        final ByteData suffixPrefix = reader.dataReadSoFar();
 
         // Search for any key with that prefix, using the suffix filter(s)
         final EncodingsFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
@@ -114,12 +114,12 @@ class IndexKeyFilter implements KeyFilter {
     }
 
     @Override
-    public byte[] seekHigher(byte[] key) {
+    public ByteData seekHigher(ByteData key) {
 
         // Check prefix fields
-        final byte[] next = this.prefixFilter.seekHigher(key);
-        assert next == null || ByteUtil.compare(next, key) >= 0;
-        if (next == null || !Arrays.equals(next, key))
+        final ByteData next = this.prefixFilter.seekHigher(key);
+        assert next == null || next.compareTo(key) >= 0;
+        if (next == null || !next.equals(key))
             return next;
 
         // Do we have any suffix?
@@ -127,10 +127,10 @@ class IndexKeyFilter implements KeyFilter {
             return next;
 
         // Determine what part of "key" constituted the prefix + prefix fields
-        final ByteReader reader = new ByteReader(key, this.prefix.length);
+        final ByteData.Reader reader = key.newReader(this.prefix.size());
         for (Encoding<?> encoding : this.prefixFilter.getEncodings())
             encoding.skip(reader);
-        final byte[] suffixPrefix = reader.getBytes(0, reader.getOffset());
+        final ByteData suffixPrefix = reader.dataReadSoFar();
 
         // Search for any key with that prefix, using the suffix filter(s)
         final EncodingsFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
@@ -141,14 +141,14 @@ class IndexKeyFilter implements KeyFilter {
     }
 
     @Override
-    public byte[] seekLower(byte[] key) {
+    public ByteData seekLower(ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
 
         // Check prefix fields
-        final byte[] next = this.prefixFilter.seekLower(key);
-        assert next == null || key.length == 0 || ByteUtil.compare(next, key) <= 0;
+        final ByteData next = this.prefixFilter.seekLower(key);
+        assert next == null || key.isEmpty() || next.compareTo(key) <= 0;
         if (next == null)
             return null;
 
@@ -157,14 +157,14 @@ class IndexKeyFilter implements KeyFilter {
             return next;
 
         // Determine what part of "next" constituted the prefix + prefix fields
-        final ByteReader reader = new ByteReader(key, this.prefix.length);
+        final ByteData.Reader reader = key.newReader(this.prefix.size());
         try {
             for (Encoding<?> encoding : this.prefixFilter.getEncodings())
                 encoding.skip(reader);
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             return next;
         }
-        final byte[] suffixPrefix = reader.getBytes(0, reader.getOffset());
+        final ByteData suffixPrefix = reader.dataReadSoFar();
 
         // Check suffix fields
         final EncodingsFilter suffixFilter = this.buildSuffixFilter(suffixPrefix);
@@ -174,7 +174,7 @@ class IndexKeyFilter implements KeyFilter {
         }
     }
 
-    private EncodingsFilter buildSuffixFilter(byte[] suffixPrefix) {
+    private EncodingsFilter buildSuffixFilter(ByteData suffixPrefix) {
         return new EncodingsFilter(suffixPrefix, this.encodings, this.filters, this.prefixLen, this.encodings.length);
     }
 }

@@ -23,8 +23,8 @@
         <module>permazen-ant</module>
         <module>permazen-cli</module>
         <module>permazen-cliapp</module>
-        <module>permazen-core</module>
 -->
+        <module>permazen-core</module>
         <module>permazen-encoding</module>
 <!--
         <module>permazen-jsck</module>

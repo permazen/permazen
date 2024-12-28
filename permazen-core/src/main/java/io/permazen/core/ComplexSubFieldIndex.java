@@ -6,7 +6,7 @@
 package io.permazen.core;
 
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.util.NavigableSet;
@@ -50,16 +50,16 @@ public abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
         assert this.getField() instanceof ReferenceField;
 
         // Build the index entry prefix common to all referrers' index entries
-        final ByteWriter writer = new ByteWriter(this.storageIdEncodedLength + ObjId.NUM_BYTES * 2);
+        final ByteData.Writer writer = ByteData.newWriter(this.storageIdEncodedLength + ObjId.NUM_BYTES * 2);
         UnsignedIntEncoder.write(writer, this.storageId);
         target.writeTo(writer);
-        final int mark = writer.mark();
+        final int mark = writer.size();
 
         // Iterate over referrers, extend index entry, and let sub-class do the rest
         for (ObjId referrer : referrers) {
-            writer.reset(mark);
+            writer.truncate(mark);
             referrer.writeTo(writer);
-            this.unreference(tx, remove, target, referrer, writer.getBytes());
+            this.unreference(tx, remove, target, referrer, writer.toByteData());
         }
     }
 
@@ -75,5 +75,5 @@ public abstract class ComplexSubFieldIndex<C, T> extends SimpleIndex<T> {
      * @param referrer object containing this field which refers to {@code target}
      * @param prefix (possibly partial) index entry containing {@code target} and {@code referrer}
      */
-    abstract void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, byte[] prefix);
+    abstract void unreference(Transaction tx, boolean remove, ObjId target, ObjId referrer, ByteData prefix);
 }

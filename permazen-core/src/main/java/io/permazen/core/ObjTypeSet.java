@@ -8,7 +8,7 @@ package io.permazen.core;
 import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.util.NavigableSet;
 
@@ -27,7 +27,7 @@ final class ObjTypeSet extends EncodingSet<ObjId> {
      * @param storageId object type storage ID
      */
     ObjTypeSet(Transaction tx, int storageId) {
-        super(tx.kvt, Encodings.OBJ_ID, true, false, ByteUtil.EMPTY,
+        super(tx.kvt, Encodings.OBJ_ID, true, false, ByteData.empty(),
           ObjId.getKeyRange(storageId), null, new Bounds<>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
         this.tx = tx;
     }
@@ -38,7 +38,7 @@ final class ObjTypeSet extends EncodingSet<ObjId> {
      * @param tx transaction
      */
     ObjTypeSet(Transaction tx) {
-        super(tx.kvt, Encodings.OBJ_ID, true, false, ByteUtil.EMPTY,
+        super(tx.kvt, Encodings.OBJ_ID, true, false, ByteData.empty(),
           null, tx.getSchemaBundle().getObjTypesKeyRanges(), new Bounds<>());
         this.tx = tx;
     }
@@ -54,7 +54,7 @@ final class ObjTypeSet extends EncodingSet<ObjId> {
      * @param bounds range restriction
      */
     private ObjTypeSet(Transaction tx, boolean reversed,
-      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<ObjId> bounds) {
+      ByteData prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<ObjId> bounds) {
         super(tx.kvt, Encodings.OBJ_ID, true, reversed, prefix, keyRange, keyFilter, bounds);
         this.tx = tx;
     }

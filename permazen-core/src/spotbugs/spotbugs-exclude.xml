@@ -60,4 +60,9 @@
         <Field name="versionChangeListeners"/>
         <Bug pattern="IS_FIELD_NOT_GUARDED"/>
     </Match>
+    <Match>
+        <Class name="io.permazen.core.Layout"/>
+        <Method name="~(getFormatVersionKey|getMetaDataKeyPrefix|getSchemaIndexKeyPrefix|getSchemaTablePrefix|getStorageIdTablePrefix|getUserMetaDataKeyPrefix)"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
 </FindBugsFilter>

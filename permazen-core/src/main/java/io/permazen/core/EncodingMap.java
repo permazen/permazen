@@ -13,9 +13,8 @@ import io.permazen.kv.KeyFilter;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.util.AbstractKVNavigableMap;
 import io.permazen.util.Bounds;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +31,7 @@ import java.util.Comparator;
 abstract class EncodingMap<K, V> extends AbstractKVNavigableMap<K, V> {
 
     final Encoding<K> keyEncoding;
-    final byte[] prefix;
+    final ByteData prefix;
 
     /**
      * Primary constructor.
@@ -44,7 +43,7 @@ abstract class EncodingMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code keyEncoding} is null
      * @throws IllegalArgumentException if {@code prefix} is null
      */
-    EncodingMap(KVStore kv, Encoding<K> keyEncoding, boolean prefixMode, byte[] prefix) {
+    EncodingMap(KVStore kv, Encoding<K> keyEncoding, boolean prefixMode, ByteData prefix) {
         this(kv, keyEncoding, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<>());
     }
 
@@ -66,7 +65,7 @@ abstract class EncodingMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code prefix} is not null but {@code keyRange} does not restrict within {@code prefix}
      */
     EncodingMap(KVStore kv, Encoding<K> keyEncoding, boolean prefixMode, boolean reversed,
-      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
+      ByteData prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(kv, prefixMode, reversed, keyRange, keyFilter, bounds);
         Preconditions.checkArgument(keyEncoding != null, "null keyEncoding");
         Preconditions.checkArgument(prefix != null, "null prefix");
@@ -85,15 +84,15 @@ abstract class EncodingMap<K, V> extends AbstractKVNavigableMap<K, V> {
     }
 
     @Override
-    protected void encodeKey(ByteWriter writer, Object obj) {
+    protected void encodeKey(ByteData.Writer writer, Object obj) {
         writer.write(this.prefix);
         this.keyEncoding.validateAndWrite(writer, obj);
     }
 
     @Override
-    protected K decodeKey(ByteReader reader) {
-        assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
-        reader.skip(this.prefix.length);
+    protected K decodeKey(ByteData.Reader reader) {
+        assert reader.dataNotYetRead().startsWith(this.prefix);
+        reader.skip(this.prefix.size());
         return this.keyEncoding.read(reader);
     }
 }

@@ -19,13 +19,13 @@ import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.schema.SchemaId;
 import io.permazen.schema.SchemaModel;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.NavigableSets;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.io.Closeable;
-import java.util.Arrays;
 import java.util.NavigableSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -335,13 +335,13 @@ public class Database {
         Preconditions.checkArgument(txConfig != null, "null txConfig");
 
         // Get some key prefixes we need
-        final byte[] formatKey = Layout.getFormatVersionKey();
-        final byte[] metaDataPrefix = Layout.getMetaDataKeyPrefix();
-        final byte[] userPrefix = Layout.getUserMetaDataKeyPrefix();
-        final byte[] schemaPrefix = Layout.getSchemaTablePrefix();
-        final byte[] storageIdPrefix = Layout.getStorageIdTablePrefix();
-        final byte[] endOfStorageIdTable = ByteUtil.getKeyAfterPrefix(storageIdPrefix);
-        final byte[] schemaIndexPrefix = Layout.getSchemaIndexKeyPrefix();
+        final ByteData formatKey = Layout.getFormatVersionKey();
+        final ByteData metaDataPrefix = Layout.getMetaDataKeyPrefix();
+        final ByteData userPrefix = Layout.getUserMetaDataKeyPrefix();
+        final ByteData schemaPrefix = Layout.getSchemaTablePrefix();
+        final ByteData storageIdPrefix = Layout.getStorageIdTablePrefix();
+        final ByteData endOfStorageIdTable = ByteUtil.getKeyAfterPrefix(storageIdPrefix);
+        final ByteData schemaIndexPrefix = Layout.getSchemaIndexKeyPrefix();
 
         // Extract config info
         final SchemaModel schemaModel = txConfig.getSchemaModel();
@@ -354,7 +354,7 @@ public class Database {
             this.log.trace("creating transaction using {}", emptySchema ? "empty schema" : "schema \"" + schemaId + "\"");
 
         // We will pretend user meta-data is invisible
-        final Predicate<byte[]> userMetaData = key -> ByteUtil.isPrefixOf(userPrefix, key);
+        final Predicate<ByteData> userMetaData = key -> key.startsWith(userPrefix);
 
         // Get iterator over meta-data key/value pairs
         final int formatVersion;
@@ -362,13 +362,13 @@ public class Database {
         try (CloseableIterator<KVPair> metaDataIterator = kvstore.getRange(KeyRange.forPrefix(metaDataPrefix))) {
 
             // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
-            byte[] formatVersionBytes = null;
+            ByteData formatVersionBytes = null;
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
-                final byte[] key = pair.getKey();
+                final ByteData key = pair.getKey();
 
-                assert ByteUtil.isPrefixOf(metaDataPrefix, key);
-                if (Arrays.equals(key, formatKey))
+                assert key.startsWith(metaDataPrefix);
+                if (key.equals(formatKey))
                     formatVersionBytes = pair.getValue();
                 else if (!userMetaData.test(key)) {
                     throw new InconsistentDatabaseException(String.format(
@@ -380,9 +380,13 @@ public class Database {
             uninitialized = formatVersionBytes == null;
             if (uninitialized) {
 
+                // A couple of constants
+                final ByteData empty = ByteData.empty();
+                final ByteData xFF = ByteData.of(0xff);
+
                 // Sanity checks
-                final KVPair first = kvstore.getAtLeast(new byte[0], null);
-                final KVPair last = kvstore.getAtMost(new byte[] { (byte)0xff }, null);
+                final KVPair first = kvstore.getAtLeast(empty, null);
+                final KVPair last = kvstore.getAtMost(xFF, null);
                 if (first != null && !userMetaData.test(first.getKey())) {
                     throw new InconsistentDatabaseException(String.format(
                       "database is uninitialized but contains unrecognized garbage (key %s)", ByteUtil.toString(first.getKey())));
@@ -391,16 +395,16 @@ public class Database {
                     throw new InconsistentDatabaseException(String.format(
                       "database is uninitialized but contains unrecognized garbage (key %s)", ByteUtil.toString(last.getKey())));
                 }
-                if ((first != null) != (last != null) || (first != null && ByteUtil.compare(first.getKey(), last.getKey()) > 0))
+                if ((first != null) != (last != null) || (first != null && first.getKey().compareTo(last.getKey()) > 0))
                     throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
-                try (CloseableIterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff })) {
+                try (CloseableIterator<KVPair> testIterator = kvstore.getRange(empty, xFF)) {
                     if (testIterator.hasNext() ?
-                      first == null || !Arrays.equals(testIterator.next().getKey(), first.getKey()) : first != null)
+                      first == null || !testIterator.next().getKey().equals(first.getKey()) : first != null)
                         throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
                 }
-                try (CloseableIterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff }, true)) {
+                try (CloseableIterator<KVPair> testIterator = kvstore.getRange(empty, xFF, true)) {
                     if (testIterator.hasNext() ?
-                      last == null || !Arrays.equals(testIterator.next().getKey(), last.getKey()) : last != null)
+                      last == null || !testIterator.next().getKey().equals(last.getKey()) : last != null)
                         throw new InconsistentDatabaseException("inconsistent results from getAtMost() and getRange()");
                 }
                 if (!emptySchema)
@@ -409,14 +413,14 @@ public class Database {
                 // Initialize database
                 formatVersion = Layout.CURRENT_FORMAT_VERSION;
                 this.log.debug("detected an uninitialized database; initializing with format version {}", formatVersion);
-                final byte[] encodedFormatVersion = UnsignedIntEncoder.encode(formatVersion);
+                final ByteData encodedFormatVersion = UnsignedIntEncoder.encode(formatVersion);
                 kvstore.put(formatKey, encodedFormatVersion);
 
                 // Sanity check again
                 formatVersionBytes = kvstore.get(formatKey);
-                if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, encodedFormatVersion) != 0)
+                if (formatVersionBytes == null || !formatVersionBytes.equals(encodedFormatVersion))
                     throw new InconsistentDatabaseException("database failed basic read/write test");
-                final KVPair lower = kvstore.getAtLeast(new byte[0], null);
+                final KVPair lower = kvstore.getAtLeast(empty, null);
                 if (lower == null || !lower.equals(new KVPair(formatKey, encodedFormatVersion)))
                     throw new InconsistentDatabaseException("database failed basic read/write test");
                 final KVPair upper = kvstore.getAtMost(userPrefix, null);
@@ -446,8 +450,8 @@ public class Database {
             // There should not be any other meta data prior to the schema table
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
-                final byte[] key = pair.getKey();
-                if (ByteUtil.compare(key, schemaPrefix) < 0) {
+                final ByteData key = pair.getKey();
+                if (key.compareTo(schemaPrefix) < 0) {
                     throw new InconsistentDatabaseException(String.format(
                       "database contains unrecognized garbage at key %s", ByteUtil.toString(key)));
                 }

@@ -15,8 +15,7 @@ import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVTransaction;
 import io.permazen.schema.SetSchemaField;
 import io.permazen.schema.SimpleSchemaField;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.ImmutableNavigableSet;
 
@@ -50,7 +49,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     /**
-     * Get the {@code byte[]} key in the underlying key/value store corresponding to this field in the specified object
+     * Get the key in the underlying key/value store corresponding to this field in the specified object
      * and the specified element.
      *
      * @param id object ID
@@ -59,16 +58,16 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
      * @throws IllegalArgumentException if {@code id} is null or has the wrong object type
      * @see KVTransaction#watchKey KVTransaction.watchKey()
      */
-    public byte[] getKey(ObjId id, E element) {
+    public ByteData getKey(ObjId id, E element) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
 
         // Build key
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         writer.write(super.getKey(id));
         this.elementField.encoding.write(writer, element);
-        return writer.getBytes();
+        return writer.toByteData();
     }
 
     @Override
@@ -156,9 +155,9 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
-    void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
+    void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteData content, ByteData value, ByteData.Writer writer) {
         assert subField == this.elementField;
-        writer.write(reader);
+        writer.write(content);
         id.writeTo(writer);
     }
 }
