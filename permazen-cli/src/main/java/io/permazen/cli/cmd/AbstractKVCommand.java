@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.cli.parse.Parser;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.util.regex.Pattern;
 
@@ -39,7 +39,7 @@ public abstract class AbstractKVCommand extends AbstractCommand {
     }
 
     /**
-     * Convert a {@code byte[]} array into a double-quoted C-string representation, surrounded by double quotes,
+     * Convert {@code byte[]} data into a double-quoted C-string representation, surrounded by double quotes,
      * with non-ASCII bytes, double-quotes, and backslashes escaped with a backslash.
      *
      * <p>
@@ -48,11 +48,11 @@ public abstract class AbstractKVCommand extends AbstractCommand {
      * @param data byte array
      * @return C string representation
      */
-    public static String toCString(byte[] data) {
+    public static String toCString(ByteData data) {
         Preconditions.checkArgument(data != null, "null data");
-        StringBuilder buf = new StringBuilder(data.length + 4);
+        StringBuilder buf = new StringBuilder(data.size() + 4);
         buf.append('"');
-        for (byte b : data) {
+        for (byte b : data.toByteArray()) {
             final int ch = b & 0xff;
 
             // Handle special escapes
@@ -97,19 +97,18 @@ public abstract class AbstractKVCommand extends AbstractCommand {
     }
 
     /**
-     * Parse a {@code byte[]} array encoded as a double-quoted C-string representation by {@link #toCString toCString()}.
+     * Parse {@code byte[]} data encoded as a double-quoted C-string representation by {@link #toCString toCString()}.
      *
      * @param string C string
-     * @return byte array
+     * @return byte data
      * @throws IllegalArgumentException if {@code string} is malformed
      */
-    public static byte[] fromCString(String string) {
+    public static ByteData fromCString(String string) {
         Preconditions.checkArgument(string != null, "null string");
         Preconditions.checkArgument(string.length() >= 2 && string.charAt(0) == '"' && string.charAt(string.length() - 1) == '"',
             "string is not contained in double quotes");
         string = string.substring(1, string.length() - 1);
-        byte[] buf = new byte[string.length()];
-        int index = 0;
+        final ByteData.Writer buf = ByteData.newWriter(string.length());
         for (int i = 0; i < string.length(); i++) {
             char ch = string.charAt(i);
 
@@ -117,7 +116,7 @@ public abstract class AbstractKVCommand extends AbstractCommand {
             if (ch != '\\') {
                 Preconditions.checkArgument(ch >= 0x20 && ch <= 0x7e,
                   String.format("illegal character 0x%02x in encoded string", ch & 0xff));
-                buf[index++] = (byte)ch;
+                buf.write(ch);
                 continue;
             }
 
@@ -128,66 +127,64 @@ public abstract class AbstractKVCommand extends AbstractCommand {
             // Check for special escapes
             switch (ch) {
             case '"':
-                buf[index++] = (byte)'"';
+                buf.write('"');
                 continue;
             case '\\':
-                buf[index++] = (byte)'\\';
+                buf.write('\\');
                 continue;
             case 'b':
-                buf[index++] = (byte)'\b';
+                buf.write('\b');
                 continue;
             case 't':
-                buf[index++] = (byte)'\t';
+                buf.write('\t');
                 continue;
             case 'n':
-                buf[index++] = (byte)'\n';
+                buf.write('\n');
                 continue;
             case 'f':
-                buf[index++] = (byte)'\f';
+                buf.write('\f');
                 continue;
             case 'r':
-                buf[index++] = (byte)'\r';
+                buf.write('\r');
                 continue;
             default:
                 break;
             }
 
             // Must be hex escape
-            Preconditions.checkArgument(ch == 'x', "illegal escape sequence '\\" + ch + "' in encoded string");
+            if (ch != 'x')
+                throw new IllegalArgumentException(String.format("illegal escape sequence '\\%c' in encoded string", ch));
 
             // Decode hex value
             Preconditions.checkArgument(i + 2 < string.length(), "illegal truncated '\\x' escape sequence in encoded string");
             int value = 0;
             for (int j = 0; j < 2; j++) {
                 int nibble = Character.digit(string.charAt(++i), 16);
-                Preconditions.checkArgument(nibble != -1,
-                  "illegal escape sequence '" + string.substring(i - j - 2, i - j + 2) + "' in encoded string");
+                if (nibble == -1) {
+                    throw new IllegalArgumentException(String.format(
+                      "illegal escape sequence '%s' in encoded string", string.substring(i - j - 2, i - j + 2)));
+                }
                 assert nibble >= 0 && nibble <= 0xf;
                 value = (value << 4) | nibble;
             }
 
             // Append decoded byte
-            buf[index++] = (byte)value;
+            buf.write(value);
         }
-        if (index < buf.length) {
-            final byte[] newbuf = new byte[index];
-            System.arraycopy(buf, 0, newbuf, 0, index);
-            buf = newbuf;
-        }
-        return buf;
+        return buf.toByteData();
     }
 
 // BytesParser
 
     /**
-     * Parses a {@code byte[]} array as hexadecimal or doubly-quoted "C" style string.
+     * Parses {@code byte[]} data as hexadecimal or doubly-quoted "C" style string.
      *
      * @see AbstractKVCommand#toCString
      */
-    public static class BytesParser implements Parser<byte[]> {
+    public static class BytesParser implements Parser<ByteData> {
 
         @Override
-        public byte[] parse(Session session, String text) {
+        public ByteData parse(Session session, String text) {
             Preconditions.checkArgument(session != null, "null session");
             Preconditions.checkArgument(text != null, "null text");
             try {
@@ -196,7 +193,7 @@ public abstract class AbstractKVCommand extends AbstractCommand {
                 // failed
             }
             try {
-                return ByteUtil.parse(text);
+                return ByteData.fromHex(text);
             } catch (IllegalArgumentException e) {
                 // failed
             }

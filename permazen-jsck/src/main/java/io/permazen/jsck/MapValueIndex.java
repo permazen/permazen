@@ -8,11 +8,10 @@ package io.permazen.jsck;
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
 import io.permazen.encoding.Encoding;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
-import java.util.Arrays;
 import java.util.NavigableMap;
+import java.util.Objects;
 
 class MapValueIndex<K, V>
   extends ComplexSubFieldIndex<NavigableMap<K, V>, MapField<K, V>, V, io.permazen.core.MapValueIndex<K, V>> {
@@ -25,23 +24,23 @@ class MapValueIndex<K, V>
     }
 
     @Override
-    protected void validateIndexEntrySuffix(JsckInfo info, ByteReader reader, byte[] indexValue, ObjId id) {
+    protected void validateIndexEntrySuffix(JsckInfo info, ByteData.Reader reader, ByteData indexValue, ObjId id) {
 
         // Decode map key
-        final byte[] indexKeyValue = this.validateEncodedBytes(reader, this.keyEncoding);
+        final ByteData indexKeyValue = this.validateEncodedBytes(reader, this.keyEncoding);
         this.validateEOF(reader);
 
         // Validate value exists in map under specified key
         if (info.getConfig().isRepair()) {
-            final ByteWriter writer = this.buildFieldKey(id, this.parentField.getStorageId());
+            final ByteData.Writer writer = this.buildFieldKey(id, this.parentField.getStorageId());
             writer.write(indexKeyValue);
-            final byte[] key = writer.getBytes();
-            final byte[] actualValue = info.getKVStore().get(key);
+            final ByteData key = writer.toByteData();
+            final ByteData actualValue = info.getKVStore().get(key);
             if (actualValue == null) {
                 throw new IllegalArgumentException(String.format(
                   "object %s %s value index does not contain indexed value %s key %s",
                   id, this.parentField, Jsck.ds(indexKeyValue)));
-            } else if (!Arrays.equals(actualValue, indexValue)) {
+            } else if (!Objects.equals(actualValue, indexValue)) {
                 throw new IllegalArgumentException(String.format(
                   "object %s %s value index contains value %s != %s under key %s",
                   id, this.parentField, Jsck.ds(actualValue), Jsck.ds(indexValue), Jsck.ds(indexKeyValue)));

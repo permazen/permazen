@@ -23,8 +23,7 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.test.KVTestSupport;
 import io.permazen.kv.util.MemoryKVStore;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.slf4j.event.Level;
@@ -106,8 +106,8 @@ public class JsckTest extends KVTestSupport {
         final ObjId deletedId = deleted.getObjId();
         final int deletedSchemaIndex = jtx.getTransaction().getObjType(deletedId).getSchema().getSchemaIndex();
         kv.removeRange(KeyRange.forPrefix(deletedId.getBytes()));
-        kv.remove(ByteUtil.parse("aaff1022222222222222"));                  // index entry for delete.name
-        kv.remove(ByteUtil.parse("bbff1022222222222222"));                  // index entry for delete.spouse
+        kv.remove(ByteData.fromHex("aaff1022222222222222"));                  // index entry for delete.name
+        kv.remove(ByteData.fromHex("bbff1022222222222222"));                  // index entry for delete.spouse
         kv.remove(Layout.buildSchemaIndexKey(deletedId, deletedSchemaIndex));
 
         // Prepare KV's
@@ -212,44 +212,44 @@ public class JsckTest extends KVTestSupport {
         list.add(new Object[] { index++, standardConfig, base.clone(), base.clone(), Collections.<Void>emptySet() });
 
         // Get key prefixes
-        final byte[] formatVersionKey = Layout.getFormatVersionKey();
-        final byte[] schemaTablePrefix = Layout.getSchemaTablePrefix();
-        final byte[] storageIdTablePrefix = Layout.getStorageIdTablePrefix();
-        final byte[] schemaIndexKeyPrefix = Layout.getSchemaIndexKeyPrefix();
+        final ByteData formatVersionKey = Layout.getFormatVersionKey();
+        final ByteData schemaTablePrefix = Layout.getSchemaTablePrefix();
+        final ByteData storageIdTablePrefix = Layout.getStorageIdTablePrefix();
+        final ByteData schemaIndexKeyPrefix = Layout.getSchemaIndexKeyPrefix();
 
         // Test adding random extra keys that don't belong
-        final ByteWriter versionPrefixWriter = new ByteWriter();
+        final ByteData.Writer versionPrefixWriter = ByteData.newWriter();
         versionPrefixWriter.write(schemaIndexKeyPrefix);
         Encodings.UNSIGNED_INT.write(versionPrefixWriter, SNAPSHOT_SCHEMA_INDEX);
-        final byte[] versionPrefix = versionPrefixWriter.getBytes();
+        final ByteData versionPrefix = versionPrefixWriter.toByteData();
         for (int i = 0; i < 1; i++) {
             final MemoryKVStore before = base.clone();
             final MemoryKVStore after = base.clone();
             final ArrayList<Consumer<KVStore>> mutations = new ArrayList<>(40);
             for (int j = 0; j < 40; j++) {
-                final byte[] key = this.randomBytes(0, 20, false);
+                final ByteData key = this.randomBytes(0, 20, false);
 
                 // Avoid keys starting with 0xff
-                if (key.length > 0 && (key[0] & 0xff) == 0xff)
+                if (!key.isEmpty() && (key.byteAt(0) & 0xff) == 0xff)
                     continue;
 
                 // Avoid keys that intersect with meta-data
-                if (Arrays.equals(key, formatVersionKey))
+                if (Objects.equals(key, formatVersionKey))
                     continue;
-                if (ByteUtil.isPrefixOf(schemaTablePrefix, key))
+                if (key.startsWith(schemaTablePrefix))
                     continue;
-                if (ByteUtil.isPrefixOf(storageIdTablePrefix, key))
+                if (key.startsWith(storageIdTablePrefix))
                     continue;
-                if (ByteUtil.isPrefixOf(versionPrefix, key) && key.length == versionPrefix.length + ObjId.NUM_BYTES)
+                if (key.startsWith(versionPrefix) && key.size() == versionPrefix.size() + ObjId.NUM_BYTES)
                     continue;
-                final byte[] value = this.randomBytes(0, 20, false);
+                final ByteData value = this.randomBytes(0, 20, false);
 
                 // Avoid keys that overwrite any existing data
                 if (before.get(key) != null)
                     continue;
 
                 // Avoid keys that could alter add/change object fields
-                if (key.length > ObjId.NUM_BYTES && before.get(Arrays.copyOfRange(key, 0, ObjId.NUM_BYTES)) != null)
+                if (key.size() > ObjId.NUM_BYTES && before.get(key.substring(0, ObjId.NUM_BYTES)) != null)
                     continue;
 
                 // Add key
@@ -260,6 +260,14 @@ public class JsckTest extends KVTestSupport {
 
         // Done
         return list.toArray(new Object[list.size()][]);
+    }
+
+    private ByteData randomBytes(int minLength, int maxLength, boolean allowNull) {
+        if (allowNull && this.random.nextFloat() < 0.1f)
+            return null;
+        final byte[] bytes = new byte[minLength + this.random.nextInt(maxLength - minLength)];
+        this.random.nextBytes(bytes);
+        return ByteData.of(bytes);
     }
 
     private void copy(MemoryKVStore from, MemoryKVStore to) {

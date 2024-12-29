@@ -11,6 +11,7 @@ import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVTransaction;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -58,8 +59,8 @@ public class KVGetCommand extends AbstractKVCommand {
         final boolean cstrings = params.containsKey("cstrings");
         final boolean range = params.containsKey("range");
         final boolean novals = params.containsKey("novals");
-        final byte[] key = (byte[])params.get("key");
-        final byte[] maxKey = (byte[])params.get("maxKey");
+        final ByteData key = (ByteData)params.get("key");
+        final ByteData maxKey = (ByteData)params.get("maxKey");
         final Integer limit = (Integer)params.get("limit");
         if (maxKey != null && !range)
             throw new IllegalArgumentException("\"-range\" must be specified to retrieve a range of keys");
@@ -71,17 +72,17 @@ public class KVGetCommand extends AbstractKVCommand {
         private final boolean cstrings;
         private final boolean range;
         private final boolean novals;
-        private final byte[] key;
-        private final byte[] maxKey;
+        private final ByteData key;
+        private final ByteData maxKey;
         private final Integer limit;
 
-        GetAction(boolean cstrings, boolean range, boolean novals, byte[] key, byte[] maxKey, Integer limit) {
+        GetAction(boolean cstrings, boolean range, boolean novals, ByteData key, ByteData maxKey, Integer limit) {
             this.cstrings = cstrings;
             this.range = range;
             this.novals = novals;
             this.key = key;
             this.maxKey = maxKey != null || !range ? maxKey :
-              key.length > 0 ? ByteUtil.getKeyAfterPrefix(key) : null;
+              !key.isEmpty() ? ByteUtil.getKeyAfterPrefix(key) : null;
             this.limit = limit;
         }
 
@@ -92,7 +93,7 @@ public class KVGetCommand extends AbstractKVCommand {
 
             // Handle single key
             if (!this.range) {
-                final byte[] value = kvt.get(this.key);
+                final ByteData value = kvt.get(this.key);
                 writer.println(value != null && this.cstrings ? AbstractKVCommand.toCString(value) : ByteUtil.toString(value));
                 return;
             }
@@ -154,18 +155,18 @@ public class KVGetCommand extends AbstractKVCommand {
         return count;
     }
 
-    private static void decode(PrintStream writer, String prefix, byte[] value) {
-        for (int i = 0; i < value.length; i += 32) {
+    private static void decode(PrintStream writer, String prefix, ByteData value) {
+        for (int i = 0; i < value.size(); i += 32) {
             writer.print(prefix);
             for (int j = 0; j < 32; j++) {
-                writer.print(i + j < value.length ? String.format("%02x", value[i + j] & 0xff) : "  ");
+                writer.print(i + j < value.size() ? String.format("%02x", value.ubyteAt(i + j)) : "  ");
                 if (j % 4 == 3)
                     writer.print(' ');
             }
             writer.print("   ");
-            for (int j = 0; j < 32 && i + j < value.length; j++) {
-                final int ch = value[i + j] & 0xff;
-                writer.print(i + j < value.length ? (ch < 0x20 || ch > 0x7f ? '.' : (char)ch) : ' ');
+            for (int j = 0; j < 32 && i + j < value.size(); j++) {
+                final int ch = value.ubyteAt(i + j);
+                writer.print(i + j < value.size() ? (ch < 0x20 || ch > 0x7f ? '.' : (char)ch) : ' ');
             }
             writer.println();
         }

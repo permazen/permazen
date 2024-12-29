@@ -7,6 +7,7 @@ package io.permazen.cli.cmd;
 
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
+import io.permazen.util.ByteData;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -36,15 +37,15 @@ public class KVPutCommand extends AbstractKVCommand {
 
     @Override
     public Session.Action getAction(Session session, Map<String, Object> params) {
-        return new PutAction((byte[])params.get("key"), (byte[])params.get("value"));
+        return new PutAction((ByteData)params.get("key"), (ByteData)params.get("value"));
     }
 
     private static class PutAction implements KVAction {
 
-        private final byte[] key;
-        private final byte[] value;
+        private final ByteData key;
+        private final ByteData value;
 
-        PutAction(byte[] key, byte[] value) {
+        PutAction(ByteData key, ByteData value) {
             this.key = key;
             this.value = value;
         }

@@ -7,8 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.MapField;
 import io.permazen.core.ObjId;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.NavigableMap;
 
@@ -19,17 +18,17 @@ class MapKeyIndex<K, V> extends ComplexSubFieldIndex<NavigableMap<K, V>, MapFiel
     }
 
     @Override
-    protected void validateIndexEntrySuffix(JsckInfo info, ByteReader reader, byte[] indexKeyValue, ObjId id) {
+    protected void validateIndexEntrySuffix(JsckInfo info, ByteData.Reader reader, ByteData indexKeyValue, ObjId id) {
 
         // No additional info
         this.validateEOF(reader);
 
         // Validate key exists in map
         if (info.getConfig().isRepair()) {
-            final ByteWriter writer = this.buildFieldKey(id, this.parentField.getStorageId());
+            final ByteData.Writer writer = this.buildFieldKey(id, this.parentField.getStorageId());
             writer.write(indexKeyValue);
-            final byte[] key = writer.getBytes();
-            final byte[] actualValue = info.getKVStore().get(key);
+            final ByteData key = writer.toByteData();
+            final ByteData actualValue = info.getKVStore().get(key);
             if (actualValue == null) {
                 throw new IllegalArgumentException(String.format(
                   "object %s %s key index does not contain indexed value %s",

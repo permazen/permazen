@@ -65,11 +65,11 @@ public class KVLoadCommand extends AbstractKVCommand {
             final KVTransaction kvt = session.getKVTransaction();
             if (this.reset)
                 kvt.removeRange(null, null);
-            final int count;
+            final long count;
             try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file))) {
                 count = new XMLSerializer(kvt).read(input);
             }
-            session.getOutput().println("Read " + count + " key/value pairs from \"" + this.file + "\"");
+            session.getOutput().println(String.format("Read %d key/value pairs from \"%s\"", count, this.file));
         }
     }
 }

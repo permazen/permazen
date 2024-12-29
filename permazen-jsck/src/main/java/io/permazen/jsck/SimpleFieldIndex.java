@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.ObjId;
 import io.permazen.core.SimpleField;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 
 class SimpleFieldIndex<T, I extends io.permazen.core.SimpleFieldIndex<T>> extends SimpleIndex<T, I> {
 
@@ -16,7 +16,7 @@ class SimpleFieldIndex<T, I extends io.permazen.core.SimpleFieldIndex<T>> extend
     }
 
     @Override
-    protected void validateIndexEntrySuffix(JsckInfo info, ByteReader reader, byte[] indexValue, ObjId id) {
+    protected void validateIndexEntrySuffix(JsckInfo info, ByteData.Reader reader, ByteData indexValue, ObjId id) {
 
         // No additional info
         this.validateEOF(reader);

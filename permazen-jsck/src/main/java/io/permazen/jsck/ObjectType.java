@@ -25,9 +25,7 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.encoding.Encoding;
 import io.permazen.kv.KVPair;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
+import io.permazen.util.ByteData;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,26 +60,26 @@ class ObjectType extends Storage<ObjType> {
     public void validateObjectData(JsckInfo info, ObjId id, int schemaIndex, PeekingIterator<KVPair> i) {
 
         // Get object info
-        final byte[] objectPrefix = id.getBytes();
+        final ByteData objectPrefix = id.getBytes();
 
         // Keep track of which simple fields we see with non-default values
         final HashSet<SimpleField<?>> indexedSimpleFieldsWithDefaultValues = new HashSet<>(this.indexedSimpleFields);
 
         // Keep track of simple field values (after possible fixups)
-        final HashMap<String, byte[]> simpleFieldValues = new HashMap<>();
+        final HashMap<String, ByteData> simpleFieldValues = new HashMap<>();
 
         // Scan field data; note we will not see simple fields with default values in this loop
         while (i.hasNext()) {
             final KVPair pair = i.peek();
-            final byte[] key = pair.getKey();
+            final ByteData key = pair.getKey();
 
             // Have we reached the end of the object?
-            if (!ByteUtil.isPrefixOf(objectPrefix, key))
+            if (!key.startsWith(objectPrefix))
                 break;
-            assert key.length > ObjId.NUM_BYTES;
+            assert key.size() > ObjId.NUM_BYTES;
 
             // Decode field storage ID
-            final ByteReader keyReader = new ByteReader(key, ObjId.NUM_BYTES);
+            final ByteData.Reader keyReader = key.newReader(ObjId.NUM_BYTES);
             final int storageId;
             try {
                 storageId = Encodings.UNSIGNED_INT.read(keyReader);
@@ -105,7 +103,7 @@ class ObjectType extends Storage<ObjType> {
             }
 
             // Build field prefix
-            final byte[] fieldPrefix = keyReader.getBytes(0, keyReader.getOffset());
+            final ByteData fieldPrefix = keyReader.dataReadSoFar();
 
             // Scan field
             if (info.isDetailEnabled())
@@ -113,7 +111,7 @@ class ObjectType extends Storage<ObjType> {
             field.visit(new FieldSwitch<Void>() {
                 @Override
                 public <T> Void caseSimpleField(SimpleField<T> field) {
-                    final byte[] value = ObjectType.this.checkSimpleField(info, id, field, fieldPrefix, i);
+                    final ByteData value = ObjectType.this.checkSimpleField(info, id, field, fieldPrefix, i);
                     simpleFieldValues.put(field.getName(), value);
                     if (value != null)
                         indexedSimpleFieldsWithDefaultValues.remove(field);
@@ -141,12 +139,12 @@ class ObjectType extends Storage<ObjType> {
                 }
             });
         }
-        assert !i.hasNext() || !ByteUtil.isPrefixOf(objectPrefix, i.peek().getKey());
+        assert !i.hasNext() || !i.peek().getKey().startsWith(objectPrefix);
 
         // Verify index entries for indexed simple fields that had default values (which we would not have encountered)
         for (SimpleField<?> field : indexedSimpleFieldsWithDefaultValues) {
             final Encoding<?> encoding = field.getEncoding();
-            final byte[] defaultValue = encoding.getDefaultValueBytes();
+            final ByteData defaultValue = encoding.getDefaultValueBytes();
             this.verifySimpleIndexEntry(info, id, field, defaultValue);
         }
 
@@ -158,8 +156,9 @@ class ObjectType extends Storage<ObjType> {
         this.verifySchemaIndexEntry(info, id, schemaIndex);
     }
 
-    // Returns field's byte[] value if field has non-default value, otherwise null
-    private <T> byte[] checkSimpleField(JsckInfo info, ObjId id, SimpleField<T> field, byte[] prefix, PeekingIterator<KVPair> i) {
+    // Returns field's binary value if field has non-default value, otherwise null
+    private <T> ByteData checkSimpleField(JsckInfo info,
+      ObjId id, SimpleField<T> field, ByteData prefix, PeekingIterator<KVPair> i) {
 
         // Get encoding
         final Encoding<?> encoding = field.getEncoding();
@@ -168,23 +167,23 @@ class ObjectType extends Storage<ObjType> {
         // Get field key/value pair
         final KVPair pair = i.next();
         assert pair != null;
-        assert ByteUtil.isPrefixOf(prefix, pair.getKey());
+        assert pair.getKey().startsWith(prefix);
 
         // Check for trailing garbage in key
-        if (pair.getKey().length > prefix.length) {
+        if (pair.getKey().size() > prefix.size()) {
             info.handle(new InvalidKey(pair).setDetail(id, field,
-              "trailing garbage %s", Jsck.ds(new ByteReader(pair.getKey(), prefix.length))));
+              "trailing garbage %s", Jsck.ds(pair.getKey().newReader(prefix.size()))));
             return null;
         }
 
         // Decode value
-        byte[] value = pair.getValue();
-        final ByteReader reader = new ByteReader(pair.getValue());
+        ByteData value = pair.getValue();
+        final ByteData.Reader reader = pair.getValue().newReader();
         if (!this.validateSimpleFieldValue(info, id, field, pair, reader))
             value = null;
 
         // We should not see default values in simple fields that are not sub-fields of complex fields
-        if (value != null && ByteUtil.compare(value, encoding.getDefaultValueBytes()) == 0) {
+        if (value != null && value.compareTo(encoding.getDefaultValueBytes()) == 0) {
             info.handle(new InvalidValue(pair).setDetail("default value should not be present"));
             value = null;
         }
@@ -197,70 +196,76 @@ class ObjectType extends Storage<ObjType> {
         return value;
     }
 
-    private <E> void checkSetField(JsckInfo info, ObjId id, SetField<E> field, byte[] prefix, PeekingIterator<KVPair> i) {
+    private <E> void checkSetField(JsckInfo info, ObjId id, SetField<E> field, ByteData prefix, PeekingIterator<KVPair> i) {
 
         // Get element field
         final SimpleField<E> elementField = field.getElementField();
 
         // Iterate over set elements
-        while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
+        while (i.hasNext() && i.peek().getKey().startsWith(prefix)) {
             final KVPair pair = i.next();
 
             // Verify encoded element
-            final ByteReader reader = new ByteReader(pair.getKey(), prefix.length);
+            final ByteData.Reader reader = pair.getKey().newReader(prefix.size());
             if (!this.validateSimpleFieldValue(info, id, elementField, pair, reader))
                 continue;
 
             // Value should be empty
-            if (pair.getValue().length != 0)
-                info.handle(new InvalidValue(pair, ByteUtil.EMPTY).setDetail(id, elementField, "should be empty"));
+            if (!pair.getValue().isEmpty())
+                info.handle(new InvalidValue(pair, ByteData.empty()).setDetail(id, elementField, "should be empty"));
 
             // Verify index entry
-            if (elementField.isIndexed())
-                this.verifySimpleIndexEntry(info, id, elementField, field, reader.getBytes(prefix.length), ByteUtil.EMPTY);
+            if (elementField.isIndexed()) {
+                this.verifySimpleIndexEntry(info, id, elementField,
+                  field, reader.getByteData().substring(prefix.size()), ByteData.empty());
+            }
         }
     }
 
-    private <K, V> void checkMapField(JsckInfo info, ObjId id, MapField<K, V> field, byte[] prefix, PeekingIterator<KVPair> i) {
+    private <K, V> void checkMapField(JsckInfo info, ObjId id, MapField<K, V> field, ByteData prefix, PeekingIterator<KVPair> i) {
 
         // Get key and value fields
         final SimpleField<K> keyField = field.getKeyField();
         final SimpleField<V> valField = field.getValueField();
 
         // Iterate over set elements
-        while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
+        while (i.hasNext() && i.peek().getKey().startsWith(prefix)) {
             final KVPair pair = i.next();
 
             // Verify encoded key
-            final ByteReader keyReader = new ByteReader(pair.getKey(), prefix.length);
+            final ByteData.Reader keyReader = pair.getKey().newReader(prefix.size());
             if (!this.validateSimpleFieldValue(info, id, keyField, pair, keyReader))
                 continue;
 
             // Verify encoded value
-            final ByteReader valReader = new ByteReader(pair.getValue());
+            final ByteData.Reader valReader = pair.getValue().newReader();
             if (!this.validateSimpleFieldValue(info, id, valField, pair, valReader))
                 continue;
 
             // Verify index entries
-            if (keyField.isIndexed())
-                this.verifySimpleIndexEntry(info, id, keyField, field, keyReader.getBytes(prefix.length), ByteUtil.EMPTY);
-            if (valField.isIndexed())
-                this.verifySimpleIndexEntry(info, id, valField, field, pair.getValue(), keyReader.getBytes(prefix.length));
+            if (keyField.isIndexed()) {
+                this.verifySimpleIndexEntry(info, id, keyField,
+                  field, keyReader.getByteData().substring(prefix.size()), ByteData.empty());
+            }
+            if (valField.isIndexed()) {
+                this.verifySimpleIndexEntry(info, id, valField,
+                  field, pair.getValue(), keyReader.getByteData().substring(prefix.size()));
+            }
         }
     }
 
-    private <E> void checkListField(JsckInfo info, ObjId id, ListField<E> field, byte[] prefix, PeekingIterator<KVPair> i) {
+    private <E> void checkListField(JsckInfo info, ObjId id, ListField<E> field, ByteData prefix, PeekingIterator<KVPair> i) {
 
         // Get element field and type
         final SimpleField<E> elementField = field.getElementField();
 
         // Iterate over list elements
         int expectedIndex = 0;
-        while (i.hasNext() && ByteUtil.isPrefixOf(prefix, i.peek().getKey())) {
+        while (i.hasNext() && i.peek().getKey().startsWith(prefix)) {
             final KVPair pair = i.next();
 
             // Decode list index
-            final ByteReader keyReader = new ByteReader(pair.getKey(), prefix.length);
+            final ByteData.Reader keyReader = pair.getKey().newReader(prefix.size());
             final int actualIndex;
             try {
                 try {
@@ -279,19 +284,19 @@ class ObjectType extends Storage<ObjType> {
             }
 
             // Verify encoded element
-            final ByteReader valReader = new ByteReader(pair.getValue());
+            final ByteData.Reader valReader = pair.getValue().newReader();
             if (!this.validateSimpleFieldValue(info, id, elementField, pair, valReader))
                 continue;
 
             // Check list index, and renumber if necessary
-            byte[] encodedIndex = keyReader.getBytes(prefix.length);
+            ByteData encodedIndex = keyReader.getByteData().substring(prefix.size());
             if (actualIndex != expectedIndex) {
                 info.handle(new InvalidValue(pair).setDetail(id, elementField, "wrong index %d != %d", actualIndex, expectedIndex));
-                final ByteWriter keyWriter = new ByteWriter();
+                final ByteData.Writer keyWriter = ByteData.newWriter();
                 keyWriter.write(prefix);
                 Encodings.UNSIGNED_INT.write(keyWriter, expectedIndex);
-                encodedIndex = keyWriter.getBytes(prefix.length);
-                info.handle(new MissingKey("incorrect list index", keyWriter.getBytes(), pair.getValue())
+                encodedIndex = keyWriter.toByteData().substring(prefix.size());
+                info.handle(new MissingKey("incorrect list index", keyWriter.toByteData(), pair.getValue())
                   .setDetail(id, elementField, "renumbered list index %d -> %d", actualIndex, expectedIndex));
             }
 
@@ -304,17 +309,17 @@ class ObjectType extends Storage<ObjType> {
         }
     }
 
-    private void checkCounterField(JsckInfo info, ObjId id, CounterField field, byte[] prefix, PeekingIterator<KVPair> i) {
+    private void checkCounterField(JsckInfo info, ObjId id, CounterField field, ByteData prefix, PeekingIterator<KVPair> i) {
 
         // Get field key/value pair
         final KVPair pair = i.next();
         assert pair != null;
-        assert ByteUtil.isPrefixOf(prefix, pair.getKey());
+        assert pair.getKey().startsWith(prefix);
 
         // Check for trailing garbage in key
-        if (pair.getKey().length > prefix.length) {
+        if (pair.getKey().size() > prefix.size()) {
             info.handle(new InvalidKey(pair).setDetail(id, field,
-              "trailing garbage %s", Jsck.ds(new ByteReader(pair.getKey(), prefix.length))));
+              "trailing garbage %s", Jsck.ds(pair.getKey().newReader(prefix.size()))));
             return;
         }
 
@@ -326,7 +331,8 @@ class ObjectType extends Storage<ObjType> {
         }
     }
 
-    private <T> boolean validateSimpleFieldValue(JsckInfo info, ObjId id, SimpleField<T> field, KVPair pair, ByteReader reader) {
+    private <T> boolean validateSimpleFieldValue(JsckInfo info,
+      ObjId id, SimpleField<T> field, KVPair pair, ByteData.Reader reader) {
 
         // Verify field encoding
         final Encoding<T> encoding = field.getEncoding();
@@ -354,41 +360,42 @@ class ObjectType extends Storage<ObjType> {
         return true;
     }
 
-    private <T> void verifySimpleIndexEntry(JsckInfo info, ObjId id, SimpleField<T> field, byte[] value) {
-        this.verifySimpleIndexEntry(info, id, field.getStorageId(), "" + field.getIndex(), value, ByteUtil.EMPTY);
+    private <T> void verifySimpleIndexEntry(JsckInfo info, ObjId id, SimpleField<T> field, ByteData value) {
+        this.verifySimpleIndexEntry(info, id, field.getStorageId(), "" + field.getIndex(), value, ByteData.empty());
     }
 
     private void verifySimpleIndexEntry(JsckInfo info, ObjId id, SimpleField<?> subField, ComplexField<?> field,
-      byte[] value, byte[] suffix) {
+      ByteData value, ByteData suffix) {
         this.verifySimpleIndexEntry(info, id, subField.getStorageId(), "" + subField.getIndex(), value, suffix);
     }
 
-    private void verifySimpleIndexEntry(JsckInfo info, ObjId id, int storageId, String description, byte[] value, byte[] suffix) {
+    private void verifySimpleIndexEntry(JsckInfo info, ObjId id,
+      int storageId, String description, ByteData value, ByteData suffix) {
 
         // Build index entry
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         Encodings.UNSIGNED_INT.write(writer, storageId);
         writer.write(value);
         id.writeTo(writer);
         writer.write(suffix);
 
         // Verify index entry
-        this.verifyIndexEntry(info, id, writer.getBytes(), description);
+        this.verifyIndexEntry(info, id, writer.toByteData(), description);
     }
 
     /**
      * Verify a composite index entry.
      */
     private void verifyCompositeIndexEntry(JsckInfo info,
-      ObjId id, CompositeIndex index, HashMap<String, byte[]> simpleFieldValues) {
+      ObjId id, CompositeIndex index, HashMap<String, ByteData> simpleFieldValues) {
 
         // Build index entry
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         Encodings.UNSIGNED_INT.write(writer, index.getStorageId());
         for (SimpleField<?> field : index.getFields()) {
 
             // Get the field's value
-            byte[] value = simpleFieldValues.get(field.getName());
+            ByteData value = simpleFieldValues.get(field.getName());
             if (value == null)
                 value = field.getEncoding().getDefaultValueBytes();
 
@@ -398,29 +405,31 @@ class ObjectType extends Storage<ObjType> {
         id.writeTo(writer);
 
         // Verify index entry
-        this.verifyIndexEntry(info, id, writer.getBytes(), "" + index);
+        this.verifyIndexEntry(info, id, writer.toByteData(), "" + index);
     }
 
     private void verifySchemaIndexEntry(JsckInfo info, ObjId id, int schemaIndex) {
         assert schemaIndex > 0;
 
         // Build index entry
-        final ByteWriter writer = new ByteWriter();
+        final ByteData.Writer writer = ByteData.newWriter();
         writer.write(Layout.getSchemaIndexKeyPrefix());
         Encodings.UNSIGNED_INT.write(writer, schemaIndex);
         id.writeTo(writer);
 
         // Verify index entry
-        this.verifyIndexEntry(info, id, writer.getBytes(), "object schema index");
+        this.verifyIndexEntry(info, id, writer.toByteData(), "object schema index");
     }
 
-    private void verifyIndexEntry(JsckInfo info, ObjId id, byte[] key, String description) {
+    private void verifyIndexEntry(JsckInfo info, ObjId id, ByteData key, String description) {
         if (info.isDetailEnabled())
             info.detail("checking object %s %s entry", id, description);
-        final byte[] value = info.getKVStore().get(key);
+        final ByteData value = info.getKVStore().get(key);
         if (value == null)
-            info.handle(new MissingKey(String.format("missing index entry for %s", description), key, ByteUtil.EMPTY));
-        else if (value.length != 0)
-            info.handle(new InvalidValue(String.format("invalid non-empty value for %s", description), key, value, ByteUtil.EMPTY));
+            info.handle(new MissingKey(String.format("missing index entry for %s", description), key, ByteData.empty()));
+        else if (!value.isEmpty()) {
+            info.handle(new InvalidValue(String.format(
+              "invalid non-empty value for %s", description), key, value, ByteData.empty()));
+        }
     }
 }

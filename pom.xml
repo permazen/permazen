@@ -19,15 +19,15 @@
     <url>https://github.com/permazen/permazen/</url>
 
     <modules>
-<!--
         <module>permazen-ant</module>
         <module>permazen-cli</module>
+<!--
         <module>permazen-cliapp</module>
 -->
         <module>permazen-core</module>
         <module>permazen-encoding</module>
-<!--
         <module>permazen-jsck</module>
+<!--
         <module>permazen-kv-array</module>
         <module>permazen-kv-bdb</module>
         <module>permazen-kv-caching</module>
@@ -53,9 +53,7 @@
         <module>permazen-kv</module>
         <module>permazen-main</module>
         <module>permazen-maven-plugin</module>
-<!--
         <module>permazen-spring</module>
--->
         <module>permazen-test</module>
         <module>permazen-util</module>
 

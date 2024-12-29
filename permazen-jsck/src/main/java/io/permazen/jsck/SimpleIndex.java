@@ -9,7 +9,7 @@ import io.permazen.core.Encodings;
 import io.permazen.core.ObjId;
 import io.permazen.core.SimpleField;
 import io.permazen.encoding.Encoding;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 
 abstract class SimpleIndex<T, I extends io.permazen.core.SimpleIndex<T>> extends Index<I> {
 
@@ -25,10 +25,10 @@ abstract class SimpleIndex<T, I extends io.permazen.core.SimpleIndex<T>> extends
     }
 
     @Override
-    protected final void validateIndexEntryContent(JsckInfo info, ByteReader reader) {
+    protected final void validateIndexEntryContent(JsckInfo info, ByteData.Reader reader) {
 
         // Decode indexed value
-        final byte[] value = this.validateEncodedBytes(reader, this.encoding);
+        final ByteData value = this.validateEncodedBytes(reader, this.encoding);
 
         // Decode object ID
         final ObjId id = this.validateEncodedValue(reader, Encodings.OBJ_ID);
@@ -46,5 +46,5 @@ abstract class SimpleIndex<T, I extends io.permazen.core.SimpleIndex<T>> extends
      *
      * @throws IllegalArgumentException if entry is invalid
      */
-    protected abstract void validateIndexEntrySuffix(JsckInfo info, ByteReader reader, byte[] indexValue, ObjId id);
+    protected abstract void validateIndexEntrySuffix(JsckInfo info, ByteData.Reader reader, ByteData indexValue, ObjId id);
 }

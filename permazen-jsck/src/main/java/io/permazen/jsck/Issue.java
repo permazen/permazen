@@ -11,10 +11,10 @@ import io.permazen.core.CompositeIndex;
 import io.permazen.core.Field;
 import io.permazen.core.ObjId;
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.ParseContext;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -28,9 +28,9 @@ public abstract class Issue {
     private static final int HEX_STRING_LIMIT = 100;
 
     private final String description;
-    private final byte[] key;
-    private final byte[] oldValue;
-    private final byte[] newValue;
+    private final ByteData key;
+    private final ByteData oldValue;
+    private final ByteData newValue;
 
     private String detail;
 
@@ -44,10 +44,10 @@ public abstract class Issue {
      * @throws IllegalArgumentException if {@code key} is null
      * @throws IllegalArgumentException if {@code oldValue} and {@code newValue} are equal
      */
-    protected Issue(String description, byte[] key, byte[] oldValue, byte[] newValue) {
+    protected Issue(String description, ByteData key, ByteData oldValue, ByteData newValue) {
         Preconditions.checkArgument(description != null, "null description");
         Preconditions.checkArgument(key != null, "null key");
-        Preconditions.checkArgument(!Arrays.equals(oldValue, newValue) || oldValue == null, "newValue = oldValue");
+        Preconditions.checkArgument(!Objects.equals(oldValue, newValue) || oldValue == null, "newValue = oldValue");
         this.description = description;
         this.key = key;
         this.oldValue = oldValue;
@@ -59,7 +59,7 @@ public abstract class Issue {
      *
      * @return key of this issue
      */
-    public byte[] getKey() {
+    public ByteData getKey() {
         return this.key;
     }
 
@@ -68,7 +68,7 @@ public abstract class Issue {
      *
      * @return original value, null if key/value pair was missing
      */
-    public byte[] getOldValue() {
+    public ByteData getOldValue() {
         return this.oldValue;
     }
 
@@ -77,7 +77,7 @@ public abstract class Issue {
      *
      * @return replacement value, null if key/value pair was missing or should be deleted
      */
-    public byte[] getNewValue() {
+    public ByteData getNewValue() {
         return this.newValue;
     }
 
@@ -138,7 +138,7 @@ public abstract class Issue {
             buf.append(", value [")
               .append(ParseContext.truncate(ByteUtil.toString(this.oldValue), HEX_STRING_LIMIT))
               .append(']');
-        } else if (this.newValue != null && this.newValue.length > 0) {
+        } else if (this.newValue != null && !this.newValue.isEmpty()) {
             buf.append(", corrected value [")
               .append(ParseContext.truncate(ByteUtil.toString(this.newValue), HEX_STRING_LIMIT))
               .append(']');
@@ -155,9 +155,9 @@ public abstract class Issue {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final Issue that = (Issue)obj;
-        return Arrays.equals(this.key, that.key)
-          && Arrays.equals(this.oldValue, that.oldValue)
-          && Arrays.equals(this.newValue, that.newValue)
+        return Objects.equals(this.key, that.key)
+          && Objects.equals(this.oldValue, that.oldValue)
+          && Objects.equals(this.newValue, that.newValue)
           && Objects.equals(this.description, that.description)
           && Objects.equals(this.detail, that.detail);
     }
@@ -165,9 +165,9 @@ public abstract class Issue {
     @Override
     public int hashCode() {
         return this.getClass().hashCode()
-          ^ Arrays.hashCode(this.key)
-          ^ Arrays.hashCode(this.oldValue)
-          ^ Arrays.hashCode(this.newValue)
+          ^ Objects.hashCode(this.key)
+          ^ Objects.hashCode(this.oldValue)
+          ^ Objects.hashCode(this.newValue)
           ^ Objects.hashCode(this.description)
           ^ Objects.hashCode(this.detail);
     }

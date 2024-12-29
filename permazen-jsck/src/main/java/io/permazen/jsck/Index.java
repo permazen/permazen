@@ -8,9 +8,7 @@ package io.permazen.jsck;
 import io.permazen.core.Encodings;
 import io.permazen.core.ObjId;
 import io.permazen.encoding.Encoding;
-import io.permazen.util.ByteReader;
-
-import java.util.Arrays;
+import io.permazen.util.ByteData;
 
 abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
 
@@ -23,7 +21,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
      *
      * @throws IllegalArgumentException if entry is invalid
      */
-    public final void validateIndexEntry(JsckInfo info, ByteReader reader) {
+    public final void validateIndexEntry(JsckInfo info, ByteData.Reader reader) {
         final int entryStorageId = this.validateEncodedValue(reader, Encodings.UNSIGNED_INT);
         assert entryStorageId == this.getStorageId();
         this.validateIndexEntryContent(info, reader);
@@ -35,25 +33,25 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
      *
      * @throws IllegalArgumentException if entry is invalid
      */
-    protected abstract void validateIndexEntryContent(JsckInfo info, ByteReader reader);
+    protected abstract void validateIndexEntryContent(JsckInfo info, ByteData.Reader reader);
 
     /**
      * Validate the object simple field has the expected value. This assumes the object exists and has already been validated.
      *
      * @throws IllegalArgumentException if field does not have the expected value
      */
-    protected void validateSimpleObjectField(JsckInfo info, ObjId id, int storageId, Encoding<?> encoding, byte[] expectedValue) {
+    protected void validateSimpleObjectField(JsckInfo info, ObjId id, int storageId, Encoding<?> encoding, ByteData expectedValue) {
 
         // If we are repairing, the key/value store will contain any corrections by this point, so it's safe to read the field
         if (info.getConfig().isRepair()) {
-            final byte[] actualValue = info.getKVStore().get(this.buildFieldKey(id, storageId).getBytes());
-            if (!Arrays.equals(expectedValue, actualValue != null ? actualValue : encoding.getDefaultValueBytes()))
+            final ByteData actualValue = info.getKVStore().get(this.buildFieldKey(id, storageId).toByteData());
+            if (!expectedValue.equals(actualValue != null ? actualValue : encoding.getDefaultValueBytes()))
                 throw new IllegalArgumentException(String.format("field value != %s", Jsck.ds(expectedValue)));
         }
     }
 
     @Override
-    protected void validateObjectExists(JsckInfo info, ByteReader reader, ObjId id) {
+    protected void validateObjectExists(JsckInfo info, ByteData.Reader reader, ObjId id) {
         try {
             super.validateObjectExists(info, reader, id);
         } catch (IllegalArgumentException e) {
@@ -62,7 +60,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
     }
 
     @Override
-    protected <T> byte[] validateEncodedBytes(ByteReader reader, Encoding<T> encoding) {
+    protected <T> ByteData validateEncodedBytes(ByteData.Reader reader, Encoding<T> encoding) {
         try {
             return super.validateEncodedBytes(reader, encoding);
         } catch (IllegalArgumentException e) {
@@ -71,7 +69,7 @@ abstract class Index<I extends io.permazen.core.Index> extends Storage<I> {
     }
 
     @Override
-    protected void validateEOF(ByteReader reader) {
+    protected void validateEOF(ByteData.Reader reader) {
         try {
             super.validateEOF(reader);
         } catch (IllegalArgumentException e) {

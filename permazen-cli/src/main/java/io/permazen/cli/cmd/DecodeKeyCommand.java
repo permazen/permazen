@@ -28,14 +28,11 @@ import io.permazen.core.SimpleField;
 import io.permazen.core.Transaction;
 import io.permazen.core.UnknownFieldException;
 import io.permazen.encoding.Encoding;
-import io.permazen.util.ByteReader;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +63,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
     @Override
     @SuppressWarnings("unchecked")
     public DecodeKeyAction getAction(Session session, Map<String, Object> params) {
-        return new DecodeKeyAction((List<byte[]>)params.get("bytes"));
+        return new DecodeKeyAction((List<ByteData>)params.get("bytes"));
     }
 
     /**
@@ -77,14 +74,14 @@ public class DecodeKeyCommand extends AbstractKVCommand {
      * @return description of decoded key
      * @throws IllegalArgumentException if either parameter is null
      */
-    public static String decode(Transaction tx, byte[] key) {
+    public static String decode(Transaction tx, ByteData key) {
 
         // Sanity check
         Preconditions.checkArgument(tx != null, "null tx");
         Preconditions.checkArgument(key != null, "null key");
 
         // Empty?
-        if (key.length == 0)
+        if (key.size() == 0)
             return "Empty byte array";
 
         // Get info
@@ -125,7 +122,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         }
 
         // Decode
-        final ByteReader reader = new ByteReader(key);
+        final ByteData.Reader reader = key.newReader();
         final Decodes decodes = new Decodes(reader, storageIdMap);
         try {
             while (true) {
@@ -136,7 +133,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
                     switch (reader.readByte()) {
                     case Layout.METADATA_FORMAT_VERSION_BYTE:
                         decodes.add("Format version prefix");
-                        if (Arrays.equals(reader.getBytes(), Layout.getFormatVersionKey()))
+                        if (reader.getByteData().equals(Layout.getFormatVersionKey()))
                             decodes.addRemainder("Format version key");
                         break;
                     case Layout.METADATA_SCHEMA_TABLE_BYTE:
@@ -297,9 +294,9 @@ public class DecodeKeyCommand extends AbstractKVCommand {
 
     private static class DecodeKeyAction implements Session.RetryableTransactionalAction {
 
-        private final List<byte[]> bytesList;
+        private final List<ByteData> bytesList;
 
-        DecodeKeyAction(List<byte[]> bytesList) {
+        DecodeKeyAction(List<ByteData> bytesList) {
             this.bytesList = bytesList;
         }
 
@@ -316,27 +313,28 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             final Transaction tx = session.getTransaction();
 
             // Concatenate byte[] arrays
-            final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            for (byte[] bytes : this.bytesList)
-                buf.write(bytes);
+            final ByteData bytes = bytesList.stream().reduce(ByteData.empty(), ByteData::concat);
 
             // Decode and print
-            writer.print(DecodeKeyCommand.decode(tx, buf.toByteArray()));
+            writer.print(DecodeKeyCommand.decode(tx, bytes));
         }
     }
 
     private static class Decodes {
 
         private final Map<Integer, SchemaItem> storageIdMap;
-        private final ByteReader reader;
+        private final ByteData.Reader reader;
         private final ArrayList<Decode> decodeList = new ArrayList<>();
 
+        private final int startingOffset;
         private int lastOffset;
 
-        Decodes(ByteReader reader, Map<Integer, SchemaItem> storageIdMap) {
+        Decodes(ByteData.Reader reader, Map<Integer, SchemaItem> storageIdMap) {
             Preconditions.checkArgument(reader != null, "null reader");
             Preconditions.checkArgument(storageIdMap != null, "null storageIdMap");
             this.reader = reader;
+            this.startingOffset = reader.getOffset();
+            this.lastOffset = this.startingOffset;
             this.storageIdMap = storageIdMap;
         }
 
@@ -366,7 +364,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         }
 
         // Add a simple field value
-        <T> void add(String label, SimpleField<T> field, ByteReader reader) {
+        <T> void add(String label, SimpleField<T> field, ByteData.Reader reader) {
             final Encoding<T> encoding = field.getEncoding();
             final T value = encoding.read(reader);
             if (encoding instanceof ReferenceEncoding)
@@ -378,7 +376,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         }
 
         void addRemainder(String description) {
-            this.reader.readBytes(this.reader.remain());
+            this.reader.readRemaining();
             if (this.reader.getOffset() > this.lastOffset)
                 this.add(description);
         }
@@ -393,23 +391,20 @@ public class DecodeKeyCommand extends AbstractKVCommand {
             final int maxBytes = Math.min(maxLength, byteLimit);
             final StringBuilder buf = new StringBuilder();
             final String format = String.format("%%%ds : %%s%%n", maxBytes * 2);
-            int off = 0;
+            int off = this.startingOffset;
             for (Decode decode : this.decodeList) {
                 final int len = decode.getLength();
-                buf.append(String.format(format, this.truncate(reader.getBytes(off, len), byteLimit), decode.getDescription()));
+                final ByteData decodeData = reader.getByteData().substring(off, len);
+                buf.append(String.format(format, this.truncate(decodeData, byteLimit), decode.getDescription()));
                 off += len;
             }
             return buf.toString();
         }
 
-        private String truncate(byte[] array, int maxBytes) {
-            Preconditions.checkArgument(array != null, "null array");
+        private String truncate(ByteData data, int maxBytes) {
+            Preconditions.checkArgument(data != null, "null array");
             Preconditions.checkArgument(maxBytes > 3, "maxBytes < 4");
-            if (array.length <= maxBytes)
-                return ByteUtil.toString(array);
-            return String.format("%s..%s",
-              ByteUtil.toString(Arrays.copyOfRange(array, 0, maxBytes - 4)),
-              ByteUtil.toString(Arrays.copyOfRange(array, array.length - 3, array.length)));
+            return data.toHex(maxBytes);
         }
     }
 

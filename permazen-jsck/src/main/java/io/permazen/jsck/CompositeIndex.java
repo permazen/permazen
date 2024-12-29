@@ -7,7 +7,7 @@ package io.permazen.jsck;
 
 import io.permazen.core.Encodings;
 import io.permazen.core.ObjId;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 
 class CompositeIndex extends Index<io.permazen.core.CompositeIndex> {
 
@@ -16,12 +16,12 @@ class CompositeIndex extends Index<io.permazen.core.CompositeIndex> {
     }
 
     @Override
-    protected void validateIndexEntryContent(JsckInfo info, ByteReader reader) {
+    protected void validateIndexEntryContent(JsckInfo info, ByteData.Reader reader) {
 
         // Decode index entry
         final io.permazen.core.CompositeIndex index = this.schemaItem;
         final int numFields = index.getFields().size();
-        final byte[][] values = new byte[numFields][];
+        final ByteData[] values = new ByteData[numFields];
         for (int i = 0; i < values.length; i++)
             values[i] = this.validateEncodedBytes(reader, index.getEncodings().get(i));
         final ObjId id = this.validateEncodedValue(reader, Encodings.OBJ_ID);

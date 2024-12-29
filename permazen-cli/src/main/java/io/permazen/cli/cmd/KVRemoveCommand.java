@@ -8,6 +8,7 @@ package io.permazen.cli.cmd;
 import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.kv.KVTransaction;
+import io.permazen.util.ByteData;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -40,8 +41,8 @@ public class KVRemoveCommand extends AbstractKVCommand {
     @Override
     public Session.Action getAction(Session session, Map<String, Object> params) {
         final boolean range = params.containsKey("range");
-        final byte[] key = (byte[])params.get("key");
-        final byte[] maxKey = (byte[])params.get("maxKey");
+        final ByteData key = (ByteData)params.get("key");
+        final ByteData maxKey = (ByteData)params.get("maxKey");
         if (maxKey != null && !range)
             throw new IllegalArgumentException("\"-range\" must be specified to delete a range of keys");
         return new RemoveAction(range, key, maxKey);
@@ -50,10 +51,10 @@ public class KVRemoveCommand extends AbstractKVCommand {
     private static class RemoveAction implements KVAction {
 
         private final boolean range;
-        private final byte[] key;
-        private final byte[] maxKey;
+        private final ByteData key;
+        private final ByteData maxKey;
 
-        RemoveAction(boolean range, byte[] key, byte[] maxKey) {
+        RemoveAction(boolean range, ByteData key, ByteData maxKey) {
             this.range = range;
             this.key = key;
             this.maxKey = maxKey;

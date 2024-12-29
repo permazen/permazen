@@ -9,6 +9,7 @@ import io.permazen.cli.Session;
 import io.permazen.cli.SessionMode;
 import io.permazen.cli.parse.Parser;
 import io.permazen.kv.util.XMLSerializer;
+import io.permazen.util.ByteData;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -63,8 +64,8 @@ public class KVSaveCommand extends AbstractKVCommand {
         final File file = (File)params.get("file.xml");
         final boolean indent = params.containsKey("indent");
         final boolean weak = params.containsKey("weak");
-        final byte[] minKey = (byte[])params.get("minKey");
-        final byte[] maxKey = (byte[])params.get("maxKey");
+        final ByteData minKey = (ByteData)params.get("minKey");
+        final ByteData maxKey = (ByteData)params.get("maxKey");
 
         // Return action
         return new SaveAction(file, indent, weak, minKey, maxKey);
@@ -75,10 +76,10 @@ public class KVSaveCommand extends AbstractKVCommand {
         private final File file;
         private final boolean indent;
         private final boolean weak;
-        private final byte[] minKey;
-        private final byte[] maxKey;
+        private final ByteData minKey;
+        private final ByteData maxKey;
 
-        SaveAction(File file, boolean indent, boolean weak, byte[] minKey, byte[] maxKey) {
+        SaveAction(File file, boolean indent, boolean weak, ByteData minKey, ByteData maxKey) {
             this.file = file;
             this.indent = indent;
             this.weak = weak;
@@ -92,7 +93,7 @@ public class KVSaveCommand extends AbstractKVCommand {
               new AtomicUpdateFileOutputStream(this.file) : new FileOutputStream(this.file);
             final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
             boolean success = false;
-            final int count;
+            final long count;
             try {
                 XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
                 if (this.indent)
@@ -112,7 +113,7 @@ public class KVSaveCommand extends AbstractKVCommand {
                 } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
                     ((AtomicUpdateFileOutputStream)updateOutput).cancel();
             }
-            session.getOutput().println("Wrote " + count + " key/value pairs to \"" + this.file + "\"");
+            session.getOutput().println(String.format("Wrote %d key/value pairs to \"%s\"", count, this.file));
         }
 
         // Use EVENTUAL_COMMITTED consistency for Raft key/value stores to avoid retries
