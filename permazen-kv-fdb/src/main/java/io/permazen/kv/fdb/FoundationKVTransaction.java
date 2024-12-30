@@ -18,7 +18,6 @@ import io.permazen.kv.KVTransactionTimeoutException;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
-import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
 import java.util.concurrent.CompletableFuture;
