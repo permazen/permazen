@@ -179,7 +179,7 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
       any waiting read-only transactions. Leaders keep track of which followers are waiting on which leader lease
       timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
       is immediately notified.</li>
-  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see <a href="#OPTION_CONSISTENCY"><code>OPTION_CONSISTENCY</code></a>.
+  <li>Optional weaker consistency guarantees are availble on a per-transaction basis; see <a href="#OPTION_CONSISTENCY"><code>OPTION_CONSISTENCY</code></a>.
       Setting the consistency to any level other than <a href="Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a> implicitly sets the transaction
       to read-only.</li>
   </ul>

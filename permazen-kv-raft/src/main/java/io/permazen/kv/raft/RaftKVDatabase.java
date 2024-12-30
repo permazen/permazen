@@ -179,7 +179,7 @@ import org.slf4j.LoggerFactory;
  *      any waiting read-only transactions. Leaders keep track of which followers are waiting on which leader lease
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
- *  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see {@link #OPTION_CONSISTENCY}.
+ *  <li>Optional weaker consistency guarantees are availble on a per-transaction basis; see {@link #OPTION_CONSISTENCY}.
  *      Setting the consistency to any level other than {@link Consistency#LINEARIZABLE} implicitly sets the transaction
  *      to read-only.</li>
  *  </ul>
