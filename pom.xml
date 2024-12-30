@@ -462,11 +462,7 @@
                         <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
 
                         <!-- kv-lmdb -->
-                        <!--
-                            Disable until ARM64 support is fixed
-                            https://github.com/lmdbjava/lmdbjava/issues/190
                         <lmdbDirPrefix>LMDBJava</lmdbDirPrefix>
-                        -->
 
                         <!-- kv-mssql -->
                         <!--

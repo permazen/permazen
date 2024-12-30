@@ -21,7 +21,7 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.kv.lmdb</automatic.module.name>
-        <lmdbjava.version>0.8.2</lmdbjava.version>
+        <lmdbjava.version>0.9.0</lmdbjava.version>
     </properties>
     <dependencies>
         <dependency>
