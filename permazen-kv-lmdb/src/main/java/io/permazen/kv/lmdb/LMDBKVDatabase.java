@@ -290,7 +290,7 @@ public abstract class LMDBKVDatabase<T> implements KVDatabase {
     protected void finalize() throws Throwable {
         try {
             if (this.env != null)
-               this.log.warn(this + " leaked without invoking stop()");
+               this.log.warn("{} leaked without invoking stop()", this);
             this.stop();
         } finally {
             super.finalize();
