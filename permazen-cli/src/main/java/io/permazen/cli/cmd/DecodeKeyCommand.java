@@ -81,7 +81,7 @@ public class DecodeKeyCommand extends AbstractKVCommand {
         Preconditions.checkArgument(key != null, "null key");
 
         // Empty?
-        if (key.size() == 0)
+        if (key.isEmpty())
             return "Empty byte array";
 
         // Get info
