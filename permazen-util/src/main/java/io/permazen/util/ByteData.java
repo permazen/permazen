@@ -11,7 +11,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -71,9 +73,9 @@ public final class ByteData implements Comparable<ByteData> {
     }
 
     /**
-     * Obtain an instance containing a the given byte data.
+     * Obtain an instance containing the given byte data expressed as integers.
      *
-     * @param data byte data as integers; all but the lower 8 bits are ignored
+     * @param data bytes expressed as integers; only the lower 8 bits of each value are used
      * @return instance containing a copy of {@code data}
      * @throws IllegalArgumentException if {@code data} is null
      */
@@ -93,7 +95,7 @@ public final class ByteData implements Comparable<ByteData> {
      * @param len number of bytes
      * @return instance containing a copy of the specified region of {@code data}
      * @throws IllegalArgumentException if {@code data} is null
-     * @throws IndexOutOfBoundsException if {@code off} and/or {@code len} is out of bounds
+     * @throws IndexOutOfBoundsException if {@code off} and/or {@code len} is invalid
      */
     public static ByteData of(byte[] data, int off, int len) {
         Preconditions.checkArgument(data != null, "null data");
@@ -179,8 +181,8 @@ public final class ByteData implements Comparable<ByteData> {
      *
      * <p>
      * A starting offset is given for each instance. This method returns the number of consecutive pairs of bytes that are
-     * equal in both instances, starting at the given offsets. The comparison stops when the a non-equal byte pair is found,
-     * or one of the offsets would exceed the length of the corresponding instance.
+     * equal in both instances, starting at the corresponding offsets. The comparison stops when a non-equal pair of bytes
+     * is encountered, or the end of either array is reached.
      *
      * @param data1 first instance
      * @param data2 first instance
@@ -188,7 +190,7 @@ public final class ByteData implements Comparable<ByteData> {
      * @param off2 starting offset in {@code data2}
      * @return the number of bytes that agree starting at {@code off1} in {@code data1} and {@code off2} in {@code data2}
      * @throws IllegalArgumentException if {@code data1} or {@code data2} is null
-     * @throws IllegalArgumentException if {@code off1} or {@code off2} is out of bounds
+     * @throws IllegalArgumentException if {@code off1} or {@code off2} is invalid
      */
     public static int numEqual(ByteData data1, int off1, ByteData data2, int off2) {
         Preconditions.checkArgument(data1 != null, "null data1");
@@ -232,7 +234,7 @@ public final class ByteData implements Comparable<ByteData> {
      *
      * @param off starting offset
      * @return data input stream starting at offset {@code off}
-     * @throws IndexOutOfBoundsException if {@code off} is out of bounds
+     * @throws IndexOutOfBoundsException if {@code off} is invalid
      */
     public Reader newReader(int off) {
         final int size = this.size();
@@ -300,7 +302,7 @@ public final class ByteData implements Comparable<ByteData> {
      *
      * @param index index into byte data
      * @return the byte at {@code index}
-     * @throws IndexOutOfBoundsException if {@code index} is out of bounds
+     * @throws IndexOutOfBoundsException if {@code index} is invalid
      */
     public byte byteAt(int index) {
         Objects.checkIndex(index, this.max - this.min);
@@ -312,7 +314,7 @@ public final class ByteData implements Comparable<ByteData> {
      *
      * @param index index into byte data
      * @return the byte at {@code index} as a integer in the range 0 to 255
-     * @throws IndexOutOfBoundsException if {@code index} is out of bounds
+     * @throws IndexOutOfBoundsException if {@code index} is invalid
      */
     public int ubyteAt(int index) {
         return this.byteAt(index) & 0xff;
@@ -337,11 +339,11 @@ public final class ByteData implements Comparable<ByteData> {
     }
 
     /**
-     * Obtain an instance containing a substring of the data contained by this instance.
+     * Obtain an instance containing the subsequence of this instance starting at the given offset.
      *
      * @param beginIndex starting offset (inclusive)
      * @return substring of this instance from {@code beginIndex} to the end of this instance
-     * @throws IndexOutOfBoundsException if {@code beginIndex} is out of bounds
+     * @throws IndexOutOfBoundsException if {@code beginIndex} is invalid
      */
     public ByteData substring(int beginIndex) {
         if (beginIndex == 0)
@@ -349,12 +351,12 @@ public final class ByteData implements Comparable<ByteData> {
         final int size = this.max - this.min;
         if (beginIndex == size)
             return EMPTY;
-        Preconditions.checkArgument(beginIndex >= 0 && beginIndex <= size, "index out of range");
+        Preconditions.checkArgument(beginIndex >= 0 && beginIndex <= size, "invalid beginIndex");
         return new ByteData(this.data, this.min + beginIndex, this.max);
     }
 
     /**
-     * Obtain an instance containing a substring of the data contained by this instance.
+     * Obtain an instance containing the subsequence of this instance between the given offsets.
      *
      * @param beginIndex starting offset (inclusive)
      * @param endIndex ending offset (exclusive)
@@ -375,7 +377,7 @@ public final class ByteData implements Comparable<ByteData> {
      * Obtain an instance containing the concatenation of this instance and the given instance.
      *
      * @param next the instance to append
-     * @return concatenation of this instance and {@code next}
+     * @return concatenation of this instance followed by {@code next}
      * @throws IllegalArgumentException if {@code next} is null
      * @throws IllegalArgumentException if the concatenation would be longer than {@link Integer#MAX_VALUE}
      */
@@ -413,7 +415,7 @@ public final class ByteData implements Comparable<ByteData> {
      * Determine whether this instance has the given suffix.
      *
      * @param suffix suffix data
-     * @return true if this instance starts with {@code suffix}
+     * @return true if this instance ends with {@code suffix}
      * @throws IllegalArgumentException if {@code suffix} is null
      */
     public boolean endsWith(ByteData suffix) {
@@ -426,7 +428,7 @@ public final class ByteData implements Comparable<ByteData> {
     }
 
     /**
-     * Obtain the data as a {@code byte[]} array.
+     * Obtain the data in this instance as a {@code byte[]} array.
      *
      * @return {@code byte[]} array containing a copy of this instance's data
      */
@@ -438,11 +440,11 @@ public final class ByteData implements Comparable<ByteData> {
     }
 
     /**
-     * Write the data into a {@code byte[]} array.
+     * Write the data in this instance into a {@code byte[]} array.
      *
      * @param dest destination for data
      * @param off offset into {@code dest} to write
-     * @throws IndexOutOfBoundsException if {@code index} is out of bounds
+     * @throws IndexOutOfBoundsException if {@code off} is invalid
      * @throws IllegalArgumentException if {@code dest} is null
      */
     public void writeTo(byte[] dest, int off) {
@@ -454,7 +456,7 @@ public final class ByteData implements Comparable<ByteData> {
      * Write the data to the given output stream.
      *
      * @param output destination for data
-     * @throws IOExeption if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if {@code output} is null
      */
     public void writeTo(OutputStream output) throws IOException {
@@ -472,7 +474,8 @@ public final class ByteData implements Comparable<ByteData> {
      * Write the data into the given byte buffer at its current position (relative write).
      *
      * @param buf destination for data
-     * @throws IndexOutOfBoundsException if the data goes out of bounds
+     * @throws BufferOverflowException if {@code buf} has insufficient space
+     * @throws ReadOnlyBufferException if {@code buf} is read only
      * @throws IllegalArgumentException if {@code buf} is null
      */
     public void writeTo(ByteBuffer buf) {
@@ -485,7 +488,9 @@ public final class ByteData implements Comparable<ByteData> {
      *
      * @param buf destination for data
      * @param index absolute index in {@code buf} at which to write the data
-     * @throws IndexOutOfBoundsException if the data goes out of bounds
+     * @throws BufferOverflowException if {@code buf} has insufficient space
+     * @throws ReadOnlyBufferException if {@code buf} is read only
+     * @throws IndexOutOfBoundsException if {@code index} is invalid
      * @throws IllegalArgumentException if {@code buf} is null
      */
     public void writeTo(ByteBuffer buf, int index) {
@@ -497,8 +502,6 @@ public final class ByteData implements Comparable<ByteData> {
 
     /**
      * Compare this instance with the given instance using using unsigned lexicographical comparison.
-     *
-     * @throws NullPointerException if {@code that} is null
      */
     @Override
     public int compareTo(ByteData that) {
@@ -521,6 +524,12 @@ public final class ByteData implements Comparable<ByteData> {
         return Arrays.equals(this.data, this.min, this.max, that.data, that.min, that.max);
     }
 
+    /**
+     * Compute the hash code for this instance.
+     *
+     * <p>
+     * This returns the same hash code as {@link Arrays#hashCode(byte[])} would on the result from {@link #toByteArray}.
+     */
     @Override
     public int hashCode() {
         if (this.hash == 0)
@@ -545,7 +554,7 @@ public final class ByteData implements Comparable<ByteData> {
 // Output
 
     /**
-     * Gathers data used to build a {@link ByteData} instance.
+     * Gathers data from which to build a {@link ByteData} instance.
      *
      * <p>
      * If any write operation would cause the total size to exceed {@link Integer#MAX_VALUE}, then
@@ -611,7 +620,7 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Return a {@link ByteData} containing the data written to this instance.
+         * Return a {@link ByteData} containing the data written to this instance so far.
          *
          * @return the data written to this writer
          */
@@ -648,6 +657,9 @@ public final class ByteData implements Comparable<ByteData> {
 
         /**
          * Reset this instance so that it contains zero bytes.
+         *
+         * <p>
+         * Equivalent to: {@code truncate(0)}.
          */
         public void reset() {
             this.truncate(0);
@@ -660,14 +672,14 @@ public final class ByteData implements Comparable<ByteData> {
          * @throws IndexOutOfBoundsException if {@code size} is negative or greater than this instance's current size
          */
         public synchronized void truncate(int size) {
-            Preconditions.checkArgument(size >= 0 && size <= this.size, "size out of range");
+            Preconditions.checkArgument(size >= 0 && size <= this.size, "invalid size");
             this.size = size;
         }
 
     // Internal Methods
 
         /**
-         * Expand the internal buffer as needed to ensure there is room to add the specified number of new bytes.
+         * Expand the internal buffer as needed to ensure there is room to add the specified number of additional bytes.
          *
          * @param len number of additional bytes to make room for
          * @throws IndexOutOfBoundsException if {@code len} is negative or would cause the buffer
@@ -726,7 +738,7 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Peek at the next byte, if any.
+         * Peek at the next byte.
          *
          * <p>
          * This does not change the current read offset.
@@ -802,7 +814,7 @@ public final class ByteData implements Comparable<ByteData> {
          * Read out the specified number of bytes.
          *
          * @param len number of bytes to read
-         * @return bytes read
+         * @return the next {@code len} bytes
          * @throws IndexOutOfBoundsException if {@code len} is negative or greater than the number of bytes remaining
          */
         public synchronized ByteData readBytes(int len) {
@@ -857,12 +869,12 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Obtain the {@link ByteData} instance underlying this reader.
+         * Obtain the original {@link ByteData} instance from which this reader was created.
          *
          * <p>
          * This does not change the current read offset.
          *
-         * @return copy of the entire buffer
+         * @return the entire underlying data
          */
         public ByteData getByteData() {
             return this.data;
