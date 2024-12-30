@@ -477,7 +477,7 @@ public final class ByteData implements Comparable<ByteData> {
      */
     public void writeTo(ByteBuffer buf) {
         Preconditions.checkArgument(buf != null, "null buf");
-        this.writeTo(buf, buf.position());
+        buf.put(this.data, this.min, this.size());
     }
 
     /**
