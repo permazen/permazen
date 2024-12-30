@@ -489,6 +489,7 @@ public class Database {
 
                 // We are adding a new schema; check whether that is allowed
                 String schemaList = bundleState.getSchemaBundle().getSchemasBySchemaId().keySet().stream()
+                  .filter(id -> !id.equals(schemaId))
                   .map(id -> String.format("\"%s\"", id))
                   .collect(Collectors.joining(", "));
                 if (schemaList.isEmpty())
