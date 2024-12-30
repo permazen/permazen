@@ -310,6 +310,8 @@ public class KeyRange {
             return "[" + ByteUtil.toString(this.min) + "]";
         if (this.isPrefixRange())
             return "[" + ByteUtil.toString(this.min) + "*]";
+        if (this.max == null)
+            return "[" + ByteUtil.toString(this.min) + ",)";
         return "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + ")";
     }
 }
