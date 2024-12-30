@@ -368,7 +368,7 @@ public class RaftKVDatabase implements KVDatabase {
     public static final int DEFAULT_MAX_TRANSACTION_DURATION = 5 * 1000;
 
     /**
-     * Default transaction commit timeout ({@value DEFAULT_COMMIT_TIMEOUT}).
+     * Default transaction commit timeout ({@value DEFAULT_COMMIT_TIMEOUT}ms).
      *
      * @see #setCommitTimeout
      * @see RaftKVTransaction#setTimeout
