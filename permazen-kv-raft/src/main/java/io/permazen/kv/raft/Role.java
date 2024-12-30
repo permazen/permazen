@@ -5,8 +5,6 @@
 
 package io.permazen.kv.raft;
 
-import com.google.common.primitives.Bytes;
-
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.RetryKVTransactionException;
@@ -25,6 +23,7 @@ import io.permazen.kv.raft.msg.Message;
 import io.permazen.kv.raft.msg.PingRequest;
 import io.permazen.kv.raft.msg.PingResponse;
 import io.permazen.kv.raft.msg.RequestVote;
+import io.permazen.util.ByteData;
 import io.permazen.util.LongEncoder;
 
 import java.io.IOException;
@@ -161,7 +160,7 @@ public abstract class Role {
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_TERM_KEY, LongEncoder.encode(logEntry.getTerm()));
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_INDEX_KEY, LongEncoder.encode(logEntry.getIndex()));
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_CONFIG_KEY, this.raft.encodeConfig(logEntryConfig));
-            final byte[] stateMachinePrefix = this.raft.getStateMachinePrefix();
+            final ByteData stateMachinePrefix = this.raft.getStateMachinePrefix();
             final Mutations mutations = new Mutations() {
 
                 @Override
@@ -170,18 +169,18 @@ public abstract class Role {
                 }
 
                 @Override
-                public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+                public Stream<Map.Entry<ByteData, ByteData>> getPutPairs() {
                     return Stream.concat(
                       logWrites.getPutPairs().map(entry -> new AbstractMap.SimpleEntry<>(
-                        Bytes.concat(stateMachinePrefix, entry.getKey()), entry.getValue())),
+                        stateMachinePrefix.concat(entry.getKey()), entry.getValue())),
                       myWrites.getPutPairs());
                 }
 
                 @Override
-                public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+                public Stream<Map.Entry<ByteData, Long>> getAdjustPairs() {
                     return logWrites.getAdjustPairs()
                       .map(entry -> new AbstractMap.SimpleEntry<>(
-                        Bytes.concat(stateMachinePrefix, entry.getKey()), entry.getValue()));
+                        stateMachinePrefix.concat(entry.getKey()), entry.getValue()));
                 }
             };
 

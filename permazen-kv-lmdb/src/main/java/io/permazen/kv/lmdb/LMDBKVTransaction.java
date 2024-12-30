@@ -13,6 +13,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 
 import java.util.concurrent.Future;
 
@@ -118,7 +119,7 @@ public abstract class LMDBKVTransaction<T> extends ForwardingKVStore implements 
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException("watchKey() not supported");
     }
 

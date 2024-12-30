@@ -8,6 +8,7 @@ package io.permazen.kv.array;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.test.KVDatabaseTest;
+import io.permazen.util.ByteData;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,22 +90,22 @@ public class ArrayKVDatabaseTest extends KVDatabaseTest {
 
         @Override
         public void run() {
-            final byte[] key = new byte[1];
             for (int i = 0; i < NUM_ITERATIONS_PER_THREAD; i++) {
                 final ArrayKVTransaction tx = this.kvdb.createTransaction();
                 boolean success = false;
                 try {
-                    key[0] = (byte)this.random.nextInt(NUM_KEYS);
-                    final byte[] prevValue = tx.get(key);
+                    final ByteData key = ByteData.of((byte)this.random.nextInt(NUM_KEYS));
+                    final ByteData prevValue = tx.get(key);
                     if (prevValue == null) {
-                        final byte[] val = new byte[this.random.nextInt(MAX_VALUE_LENGTH - 1) + 1];
-                        this.random.nextBytes(val);
-                        tx.put(key, val);
+                        final byte[] nextValueBytes = new byte[this.random.nextInt(MAX_VALUE_LENGTH - 1) + 1];
+                        this.random.nextBytes(nextValueBytes);
+                        tx.put(key, ByteData.of(nextValueBytes));
                     } else if (this.random.nextInt(5) == 3)
                         tx.remove(key);
                     else {
-                        prevValue[this.random.nextInt(prevValue.length)] ^= (byte)this.random.nextInt();
-                        tx.put(key, prevValue);
+                        final byte[] nextValueBytes = prevValue.toByteArray();
+                        nextValueBytes[this.random.nextInt(nextValueBytes.length)] ^= (byte)this.random.nextInt();
+                        tx.put(key, ByteData.of(nextValueBytes));
                     }
                     tx.commit();
                     success = true;

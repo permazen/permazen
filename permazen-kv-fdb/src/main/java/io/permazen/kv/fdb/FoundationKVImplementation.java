@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVImplementation;
 import io.permazen.kv.mvcc.AtomicKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import java.io.File;
@@ -23,7 +24,7 @@ import joptsimple.ValueConverter;
 public class FoundationKVImplementation implements KVImplementation<FoundationKVImplementation.Config> {
 
     private OptionSpec<File> clusterFileOption;
-    private OptionSpec<byte[]> keyPrefixOption;
+    private OptionSpec<ByteData> keyPrefixOption;
 
     @Override
     public void addOptions(OptionParser parser) {
@@ -68,8 +69,8 @@ public class FoundationKVImplementation implements KVImplementation<FoundationKV
     @Override
     public String getDescription(Config config) {
         String desc = "FoundationDB " + config.getClusterFile().getName();
-        final byte[] prefix = config.getPrefix();
-        if (prefix != null && prefix.length > 0)
+        final ByteData prefix = config.getPrefix();
+        if (prefix != null && !prefix.isEmpty())
             desc += " [0x" + ByteUtil.toString(prefix) + "]";
         return desc;
     }
@@ -79,50 +80,50 @@ public class FoundationKVImplementation implements KVImplementation<FoundationKV
     public static class Config {
 
         private File clusterFile;
-        private byte[] prefix;
+        private ByteData prefix;
 
-        public Config(File clusterFile, byte[] prefix) {
+        public Config(File clusterFile, ByteData prefix) {
             Preconditions.checkArgument(clusterFile != null, "null clusterFile");
             Preconditions.checkArgument(prefix != null, "null prefix");
             this.clusterFile = clusterFile;
-            this.prefix = prefix != null ? prefix.clone() : null;
+            this.prefix = prefix;
         }
 
         public File getClusterFile() {
             return this.clusterFile;
         }
 
-        public byte[] getPrefix() {
-            return this.prefix != null ? this.prefix.clone() : null;
+        public ByteData getPrefix() {
+            return this.prefix;
         }
     }
 
 // PrefixConverter
 
-    public static class PrefixConverter implements ValueConverter<byte[]> {
+    public static class PrefixConverter implements ValueConverter<ByteData> {
 
         @Override
-        public byte[] convert(String value) {
+        public ByteData convert(String value) {
             try {
-                return ByteUtil.parse(value);
+                return ByteData.fromHex(value);
             } catch (IllegalArgumentException e) {
-                return value.getBytes(StandardCharsets.UTF_8);
+                return ByteData.of(value.getBytes(StandardCharsets.UTF_8));
             }
         }
 
         @Override
         public String revert(Object value) {
-            return ByteUtil.toString((byte[])value);
+            return ((ByteData)value).toHex();
         }
 
         @Override
-        public Class<byte[]> valueType() {
-            return byte[].class;
+        public Class<ByteData> valueType() {
+            return ByteData.class;
         }
 
         @Override
         public String valuePattern() {
-            return "Hex string or characters to be encoded in UTF-8";
+            return "Hex string or characters to be encoded as UTF-8";
         }
     }
 }

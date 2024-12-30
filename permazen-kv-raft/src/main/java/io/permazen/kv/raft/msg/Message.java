@@ -8,6 +8,7 @@ package io.permazen.kv.raft.msg;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.raft.Timestamp;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.LongEncoder;
 import io.permazen.util.UnsignedIntEncoder;
@@ -487,7 +488,7 @@ public abstract class Message {
         if (size <= 32) {
             final byte[] data = new byte[size];
             buf.asReadOnlyBuffer().get(data);
-            return ByteUtil.toString(data);
+            return ByteUtil.toString(ByteData.of(data));
         }
         return size + " bytes";
     }

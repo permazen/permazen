@@ -9,18 +9,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 
 import io.permazen.kv.KVPair;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import org.h2.mvstore.Cursor;
 
 /**
- * Converts a {@link Cursor} from an <code>Iterator&lt;byte[]&gt;</code> with inclusive upper bound
+ * Converts a {@link Cursor} from an <code>Iterator&lt;ByteData&gt;</code> with inclusive upper bound
  * into an <code>Iterator&lt;KVPair&gt;</code> with exclusive upper bound.
  */
 public class MVCursorIterator extends AbstractIterator<KVPair> {
 
-    private final Cursor<byte[], byte[]> cursor;
-    private final byte[] maxKey;
+    private final Cursor<ByteData, ByteData> cursor;
+    private final ByteData maxKey;
     private final boolean reverse;
 
 // Constructors
@@ -33,14 +34,14 @@ public class MVCursorIterator extends AbstractIterator<KVPair> {
      * @param reverse true if {@code cursor} iterates keys in descending order
      * @throws IllegalArgumentException if {@code cursor} is null
      */
-    public MVCursorIterator(Cursor<byte[], byte[]> cursor, byte[] maxKey, boolean reverse) {
+    public MVCursorIterator(Cursor<ByteData, ByteData> cursor, ByteData maxKey, boolean reverse) {
         Preconditions.checkArgument(cursor != null, "null cursor");
         this.cursor = cursor;
         this.maxKey = maxKey;
         this.reverse = reverse;
     }
 
-    public byte[] getMaxKey() {
+    public ByteData getMaxKey() {
         return this.maxKey;
     }
 
@@ -60,7 +61,7 @@ public class MVCursorIterator extends AbstractIterator<KVPair> {
             final KVPair kv = new KVPair(this.cursor.next(), this.cursor.getValue());
 
             // We must manually exclude the "maxKey" exclusive bound
-            if (this.maxKey != null && ByteUtil.compare(kv.getKey(), this.maxKey) >= 0) {
+            if (this.maxKey != null && kv.getKey().compareTo(this.maxKey) >= 0) {
                 if (!this.reverse)
                     return this.endOfData();                            // forward - this must be the last key returned
                 continue;                                               // reverse - this must be the first key returned

@@ -11,11 +11,13 @@ import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
@@ -81,43 +83,45 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
-        key.getClass();
+    public ByteData get(ByteData key) {
+        final byte[] keyBytes = key.toByteArray();
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
-        return this.db.get(key, this.readOptions);
+        return Optional.ofNullable(this.db.get(keyBytes, this.readOptions))
+          .map(ByteData::of)
+          .orElse(null);
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         return this.createIterator(this.readOptions, minKey, maxKey, reverse);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
-        key.getClass();
-        value.getClass();
+    public void put(ByteData key, ByteData value) {
+        final byte[] keyBytes = key.toByteArray();
+        final byte[] valueBytes = value.toByteArray();
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         if (this.writeBatch != null) {
             synchronized (this.writeBatch) {
-                this.writeBatch.put(key, value);
+                this.writeBatch.put(keyBytes, valueBytes);
             }
         } else
-            this.db.put(key, value);
+            this.db.put(keyBytes, valueBytes);
     }
 
     @Override
-    public void remove(byte[] key) {
-        key.getClass();
+    public void remove(ByteData key) {
+        final byte[] keyBytes = key.toByteArray();
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         if (this.writeBatch != null) {
             synchronized (this.writeBatch) {
-                this.writeBatch.delete(key);
+                this.writeBatch.delete(keyBytes);
             }
         } else
-            this.db.delete(key);
+            this.db.delete(keyBytes);
     }
 
 // Object
@@ -167,7 +171,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
 // Iterator
 
-    Iterator createIterator(ReadOptions readOptions, byte[] minKey, byte[] maxKey, boolean reverse) {
+    Iterator createIterator(ReadOptions readOptions, ByteData minKey, ByteData maxKey, boolean reverse) {
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         return new Iterator(this.db.iterator(readOptions), minKey, maxKey, reverse);
@@ -176,23 +180,22 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
     final class Iterator implements CloseableIterator<KVPair> {
 
         private final DBIterator cursor;
-        private final byte[] minKey;
-        private final byte[] maxKey;
+        private final ByteData minKey;
+        private final ByteData maxKey;
         private final boolean reverse;
 
         private KVPair next;
-        private byte[] removeKey;
+        private ByteData removeKey;
         private boolean finished;
         private boolean closed;
 
-        private Iterator(DBIterator cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
+        private Iterator(DBIterator cursor, ByteData minKey, ByteData maxKey, boolean reverse) {
 
             // Make sure we eventually close the iterator
             LevelDBKVStore.this.cursorTracker.add(this, cursor);
 
             // Sanity checks
-            Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0,
-              "minKey > maxKey");
+            Preconditions.checkArgument(minKey == null || maxKey == null || minKey.compareTo(maxKey) <= 0, "minKey > maxKey");
 
             // Initialize
             this.cursor = cursor;
@@ -205,7 +208,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
                 if (maxKey != null) {
                     if (LevelDBKVStore.this.log.isTraceEnabled())
                         LevelDBKVStore.this.log.trace("seek to {}", ByteUtil.toString(maxKey));
-                    this.cursor.seek(maxKey);
+                    this.cursor.seek(maxKey.toByteArray());
                 } else {
                     if (LevelDBKVStore.this.log.isTraceEnabled())
                         LevelDBKVStore.this.log.trace("seek to last");
@@ -215,7 +218,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
                 if (minKey != null) {
                     if (LevelDBKVStore.this.log.isTraceEnabled())
                         LevelDBKVStore.this.log.trace("seek to {}", ByteUtil.toString(minKey));
-                    this.cursor.seek(minKey);
+                    this.cursor.seek(minKey.toByteArray());
                 }
             }
         }
@@ -271,8 +274,8 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
             // Check limit bound
             if (this.reverse ?
-              (this.minKey != null && ByteUtil.compare(this.next.getKey(), this.minKey) < 0) :
-              (this.maxKey != null && ByteUtil.compare(this.next.getKey(), this.maxKey) >= 0)) {
+              (this.minKey != null && this.next.getKey().compareTo(this.minKey) < 0) :
+              (this.maxKey != null && this.next.getKey().compareTo(this.maxKey) >= 0)) {
                 if (LevelDBKVStore.this.log.isTraceEnabled()) {
                     LevelDBKVStore.this.log.trace("stopping at bound {}",
                       ByteUtil.toString(this.reverse ? this.minKey : this.maxKey));

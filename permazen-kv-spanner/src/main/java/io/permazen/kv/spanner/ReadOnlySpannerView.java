@@ -5,7 +5,6 @@
 
 package io.permazen.kv.spanner;
 
-import com.google.cloud.ByteArray;
 import com.google.cloud.spanner.Key;
 import com.google.cloud.spanner.KeyRange;
 import com.google.cloud.spanner.KeySet;
@@ -21,6 +20,7 @@ import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVStore {
 
-    private static final byte[] TOP = new byte[] { (byte)0xff };
-    private static final Key TOP_KEY = Key.of(ByteArray.copyFrom(TOP));
+    private static final ByteData TOP = ByteData.of(0xff);
+    private static final Key TOP_KEY = Key.of(Util.wrap(TOP));
     private static final List<String> V_COL = Arrays.asList("val");
     private static final List<String> KV_COL = Arrays.asList("key", "val");
 
@@ -84,10 +84,10 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
     }
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         try {
-            final Struct row = this.context.readRow(this.tableName, Key.of(ByteArray.copyFrom(key)), V_COL);
-            final byte[] val = row != null ? row.getBytes(0).toByteArray() : null;
+            final Struct row = this.context.readRow(this.tableName, Key.of(Util.wrap(key)), V_COL);
+            final ByteData val = row != null ? Util.unwrap(row.getBytes(0)) : null;
             if (this.log.isTraceEnabled())
                 this.log.trace("spanner: get(): {} -> {}", ByteUtil.toString(key), ByteUtil.toString(val));
             return val;
@@ -97,7 +97,7 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         if (this.log.isTraceEnabled()) {
             this.log.trace("spanner: getAtLeast():\n  minKey={}\n  maxKey={}",
               ByteUtil.toString(minKey), ByteUtil.toString(maxKey));
@@ -110,8 +110,8 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
-        if (minKey != null && minKey.length == 0)
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
+        if (minKey != null && minKey.isEmpty())
             minKey = null;
         try {
             // After this bug is fixed: https://github.com/GoogleCloudPlatform/google-cloud-java/issues/1632
@@ -133,8 +133,8 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        if (minKey != null && minKey.length == 0)
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
+        if (minKey != null && minKey.isEmpty())
             minKey = null;
         try {
             // After this bug is fixed: https://github.com/GoogleCloudPlatform/google-cloud-java/issues/1632
@@ -154,24 +154,24 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
         }
     }
 
-    private ResultSet getPairs(byte[] minKey, byte[] maxKey, Options.ReadOption... options) {
-        final Key min = Key.of(ByteArray.copyFrom(minKey != null ? minKey : ByteUtil.EMPTY));
-        final Key max = maxKey != null ? Key.of(ByteArray.copyFrom(maxKey)) : TOP_KEY;
+    private ResultSet getPairs(ByteData minKey, ByteData maxKey, Options.ReadOption... options) {
+        final Key min = Key.of(Util.wrap(minKey != null ? minKey : ByteData.empty()));
+        final Key max = maxKey != null ? Key.of(Util.wrap(maxKey)) : TOP_KEY;
         return this.context.read(this.tableName, KeySet.range(KeyRange.closedOpen(min, max)), KV_COL, options);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         throw new UnsupportedOperationException("read-only view");
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         throw new UnsupportedOperationException("read-only view");
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         throw new UnsupportedOperationException("read-only view");
     }
 
@@ -192,25 +192,25 @@ public class ReadOnlySpannerView extends AbstractKVStore implements CloseableKVS
 
 // Internal methods
 
-    private boolean addMinKey(Statement.Builder builder, byte[] minKey, boolean where) {
+    private boolean addMinKey(Statement.Builder builder, ByteData minKey, boolean where) {
         return this.addKey(builder, minKey, "minKey", ">=", where);
     }
 
-    private boolean addMaxKey(Statement.Builder builder, byte[] maxKey, boolean where) {
+    private boolean addMaxKey(Statement.Builder builder, ByteData maxKey, boolean where) {
         return this.addKey(builder, maxKey, "maxKey", "<", where);
     }
 
-    private boolean addKey(Statement.Builder builder, byte[] key, String name, String op, boolean where) {
+    private boolean addKey(Statement.Builder builder, ByteData key, String name, String op, boolean where) {
         if (key == null)
             return where;
         builder.append(where ? " AND " : " WHERE ").append("key ").append(op).append(" @").append(name)
-          .bind(name).to(ByteArray.copyFrom(key));
+          .bind(name).to(Util.wrap(key));
         return true;
     }
 
     protected static KVPair kv(Struct struct) {
         Preconditions.checkArgument(struct != null);
-        return new KVPair(struct.getBytes(0).toByteArray(), struct.getBytes(1).toByteArray());
+        return new KVPair(Util.unwrap(struct.getBytes(0)), Util.unwrap(struct.getBytes(1)));
     }
 
 // Iter

@@ -5,7 +5,7 @@
 
 package io.permazen.kv.mvstore;
 
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.UnsignedIntEncoder;
 
 import java.nio.ByteBuffer;
@@ -14,28 +14,28 @@ import org.h2.mvstore.WriteBuffer;
 import org.h2.mvstore.type.DataType;
 
 /**
- * MVStore {@link DataType} implementation encoding {@code byte[]} arrays sorted lexicographically.
+ * MVStore {@link DataType} implementation encoding {@link ByteData} objects.
  */
-public final class ByteArrayDataType implements DataType<byte[]> {
+public final class ByteDataDataType implements DataType<ByteData> {
 
-    public static final ByteArrayDataType INSTANCE = new ByteArrayDataType();
+    public static final ByteDataDataType INSTANCE = new ByteDataDataType();
 
-    private ByteArrayDataType() {
+    private ByteDataDataType() {
     }
 
 // DataType
 
     // Mostly copied from BasicDataType
     @Override
-    public int binarySearch(byte[] key, Object storage, int size, int initialGuess) {
-        final byte[][] array = (byte[][])storage;
+    public int binarySearch(ByteData key, Object storage, int size, int initialGuess) {
+        final ByteData[] array = (ByteData[])storage;
         int lo = 0;
         int hi = size - 1;
         int x = initialGuess - 1;
         if (x < 0 || x > hi)
             x = hi >>> 1;
         while (lo <= hi) {
-            int diff = compare(key, array[x]);
+            int diff = this.compare(key, array[x]);
             if (diff > 0)
                 lo = x + 1;
             else if (diff < 0)
@@ -48,18 +48,20 @@ public final class ByteArrayDataType implements DataType<byte[]> {
     }
 
     @Override
-    public int compare(byte[] a, byte[] b) {
-        return ByteUtil.compare(a, b);
+    public int compare(ByteData a, ByteData b) {
+        return a.compareTo(b);
     }
 
     @Override
-    public byte[][] createStorage(int size) {
-        return new byte[size][];
+    public ByteData[] createStorage(int size) {
+        return new ByteData[size];
     }
 
     @Override
-    public int getMemory(byte[] value) {
-        return 8 * ((12 + value.length + 7) / 8);           // ref: https://www.baeldung.com/java-size-of-object
+    public int getMemory(ByteData value) {
+        final int byteArrayLength = 8 * ((12 + value.size() + 7) / 8);  // ref: https://www.baeldung.com/java-size-of-object
+        final int objectLength = 8 * ((12 + 8 + 4 + 4 + 7) / 8);
+        return objectLength + byteArrayLength;
     }
 
     @Override
@@ -70,14 +72,15 @@ public final class ByteArrayDataType implements DataType<byte[]> {
 // Writing
 
     @Override
-    public void write(WriteBuffer buf, byte[] value) {
-        buf.put(UnsignedIntEncoder.encode(value.length))
-          .put(value);
+    public void write(WriteBuffer buf, ByteData value) {
+        final ByteData encodedSize = UnsignedIntEncoder.encode(value.size());
+        buf.put(encodedSize.toByteArray())
+          .put(value.toByteArray());
     }
 
     @Override
     public void write(WriteBuffer buf, Object storage, int len) {
-        final byte[][] array = (byte[][])storage;
+        final ByteData[] array = (ByteData[])storage;
         for (int i = 0; i < len; i++)
             this.write(buf, array[i]);
     }
@@ -85,15 +88,15 @@ public final class ByteArrayDataType implements DataType<byte[]> {
 // Reading
 
     @Override
-    public byte[] read(ByteBuffer buf) {
+    public ByteData read(ByteBuffer buf) {
         final byte[] bytes = new byte[UnsignedIntEncoder.read(buf)];
         buf.get(bytes);
-        return bytes;
+        return ByteData.of(bytes);
     }
 
     @Override
     public void read(ByteBuffer buf, Object storage, int len) {
-        final byte[][] array = (byte[][])storage;
+        final ByteData[] array = (ByteData[])storage;
         for (int i = 0; i < len; i++)
             array[i] = this.read(buf);
     }

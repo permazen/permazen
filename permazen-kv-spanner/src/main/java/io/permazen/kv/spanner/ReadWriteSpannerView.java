@@ -21,9 +21,8 @@ import io.permazen.kv.KVStore;
 import io.permazen.kv.caching.CachingKVStore;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Writes;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import java.util.Collections;
 import java.util.Map;
@@ -114,47 +113,47 @@ public class ReadWriteSpannerView extends MutableView implements CloseableKVStor
 
         // Add removes
         for (io.permazen.kv.KeyRange range : writes.getRemoves()) {
-            final byte[] rangeMax = range.getMax();
-            final Key minKey = Key.of(ByteArray.copyFrom(range.getMin()));
+            final ByteData rangeMax = range.getMax();
+            final Key minKey = Key.of(Util.wrap(range.getMin()));
             this.buffer(context, Mutation.delete(this.tableName,
               rangeMax != null ?                            // https://github.com/GoogleCloudPlatform/google-cloud-java/issues/1629
-               KeySet.range(KeyRange.closedOpen(minKey, Key.of(ByteArray.copyFrom(rangeMax)))) :
+               KeySet.range(KeyRange.closedOpen(minKey, Key.of(Util.wrap(rangeMax)))) :
                KeySet.range(KeyRange.closedClosed(minKey, Key.of()))));
         }
 
         // Add puts
-        for (Map.Entry<byte[], byte[]> put : writes.getPuts().entrySet()) {
+        for (Map.Entry<ByteData, ByteData> put : writes.getPuts().entrySet()) {
 
             // Add put
             this.buffer(context, Mutation.newReplaceBuilder(this.tableName)
-              .set("key").to(ByteArray.copyFrom(put.getKey()))
-              .set("val").to(ByteArray.copyFrom(put.getValue()))
+              .set("key").to(Util.wrap(put.getKey()))
+              .set("val").to(Util.wrap(put.getValue()))
               .build());
         }
 
         // Add adjusts
-        for (Map.Entry<byte[], Long> adjust : writes.getAdjusts().entrySet()) {
+        for (Map.Entry<ByteData, Long> adjust : writes.getAdjusts().entrySet()) {
 
             // Get counter key
-            final ByteArray key = ByteArray.copyFrom(adjust.getKey());
+            final ByteArray key = Util.wrap(adjust.getKey());
 
             // Read old counter value
             final Struct row = context.readRow(this.tableName, Key.of(key), Collections.singleton("val"));
             if (row == null)
                 continue;
-            final byte[] data = row.getBytes(0).toByteArray();
-            if (data.length != 8)
+            final ByteData data = Util.unwrap(row.getBytes(0));
+            if (data.size() != 8)
                 continue;
 
             // Decode value
-            final long adjustedValue = ByteUtil.readLong(new ByteReader(data)) + adjust.getValue();
-            final ByteWriter writer = new ByteWriter(8);
+            final long adjustedValue = ByteUtil.readLong(data.newReader()) + adjust.getValue();
+            final ByteData.Writer writer = ByteData.newWriter(8);
             ByteUtil.writeLong(writer, adjustedValue);
 
             // Write back new counter value
             this.buffer(context, Mutation.newReplaceBuilder(this.tableName)
               .set("key").to(key)
-              .set("val").to(ByteArray.copyFrom(writer.getBytes()))
+              .set("val").to(Util.wrap(writer.toByteData()))
               .build());
         }
 

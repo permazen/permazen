@@ -6,6 +6,7 @@
 package io.permazen.kv.lmdb;
 
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 
 import org.lmdbjava.Dbi;
 import org.lmdbjava.Txn;
@@ -35,12 +36,12 @@ public class ByteArrayLMDBKVStore extends LMDBKVStore<byte[]> {
     }
 
     @Override
-    protected byte[] wrap(byte[] data, boolean copy) {
-        return data == null ? null : copy ? data.clone() : data;
+    protected byte[] wrap(ByteData data, boolean copy) {
+        return data != null ? data.toByteArray() : null;
     }
 
     @Override
-    protected byte[] unwrap(byte[] data, boolean copy) {
-        return data == null ? null : copy ? data.clone() : data;
+    protected ByteData unwrap(byte[] data, boolean copy) {
+        return data != null ? ByteData.of(data) : null;
     }
 }

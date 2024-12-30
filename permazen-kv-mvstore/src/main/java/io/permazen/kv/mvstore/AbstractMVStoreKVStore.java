@@ -8,6 +8,7 @@ package io.permazen.kv.mvstore;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -108,7 +109,7 @@ abstract class AbstractMVStoreKVStore extends MVMapKVStore {
      * @throws IllegalStateException if this instance is not {@link #start}ed
      */
     @Override
-    public abstract MVMap<byte[], byte[]> getMVMap();
+    public abstract MVMap<ByteData, ByteData> getMVMap();
 
 // Lifecycle
 

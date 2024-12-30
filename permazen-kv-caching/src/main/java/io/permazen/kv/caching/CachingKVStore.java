@@ -14,6 +14,7 @@ import io.permazen.kv.KVPairIterator;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.util.CloseableForwardingKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.MovingAverage;
@@ -187,15 +188,14 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
      */
     public static final long DEFAULT_MAX_TOTAL_BYTES = 100 * 1024 * 1024;
 
-    private static final byte[][] EMPTY_BYTES = new byte[0][];
+    private static final ByteData[] EMPTY_BYTES = new ByteData[0];
 
     private static final double RTT_DECAY_FACTOR = 0.025;
 
     private static final int INITIAL_ARRAY_CAPACITY = 32;
     private static final float ARRAY_GROWTH_FACTOR = 1.5f;
 
-    private static final Comparator<KVRange> SORT_BY_MIN
-      = Comparator.nullsLast(Comparator.comparing(KVRange::getMin, ByteUtil.COMPARATOR));
+    private static final Comparator<KVRange> SORT_BY_MIN = Comparator.nullsLast(Comparator.comparing(KVRange::getMin));
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -310,48 +310,48 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         final KVPair pair = this.getAtLeast(key, ByteUtil.getNextKey(key));
         return pair != null ? pair.getValue() : null;
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
         return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
         if (KeyRange.compare(minKey, maxKey) >= 0)
             return null;
         return this.find(minKey, maxKey, false);
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         if (minKey == null)
-            minKey = ByteUtil.EMPTY;
+            minKey = ByteData.empty();
         if (KeyRange.compare(minKey, maxKey) >= 0)
             return null;
         return this.find(maxKey, minKey, true);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         throw new UnsupportedOperationException();
     }
 
@@ -391,7 +391,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
 
 // Internal methods
 
-    private KVPair find(byte[] start, final byte[] limit, final boolean reverse) {
+    private KVPair find(ByteData start, final ByteData limit, final boolean reverse) {
 
         // Sanity check
         assert start != null || reverse;
@@ -533,7 +533,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                             // Get loader's rate of progress (if known) and base estimated arrival time on that
                             final double arrivalRate = loader.getArrivalRate();
                             if (!Double.isNaN(arrivalRate) && arrivalRate > 0) {
-                                final byte[] loaderBase = reverse ? range.getMin() : range.getMax();
+                                final ByteData loaderBase = reverse ? range.getMin() : range.getMax();
                                 eta = (long)(Math.abs(this.measure(start) - this.measure(loaderBase)) / arrivalRate);
                                 startNewRange = eta >= waitTimeRemain;
                             } else
@@ -580,13 +580,13 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                     assert range.getLoader(reverse) == null : "" + range;
 
                     // Extend our range query all the way to the neighboring range, or to read-ahead limit if there is none
-                    byte[] actualLimit = limit;
-                    if (reverse && limit.length > 0) {
+                    ByteData actualLimit = limit;
+                    if (reverse && !limit.isEmpty()) {
                         final KVRange nextRange = this.ranges.lower(range);
                         if (nextRange != null && !nextRange.isPrimordial())
                             actualLimit = nextRange.getMax();
                         else if (this.readAhead)
-                            actualLimit = ByteUtil.EMPTY;
+                            actualLimit = ByteData.empty();
                     } else if (!reverse && limit != null) {
                         final KVRange nextRange = this.ranges.higher(range);
                         if (nextRange != null && !nextRange.isPrimordial())
@@ -712,12 +712,12 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
     /**
      * Get a search key for searching in an ordered list of {@link KVRange}'s.
      */
-    private KVRange key(byte[] key) {
+    private KVRange key(ByteData key) {
         return new KVRange(key, key, EMPTY_BYTES, EMPTY_BYTES, 0, 0, 0);
     }
 
-    private double measure(byte[] value) {
-        return value != null ? ByteUtil.toDouble(value) : 1.0;
+    private double measure(ByteData value) {
+        return value != null ? CachingKVStore.toDouble(value) : 1.0;
     }
 
     private void debug(String msg, Object... params) {
@@ -744,6 +744,67 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         }
     }
 
+    /**
+     * Map a byte string into the range {@code [0.0, 1.0)} in a way that preserves order.
+     *
+     * <p>
+     * This allows calculations that require a notion of "distance"
+     * between two keys.
+     *
+     * <p>
+     * This method simply maps the first 6.5 bytes of {@code key} into the 52 mantissa bits
+     * of a {@code double} value. Obviously, the mapping is not reversible: some keys will
+     * map equal {@code double} values, but otherwise the mapping is order-preserving.
+     *
+     * @param key input key
+     * @return nearest corresponding value between zero (inclusive) and one (exclusive)
+     * @throws IllegalArgumentException if {@code key} is null
+     */
+    static double toDouble(ByteData key) {
+        Preconditions.checkArgument(key != null, "null key");
+        long bits = 0x3ff0000000000000L;
+        final int length6 = Math.min(key.size(), 6);
+        for (int i = 0; i < length6; i++)
+            bits |= (long)(key.byteAt(i) & 0xff) << (44 - i * 8);
+        if (key.size() > 6)
+            bits |= (long)(key.byteAt(6) & 0xff) >> 4;
+        return Double.longBitsToDouble(bits) - 1.0;
+    }
+
+    /**
+     * Performs the inverse of {@link #toDouble toDouble()}.
+     *
+     * <p>
+     * The mapping of {@link #toDouble toDouble()} is not reversible: some keys will map to the same
+     * {@code double} value, so this method does not always return the original byte string key.
+     *
+     * @param value input value; must be &gt;= 0.0 and &lt; 1.0
+     * @return a byte string that maps to {@code value}
+     * @throws IllegalArgumentException if {@code value} is not a number
+     *  between zero (inclusive) and one (exclusive)
+     */
+    static ByteData fromDouble(double value) {
+        Preconditions.checkArgument(Double.isFinite(value) && value >= 0.0 && value < 1.0, "invalid value");
+
+        // Extract bytes
+        final long bits = Double.doubleToLongBits(value + 1.0);
+        final byte[] bytes = new byte[] {
+            (byte)(bits >> 44),
+            (byte)(bits >> 36),
+            (byte)(bits >> 28),
+            (byte)(bits >> 20),
+            (byte)(bits >> 12),
+            (byte)(bits >>  4),
+            (byte)(bits <<  4)
+        };
+
+        // Trim trailing zero bytes
+        int length = bytes.length;
+        while (length > 0 && bytes[length - 1] == 0)
+            length--;
+        return ByteData.of(bytes, 0, length);
+    }
+
 // Loader
 
     private class Loader implements Runnable {
@@ -755,16 +816,16 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
 
         private final KVRange range;                    // the range that we are extending
         private final boolean reverse;                  // the direction in which the range is being extended
-        private final byte[] start;                     // the start of our range query
-        private final byte[] limit;                     // the end of our range query
+        private final ByteData start;                   // the start of our range query
+        private final ByteData limit;                   // the end of our range query
         private Future<?> taskFuture;                   // the future associated with the executor task
         private CompletableFuture<?> future;            // the future indicating that we have extended the range by a new extent
 
         // This is the exponential moving average of the rate at which key/value pair retrieval is moving through the keyspace.
-        // This is measured in key-space-units/nanosecond, where "key-space-units" are what is returned by ByteUtil.toDouble().
+        // This is measured in key-space-units/nanosecond, where "key-space-units" are what is returned by toDouble().
         private MovingAverage arrivalRate = new MovingAverage(RATE_DECAY_FACTOR);
 
-        Loader(KVRange range, boolean reverse, byte[] limit) {
+        Loader(KVRange range, boolean reverse, ByteData limit) {
             assert Thread.holdsLock(CachingKVStore.this);
             assert range != null;
             this.range = range;
@@ -782,7 +843,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         /**
          * Get the current base of this loader's query. This is just the min or max of the associated {@link KVRange}.
          */
-        public byte[] getBase() {
+        public ByteData getBase() {
             return this.reverse ? this.range.getMin() : this.range.getMax();
         }
 
@@ -882,8 +943,8 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
 
                 // Read next key/value pair
                 final KVPair pair = iterator.hasNext() ? iterator.next() : null;
-                byte[] key = pair != null ? pair.getKey() : null;
-                byte[] val = pair != null ? pair.getValue() : null;
+                ByteData key = pair != null ? pair.getKey() : null;
+                ByteData val = pair != null ? pair.getValue() : null;
                 if (key != null) {
                     if (this.reverse) {
                         synchronized (CachingKVStore.this) {
@@ -928,13 +989,13 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                     assert this.future != null;
 
                     // Find ranges completely covered by our extent, and discard them
-                    byte[] extentMin = !reverse ? this.getBase() : key != null ? key : this.limit;
-                    byte[] extentMax = reverse ? this.getBase() : key != null ? ByteUtil.getNextKey(key) : this.limit;
+                    ByteData extentMin = !reverse ? this.getBase() : key != null ? key : this.limit;
+                    ByteData extentMax = reverse ? this.getBase() : key != null ? ByteUtil.getNextKey(key) : this.limit;
                     boolean stopLoading = key == null;
                     for (Iterator<KVRange> i = CachingKVStore.this.ranges.tailSet(
                       CachingKVStore.this.key(extentMin), true).iterator(); i.hasNext(); ) {
                         final KVRange contained = i.next();
-                        assert ByteUtil.compare(contained.getMin(), extentMin) >= 0;
+                        assert contained.getMin().compareTo(extentMin) >= 0;
 
                         // Is range completely contained within our extent?
                         if (KeyRange.compare(contained.getMax(), extentMax) > 0)
@@ -947,7 +1008,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                         }
 
                         // If range is not empty, it must only contain, and end with, the key we found
-                        assert contained.containsOnlyKeyInRange(key, ByteUtil.EMPTY, null) :
+                        assert contained.containsOnlyKeyInRange(key, ByteData.empty(), null) :
                           "contained=" + contained + " key=" + ByteUtil.toString(key);
 
                         // Discard the range
@@ -1012,8 +1073,8 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
 
                     // Update key/value pair arrival rate
                     final long now = System.nanoTime();
-                    final double keySpaceValue = this.reverse ? ByteUtil.toDouble(extentMin) :
-                      extentMax != null ? ByteUtil.toDouble(extentMax) : 1.0;
+                    final double keySpaceValue = this.reverse ? CachingKVStore.toDouble(extentMin) :
+                      extentMax != null ? CachingKVStore.toDouble(extentMax) : 1.0;
                     if (numKeysLoaded++ == 0) {
                         lastKeySpaceValue = keySpaceValue;
                         lastMeasureTime = now;
@@ -1033,10 +1094,10 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
 
                     // If we now abut the neighboring range, merge with it; if neighbor is primordial, just discard it
                     KVRange mergedRange = null;
-                    if (reverse && extentMin.length > 0) {
+                    if (reverse && !extentMin.isEmpty()) {
                         final KVRange neighbor
                           = this.last(CachingKVStore.this.ranges.headSet(CachingKVStore.this.key(extentMin), false));
-                        if (neighbor != null && ByteUtil.compare(neighbor.getMax(), extentMin) == 0) {
+                        if (neighbor != null && neighbor.getMax().compareTo(extentMin) == 0) {
                             if (neighbor.isPrimordial()) {
                                 assert neighbor.isEmpty();
                                 if (this.log.isTraceEnabled())
@@ -1059,7 +1120,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                     } else if (!reverse && extentMax != null) {
                         final KVRange neighbor
                           = this.first(CachingKVStore.this.ranges.tailSet(CachingKVStore.this.key(extentMax), true));
-                        if (neighbor != null && ByteUtil.compare(neighbor.getMin(), extentMax) == 0) {
+                        if (neighbor != null && neighbor.getMin().compareTo(extentMax) == 0) {
                             if (neighbor.isPrimordial()) {
                                 assert neighbor.isEmpty();
                                 if (this.log.isTraceEnabled())
@@ -1145,21 +1206,21 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         private final RingEntry<KVRange> lruEntry = new RingEntry<>(this);
         private final Loader[] loaders = new Loader[2];                 // 0 = forward, 1 = reverse
 
-        private byte[] min;
-        private byte[] max;
+        private ByteData min;
+        private ByteData max;
 
-        private byte[][] keys;
-        private byte[][] vals;
+        private ByteData[] keys;
+        private ByteData[] vals;
         private int minIndex;
         private int maxIndex;
         private long totalBytes;
         private int lastKnownRangesIndex;
 
-        KVRange(byte[] start) {
-            this(start, start, new byte[INITIAL_ARRAY_CAPACITY][], new byte[INITIAL_ARRAY_CAPACITY][], 0, 0, 0);
+        KVRange(ByteData start) {
+            this(start, start, new ByteData[INITIAL_ARRAY_CAPACITY], new ByteData[INITIAL_ARRAY_CAPACITY], 0, 0, 0);
         }
 
-        KVRange(byte[] min, byte[] max, byte[][] keys, byte[][] vals, int minIndex, int maxIndex, long totalBytes) {
+        KVRange(ByteData min, ByteData max, ByteData[] keys, ByteData[] vals, int minIndex, int maxIndex, long totalBytes) {
             this.min = min;
             this.max = max;
             this.keys = keys;
@@ -1175,14 +1236,14 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
          *
          * @return lower limit of known range (inclusive)
          */
-        public byte[] getMin() {
+        public ByteData getMin() {
             assert Thread.holdsLock(CachingKVStore.this);
             return this.min;
         }
-        public void setMin(byte[] min) {
+        public void setMin(ByteData min) {
             assert Thread.holdsLock(CachingKVStore.this);
             assert min != null;
-            assert ByteUtil.compare(min, this.min) <= 0;                // KVRanges can only get bigger, not smaller
+            assert min.compareTo(this.min) <= 0;                        // KVRanges can only get bigger, not smaller
             this.min = min;
         }
 
@@ -1191,11 +1252,11 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
          *
          * @return upper limit of known range (exclusive); null means infinity
          */
-        public byte[] getMax() {
+        public ByteData getMax() {
             assert Thread.holdsLock(CachingKVStore.this);
             return this.max;
         }
-        public void setMax(byte[] max) {
+        public void setMax(ByteData max) {
             assert Thread.holdsLock(CachingKVStore.this);
             assert KeyRange.compare(max, this.max) >= 0;                // KVRanges can only get bigger, not smaller
             this.max = max;
@@ -1238,27 +1299,27 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         /**
          * Find the entry with at least (inclusive) the given key.
          */
-        public KVPair getAtLeast(byte[] key) {
+        public KVPair getAtLeast(ByteData key) {
             assert Thread.holdsLock(CachingKVStore.this);
-            int index = Arrays.binarySearch(this.keys, this.minIndex, this.maxIndex, key, ByteUtil.COMPARATOR);
+            int index = Arrays.binarySearch(this.keys, this.minIndex, this.maxIndex, key, ByteData::compareTo);
             if (index < 0) {
                 if ((index = ~index) >= this.maxIndex)
                     return null;
             }
-            return new KVPair(this.keys[index].clone(), this.vals[index].clone());
+            return new KVPair(this.keys[index], this.vals[index]);
         }
 
         /**
          * Find the entry with at most (exclusive) the given key.
          */
-        public KVPair getAtMost(byte[] key) {
+        public KVPair getAtMost(ByteData key) {
             assert Thread.holdsLock(CachingKVStore.this);
             int index = Arrays.binarySearch(this.keys, this.minIndex, this.maxIndex, key, KeyRange::compare);
             if (index < 0)
                 index = ~index;
             if (--index < this.minIndex)
                 return null;
-            return new KVPair(this.keys[index].clone(), this.vals[index].clone());
+            return new KVPair(this.keys[index], this.vals[index]);
         }
 
         /**
@@ -1316,7 +1377,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         /**
          * Add the given key/value pair to this range.
          */
-        public void add(byte[] key, byte[] val) {
+        public void add(ByteData key, ByteData val) {
 
             // Sanity check
             assert Thread.holdsLock(CachingKVStore.this);
@@ -1324,7 +1385,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
             assert key != null && val != null;
 
             // Add key/value pair
-            if (ByteUtil.compare(key, this.min) < 0) {
+            if (key.compareTo(this.min) < 0) {
                 if (this.minIndex == 0)
                     this.growArrays();
                 assert this.minIndex > 0;
@@ -1340,7 +1401,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
                 this.vals[this.maxIndex] = val;
                 this.maxIndex++;
             }
-            this.totalBytes += key.length + val.length;
+            this.totalBytes += key.size() + val.size();
         }
 
         /**
@@ -1362,8 +1423,8 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
             final int nextSize = next.size();
             final int newSize = thisSize + nextSize;
             final long newTotalBytes = this.totalBytes + next.totalBytes;
-            final byte[][] newKeys;
-            final byte[][] newVals;
+            final ByteData[] newKeys;
+            final ByteData[] newVals;
             final int newMinIndex;
             if (newSize <= this.keys.length) {
 
@@ -1398,8 +1459,8 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
             } else {
 
                 // Create new arrays
-                newKeys = new byte[(int)(newSize * ARRAY_GROWTH_FACTOR) + 30][];
-                newVals = new byte[newKeys.length][];
+                newKeys = new ByteData[(int)(newSize * ARRAY_GROWTH_FACTOR) + 30];
+                newVals = new ByteData[newKeys.length];
                 newMinIndex = (newKeys.length - newSize) / 2;
                 System.arraycopy(this.keys, this.minIndex, newKeys, newMinIndex, thisSize);
                 System.arraycopy(this.vals, this.minIndex, newVals, newMinIndex, thisSize);
@@ -1422,8 +1483,8 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         private void growArrays() {
             assert Thread.holdsLock(CachingKVStore.this);
             final int size = this.size();
-            final byte[][] newKeys = new byte[(int)(size * ARRAY_GROWTH_FACTOR) + 30][];
-            final byte[][] newVals = new byte[newKeys.length][];
+            final ByteData[] newKeys = new ByteData[(int)(size * ARRAY_GROWTH_FACTOR) + 30];
+            final ByteData[] newVals = new ByteData[newKeys.length];
             final int newMinIndex = (newKeys.length - size) / 2;
             System.arraycopy(this.keys, this.minIndex, newKeys, newMinIndex, size);
             System.arraycopy(this.vals, this.minIndex, newVals, newMinIndex, size);
@@ -1454,10 +1515,10 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
             for (int i = this.minIndex; i < this.maxIndex; i++) {
                 assert this.keys[i] != null;
                 assert this.vals[i] != null;
-                final byte[] key = this.keys[i];
+                final ByteData key = this.keys[i];
                 assert KeyRange.compare(key, this.getMin()) >= 0;
                 assert KeyRange.compare(key, this.getMax()) < 0;
-                assert i == this.minIndex || ByteUtil.compare(key, this.keys[i - 1]) > 0;
+                assert i == this.minIndex || key.compareTo(this.keys[i - 1]) > 0;
             }
             return true;
         }
@@ -1475,7 +1536,7 @@ public class CachingKVStore extends CloseableForwardingKVStore implements Cachin
         }
 
         // Verify key is the only key in the given range (if key is not null), or the given range is empty (if key is null)
-        public boolean containsOnlyKeyInRange(byte[] key, byte[] min, byte[] max) {
+        public boolean containsOnlyKeyInRange(ByteData key, ByteData min, ByteData max) {
             assert Thread.holdsLock(CachingKVStore.this);
             if (KeyRange.compare(key, this.min) < 0 || KeyRange.compare(key, this.max) >= 0)
                 key = null;

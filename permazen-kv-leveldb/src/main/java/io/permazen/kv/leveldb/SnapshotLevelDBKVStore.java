@@ -7,6 +7,7 @@ package io.permazen.kv.leveldb;
 
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.ReadOptions;
@@ -62,22 +63,22 @@ public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableK
 // KVStore
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         throw new UnsupportedOperationException("KVStore is read-only");
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         throw new UnsupportedOperationException("KVStore is read-only");
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         throw new UnsupportedOperationException("KVStore is read-only");
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         throw new UnsupportedOperationException("KVStore is read-only");
     }
 }

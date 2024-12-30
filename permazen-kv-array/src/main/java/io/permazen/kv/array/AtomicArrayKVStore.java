@@ -19,7 +19,7 @@ import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import jakarta.annotation.PostConstruct;
@@ -660,7 +660,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -671,7 +671,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -682,7 +682,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -693,7 +693,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -704,35 +704,35 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         final Writes writes = new Writes();
         writes.getPuts().put(key, value);
         this.apply(writes, false);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         final Writes writes = new Writes();
         writes.getRemoves().add(new KeyRange(key));
         this.apply(writes, false);
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         final Writes writes = new Writes();
-        writes.getRemoves().add(new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey));
+        writes.getRemoves().add(new KeyRange(minKey != null ? minKey : ByteData.empty(), maxKey));
         this.apply(writes, false);
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         final Writes writes = new Writes();
         writes.getAdjusts().put(key, amount);
         this.apply(writes, false);
     }
 
     @Override
-    public byte[] encodeCounter(long value) {
+    public ByteData encodeCounter(long value) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -743,7 +743,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @Override
-    public long decodeCounter(byte[] bytes) {
+    public long decodeCounter(ByteData bytes) {
         this.readLock.lock();
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
@@ -859,10 +859,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
                     writes.getRemoves().add(new KeyRanges(removes));
                 }
-                try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+                try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
                     puts.iterator().forEachRemaining(entry -> writes.getPuts().put(entry.getKey(), entry.getValue()));
                 }
-                try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+                try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
                     adjusts.iterator().forEachRemaining(entry -> writes.getAdjusts().put(entry.getKey(), entry.getValue()));
                 }
             }
@@ -904,27 +904,27 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Apply removes
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
                 removes.iterator().forEachRemaining(range -> {
-                    final byte[] min = range.getMin();
-                    final byte[] max = range.getMax();
+                    final ByteData min = range.getMin();
+                    final ByteData max = range.getMax();
                     this.mods.removeRange(min, max);
                     this.modsWritesSnapshot = null;
                 });
             }
 
             // Apply puts
-            try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+            try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
                 puts.iterator().forEachRemaining(entry -> {
-                    final byte[] key = entry.getKey();
-                    final byte[] val = entry.getValue();
+                    final ByteData key = entry.getKey();
+                    final ByteData val = entry.getValue();
                     this.mods.put(key, val);
                     this.modsWritesSnapshot = null;
                 });
             }
 
             // Apply counter adjustments
-            try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+            try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
                 adjusts.iterator().forEachRemaining(entry -> {
-                    final byte[] key = entry.getKey();
+                    final ByteData key = entry.getKey();
                     final long adjust = entry.getValue();
                     this.mods.adjustCounter(key, adjust);
                     this.modsWritesSnapshot = null;

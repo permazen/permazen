@@ -39,15 +39,17 @@ public class KVPair {
     /**
      * Constructor.
      *
-     * @param entry map entry
+     * @param entry map entry containing {@code byte[]} arrays
      * @throws IllegalArgumentException if {@code entry} or its key or value is null
      */
-    public KVPair(Map.Entry<ByteData, ByteData> entry) {
+    public KVPair(Map.Entry<byte[], byte[]> entry) {
         Preconditions.checkArgument(entry != null, "null entry");
-        this.key = entry.getKey();
-        this.value = entry.getValue();
-        Preconditions.checkArgument(this.key != null, "null key");
-        Preconditions.checkArgument(this.value != null, "null value");
+        final byte[] key = entry.getKey();
+        final byte[] value = entry.getValue();
+        Preconditions.checkArgument(key != null, "null key");
+        Preconditions.checkArgument(value != null, "null value");
+        this.key = ByteData.of(key);
+        this.value = ByteData.of(value);
     }
 
     /**

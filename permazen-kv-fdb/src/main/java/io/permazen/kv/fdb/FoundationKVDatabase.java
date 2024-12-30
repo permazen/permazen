@@ -13,9 +13,8 @@ import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVDatabase;
 import io.permazen.kv.KVDatabaseException;
-import io.permazen.util.ByteReader;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
-import io.permazen.util.ByteWriter;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -43,7 +42,7 @@ public class FoundationKVDatabase implements KVDatabase {
     private final NetworkOptions options = this.fdb.options();
 
     private String clusterFilePath;
-    private byte[] keyPrefix;
+    private ByteData keyPrefix;
     private Executor executor;
 
     private Database database;
@@ -94,26 +93,31 @@ public class FoundationKVDatabase implements KVDatabase {
      *
      * @return key prefix, or null if there is none configured
      */
-    public synchronized byte[] getKeyPrefix() {
-        return this.keyPrefix.clone();
+    public synchronized ByteData getKeyPrefix() {
+        return this.keyPrefix;
     }
 
     /**
-     * Configure a prefix for all keys. The prefix will be added/removed automatically with all access.
-     * The default prefix is null, which is equivalent to an empty prefix.
+     * Configure a prefix for all keys.
+     *
+     * <p>
+     * The prefix will be added/removed automatically with all access.
+     * By default there is no prefix.
      *
      * <p>
      * The key prefix may not be changed after this instance has {@linkplain #start started}.
      *
-     * @param keyPrefix new prefix, or null for none
+     * @param keyPrefix new prefix, or null or empty for none
      * @throws IllegalArgumentException if {@code keyPrefix} starts with {@code 0xff}
      * @throws IllegalStateException if this instance has already been {@linkplain #start started}
      */
-    public synchronized void setKeyPrefix(byte[] keyPrefix) {
+    public synchronized void setKeyPrefix(ByteData keyPrefix) {
         Preconditions.checkState(this.database == null, "already started");
-        Preconditions.checkArgument(keyPrefix == null || keyPrefix.length == 0 || keyPrefix[0] != (byte)0xff,
+        Preconditions.checkArgument(keyPrefix == null || !keyPrefix.startsWith(FoundationKVStore.MAX_KEY),
           "prefix starts with 0xff");
-        this.keyPrefix = keyPrefix != null && keyPrefix.length > 0 ? keyPrefix.clone() : null;
+        if (keyPrefix != null && keyPrefix.isEmpty())
+            keyPrefix = null;
+        this.keyPrefix = keyPrefix;
     }
 
     /**
@@ -176,12 +180,10 @@ public class FoundationKVDatabase implements KVDatabase {
      * @param value counter value
      * @return encoded value
      */
-    public static byte[] encodeCounter(long value) {
-        final ByteWriter writer = new ByteWriter(8);
+    public static ByteData encodeCounter(long value) {
+        final ByteData.Writer writer = ByteData.newWriter(8);
         ByteUtil.writeLong(writer, value);
-        final byte[] bytes = writer.getBytes();
-        FoundationKVDatabase.reverse(bytes);
-        return bytes;
+        return FoundationKVDatabase.reverse(writer.toByteData());
     }
 
     /**
@@ -192,22 +194,23 @@ public class FoundationKVDatabase implements KVDatabase {
      * @throws NullPointerException if {@code bytes} is null
      * @throws IllegalArgumentException if {@code bytes} is invalid
      */
-    public static long decodeCounter(byte[] bytes) {
-        Preconditions.checkArgument(bytes.length == 8, "invalid encoded counter value length != 8");
-        bytes = bytes.clone();
-        FoundationKVDatabase.reverse(bytes);
-        return ByteUtil.readLong(new ByteReader(bytes));
+    public static long decodeCounter(ByteData bytes) {
+        Preconditions.checkArgument(bytes.size() == 8, "invalid encoded counter value length != 8");
+        return ByteUtil.readLong(FoundationKVDatabase.reverse(bytes).newReader());
     }
 
-    private static void reverse(byte[] bytes) {
+    private static ByteData reverse(ByteData bytes) {
+        assert bytes != null && bytes.size() == 8;
+        final byte[] array = bytes.toByteArray();
         int i = 0;
-        int j = bytes.length - 1;
+        int j = array.length - 1;
         while (i < j) {
-            final byte temp = bytes[i];
-            bytes[i] = bytes[j];
-            bytes[j] = temp;
+            final byte temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
             i++;
             j--;
         }
+        return ByteData.of(array);
     }
 }

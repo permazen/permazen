@@ -8,6 +8,7 @@ package io.permazen.kv.mvstore;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.CloseableKVStore;
+import io.permazen.util.ByteData;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,7 +37,7 @@ public class MVMapSnapshot extends MVMapKVStore implements CloseableKVStore {
      * @param mvmap the underlying {@link MVMap} to snapshot
      * @throws NullPointerException if {@code mvmap} is null
      */
-    public MVMapSnapshot(MVMap<byte[], byte[]> mvmap) {
+    public MVMapSnapshot(MVMap<ByteData, ByteData> mvmap) {
         super(mvmap == null || mvmap.isReadOnly() || mvmap.getVersion() == -1 ? mvmap : mvmap.openVersion(mvmap.getVersion()));
         Preconditions.checkArgument(mvmap != null, "null mvmap");
         synchronized (this) {

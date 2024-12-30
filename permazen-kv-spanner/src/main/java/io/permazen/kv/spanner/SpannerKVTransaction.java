@@ -26,6 +26,7 @@ import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.util.concurrent.Future;
@@ -335,7 +336,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
      * @throws UnsupportedOperationException always
      */
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException();
     }
 
@@ -359,7 +360,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
 // ForwardingKVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         try {
             return super.get(key);
         } catch (SpannerException e) {
@@ -369,7 +370,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         try {
             return super.getAtLeast(minKey, maxKey);
         } catch (SpannerException e) {
@@ -379,7 +380,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         try {
             return super.getAtMost(maxKey, minKey);
         } catch (SpannerException e) {
@@ -389,7 +390,7 @@ public class SpannerKVTransaction extends ForwardingKVStore implements KVTransac
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         try {
             return super.getRange(minKey, maxKey, reverse);
         } catch (SpannerException e) {

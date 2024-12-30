@@ -11,6 +11,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.util.concurrent.ExecutorService;
@@ -87,52 +88,52 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         return this.view.get(key);
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         return this.view.getAtLeast(minKey, maxKey);
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         return this.view.getAtMost(maxKey, minKey);
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         return this.view.getRange(minKey, maxKey, reverse);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         this.view.put(key, value);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         this.view.remove(key);
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         this.view.removeRange(minKey, maxKey);
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         this.view.adjustCounter(key, amount);
     }
 
     @Override
-    public byte[] encodeCounter(long value) {
+    public ByteData encodeCounter(long value) {
         return this.view.encodeCounter(value);
     }
 
     @Override
-    public long decodeCounter(byte[] bytes) {
+    public long decodeCounter(ByteData bytes) {
         return this.view.decodeCounter(bytes);
     }
 
@@ -164,7 +165,7 @@ public class CachingKVTransaction extends AbstractCachingConfig implements KVTra
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         return this.inner.watchKey(key);
     }
 

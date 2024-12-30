@@ -8,6 +8,7 @@ package io.permazen.kv.spanner;
 import com.google.cloud.spanner.SpannerOptions;
 
 import io.permazen.kv.test.KVTestSupport;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import org.testng.Assert;
@@ -40,14 +41,14 @@ public class DeleteTest extends KVTestSupport {
         this.db.start();
         try {
 
-            final byte[] key1 = new byte[] { (byte)0x11 };
-            final byte[] val1 = new byte[] { (byte)0xaa };
-            final byte[] key2 = new byte[] { (byte)0x22 };
-            final byte[] val2 = new byte[] { (byte)0xbb };
+            final ByteData key1 = ByteData.of(0x11);
+            final ByteData val1 = ByteData.of(0xaa);
+            final ByteData key2 = ByteData.of(0x22);
+            final ByteData val2 = ByteData.of(0xbb);
 
             // Populate DB
             this.tryNtimes(this.db, tx -> {
-                tx.removeRange(new byte[0], null);
+                tx.removeRange(ByteData.empty(), null);
                 tx.put(key1, val1);
                 tx.put(key2, val2);
             });

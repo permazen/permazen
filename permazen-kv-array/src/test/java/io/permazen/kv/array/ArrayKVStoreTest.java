@@ -11,7 +11,7 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.test.AtomicKVStoreTest;
 import io.permazen.kv.util.MemoryKVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,8 +52,8 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
                     if (val.length > 0)
                         this.random.nextBytes(val);
                     //this.log.info("NEXT KV: {} VALUE {}", ByteUtil.toString(key), ByteUtil.toString(val));
-                    writer.writeKV(key, val);
-                    reference.put(key, val);
+                    writer.writeKV(ByteData.of(key), ByteData.of(val));
+                    reference.put(ByteData.of(key), ByteData.of(val));
                 }
 
                 // Advance key somewhat randomly
@@ -90,22 +90,33 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
                 final byte[] key2 = this.random.nextInt(100) < 75 ? null : this.randomKey(maxKeyLen);
                 int option = this.random.nextInt(40);
                 if (option < 10)
-                    this.verify(kvstore.get(key), reference.get(key));
-                else if (option < 20)
-                    this.verify(kvstore.getAtLeast(key, key2), reference.getAtLeast(key, key2));
-                else if (option < 30)
-                    this.verify(kvstore.getAtMost(key, key2), reference.getAtMost(key, key2));
-                else {
+                    this.verify(kvstore.get(ByteData.of(key)), reference.get(ByteData.of(key)));
+                else if (option < 20) {
+                    this.verify(
+                      kvstore.getAtLeast(ByteData.of(key), key2 != null ? ByteData.of(key2) : null),
+                      reference.getAtLeast(ByteData.of(key), key2 != null ? ByteData.of(key2) : null));
+                } else if (option < 30) {
+                    this.verify(
+                      kvstore.getAtMost(ByteData.of(key), key2 != null ? ByteData.of(key2) : null),
+                      reference.getAtMost(ByteData.of(key), key2 != null ? ByteData.of(key2) : null));
+                } else {
                     byte[] minKey = this.random.nextInt(5) == 3 ? null : key;
                     byte[] maxKey = this.random.nextInt(5) == 3 ? null : this.randomKey(maxKeyLen * 2);
-                    if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0) {
+                    if (minKey != null && maxKey != null && ByteData.of(minKey).compareTo(ByteData.of(maxKey)) > 0) {
                         byte[] temp = minKey;
                         minKey = maxKey;
                         maxKey = temp;
                     }
                     final boolean reverse = this.random.nextBoolean();
-                    this.verify(kvstore.getRange(minKey, maxKey, reverse),
-                      reference.getRange(minKey, maxKey, reverse));
+                    this.verify(
+                      kvstore.getRange(
+                        minKey != null ? ByteData.of(minKey) : null,
+                        maxKey != null ? ByteData.of(maxKey) : null,
+                        reverse),
+                      reference.getRange(
+                        minKey != null ? ByteData.of(minKey) : null,
+                        maxKey != null ? ByteData.of(maxKey) : null,
+                        reverse));
                 }
             }
         }
@@ -124,7 +135,7 @@ public class ArrayKVStoreTest extends AtomicKVStoreTest {
         return kv;
     }
 
-    private void verify(byte[] actual, byte[] expected) {
+    private void verify(ByteData actual, ByteData expected) {
         Assert.assertEquals(actual, expected);
     }
 

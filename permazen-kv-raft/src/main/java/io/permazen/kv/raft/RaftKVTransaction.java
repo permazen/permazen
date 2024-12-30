@@ -20,6 +20,7 @@ import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.util.CloseableForwardingKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableRefs;
 
@@ -484,31 +485,31 @@ public class RaftKVTransaction implements KVTransaction {
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         this.fastVerifyExecuting();
         return this.view.get(key);
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         this.fastVerifyExecuting();
         return this.view.getAtLeast(minKey, maxKey);
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         this.fastVerifyExecuting();
         return this.view.getAtMost(maxKey, minKey);
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         this.fastVerifyExecuting();
         return this.view.getRange(minKey, maxKey, reverse);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         this.fastVerifyExecuting();
         try {
             this.view.put(key, value);
@@ -521,7 +522,7 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         this.fastVerifyExecuting();
         try {
             this.view.remove(key);
@@ -534,7 +535,7 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         this.fastVerifyExecuting();
         try {
             this.view.removeRange(minKey, maxKey);
@@ -547,7 +548,7 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         this.fastVerifyExecuting();
         try {
             this.view.adjustCounter(key, amount);
@@ -560,12 +561,12 @@ public class RaftKVTransaction implements KVTransaction {
     }
 
     @Override
-    public byte[] encodeCounter(long value) {
+    public ByteData encodeCounter(long value) {
         return this.view.encodeCounter(value);
     }
 
     @Override
-    public long decodeCounter(byte[] bytes) {
+    public long decodeCounter(ByteData bytes) {
         return this.view.decodeCounter(bytes);
     }
 
@@ -647,7 +648,7 @@ public class RaftKVTransaction implements KVTransaction {
      * @throws IllegalArgumentException {@inheritDoc}
      */
     @Override
-    public ListenableFuture<Void> watchKey(byte[] key) {
+    public ListenableFuture<Void> watchKey(ByteData key) {
         return this.raft.watchKey(this, key);
     }
 

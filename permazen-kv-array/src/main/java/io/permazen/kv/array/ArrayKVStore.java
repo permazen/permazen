@@ -11,7 +11,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.nio.ByteBuffer;
@@ -55,7 +55,7 @@ public class ArrayKVStore extends AbstractKVStore {
     }
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         final int index = this.finder.find(key);
         if (index < 0)
             return null;
@@ -63,21 +63,21 @@ public class ArrayKVStore extends AbstractKVStore {
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         int index;
-        if (minKey == null || minKey.length == 0)
+        if (minKey == null || minKey.isEmpty())
             index = 0;
         else if ((index = this.finder.find(minKey)) < 0)
             index = ~index;
         if (index == this.size)
             return null;
         final KVPair pair = this.finder.readKV(index);
-        assert ByteUtil.compare(pair.getKey(), minKey) >= 0;
-        return maxKey == null || ByteUtil.compare(pair.getKey(), maxKey) < 0 ? pair : null;
+        assert pair.getKey().compareTo(minKey) >= 0;
+        return maxKey == null || pair.getKey().compareTo(maxKey) < 0 ? pair : null;
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         int index;
         if (maxKey == null)
             index = this.size;
@@ -86,16 +86,16 @@ public class ArrayKVStore extends AbstractKVStore {
         if (index == 0)
             return null;
         final KVPair pair = this.finder.readKV(index - 1);
-        assert ByteUtil.compare(pair.getKey(), maxKey) < 0;
-        return minKey == null || ByteUtil.compare(pair.getKey(), minKey) >= 0 ? pair : null;
+        assert pair.getKey().compareTo(maxKey) < 0;
+        return minKey == null || pair.getKey().compareTo(minKey) >= 0 ? pair : null;
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, final boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, final boolean reverse) {
 
         // Find min index
         int index;
-        if (minKey == null || minKey.length == 0)
+        if (minKey == null || minKey.isEmpty())
             index = 0;
         else if ((index = this.finder.find(minKey)) < 0)
             index = ~index;
@@ -113,17 +113,17 @@ public class ArrayKVStore extends AbstractKVStore {
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         throw new UnsupportedOperationException();
     }
 

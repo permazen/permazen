@@ -18,6 +18,7 @@ import io.permazen.kv.KVTransactionTimeoutException;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +47,7 @@ public class FoundationKVTransaction implements KVTransaction {
     /**
      * Constructor.
      */
-    FoundationKVTransaction(FoundationKVDatabase kvdb, Transaction tx, byte[] keyPrefix) {
+    FoundationKVTransaction(FoundationKVDatabase kvdb, Transaction tx, ByteData keyPrefix) {
         Preconditions.checkArgument(kvdb != null, "null kvdb");
         Preconditions.checkArgument(tx != null, "null tx");
         this.kvdb = kvdb;
@@ -81,12 +82,12 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public synchronized CompletableFuture<Void> watchKey(byte[] key) {
+    public synchronized CompletableFuture<Void> watchKey(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
         if (this.closed)
             throw new StaleKVTransactionException(this);
         try {
-            return this.tx.watch(this.kvstore.addPrefix(key));
+            return this.tx.watch(this.kvstore.addPrefix(key).toByteArray());
         } catch (FDBException e) {
             this.close();
             throw this.wrapException(e);
@@ -135,7 +136,7 @@ public class FoundationKVTransaction implements KVTransaction {
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         try {
             return this.getKVStore().get(key);
         } catch (FDBException e) {
@@ -145,7 +146,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         try {
             return this.getKVStore().getAtLeast(minKey, maxKey);
         } catch (FDBException e) {
@@ -155,7 +156,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         try {
             return this.getKVStore().getAtMost(maxKey, minKey);
         } catch (FDBException e) {
@@ -165,7 +166,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         try {
             return this.getKVStore().getRange(minKey, maxKey, reverse);
         } catch (FDBException e) {
@@ -175,7 +176,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         try {
             this.getKVStore().put(key, value);
         } catch (FDBException e) {
@@ -185,7 +186,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         try {
             this.getKVStore().remove(key);
         } catch (FDBException e) {
@@ -195,7 +196,7 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         try {
             this.getKVStore().removeRange(minKey, maxKey);
         } catch (FDBException e) {
@@ -205,17 +206,17 @@ public class FoundationKVTransaction implements KVTransaction {
     }
 
     @Override
-    public byte[] encodeCounter(long value) {
+    public ByteData encodeCounter(long value) {
         return FoundationKVDatabase.encodeCounter(value);
     }
 
     @Override
-    public long decodeCounter(byte[] bytes) {
+    public long decodeCounter(ByteData bytes) {
         return FoundationKVDatabase.decodeCounter(bytes);
     }
 
     @Override
-    public void adjustCounter(byte[] key, long amount) {
+    public void adjustCounter(ByteData key, long amount) {
         try {
             this.getKVStore().adjustCounter(key, amount);
         } catch (FDBException e) {

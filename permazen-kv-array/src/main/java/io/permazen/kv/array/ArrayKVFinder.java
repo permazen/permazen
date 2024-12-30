@@ -8,7 +8,7 @@ package io.permazen.kv.array;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVPair;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.nio.ByteBuffer;
 
@@ -42,27 +42,27 @@ class ArrayKVFinder {
      *
      * @return maching index, or ones complement of insertion point if not found
      */
-    public int find(byte[] searchKey) {
+    public int find(ByteData searchKey) {
 
         // Initialize bounds using cached prefix
         int min = 0;
         int max = this.size;
 
         // Perform binary search for key, starting at the point where we diverged from the previous search key
-        byte[] prevMin = null;
-        byte[] prevMax = null;
+        ByteData prevMin = null;
+        ByteData prevMax = null;
         while (min < max) {
 
             // Calculate the midpoint of the search range
             final int mid = (min + (max - 1)) >>> 1;
 
             // Get key at midpoint
-            final byte[] midKey = this.readKey(mid);
-            assert prevMin == null || ByteUtil.compare(searchKey, prevMin) > 0;
-            assert prevMax == null || ByteUtil.compare(searchKey, prevMax) < 0;
+            final ByteData midKey = this.readKey(mid);
+            assert prevMin == null || searchKey.compareTo(prevMin) > 0;
+            assert prevMax == null || searchKey.compareTo(prevMax) < 0;
 
             // Compare search key to the midpoint key
-            final int diff = ByteUtil.compare(searchKey, midKey);
+            final int diff = searchKey.compareTo(midKey);
             if (diff == 0)
                 return mid;
             if (diff < 0) {
@@ -81,7 +81,7 @@ class ArrayKVFinder {
     /**
      * Read the key at the specified index.
      */
-    public byte[] readKey(int index) {
+    public ByteData readKey(int index) {
 
         // Sanity check
         Preconditions.checkArgument(index >= 0, "index < 0");
@@ -93,7 +93,9 @@ class ArrayKVFinder {
         if (index == baseIndex) {
             final int length = (index + 1) < this.size ?
               this.indx.getInt((index + 1) * 8) & 0x00ffffff : this.keys.capacity() - baseKeyOffset;
-            return this.get(this.keys, baseKeyOffset, new byte[length], 0, length);
+            final ByteData.Writer writer = ByteData.newWriter(length);
+            this.writeTo(writer, this.keys, baseKeyOffset, length);
+            return writer.toByteData();
         }
 
         // Read the base key absolute offset, then encoded key prefix length and relative suffix offset
@@ -113,23 +115,26 @@ class ArrayKVFinder {
         final int suffixLen = nextOffset - suffixOffset;
 
         // Fetch the key in two parts, prefix then suffix
-        final byte[] key = new byte[prefixLen + suffixLen];
+        final ByteData.Writer writer = ByteData.newWriter(prefixLen + suffixLen);
         if (prefixLen > 0)
-            this.get(this.keys, baseKeyOffset, key, 0, prefixLen);
+            this.writeTo(writer, this.keys, baseKeyOffset, prefixLen);
         assert suffixLen > 0;
-        return this.get(this.keys, suffixOffset, key, prefixLen, suffixLen);
+        this.writeTo(writer, this.keys, suffixOffset, suffixLen);
+        return writer.toByteData();
     }
 
     /**
      * Read the value at the specified index.
      */
-    public byte[] readValue(int index) {
+    public ByteData readValue(int index) {
         Preconditions.checkArgument(index >= 0, "index < 0");
         Preconditions.checkArgument(index < this.size, "index >= size");
         final int dataOffset = this.indx.getInt(index * 8 + 4);
         final int nextOffset = (index + 1) < this.size ? this.indx.getInt((index + 1) * 8 + 4) : this.vals.capacity();
         final int length = nextOffset - dataOffset;
-        return this.get(this.vals, dataOffset, new byte[length], 0, length);
+        final ByteData.Writer writer = ByteData.newWriter(length);
+        this.writeTo(writer, this.vals, dataOffset, length);
+        return writer.toByteData();
     }
 
     /**
@@ -140,14 +145,18 @@ class ArrayKVFinder {
     }
 
     // Perform a bulk get() that doesn't modify the buffer
-    protected byte[] get(ByteBuffer buf, int position, byte[] dest, int off, int len) {
-        if (buf.hasArray())
-            System.arraycopy(buf.array(), buf.arrayOffset() + position, dest, off, len);
-        else if (len < 128) {                               // 128 is a wild guess TODO: determine through performance testing
-            while (len-- > 0)
-                dest[off++] = buf.get(position++);
-        } else
-            buf.duplicate().position(position).get(dest, off, len);
-        return dest;
+    protected void writeTo(ByteData.Writer writer, ByteBuffer buf, int position, int len) {
+        if (buf.hasArray()) {
+            writer.write(buf.array(), buf.arrayOffset() + position, len);
+            return;
+        }
+        buf = buf.duplicate().position(position);
+        final byte[] xferBuf = new byte[Math.min(len, 1000)];
+        while (len > 0) {
+            final int xferLen = Math.min(len, xferBuf.length);
+            buf.get(xferBuf, 0, xferLen);
+            writer.write(xferBuf, 0, xferLen);
+            len -= xferLen;
+        }
     }
 }

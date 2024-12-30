@@ -7,7 +7,7 @@ package io.permazen.kv.array;
 
 import io.permazen.kv.KVPair;
 import io.permazen.test.TestSupport;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.io.File;
 import java.util.HashMap;
@@ -28,20 +28,20 @@ public class HotCopyTest extends TestSupport {
         kv.start();
 
         // Populate it
-        kv.put("aaa".getBytes(), "asflksjfljaksdadf".getBytes());
-        kv.put("bbb".getBytes(), "7jsdj".getBytes());
-        kv.put("ccc".getBytes(), "hsd8373w8djl".getBytes());
-        kv.put("ddd".getBytes(), "8888888888888888888888888888888888888888888888888888888".getBytes());
-        kv.put("eee".getBytes(), ByteUtil.EMPTY);
+        kv.put(b("aaa"), b("asflksjfljaksdadf"));
+        kv.put(b("bbb"), b("7jsdj"));
+        kv.put(b("ccc"), b("hsd8373w8djl"));
+        kv.put(b("ddd"), b("8888888888888888888888888888888888888888888888888888888"));
+        kv.put(b("eee"), ByteData.empty());
 
         // Perform compaction
         kv.scheduleCompaction().get();
 
         // Perform more mutations
-        kv.put("aaa".getBytes(), "aaaaa22222".getBytes());
-        kv.remove("bbb".getBytes());
-        kv.put("ddd".getBytes(), "fweep".getBytes());
-        kv.put("fff".getBytes(), "blander".getBytes());
+        kv.put(b("aaa"), b("aaaaa22222"));
+        kv.remove(b("bbb"));
+        kv.put(b("ddd"), b("fweep"));
+        kv.put(b("fff"), b("blander"));
 
         // Check bogus hot copy
         try {
@@ -56,10 +56,10 @@ public class HotCopyTest extends TestSupport {
         kv.hotCopy(backupDir);
 
         // Perform even more mutations
-        kv.put(ByteUtil.EMPTY, "empty".getBytes());
-        kv.remove("aaa".getBytes());
-        kv.put("bbb".getBytes(), "nyahnyah".getBytes());
-        kv.remove("fff".getBytes());
+        kv.put(ByteData.empty(), b("empty"));
+        kv.remove(b("aaa"));
+        kv.put(b("bbb"), b("nyahnyah"));
+        kv.remove(b("fff"));
 
         // Shutdown original k/v store
         this.log.info("shutting down original k/v store");
@@ -86,7 +86,7 @@ public class HotCopyTest extends TestSupport {
         final HashMap<String, String> actual = new HashMap<>();
         for (Iterator<KVPair> i = kv.getRange(null, null, false); i.hasNext(); ) {
             final KVPair pair = i.next();
-            actual.put(new String(pair.getKey()), new String(pair.getValue()));
+            actual.put(new String(pair.getKey().toByteArray()), new String(pair.getValue().toByteArray()));
         }
 
         // Verify contents
@@ -99,5 +99,9 @@ public class HotCopyTest extends TestSupport {
 
         // Delete backup directory
         this.deleteDirectoryHierarchy(backupDir);
+    }
+
+    private ByteData b(String s) throws Exception {
+        return ByteData.of(s.getBytes());
     }
 }

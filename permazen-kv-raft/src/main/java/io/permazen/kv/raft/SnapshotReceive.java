@@ -8,13 +8,13 @@ package io.permazen.kv.raft;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Streams;
-import com.google.common.primitives.Bytes;
 
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.raft.msg.InstallSnapshot;
 import io.permazen.kv.util.KeyListEncoder;
+import io.permazen.util.ByteData;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -33,17 +33,17 @@ import org.dellroad.stuff.io.ByteBufferInputStream;
 class SnapshotReceive {
 
     private final AtomicKVStore kv;
-    private final byte[] prefix;
+    private final ByteData prefix;
     private final long snapshotTerm;
     private final long snapshotIndex;
     private final Map<String, String> snapshotConfig;
 
     private long pairIndex;
-    private byte[] previousKey;
+    private ByteData previousKey;
 
 // Constructors
 
-    SnapshotReceive(AtomicKVStore kv, byte[] prefix, long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig) {
+    SnapshotReceive(AtomicKVStore kv, ByteData prefix, long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig) {
         Preconditions.checkArgument(kv != null, "null kv");
         Preconditions.checkArgument(prefix != null, "null prefix");
         Preconditions.checkArgument(snapshotTerm > 0);
@@ -115,14 +115,14 @@ class SnapshotReceive {
     private static class PutMutations implements Mutations {
 
         private final ByteBuffer buf;
-        private final byte[] prefix;
-        private final byte[] startKey;
+        private final ByteData prefix;
+        private final ByteData startKey;
 
         // These fields are copied back from completed PutIterators
-        private byte[] endKey;
+        private ByteData endKey;
         private int numPuts;
 
-        PutMutations(ByteBuffer buf, byte[] prefix, byte[] startKey) {
+        PutMutations(ByteBuffer buf, ByteData prefix, ByteData startKey) {
             this.buf = buf;
             this.prefix = prefix;
             this.startKey = startKey;
@@ -136,21 +136,21 @@ class SnapshotReceive {
         }
 
         @Override
-        public Stream<Map.Entry<byte[], byte[]>> getPutPairs() {
+        public Stream<Map.Entry<ByteData, ByteData>> getPutPairs() {
             return Streams.stream(new PutIterator(this, this.buf.asReadOnlyBuffer(), this.prefix, this.startKey));
         }
 
         @Override
-        public Stream<Map.Entry<byte[], Long>> getAdjustPairs() {
+        public Stream<Map.Entry<ByteData, Long>> getAdjustPairs() {
             return Stream.empty();
         }
 
     // Iteration completion writebacks
 
-        public byte[] getEndKey() {
+        public ByteData getEndKey() {
             return this.endKey;
         }
-        public void setEndKey(byte[] endKey) {
+        public void setEndKey(ByteData endKey) {
             this.endKey = endKey;
         }
 
@@ -164,17 +164,17 @@ class SnapshotReceive {
 
 // PutIterator
 
-    private static class PutIterator extends AbstractIterator<Map.Entry<byte[], byte[]>> {
+    private static class PutIterator extends AbstractIterator<Map.Entry<ByteData, ByteData>> {
 
         private final PutMutations mutations;
         private final ByteBuffer buf;
         private final ByteBufferInputStream input;
-        private final byte[] prefix;
+        private final ByteData prefix;
 
-        private byte[] previousKey;
+        private ByteData previousKey;
         private int numPuts;
 
-        PutIterator(PutMutations mutations, ByteBuffer buf, byte[] prefix, byte[] startKey) {
+        PutIterator(PutMutations mutations, ByteBuffer buf, ByteData prefix, ByteData startKey) {
             this.mutations = mutations;
             this.buf = buf;
             this.input = new ByteBufferInputStream(buf);
@@ -183,7 +183,7 @@ class SnapshotReceive {
         }
 
         @Override
-        protected Map.Entry<byte[], byte[]> computeNext() {
+        protected Map.Entry<ByteData, ByteData> computeNext() {
 
             // Check if there's more data
             if (!this.buf.hasRemaining()) {
@@ -193,8 +193,8 @@ class SnapshotReceive {
             }
 
             // Decode next key/value pair
-            final byte[] key;
-            final byte[] value;
+            final ByteData key;
+            final ByteData value;
             try {
                 key = KeyListEncoder.read(input, this.previousKey);
                 value = KeyListEncoder.read(input, null);
@@ -205,7 +205,7 @@ class SnapshotReceive {
             this.numPuts++;
 
             // Done
-            return new AbstractMap.SimpleImmutableEntry<>(Bytes.concat(this.prefix, key), value);
+            return new AbstractMap.SimpleImmutableEntry<>(this.prefix.concat(key), value);
         }
     }
 }

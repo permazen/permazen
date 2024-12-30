@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.MemoryKVStore;
 import io.permazen.test.TestSupport;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -25,16 +25,16 @@ public class WriteMergedTest extends TestSupport {
 
         // Setup k/v store
         final MemoryKVStore kvstore = new MemoryKVStore();
-        kvstore.put(ByteUtil.parse("0001"), ByteUtil.parse("aaaa"));
-        kvstore.put(ByteUtil.parse("000101"), ByteUtil.parse("bbbb"));
-        kvstore.put(ByteUtil.parse("000102"), ByteUtil.parse("cccc"));
-        kvstore.put(ByteUtil.parse("0002"), ByteUtil.parse("dddd"));
+        kvstore.put(ByteData.fromHex("0001"), ByteData.fromHex("aaaa"));
+        kvstore.put(ByteData.fromHex("000101"), ByteData.fromHex("bbbb"));
+        kvstore.put(ByteData.fromHex("000102"), ByteData.fromHex("cccc"));
+        kvstore.put(ByteData.fromHex("0002"), ByteData.fromHex("dddd"));
 
         // Setup mutations
         final MutableView view = new MutableView(kvstore);
-        view.put(ByteUtil.parse("000101"), ByteUtil.parse("eeee"));
-        view.put(ByteUtil.parse("000102"), ByteUtil.parse("ffff"));
-        view.removeRange(ByteUtil.parse("0001"), ByteUtil.parse("0002"));
+        view.put(ByteData.fromHex("000101"), ByteData.fromHex("eeee"));
+        view.put(ByteData.fromHex("000102"), ByteData.fromHex("ffff"));
+        view.removeRange(ByteData.fromHex("0001"), ByteData.fromHex("0002"));
 
         // Merge
         final ByteArrayOutputStream indxBuf = new ByteArrayOutputStream();

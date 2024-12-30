@@ -18,8 +18,8 @@ public class ToFromDoubleTest extends TestSupport {
         for (int i = 0; i < 1000; i++) {
             final byte[] data1 = new byte[this.random.nextInt(this.random.nextInt(12) + 1)];
             final byte[] data2 = new byte[this.random.nextInt(this.random.nextInt(12) + 1)];
-            this.random.nextBytes(key1);
-            this.random.nextBytes(key2);
+            this.random.nextBytes(data1);
+            this.random.nextBytes(data2);
 
             final ByteData key1 = ByteData.of(data1);
             final ByteData key2 = ByteData.of(data2);
@@ -42,7 +42,7 @@ public class ToFromDoubleTest extends TestSupport {
             Assert.assertTrue(Math.abs(value1 - value1b) <= 0.0000001);
             Assert.assertTrue(Math.abs(value2 - value2b) <= 0.0000001);
 
-            this.checkSameCompare(key1.compareTo(key2), key1b.compareto(key2b));
+            this.checkSameCompare(key1.compareTo(key2), key1b.compareTo(key2b));
         }
     }
 

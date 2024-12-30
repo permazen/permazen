@@ -14,6 +14,7 @@ import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 
 import java.util.concurrent.Future;
 
@@ -101,7 +102,7 @@ public class XodusKVTransaction extends ForwardingKVStore implements KVTransacti
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException("watchKey() not supported");
     }
 

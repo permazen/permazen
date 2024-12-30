@@ -11,6 +11,7 @@ import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.util.KeyListEncoder;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import java.io.Closeable;
@@ -40,7 +41,7 @@ class SnapshotTransmit implements Closeable {
 
     private long pairIndex;                                         // count of how many key/value pairs sent so far
     private KVPair nextPair;
-    private byte[] previousKey;
+    private ByteData previousKey;
     private boolean anyChunksSent;
 
 // Constructors
@@ -120,8 +121,8 @@ class SnapshotTransmit implements Closeable {
         // Fill buffer with the next chunk of key/value pairs
         final ByteBufferOutputStream output = new ByteBufferOutputStream(buf);
         do {
-            final byte[] key = this.nextPair.getKey();
-            final byte[] value = this.nextPair.getValue();
+            final ByteData key = this.nextPair.getKey();
+            final ByteData value = this.nextPair.getValue();
             try {
                 KeyListEncoder.write(output, key, this.previousKey);
                 KeyListEncoder.write(output, value, null);

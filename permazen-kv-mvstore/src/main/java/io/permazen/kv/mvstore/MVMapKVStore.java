@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class MVMapKVStore extends AbstractKVStore {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final MVMap<byte[], byte[]> mvmap;
+    private final MVMap<ByteData, ByteData> mvmap;
 
 // Constructors
 
@@ -46,7 +46,7 @@ public class MVMapKVStore extends AbstractKVStore {
      * @param mvmap the underlying {@link MVMap} to use
      * @throws IllegalArgumentException if {@code mvmap} is null
      */
-    public MVMapKVStore(MVMap<byte[], byte[]> mvmap) {
+    public MVMapKVStore(MVMap<ByteData, ByteData> mvmap) {
         Preconditions.checkArgument(mvmap != null, "null mvmap");
         this.mvmap = mvmap;
     }
@@ -60,55 +60,55 @@ public class MVMapKVStore extends AbstractKVStore {
      *
      * @return underlying {@link MVMap}
      */
-    public MVMap<byte[], byte[]> getMVMap() {
+    public MVMap<ByteData, ByteData> getMVMap() {
         return this.mvmap;
     }
 
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         return this.getMVMap().get(key);
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         while (true) {
-            final byte[] key = minKey != null ? this.getMVMap().ceilingKey(minKey) : this.getMVMap().firstKey();
-            if (key == null || (maxKey != null && ByteUtil.compare(key, maxKey) >= 0))
+            final ByteData key = minKey != null ? this.getMVMap().ceilingKey(minKey) : this.getMVMap().firstKey();
+            if (key == null || (maxKey != null && key.compareTo(maxKey) >= 0))
                 return null;
-            final byte[] value = this.getMVMap().get(key);
+            final ByteData value = this.getMVMap().get(key);
             if (value != null)
                 return new KVPair(key, value);
         }
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         while (true) {
-            final byte[] key = maxKey != null ? this.getMVMap().lowerKey(maxKey) : this.getMVMap().lastKey();
-            if (key == null || (minKey != null && ByteUtil.compare(key, minKey) < 0))
+            final ByteData key = maxKey != null ? this.getMVMap().lowerKey(maxKey) : this.getMVMap().lastKey();
+            if (key == null || (minKey != null && key.compareTo(minKey) < 0))
                 return null;
-            final byte[] value = this.getMVMap().get(key);
+            final ByteData value = this.getMVMap().get(key);
             if (value != null)
                 return new KVPair(key, value);
         }
     }
 
     @Override
-    public CursorIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CursorIterator getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         return new CursorIterator(this.getMVMap(), minKey, maxKey, reverse);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         if (this.getMVMap().isReadOnly())
             throw new UnsupportedOperationException("MVMap is read-only");
         this.getMVMap().put(key, value);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         if (this.getMVMap().isReadOnly())
             throw new UnsupportedOperationException("MVMap is read-only");
         this.getMVMap().remove(key);
@@ -116,7 +116,7 @@ public class MVMapKVStore extends AbstractKVStore {
 
 //    See https://github.com/h2database/h2database/issues/2002
 //    @Override
-//    public void removeRange(byte[] minKey, byte[] maxKey) {
+//    public void removeRange(ByteData minKey, ByteData maxKey) {
 //    }
 
 // Object

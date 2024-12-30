@@ -8,6 +8,7 @@ package io.permazen.kv.mvstore;
 import com.google.common.base.Preconditions;
 
 import io.permazen.kv.KVPair;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -25,11 +26,11 @@ import org.h2.mvstore.MVMap;
 @ThreadSafe
 public class CursorIterator implements CloseableIterator<KVPair> {
 
-    private final MVMap<byte[], byte[]> mvmap;
+    private final MVMap<ByteData, ByteData> mvmap;
     private final MVCursorIterator iterator;
 
     @GuardedBy("this")
-    private byte[] lastKey;
+    private ByteData lastKey;
 
 // Constructors
 
@@ -42,7 +43,7 @@ public class CursorIterator implements CloseableIterator<KVPair> {
      * @param reverse true if {@code cursor} iterates keys in descending order
      * @throws IllegalArgumentException if {@code cursor} is null
      */
-    public CursorIterator(MVMap<byte[], byte[]> mvmap, byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CursorIterator(MVMap<ByteData, ByteData> mvmap, ByteData minKey, ByteData maxKey, boolean reverse) {
         Preconditions.checkArgument(mvmap != null, "null mvmap");
         this.mvmap = mvmap;
         this.iterator = reverse ?
@@ -55,7 +56,7 @@ public class CursorIterator implements CloseableIterator<KVPair> {
      *
      * @return underlying {@link MVMap}, or null if none provided
      */
-    public MVMap<byte[], byte[]> getMVMap() {
+    public MVMap<ByteData, ByteData> getMVMap() {
         return this.mvmap;
     }
 

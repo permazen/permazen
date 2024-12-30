@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
+import io.permazen.util.ByteData;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -34,19 +35,19 @@ public class MVStoreAtomicKVStore extends AbstractMVStoreKVStore implements Atom
      * <p>
      * Note this builder is configured with {@link MVMap.Builder#singleWriter}.
      */
-    public static final MVMap.Builder<byte[], byte[]> MAP_BUILDER = new MVMap.Builder<byte[], byte[]>()
-      .keyType(ByteArrayDataType.INSTANCE)
-      .valueType(ByteArrayDataType.INSTANCE)
+    public static final MVMap.Builder<ByteData, ByteData> MAP_BUILDER = new MVMap.Builder<ByteData, ByteData>()
+      .keyType(ByteDataDataType.INSTANCE)
+      .valueType(ByteDataDataType.INSTANCE)
       .singleWriter();
 
     // Runtime info
     @GuardedBy("this")
-    private MVMap<byte[], byte[]> mvmap;
+    private MVMap<ByteData, ByteData> mvmap;
 
 // AbstractMVStoreKVStore
 
     @Override
-    public synchronized MVMap<byte[], byte[]> getMVMap() {
+    public synchronized MVMap<ByteData, ByteData> getMVMap() {
         Preconditions.checkState(this.mvmap != null, "not started");
         return this.mvmap;
     }
@@ -75,19 +76,19 @@ public class MVStoreAtomicKVStore extends AbstractMVStoreKVStore implements Atom
     // We synchronize the mutating methods to ensure that they apply and commit atomically
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    public synchronized void put(ByteData key, ByteData value) {
         super.put(key, value);
         this.commitOrRollback();
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
+    public synchronized void remove(ByteData key) {
         super.remove(key);
         this.commitOrRollback();
     }
 
     @Override
-    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
+    public synchronized void removeRange(ByteData minKey, ByteData maxKey) {
         super.removeRange(minKey, maxKey);
         this.commitOrRollback();
     }
@@ -107,11 +108,11 @@ public class MVStoreAtomicKVStore extends AbstractMVStoreKVStore implements Atom
             stream.iterator()
               .forEachRemaining(this::removeRange);
         }
-        try (Stream<Map.Entry<byte[], byte[]>> stream = mutations.getPutPairs()) {
+        try (Stream<Map.Entry<ByteData, ByteData>> stream = mutations.getPutPairs()) {
             stream.iterator()
               .forEachRemaining(entry -> this.put(entry.getKey(), entry.getValue()));
         }
-        try (Stream<Map.Entry<byte[], Long>> stream = mutations.getAdjustPairs()) {
+        try (Stream<Map.Entry<ByteData, Long>> stream = mutations.getAdjustPairs()) {
             stream.iterator()
               .forEachRemaining(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
         }

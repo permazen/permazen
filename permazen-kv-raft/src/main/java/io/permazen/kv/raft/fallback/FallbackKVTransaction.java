@@ -13,6 +13,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 
 import java.util.ArrayList;
 
@@ -67,7 +68,7 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public ListenableFuture<Void> watchKey(byte[] key) {
+    public ListenableFuture<Void> watchKey(ByteData key) {
 
         // Check freshness
         synchronized (this.db) {

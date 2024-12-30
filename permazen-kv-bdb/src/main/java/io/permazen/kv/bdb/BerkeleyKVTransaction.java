@@ -21,6 +21,7 @@ import io.permazen.kv.KVTransaction;
 import io.permazen.kv.KVTransactionException;
 import io.permazen.kv.RetryKVTransactionException;
 import io.permazen.kv.StaleKVTransactionException;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
@@ -40,8 +41,8 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
 
 // Note: locking order: (1) BerkeleyKVTransaction, (2) BerkeleyKVDatabase
 
-    private static final byte[] MIN_KEY = ByteUtil.EMPTY;                   // minimum possible key (inclusive)
-    private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
+    private static final ByteData MIN_KEY = ByteData.empty();               // minimum possible key (inclusive)
+    private static final ByteData MAX_KEY = ByteData.of(0xff);              // maximum possible key (exclusive)
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final BerkeleyKVDatabase store;
@@ -96,24 +97,24 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
      * @throws UnsupportedOperationException always
      */
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException();
     }
 
 // KVStore
 
     @Override
-    public synchronized byte[] get(byte[] key) {
+    public synchronized ByteData get(ByteData key) {
         if (this.closed)
             throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
+        Preconditions.checkArgument(!key.startsWith(ByteData.of(0xff)), "key starts with 0xff");
         final DatabaseEntry value = new DatabaseEntry();
         try {
-            final OperationStatus status = this.store.getDatabase().get(this.tx, new DatabaseEntry(key), value, null);
+            final OperationStatus status = this.store.getDatabase().get(this.tx, new DatabaseEntry(key.toByteArray()), value, null);
             switch (status) {
             case SUCCESS:
-                return value.getData();
+                return ByteData.of(value.getData());
             case NOTFOUND:
                 return null;
             default:
@@ -125,21 +126,21 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         try (CursorIterator i = this.getRange(minKey, maxKey, false)) {
             return i.hasNext() ? i.next() : null;
         }
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         try (CursorIterator i = this.getRange(minKey, maxKey, true)) {
             return i.hasNext() ? i.next() : null;
         }
     }
 
     @Override
-    public synchronized CursorIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public synchronized CursorIterator getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         if (this.closed)
             throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
@@ -153,26 +154,26 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     }
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    public synchronized void put(ByteData key, ByteData value) {
         if (this.closed)
             throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
+        Preconditions.checkArgument(!key.startsWith(ByteData.of(0xff)), "key starts with 0xff");
         try {
-            this.store.getDatabase().put(this.tx, new DatabaseEntry(key), new DatabaseEntry(value));
+            this.store.getDatabase().put(this.tx, new DatabaseEntry(key.toByteArray()), new DatabaseEntry(value.toByteArray()));
         } catch (DatabaseException e) {
             throw this.wrapException(e);
         }
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
+    public synchronized void remove(ByteData key) {
         if (this.closed)
             throw new StaleKVTransactionException(this);
         this.cursorTracker.poll();
-        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
+        Preconditions.checkArgument(!key.startsWith(ByteData.of(0xff)), "key starts with 0xff");
         try {
-            this.store.getDatabase().delete(this.tx, new DatabaseEntry(key));
+            this.store.getDatabase().delete(this.tx, new DatabaseEntry(key.toByteArray()));
         } catch (DatabaseException e) {
             throw this.wrapException(e);
         }
@@ -284,21 +285,20 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     public final class CursorIterator implements CloseableIterator<KVPair> {
 
         private final Cursor cursor;
-        private final byte[] minKey;
-        private final byte[] maxKey;
+        private final ByteData minKey;
+        private final ByteData maxKey;
         private final boolean reverse;
 
         private KVPair nextPair;
-        private byte[] removeKey;
+        private ByteData removeKey;
         private boolean canRemoveWithCursor;
         private boolean completed;
         private boolean initialized;
 
-        CursorIterator(Cursor cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
+        CursorIterator(Cursor cursor, ByteData minKey, ByteData maxKey, boolean reverse) {
             assert Thread.holdsLock(BerkeleyKVTransaction.this);
             assert cursor != null;
-            Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0,
-              "minKey > maxKey");
+            Preconditions.checkArgument(minKey == null || maxKey == null || minKey.compareTo(maxKey) <= 0, "minKey > maxKey");
             this.cursor = cursor;
             this.minKey = minKey != null ? ByteUtil.min(minKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MIN_KEY;
             this.maxKey = maxKey != null ? ByteUtil.min(maxKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MAX_KEY;
@@ -321,7 +321,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
                 throw new NoSuchElementException();
             assert this.nextPair != null;
             final KVPair result = this.nextPair;
-            this.removeKey = result.getKey().clone();
+            this.removeKey = result.getKey();
             this.canRemoveWithCursor = true;
             this.nextPair = null;
             return result;
@@ -335,7 +335,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
                 throw new IllegalStateException();
             try {
                 final OperationStatus status = this.canRemoveWithCursor ? this.cursor.delete() :
-                  this.cursor.getDatabase().delete(BerkeleyKVTransaction.this.tx, new DatabaseEntry(this.removeKey));
+                  this.cursor.getDatabase().delete(BerkeleyKVTransaction.this.tx, new DatabaseEntry(this.removeKey.toByteArray()));
                 switch (status) {
                 case SUCCESS:
                 case KEYEMPTY:
@@ -382,9 +382,9 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
                   this.cursor.getPrev(key, value, null) : this.cursor.getNext(key, value, null);
                 switch (status) {
                 case SUCCESS:
-                    final byte[] keyData = key.getData();
-                    if (this.reverse ? ByteUtil.compare(keyData, this.minKey) >= 0 : ByteUtil.compare(keyData, this.maxKey) < 0) {
-                        this.nextPair = new KVPair(keyData, value.getData());
+                    final ByteData keyData = ByteData.of(key.getData());
+                    if (this.reverse ? keyData.compareTo(this.minKey) >= 0 : keyData.compareTo(this.maxKey) < 0) {
+                        this.nextPair = new KVPair(keyData, ByteData.of(value.getData()));
                         return true;
                     }
                     // FALLTHROUGH
@@ -412,7 +412,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
                 // We don't care whether maxKey is found or not, we are just positioning the cursor.
                 try {
                     final OperationStatus status = this.cursor.getSearchKey(
-                      new DatabaseEntry(this.maxKey), new DatabaseEntry(), null);
+                      new DatabaseEntry(this.maxKey.toByteArray()), new DatabaseEntry(), null);
                     switch (status) {
                     case SUCCESS:
                     case NOTFOUND:
@@ -423,16 +423,16 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
                 } catch (DatabaseException e) {
                     throw BerkeleyKVTransaction.this.wrapException(e);
                 }
-            } else if (this.minKey.length > 0) {    // if minKey has zero length, no need to initialize (getNext() will just work)
-                final DatabaseEntry key = new DatabaseEntry(this.minKey);
+            } else if (!this.minKey.isEmpty()) {    // if minKey has zero length, no need to initialize (getNext() will just work)
+                final DatabaseEntry key = new DatabaseEntry(this.minKey.toByteArray());
                 final DatabaseEntry value = new DatabaseEntry();
                 try {
                     final OperationStatus status = this.cursor.getSearchKeyRange(key, value, null);
                     switch (status) {
                     case SUCCESS:
-                        final byte[] keyData = key.getData();
-                        if (ByteUtil.compare(keyData, this.maxKey) < 0) {
-                            this.nextPair = new KVPair(keyData, value.getData());
+                        final ByteData keyData = ByteData.of(key.getData());
+                        if (keyData.compareTo(this.maxKey) < 0) {
+                            this.nextPair = new KVPair(keyData, ByteData.of(value.getData()));
                             break;
                         }
                         // FALLTHROUGH

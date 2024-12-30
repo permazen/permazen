@@ -9,8 +9,8 @@ import io.permazen.kv.KeyRanges;
 import io.permazen.kv.mvcc.Reads;
 import io.permazen.kv.mvcc.Writes;
 import io.permazen.kv.raft.Timestamp;
-import io.permazen.test.TestSupport;
-import io.permazen.util.ByteUtil;
+import io.permazen.kv.test.KVTestSupport;
+import io.permazen.util.ByteData;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -21,7 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class MessageTest extends TestSupport {
+public class MessageTest extends KVTestSupport {
 
     @Test(dataProvider = "msgs")
     public void testMessage(Message msg1) {
@@ -34,8 +34,8 @@ public class MessageTest extends TestSupport {
             Assert.assertEquals(buf1, buf2, "bad version " + version + " encode/decode for:"
               + "\n  msg1=" + msg1
               + "\n  msg2=" + msg2
-              + "\n  buf1=" + ByteUtil.toString(Arrays.copyOfRange(buf1.array(), buf1.arrayOffset(), buf1.remaining()))
-              + "\n  buf2=" + ByteUtil.toString(Arrays.copyOfRange(buf2.array(), buf2.arrayOffset(), buf2.remaining())));
+              + "\n  buf1=" + ByteData.of(Arrays.copyOfRange(buf1.array(), buf1.arrayOffset(), buf1.remaining())).toHex()
+              + "\n  buf2=" + ByteData.of(Arrays.copyOfRange(buf2.array(), buf2.arrayOffset(), buf2.remaining())).toHex());
         }
     }
 

@@ -34,6 +34,7 @@ import io.permazen.kv.raft.msg.PingRequest;
 import io.permazen.kv.raft.msg.PingResponse;
 import io.permazen.kv.raft.msg.RequestVote;
 import io.permazen.kv.util.KeyWatchTracker;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.LongEncoder;
@@ -41,8 +42,6 @@ import io.permazen.util.LongEncoder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -404,16 +403,16 @@ public class RaftKVDatabase implements KVDatabase {
     static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".*" + Pattern.quote(TEMP_FILE_SUFFIX));
 
     // Keys for persistent Raft state
-    static final byte[] CLUSTER_ID_KEY = ByteUtil.parse("0001");
-    static final byte[] CURRENT_TERM_KEY = ByteUtil.parse("0002");
-    static final byte[] LAST_APPLIED_TERM_KEY = ByteUtil.parse("0003");
-    static final byte[] LAST_APPLIED_INDEX_KEY = ByteUtil.parse("0004");
-    static final byte[] LAST_APPLIED_CONFIG_KEY = ByteUtil.parse("0005");
-    static final byte[] VOTED_FOR_KEY = ByteUtil.parse("0006");
-    static final byte[] FLIP_FLOP_KEY = ByteUtil.parse("0007");
+    static final ByteData CLUSTER_ID_KEY = ByteData.fromHex("0001");
+    static final ByteData CURRENT_TERM_KEY = ByteData.fromHex("0002");
+    static final ByteData LAST_APPLIED_TERM_KEY = ByteData.fromHex("0003");
+    static final ByteData LAST_APPLIED_INDEX_KEY = ByteData.fromHex("0004");
+    static final ByteData LAST_APPLIED_CONFIG_KEY = ByteData.fromHex("0005");
+    static final ByteData VOTED_FOR_KEY = ByteData.fromHex("0006");
+    static final ByteData FLIP_FLOP_KEY = ByteData.fromHex("0007");
 
     // Prefix for all state machine key/value keys (we alternate between these to handle snapshot installs)
-    private static final byte[] STATE_MACHINE_PREFIXES = new byte[] { (byte)0x80, (byte)0x81 };
+    private static final ByteData[] STATE_MACHINE_PREFIXES = new ByteData[] { ByteData.of(0x80), ByteData.of(0x81) };
 
     // Logging
     final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -1409,7 +1408,7 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Key Watches
 
-    synchronized ListenableFuture<Void> watchKey(RaftKVTransaction tx, byte[] key) {
+    synchronized ListenableFuture<Void> watchKey(RaftKVTransaction tx, ByteData key) {
         Preconditions.checkState(this.role != null, "not started");
         tx.verifyExecuting();
         if (this.keyWatchTracker == null)
@@ -1864,7 +1863,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return true if there was anything to remove, otherwise false
      */
     boolean discardFlipFloppedStateMachine() {
-        final byte[] dirtyPrefix = this.getFlipFloppedStateMachinePrefix();
+        final ByteData dirtyPrefix = this.getFlipFloppedStateMachinePrefix();
         final boolean dirty;
         try (CloseableIterator<KVPair> i = this.kv.getRange(KeyRange.forPrefix(dirtyPrefix))) {
             dirty = i.hasNext();
@@ -1988,19 +1987,19 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get the prefix for state machine we are currently using.
      */
-    byte[] getStateMachinePrefix() {
+    ByteData getStateMachinePrefix() {
         return this.getStateMachinePrefix(false);
     }
 
     /**
      * Get the prefix for the flip-flopped state machine.
      */
-    byte[] getFlipFloppedStateMachinePrefix() {
+    ByteData getFlipFloppedStateMachinePrefix() {
         return this.getStateMachinePrefix(true);
     }
 
-    private byte[] getStateMachinePrefix(boolean flipFlopped) {
-        return new byte[] { STATE_MACHINE_PREFIXES[flipFlopped ^ this.flipflop ? 1 : 0] };
+    private ByteData getStateMachinePrefix(boolean flipFlopped) {
+        return STATE_MACHINE_PREFIXES[(flipFlopped ^ this.flipflop) ? 1 : 0];
     }
 
     /**
@@ -2506,17 +2505,17 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Utility methods
 
-    byte[] encodeBoolean(boolean value) {
-        return new byte[] { value ? (byte)1 : (byte)0 };
+    ByteData encodeBoolean(boolean value) {
+        return ByteData.of(value ? 1 : 0);
     }
 
-    boolean decodeBoolean(byte[] key) {
-        final byte[] value = this.kv.get(key);
-        return value != null && value.length > 0 && value[0] != 0;
+    boolean decodeBoolean(ByteData key) {
+        final ByteData value = this.kv.get(key);
+        return value != null && !value.isEmpty() && value.byteAt(0) != 0;
     }
 
-    long decodeLong(byte[] key, long defaultValue) throws IOException {
-        final byte[] value = this.kv.get(key);
+    long decodeLong(ByteData key, long defaultValue) throws IOException {
+        final ByteData value = this.kv.get(key);
         if (value == null)
             return defaultValue;
         try {
@@ -2527,65 +2526,66 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-    String decodeString(byte[] key, String defaultValue) throws IOException {
-        final byte[] value = this.kv.get(key);
-        if (value == null)
-            return defaultValue;
-        final DataInputStream input = new DataInputStream(new ByteArrayInputStream(value));
-        try {
-            return input.readUTF();
-        } catch (IOException e) {
-            throw new IOException(String.format(
-              "can't interpret encoded %s value %s under key %s", "string", ByteUtil.toString(value), ByteUtil.toString(key)), e);
-        }
+    ByteData encodeString(String value) {
+        return this.encodeData(output -> output.writeUTF(value));
     }
 
-    byte[] encodeString(String value) {
-        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        final DataOutputStream output = new DataOutputStream(buf);
-        try {
-            output.writeUTF(value);
-            output.flush();
-        } catch (IOException e) {
-            throw new RuntimeException("unexpected error", e);
-        }
-        return buf.toByteArray();
+    String decodeString(ByteData key, String defaultValue) throws IOException {
+        final ByteData value = this.kv.get(key);
+        return value != null ? this.decodeData(value, "string", input -> input.readUTF()) : defaultValue;
     }
 
-    Map<String, String> decodeConfig(byte[] key) throws IOException {
+    Map<String, String> decodeConfig(ByteData key) throws IOException {
         final Map<String, String> config = new HashMap<>();
-        final byte[] value = this.kv.get(key);
+        final ByteData value = this.kv.get(key);
         if (value == null)
             return config;
-        try {
-            final DataInputStream data = new DataInputStream(new ByteArrayInputStream(value));
+        return this.decodeData(value, "config", input -> {
             while (true) {
-                data.mark(1);
-                if (data.read() == -1)
-                    break;
-                data.reset();
-                config.put(data.readUTF(), data.readUTF());
+                input.mark(1);
+                if (input.read() == -1)
+                    return config;
+                input.reset();
+                config.put(input.readUTF(), input.readUTF());
             }
-        } catch (IOException e) {
-            throw new IOException(String.format(
-              "can't interpret encoded %s value %s under key %s", "config", ByteUtil.toString(value), ByteUtil.toString(key)), e);
-        }
-        return config;
+        });
     }
 
-    byte[] encodeConfig(Map<String, String> config) {
-        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        final DataOutputStream data = new DataOutputStream(buf);
-        try {
+    ByteData encodeConfig(Map<String, String> config) {
+        return this.encodeData(output -> {
             for (Map.Entry<String, String> entry : config.entrySet()) {
-                data.writeUTF(entry.getKey());
-                data.writeUTF(entry.getValue());
+                output.writeUTF(entry.getKey());
+                output.writeUTF(entry.getValue());
             }
-            data.flush();
+        });
+    }
+
+    private ByteData encodeData(Encoder encoder) {
+        final ByteData.Writer buf = ByteData.newWriter();
+        try (DataOutputStream output = new DataOutputStream(buf)) {
+            encoder.encodeTo(output);
         } catch (IOException e) {
             throw new RuntimeException("unexpected error", e);
         }
-        return buf.toByteArray();
+        return buf.toByteData();
+    }
+
+    private <T> T decodeData(ByteData data, String desc, Decoder<T> decoder) throws IOException {
+        try (DataInputStream input = new DataInputStream(data.newReader())) {
+            return decoder.decodeFrom(input);
+        } catch (IOException e) {
+            throw new IOException(String.format("can't interpret encoded %s value %s", desc, ByteUtil.toString(data)), e);
+        }
+    }
+
+    @FunctionalInterface
+    private interface Encoder {
+        void encodeTo(DataOutputStream output) throws IOException;
+    }
+
+    @FunctionalInterface
+    private interface Decoder<T> {
+        T decodeFrom(DataInputStream input) throws IOException;
     }
 
 // Logging

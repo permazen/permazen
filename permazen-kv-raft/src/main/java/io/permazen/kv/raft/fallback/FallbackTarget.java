@@ -14,7 +14,7 @@ import io.permazen.kv.raft.LeaderRole;
 import io.permazen.kv.raft.RaftKVDatabase;
 import io.permazen.kv.raft.Role;
 import io.permazen.kv.raft.Timestamp;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.util.Date;
 import java.util.List;
@@ -332,7 +332,7 @@ public class FallbackTarget implements Cloneable {
             final KVTransaction tx = fallbackDB.createAvailabilityCheckTransaction(this.raft);
             try {
                 tx.setTimeout(this.transactionTimeout);
-                tx.get(ByteUtil.EMPTY);
+                tx.get(ByteData.empty());
                 tx.commit();
                 success = true;
             } finally {

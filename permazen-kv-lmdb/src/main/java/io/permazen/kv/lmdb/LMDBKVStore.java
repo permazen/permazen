@@ -12,7 +12,7 @@ import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 import io.permazen.util.CloseableIterator;
 import io.permazen.util.CloseableTracker;
 
@@ -97,7 +97,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         key = this.addPrefix(key);
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         this.cursorTracker.poll();
@@ -105,8 +105,8 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
+        Preconditions.checkArgument(minKey == null || maxKey == null || minKey.compareTo(maxKey) <= 0, "minKey > maxKey");
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         this.cursorTracker.poll();
         final CursorIterable<T> cursorIterable = this.db.iterate(this.tx, this.getKeyRange(minKey, maxKey, reverse));
@@ -118,7 +118,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         key = this.addPrefix(key);
         value.getClass();
         Preconditions.checkState(!this.closed.get(), "transaction closed");
@@ -128,7 +128,7 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         key = this.addPrefix(key);
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         this.cursorTracker.poll();
@@ -136,13 +136,13 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
-        Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
+    public void removeRange(ByteData minKey, ByteData maxKey) {
+        Preconditions.checkArgument(minKey == null || maxKey == null || minKey.compareTo(maxKey) <= 0, "minKey > maxKey");
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         this.cursorTracker.poll();
 
         // Special case: remove all
-        if (maxKey == null && (minKey == null || minKey.length == 0)) {
+        if (maxKey == null && (minKey == null || minKey.isEmpty())) {
             this.db.drop(this.tx);
             return;
         }
@@ -167,8 +167,8 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
      * @param reverse true for reverse ordering, false for forward ordering
      * @return {@link KeyRange} instance
      */
-    public KeyRange<T> getKeyRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        final T min = this.wrap(this.addPrefix(minKey != null && minKey.length > 0 ? minKey : ByteUtil.EMPTY), false);
+    public KeyRange<T> getKeyRange(ByteData minKey, ByteData maxKey, boolean reverse) {
+        final T min = this.wrap(this.addPrefix(minKey != null && !minKey.isEmpty() ? minKey : ByteData.empty()), false);
         final T max = maxKey != null ? this.wrap(this.addPrefix(maxKey), false) : null;
         if (reverse) {
             if (max == null)
@@ -184,41 +184,35 @@ public abstract class LMDBKVStore<T> extends AbstractKVStore implements Closeabl
     }
 
     /**
-     * Wrap the given {@code byte[]} array in a buffer appropriate for this instance.
+     * Wrap the given byte data in a buffer appropriate for this instance.
      *
      * @param buf byte array data, or possibly null
      * @param copy if true, then changes to the data in either {@code buf} or the returned buffer must not affect the other
      * @return null if {@code buf} is null, otherwise a buffer containing the data in {@code buf}
      */
-    protected abstract T wrap(byte[] buf, boolean copy);
+    protected abstract T wrap(ByteData buf, boolean copy);
 
     /**
-     * Unwrap the given buffer, returning its contents as a {@code byte[]} array.
+     * Unwrap the given buffer, returning its contents as a {@link ByteData}.
      *
      * @param buf a buffer containing {@code byte[]} array data, or possibly null
      * @param copy if true, then changes to the data in either {@code buf} or the returned array must not affect the other
      * @return byte array data in {@code buf}, or null if {@code buf} is null
      */
-    protected abstract byte[] unwrap(T buf, boolean copy);
+    protected abstract ByteData unwrap(T buf, boolean copy);
 
-    private byte[] addPrefix(byte[] data) {
-        if (data == null)
-            return data;
-        final byte[] data2 = new byte[data.length + 1];
-        System.arraycopy(data, 0, data2, 1, data.length);
-        return data2;
+    private ByteData addPrefix(ByteData data) {
+        return data != null ? ByteData.zeros(1).concat(data) : null;
     }
 
-    private byte[] delPrefix(byte[] data) {
+    private ByteData delPrefix(ByteData data) {
         if (data == null)
             return data;
-        if (data.length == 0)
+        if (data.isEmpty())
             throw new RuntimeException("internal error: zero length key");
-        if (data[0] != 0)
+        if (data.byteAt(0) != (byte)0)
             throw new RuntimeException("internal error: non-zero first byte");
-        final byte[] data2 = new byte[data.length - 1];
-        System.arraycopy(data, 1, data2, 0, data2.length);
-        return data2;
+        return data.substring(1);
     }
 
 // Closeable

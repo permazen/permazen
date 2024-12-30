@@ -11,13 +11,12 @@ import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
 import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.Mutations;
-import io.permazen.util.ByteUtil;
+import io.permazen.util.ByteData;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -45,8 +44,8 @@ public class ArrayKVWriter implements Closeable {
     private int valsLength;
 
     private int nextIndex;
-    private byte[] prevKey;
-    private byte[] baseKey;
+    private ByteData prevKey;
+    private ByteData baseKey;
     private int baseKeyOffset;
     private boolean closed;
 
@@ -103,15 +102,15 @@ public class ArrayKVWriter implements Closeable {
      * @throws IllegalStateException if either the key or data file would grow larger than 2<sup>31</sup>-1 bytes
      * @throws IOException if an I/O error occurrs
      */
-    public void writeKV(byte[] key, byte[] val) throws IOException {
+    public void writeKV(ByteData key, ByteData val) throws IOException {
 
         // Sanity checks
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(val != null, "null value");
-        Preconditions.checkArgument(this.prevKey == null || ByteUtil.compare(key, this.prevKey) > 0, "key <= previous key");
+        Preconditions.checkArgument(this.prevKey == null || key.compareTo(this.prevKey) > 0, "key <= previous key");
         Preconditions.checkState((this.nextIndex * 8) + 8 > 0, "too much index data");
-        Preconditions.checkState(this.keysLength == 0 || this.keysLength + key.length > 0, "too much key data");
-        Preconditions.checkState(this.valsLength == 0 || this.valsLength + val.length > 0, "too much value data");
+        Preconditions.checkState(this.keysLength == 0 || this.keysLength + key.size() > 0, "too much key data");
+        Preconditions.checkState(this.valsLength == 0 || this.valsLength + val.size() > 0, "too much value data");
 
         // Write key index entry and data
         if ((this.nextIndex & 0x1f) == 0) {
@@ -119,19 +118,16 @@ public class ArrayKVWriter implements Closeable {
             // Write a base key index entry every 32 entries
             this.writeIndxValue(this.keysLength);
             this.baseKeyOffset = this.keysLength;
-            this.baseKey = this.cloneOrCopy(this.baseKey, key);
+            this.baseKey = key;
 
             // Write key data
-            this.keysOutput.write(key);
-            this.keysLength += key.length;
+            key.writeTo(this.keysOutput);
+            this.keysLength += key.size();
         } else {
 
             // Match maximal prefix of most recent base key, up to 255 bytes
-            final int maxPrefixLength = Math.min(Math.min(this.baseKey.length, key.length), 0xff);
-            int prefixLength = 0;
-            while (prefixLength < maxPrefixLength && key[prefixLength] == this.baseKey[prefixLength])
-                prefixLength++;
-            final int suffixLength = key.length - prefixLength;
+            final int prefixLength = Math.min(ByteData.numEqual(key, 0, this.baseKey, 0), 0xff);
+            final int suffixLength = key.size() - prefixLength;
             assert suffixLength > 0;
 
             // Write encoded { base key prefix length, offset to key suffix }
@@ -140,7 +136,7 @@ public class ArrayKVWriter implements Closeable {
             this.writeIndxValue(prefixLength << 24 | suffixRelativeOffset);
 
             // Write key data - suffix only
-            this.keysOutput.write(key, prefixLength, suffixLength);
+            key.substring(prefixLength).writeTo(this.keysOutput);
             this.keysLength += suffixLength;
         }
 
@@ -148,11 +144,11 @@ public class ArrayKVWriter implements Closeable {
         this.writeIndxValue(this.valsLength);
 
         // Write value data
-        this.valsOutput.write(val);
-        this.valsLength += val.length;
+        val.writeTo(this.valsOutput);
+        this.valsLength += val.size();
 
         // Update state
-        this.prevKey = this.cloneOrCopy(this.prevKey, key);
+        this.prevKey = key;
         this.nextIndex++;
     }
 
@@ -183,53 +179,53 @@ public class ArrayKVWriter implements Closeable {
         // Open streams
         try (
           Stream<KeyRange> removes = mutations.getRemoveRanges();
-          Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs();
-          Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+          Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs();
+          Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
 
             // Initialize iterators
             final Iterator<? extends KeyRange> removeIterator = removes.iterator();
-            final Iterator<? extends Map.Entry<byte[], byte[]>> putIterator = puts.iterator();
-            final Iterator<? extends Map.Entry<byte[], Long>> adjustIterator = adjusts.iterator();
+            final Iterator<? extends Map.Entry<ByteData, ByteData>> putIterator = puts.iterator();
+            final Iterator<? extends Map.Entry<ByteData, Long>> adjustIterator = adjusts.iterator();
 
             // Merge iterators and write the merged result to the ArrayKVWriter
             KVPair kv = kvIterator.hasNext() ? kvIterator.next() : null;
             KeyRange remove = removeIterator.hasNext() ? removeIterator.next() : null;
-            Map.Entry<byte[], byte[]> put = putIterator.hasNext() ? putIterator.next() : null;
-            Map.Entry<byte[], Long> adjust = adjustIterator.hasNext() ? adjustIterator.next() : null;
+            Map.Entry<ByteData, ByteData> put = putIterator.hasNext() ? putIterator.next() : null;
+            Map.Entry<ByteData, Long> adjust = adjustIterator.hasNext() ? adjustIterator.next() : null;
             while (true) {
 
                 // Find the minimum key among remaining (a) key/value pairs, (b) puts, and (c) adjusts
-                byte[] key = null;
+                ByteData key = null;
                 if (kv != null)
                     key = kv.getKey();
-                if (put != null && (key == null || ByteUtil.compare(put.getKey(), key) < 0))
+                if (put != null && (key == null || put.getKey().compareTo(key) < 0))
                     key = put.getKey();
-                if (adjust != null && (key == null || ByteUtil.compare(adjust.getKey(), key) < 0))
+                if (adjust != null && (key == null || adjust.getKey().compareTo(key) < 0))
                     key = adjust.getKey();
                 if (key == null)                                                        // we're done
                     break;
 
                 // Determine which inputs apply to the current key
                 int inputs = 0;
-                if (kv != null && Arrays.equals(kv.getKey(), key))
+                if (kv != null && kv.getKey().equals(key))
                     inputs |= MERGE_KV;
-                if (put != null && Arrays.equals(put.getKey(), key))
+                if (put != null && put.getKey().equals(key))
                     inputs |= MERGE_PUT;
-                if (adjust != null && Arrays.equals(adjust.getKey(), key))
+                if (adjust != null && adjust.getKey().equals(key))
                     inputs |= MERGE_ADJUST;
 
                 // Find the removal that applies to this next key, if any
                 while (remove != null) {
-                    final byte[] removeMax = remove.getMax();
-                    if (removeMax != null && ByteUtil.compare(removeMax, key) <= 0) {
+                    final ByteData removeMax = remove.getMax();
+                    if (removeMax != null && removeMax.compareTo(key) <= 0) {
                         final KeyRange next = removeIterator.hasNext() ? removeIterator.next() : null;
-                        assert next == null || ByteUtil.compare(next.getMin(), removeMax) > 0;
+                        assert next == null || next.getMin().compareTo(removeMax) > 0;
                         remove = next;
                         continue;
                     }
                     break;
                 }
-                final boolean removed = remove != null && ByteUtil.compare(remove.getMin(), key) <= 0;
+                final boolean removed = remove != null && remove.getMin().compareTo(key) <= 0;
 
                 // Merge the applicable inputs
                 switch (inputs) {
@@ -252,14 +248,14 @@ public class ArrayKVWriter implements Closeable {
                 case MERGE_ADJUST | MERGE_PUT:
                 case MERGE_ADJUST | MERGE_PUT | MERGE_KV:                   // adjusted a put value
                 {
-                    final byte[] encodedCount = (inputs & MERGE_PUT) != 0 ? put.getValue() : kv.getValue();
+                    final ByteData encodedCount = (inputs & MERGE_PUT) != 0 ? put.getValue() : kv.getValue();
                     final long counter;
                     try {
                         counter = kvstore.decodeCounter(encodedCount);
                     } catch (IllegalArgumentException e) {
                         break;
                     }
-                    final byte[] value = kvstore.encodeCounter(counter + adjust.getValue());
+                    final ByteData value = kvstore.encodeCounter(counter + adjust.getValue());
                     this.writeKV(key, value);
                     break;
                 }
@@ -271,19 +267,19 @@ public class ArrayKVWriter implements Closeable {
                 if ((inputs & MERGE_KV) != 0) {
                     assert kv != null;
                     final KVPair next = kvIterator.hasNext() ? kvIterator.next() : null;
-                    assert next == null || ByteUtil.compare(next.getKey(), kv.getKey()) > 0;
+                    assert next == null || next.getKey().compareTo(kv.getKey()) > 0;
                     kv = next;
                 }
                 if ((inputs & MERGE_PUT) != 0) {
                     assert put != null;
-                    final Map.Entry<byte[], byte[]> next = putIterator.hasNext() ? putIterator.next() : null;
-                    assert next == null || ByteUtil.compare(next.getKey(), put.getKey()) > 0;
+                    final Map.Entry<ByteData, ByteData> next = putIterator.hasNext() ? putIterator.next() : null;
+                    assert next == null || next.getKey().compareTo(put.getKey()) > 0;
                     put = next;
                 }
                 if ((inputs & MERGE_ADJUST) != 0) {
                     assert adjust != null;
-                    final Map.Entry<byte[], Long> next = adjustIterator.hasNext() ? adjustIterator.next() : null;
-                    assert next == null || ByteUtil.compare(next.getKey(), adjust.getKey()) > 0;
+                    final Map.Entry<ByteData, Long> next = adjustIterator.hasNext() ? adjustIterator.next() : null;
+                    assert next == null || next.getKey().compareTo(adjust.getKey()) > 0;
                     adjust = next;
                 }
             }
@@ -321,14 +317,5 @@ public class ArrayKVWriter implements Closeable {
         this.indxOutput.close();
         this.keysOutput.close();
         this.valsOutput.close();
-    }
-
-    // Copy array if we have to, otherwise just overwrite the previous copy if the array length hasn't chagned
-    private byte[] cloneOrCopy(byte[] dest, byte[] src) {
-        assert src != null;
-        if (dest == null || dest.length != src.length)
-            return src.clone();
-        System.arraycopy(src, 0, dest, 0, src.length);
-        return dest;
     }
 }

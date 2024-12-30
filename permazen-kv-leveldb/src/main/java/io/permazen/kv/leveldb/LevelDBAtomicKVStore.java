@@ -11,6 +11,7 @@ import io.permazen.kv.KeyRange;
 import io.permazen.kv.mvcc.AtomicKVStore;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 
 import jakarta.annotation.PostConstruct;
@@ -351,10 +352,10 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             final ReadOptions iteratorOptions = new ReadOptions().verifyChecksums(this.options.verifyChecksums()).fillCache(false);
             try (Stream<KeyRange> removes = mutations.getRemoveRanges()) {
                 removes.iterator().forEachRemaining(range -> {
-                    final byte[] min = range.getMin();
-                    final byte[] max = range.getMax();
+                    final ByteData min = range.getMin();
+                    final ByteData max = range.getMax();
                     if (min != null && max != null && ByteUtil.isConsecutive(min, max))
-                        batch.delete(min);
+                        batch.delete(min.toByteArray());
                     else {
                         final LevelDBKVStore.Iterator i;
                         synchronized (this) {
@@ -362,7 +363,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
                         }
                         try {
                             while (i.hasNext())
-                                batch.delete(i.next().getKey());
+                                batch.delete(i.next().getKey().toByteArray());
                         } finally {
                             i.close();
                         }
@@ -371,21 +372,21 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             }
 
             // Apply puts
-            try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
-                puts.iterator().forEachRemaining(entry -> batch.put(entry.getKey(), entry.getValue()));
+            try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
+                puts.iterator().forEachRemaining(entry -> batch.put(entry.getKey().toByteArray(), entry.getValue().toByteArray()));
             }
 
             // Convert counter adjustments into puts and apply them
-            try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
-                for (Iterator<Map.Entry<byte[], Long>> i = adjusts.iterator(); i.hasNext(); ) {
-                    final Map.Entry<byte[], Long> adjust = i.next();
+            try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
+                for (Iterator<Map.Entry<ByteData, Long>> i = adjusts.iterator(); i.hasNext(); ) {
+                    final Map.Entry<ByteData, Long> adjust = i.next();
 
                     // Decode old value
-                    final byte[] key = adjust.getKey();
+                    final ByteData key = adjust.getKey();
                     final long diff = adjust.getValue();
-                    byte[] oldBytes = this.kv.get(key);
+                    ByteData oldBytes = this.kv.get(key);
                     if (oldBytes == null)
-                        oldBytes = new byte[8];
+                        oldBytes = ByteData.zeros(8);
                     final long oldValue;
                     try {
                         oldValue = this.kv.decodeCounter(oldBytes);
@@ -394,7 +395,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
                     }
 
                     // Add adjustment and put new value
-                    batch.put(key, this.kv.encodeCounter(oldValue + diff));
+                    batch.put(key.toByteArray(), this.kv.encodeCounter(oldValue + diff).toByteArray());
                 }
             }
 

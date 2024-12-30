@@ -11,13 +11,13 @@ import io.permazen.kv.AbstractKVStore;
 import io.permazen.kv.CloseableKVStore;
 import io.permazen.kv.KVPair;
 import io.permazen.kv.KVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import jetbrains.exodus.ArrayByteIterable;
 import jetbrains.exodus.ByteIterable;
 import jetbrains.exodus.env.Cursor;
 import jetbrains.exodus.env.Environment;
@@ -156,100 +156,84 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
 // KVStore
 
     @Override
-    public byte[] get(byte[] key) {
+    public ByteData get(ByteData key) {
         key.getClass();
         Preconditions.checkState(!this.closed.get(), "transaction closed");
-        final ByteIterable bytes = this.store.get(this.tx, new ArrayByteIterable(key));
-        return bytes != null ? XodusKVStore.get(bytes, true) : null;
+        final ByteIterable bytes = this.store.get(this.tx, Util.wrap(key));
+        return bytes != null ? Util.unwrap(bytes) : null;
     }
 
     @Override
-    public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+    public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         try (Cursor cursor = this.store.openCursor(this.tx)) {
-            final boolean found = minKey != null && minKey.length > 0 ?
-              cursor.getSearchKeyRange(new ArrayByteIterable(minKey)) != null : cursor.getNext();
+            final boolean found = minKey != null && !minKey.isEmpty() ?
+              cursor.getSearchKeyRange(Util.wrap(minKey)) != null : cursor.getNext();
             if (!found)
                 return null;
-            final byte[] key = XodusKVStore.get(cursor.getKey(), true);
-            if (maxKey != null && ByteUtil.compare(key, maxKey) >= 0)
+            final ByteData key = Util.unwrap(cursor.getKey());
+            if (maxKey != null && key.compareTo(maxKey) >= 0)
                 return null;
-            return new KVPair(key, XodusKVStore.get(cursor.getValue(), true));
+            return new KVPair(key, Util.unwrap(cursor.getValue()));
         }
     }
 
     @Override
-    public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+    public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         try (Cursor cursor = this.store.openCursor(this.tx)) {
             // It's possible somebody could be simultaneously inserting keys just after maxKey, in which case we
             // could be tricked into returning a key > maxKey. This is unlikely, but make sure it can't affect us.
             while (true) {
                 if (maxKey != null)
-                    cursor.getSearchKeyRange(new ArrayByteIterable(maxKey));
+                    cursor.getSearchKeyRange(Util.wrap(maxKey));
                 if (!cursor.getPrev())
                     return null;
-                final byte[] key = XodusKVStore.get(cursor.getKey(), true);
-                if (maxKey != null && ByteUtil.compare(key, maxKey) >= 0)
+                final ByteData key = Util.unwrap(cursor.getKey());
+                if (maxKey != null && key.compareTo(maxKey) >= 0)
                     continue;
-                if (minKey != null && ByteUtil.compare(key, minKey) < 0)
+                if (minKey != null && key.compareTo(minKey) < 0)
                     return null;
-                return new KVPair(key, XodusKVStore.get(cursor.getValue(), true));
+                return new KVPair(key, Util.unwrap(cursor.getValue()));
             }
         }
     }
 
     // Note Xodus closes all associated Cursors when a Transaction is closed, so we don't need to track the returned iterators
     @Override
-    public CloseableIterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public CloseableIterator<KVPair> getRange(ByteData minKey, ByteData maxKey, boolean reverse) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         return new XodusIter(this.store.openCursor(this.tx), minKey, maxKey, reverse);
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
-        key.getClass();
-        value.getClass();
+    public void put(ByteData key, ByteData value) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         Preconditions.checkState(!this.txType.isReadOnly(), "read-only transaction");
-        this.store.put(this.tx, new ArrayByteIterable(key), new ArrayByteIterable(value));
+        this.store.put(this.tx, Util.wrap(key), Util.wrap(value));
     }
 
     @Override
-    public void remove(byte[] key) {
-        key.getClass();
+    public void remove(ByteData key) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         Preconditions.checkState(!this.txType.isReadOnly(), "read-only transaction");
-        this.store.delete(this.tx, new ArrayByteIterable(key));
+        this.store.delete(this.tx, Util.wrap(key));
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         Preconditions.checkState(!this.closed.get(), "transaction closed");
         Preconditions.checkState(!this.txType.isReadOnly(), "read-only transaction");
         try (Cursor cursor = this.store.openCursor(this.tx)) {
-            boolean found = minKey != null && minKey.length > 0 ?
-              cursor.getSearchKeyRange(new ArrayByteIterable(minKey)) != null : cursor.getNext();
+            boolean found = minKey != null && !minKey.isEmpty() ?
+              cursor.getSearchKeyRange(Util.wrap(minKey)) != null : cursor.getNext();
             while (found) {
-                if (maxKey != null && ByteUtil.compare(XodusKVStore.get(cursor.getKey(), false), maxKey) >= 0)
+                if (maxKey != null && Util.unwrap(cursor.getKey()).compareTo(maxKey) >= 0)
                     break;
                 cursor.deleteCurrent();
                 found = cursor.getNext();
             }
         }
-    }
-
-// Utility
-
-    // Extract byte[] array from a ByteIterable. If result could be mutated, copy must be true.
-    private static byte[] get(ByteIterable bytes, boolean copy) {
-        final int len = bytes.getLength();
-        final byte[] data = bytes.getBytesUnsafe();
-        if (data.length == len && !copy)
-            return data;
-        final byte[] result = new byte[len];
-        System.arraycopy(data, 0, result, 0, len);
-        return result;
     }
 
 // Object
@@ -323,24 +307,24 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
     final class XodusIter implements CloseableIterator<KVPair> {
 
         private final Cursor cursor;
-        private final byte[] minKey;
-        private final byte[] maxKey;
+        private final ByteData minKey;
+        private final ByteData maxKey;
         private final boolean reverse;
 
         private KVPair next;                // the next key/value pair to return, if known
-        private byte[] removeKey;           // the key to delete if remove() is invoked
+        private ByteData removeKey;         // the key to delete if remove() is invoked
         private boolean removable;          // if true, we can use cursor.deleteCurrent() to delete it
         private boolean finished;           // iteration has completed
         private boolean closed;
 
-        private XodusIter(Cursor cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
+        private XodusIter(Cursor cursor, ByteData minKey, ByteData maxKey, boolean reverse) {
 
             // Sanity checks
-            Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0,
+            Preconditions.checkArgument(minKey == null || maxKey == null || minKey.compareTo(maxKey) <= 0,
               "minKey > maxKey");
 
             // Initialize
-            if (minKey != null && minKey.length == 0)
+            if (minKey != null && minKey.isEmpty())
                 minKey = null;
             this.cursor = cursor;
             this.minKey = minKey;
@@ -350,25 +334,25 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                 XodusKVStore.this.log.trace("created {}", this);
             if (this.reverse) {
                 if (this.maxKey != null) {
-                    final boolean found = this.cursor.getSearchKeyRange(new ArrayByteIterable(this.maxKey)) != null;
-                    assert !found || ByteUtil.compare(XodusKVStore.get(this.cursor.getKey(), false), this.maxKey) >= 0 :
-                      "cusor.getSearchKeyRange() returned " + ByteUtil.toString(XodusKVStore.get(this.cursor.getKey(), false))
+                    final boolean found = this.cursor.getSearchKeyRange(Util.wrap(this.maxKey)) != null;
+                    assert !found || Util.unwrap(this.cursor.getKey()).compareTo(this.maxKey) >= 0 :
+                      "cusor.getSearchKeyRange() returned " + ByteUtil.toString(Util.unwrap(this.cursor.getKey()))
                       + " < " + ByteUtil.toString(this.maxKey);
                     if (XodusKVStore.this.log.isTraceEnabled())
                         XodusKVStore.this.log.trace("initial seek to {} -> {}", ByteUtil.toString(this.maxKey), found);
                 }
             } else if (this.minKey != null) {
-                final boolean found = this.cursor.getSearchKeyRange(new ArrayByteIterable(this.minKey)) != null;
+                final boolean found = this.cursor.getSearchKeyRange(Util.wrap(this.minKey)) != null;
                 if (XodusKVStore.this.log.isTraceEnabled())
                     XodusKVStore.this.log.trace("initial seek to {} -> {}", ByteUtil.toString(this.minKey), found);
                 if (found) {
-                    final byte[] key = XodusKVStore.get(cursor.getKey(), true);
-                    assert ByteUtil.compare(key, this.minKey) >= 0 : "cusor.getSearchKeyRange() returned "
+                    final ByteData key = Util.unwrap(cursor.getKey());
+                    assert key.compareTo(this.minKey) >= 0 : "cusor.getSearchKeyRange() returned "
                       + ByteUtil.toString(key) + " < " + ByteUtil.toString(this.minKey);
-                    if (maxKey != null && ByteUtil.compare(key, maxKey) >= 0)
+                    if (maxKey != null && key.compareTo(maxKey) >= 0)
                         this.finished = true;
                     else
-                        this.next = new KVPair(key, XodusKVStore.get(cursor.getValue(), true));
+                        this.next = new KVPair(key, Util.unwrap(cursor.getValue()));
                 } else {
                     if (XodusKVStore.this.log.isTraceEnabled())
                         XodusKVStore.this.log.trace("initial seek failed -> DONE");
@@ -423,7 +407,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
 
             // Advance Xodus cursor
             this.removable = false;                             // this.remove() can no longer use cursor.deleteCurrent()
-            byte[] key;
+            ByteData key;
             if (this.reverse) {
                 while (true) {
 
@@ -434,21 +418,21 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                         this.finished = true;
                         return false;
                     }
-                    key = XodusKVStore.get(this.cursor.getKey(), true);
+                    key = Util.unwrap(this.cursor.getKey());
 
                     // It's possible somebody could be simultaneously inserting keys just after maxKey, in which case we
                     // could be tricked into returning a key > maxKey. This is unlikely, but make sure it can't affect us.
-                    if (this.maxKey != null && ByteUtil.compare(key, this.maxKey) >= 0) {
+                    if (this.maxKey != null && key.compareTo(this.maxKey) >= 0) {
                         if (XodusKVStore.this.log.isTraceEnabled()) {
                             XodusKVStore.this.log.trace("seek previous -> skip over "
                               + ByteUtil.toString(key) + " >= " + ByteUtil.toString(this.maxKey));
                         }
-                        this.cursor.getSearchKeyRange(new ArrayByteIterable(this.maxKey));      // recalibrate and try again
+                        this.cursor.getSearchKeyRange(Util.wrap(this.maxKey));          // recalibrate and try again
                         continue;
                     }
 
                     // Check lower bound
-                    if (this.minKey != null && ByteUtil.compare(key, this.minKey) < 0) {
+                    if (this.minKey != null && key.compareTo(this.minKey) < 0) {
                         if (XodusKVStore.this.log.isTraceEnabled()) {
                             XodusKVStore.this.log.trace("seek previous -> "
                               + ByteUtil.toString(key) + " < bound " + ByteUtil.toString(this.minKey) + " -> DONE");
@@ -467,14 +451,14 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
                     this.finished = true;
                     return false;
                 }
-                key = XodusKVStore.get(this.cursor.getKey(), true);
+                key = Util.unwrap(this.cursor.getKey());
 
                 // Check lower bound
-                assert this.minKey == null || ByteUtil.compare(key, this.minKey) >= 0 :
+                assert this.minKey == null || key.compareTo(this.minKey) >= 0 :
                   "cusor.getNext() returned " + ByteUtil.toString(key) + " < " + ByteUtil.toString(this.minKey);
 
                 // Check upper bound
-                if (this.maxKey != null && ByteUtil.compare(key, this.maxKey) >= 0) {
+                if (this.maxKey != null && key.compareTo(this.maxKey) >= 0) {
                     if (XodusKVStore.this.log.isTraceEnabled()) {
                         XodusKVStore.this.log.trace("seek next -> "
                           + ByteUtil.toString(key) + " >= bound " + ByteUtil.toString(this.minKey) + " -> DONE");
@@ -485,7 +469,7 @@ public class XodusKVStore extends AbstractKVStore implements CloseableKVStore {
             }
 
             // We found the next pair
-            this.next = new KVPair(key, XodusKVStore.get(cursor.getValue(), true));
+            this.next = new KVPair(key, Util.unwrap(cursor.getValue()));
             if (XodusKVStore.this.log.isTraceEnabled())
                 XodusKVStore.this.log.trace("seek {} -> {}", this.reverse ? "previous" : "next", this.next);
 

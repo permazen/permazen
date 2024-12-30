@@ -18,6 +18,7 @@ import io.permazen.kv.StaleKVTransactionException;
 import io.permazen.kv.mvcc.MutableView;
 import io.permazen.kv.mvcc.Mutations;
 import io.permazen.kv.util.ForwardingKVStore;
+import io.permazen.util.ByteData;
 import io.permazen.util.ByteUtil;
 import io.permazen.util.CloseableIterator;
 
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -100,21 +102,21 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
      * @throws IllegalArgumentException {@inheritDoc}
      */
     @Override
-    public Future<Void> watchKey(byte[] key) {
+    public Future<Void> watchKey(ByteData key) {
         throw new UnsupportedOperationException();
     }
 
-    private synchronized byte[] getSQL(byte[] key) {
+    private synchronized ByteData getSQL(ByteData key) {
         if (this.stale)
             throw new StaleKVTransactionException(this);
         Preconditions.checkArgument(key != null, "null key");
         return this.queryBytes(StmtType.GET, this.encodeKey(key));
     }
 
-    private synchronized KVPair getAtLeastSQL(byte[] minKey, byte[] maxKey) {
+    private synchronized KVPair getAtLeastSQL(ByteData minKey, ByteData maxKey) {
         if (this.stale)
             throw new StaleKVTransactionException(this);
-        return minKey != null && minKey.length > 0 ?
+        return minKey != null && !minKey.isEmpty() ?
           (maxKey != null ?
            this.queryKVPair(StmtType.GET_RANGE_FORWARD_SINGLE, this.encodeKey(minKey), this.encodeKey(maxKey)) :
            this.queryKVPair(StmtType.GET_AT_LEAST_FORWARD_SINGLE, this.encodeKey(minKey))) :
@@ -123,22 +125,22 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
            this.queryKVPair(StmtType.GET_FIRST));
     }
 
-    private synchronized KVPair getAtMostSQL(byte[] maxKey, byte[] minKey) {
+    private synchronized KVPair getAtMostSQL(ByteData maxKey, ByteData minKey) {
         if (this.stale)
             throw new StaleKVTransactionException(this);
         return maxKey != null ?
-          (minKey != null && minKey.length > 0 ?
+          (minKey != null && !minKey.isEmpty() ?
            this.queryKVPair(StmtType.GET_RANGE_REVERSE_SINGLE, this.encodeKey(minKey), this.encodeKey(maxKey)) :
            this.queryKVPair(StmtType.GET_AT_MOST_REVERSE_SINGLE, this.encodeKey(maxKey))) :
-          (minKey != null && minKey.length > 0 ?
+          (minKey != null && !minKey.isEmpty() ?
            this.queryKVPair(StmtType.GET_AT_LEAST_REVERSE_SINGLE, this.encodeKey(minKey)) :
            this.queryKVPair(StmtType.GET_LAST));
     }
 
-    private synchronized CloseableIterator<KVPair> getRangeSQL(byte[] minKey, byte[] maxKey, boolean reverse) {
+    private synchronized CloseableIterator<KVPair> getRangeSQL(ByteData minKey, ByteData maxKey, boolean reverse) {
         if (this.stale)
             throw new StaleKVTransactionException(this);
-        if (minKey != null && minKey.length == 0)
+        if (minKey != null && minKey.isEmpty())
             minKey = null;
         if (minKey == null && maxKey == null)
             return this.queryIterator(reverse ? StmtType.GET_ALL_REVERSE : StmtType.GET_ALL_FORWARD);
@@ -155,7 +157,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
     }
 
-    private synchronized void putSQL(byte[] key, byte[] value) {
+    private synchronized void putSQL(ByteData key, ByteData value) {
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
         if (this.stale)
@@ -163,17 +165,17 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         this.update(StmtType.PUT, this.encodeKey(key), value, value);
     }
 
-    private synchronized void removeSQL(byte[] key) {
+    private synchronized void removeSQL(ByteData key) {
         Preconditions.checkArgument(key != null, "null key");
         if (this.stale)
             throw new StaleKVTransactionException(this);
         this.update(StmtType.REMOVE, this.encodeKey(key));
     }
 
-    private synchronized void removeRangeSQL(byte[] minKey, byte[] maxKey) {
+    private synchronized void removeRangeSQL(ByteData minKey, ByteData maxKey) {
         if (this.stale)
             throw new StaleKVTransactionException(this);
-        if (minKey != null && minKey.length == 0)
+        if (minKey != null && minKey.isEmpty())
             minKey = null;
         if (minKey == null && maxKey == null)
             this.update(StmtType.REMOVE_ALL);
@@ -191,27 +193,27 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             throw new StaleKVTransactionException(this);
 
         // Do removes
-        final EnumMap<StmtType, ArrayList<byte[]>> removeBatchMap = new EnumMap<>(StmtType.class);
-        final Function<StmtType, ArrayList<byte[]>> listInit = st -> new ArrayList<>();
+        final EnumMap<StmtType, ArrayList<ByteData>> removeBatchMap = new EnumMap<>(StmtType.class);
+        final Function<StmtType, ArrayList<ByteData>> listInit = st -> new ArrayList<>();
         boolean removeAll = false;
         try (Stream<KeyRange> ranges = mutations.getRemoveRanges()) {
             for (Iterator<KeyRange> i = ranges.iterator(); i.hasNext(); ) {
                 final KeyRange remove = i.next();
-                final byte[] min = remove.getMin();
-                final byte[] max = remove.getMax();
+                final ByteData min = remove.getMin();
+                final ByteData max = remove.getMax();
                 assert min != null;
-                if (min.length == 0 && max == null) {
+                if (min.isEmpty() && max == null) {
                     removeAll = true;
                     break;
                 }
-                if (min.length == 0)
+                if (min.isEmpty())
                     removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_MOST, listInit).add(this.encodeKey(max));
                 else if (max == null)
                     removeBatchMap.computeIfAbsent(StmtType.REMOVE_AT_LEAST, listInit).add(this.encodeKey(min));
                 else if (ByteUtil.isConsecutive(min, max))
                     removeBatchMap.computeIfAbsent(StmtType.REMOVE, listInit).add(this.encodeKey(min));
                 else {
-                    final ArrayList<byte[]> batch = removeBatchMap.computeIfAbsent(StmtType.REMOVE_RANGE, listInit);
+                    final ArrayList<ByteData> batch = removeBatchMap.computeIfAbsent(StmtType.REMOVE_RANGE, listInit);
                     batch.add(this.encodeKey(min));
                     batch.add(this.encodeKey(max));
                 }
@@ -220,13 +222,13 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         if (removeAll)
             this.update(StmtType.REMOVE_ALL);
         else {
-            for (Map.Entry<StmtType, ArrayList<byte[]>> entry : removeBatchMap.entrySet())
+            for (Map.Entry<StmtType, ArrayList<ByteData>> entry : removeBatchMap.entrySet())
                 this.updateBatch(entry.getKey(), entry.getValue());
         }
 
         // Do puts
-        final ArrayList<byte[]> putBatch = new ArrayList<byte[]>();
-        try (Stream<Map.Entry<byte[], byte[]>> puts = mutations.getPutPairs()) {
+        final ArrayList<ByteData> putBatch = new ArrayList<>();
+        try (Stream<Map.Entry<ByteData, ByteData>> puts = mutations.getPutPairs()) {
             puts.iterator().forEachRemaining(entry -> {
                 putBatch.add(this.encodeKey(entry.getKey()));
                 putBatch.add(entry.getValue());
@@ -236,7 +238,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         this.updateBatch(StmtType.PUT, putBatch);
 
         // Do adjusts
-        try (Stream<Map.Entry<byte[], Long>> adjusts = mutations.getAdjustPairs()) {
+        try (Stream<Map.Entry<ByteData, Long>> adjusts = mutations.getAdjustPairs()) {
             adjusts.iterator().forEachRemaining(entry -> this.adjustCounter(entry.getKey(), entry.getValue()));
         }
     }
@@ -334,19 +336,19 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 // KVStore
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(ByteData key, ByteData value) {
         this.mutated = true;
         this.delegate().put(key, value);
     }
 
     @Override
-    public void remove(byte[] key) {
+    public void remove(ByteData key) {
         this.mutated = true;
         this.delegate().remove(key);
     }
 
     @Override
-    public void removeRange(byte[] minKey, byte[] maxKey) {
+    public void removeRange(ByteData minKey, ByteData maxKey) {
         this.mutated = true;
         this.delegate().removeRange(minKey, maxKey);
     }
@@ -377,27 +379,34 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
 // Helper methods
 
-    protected byte[] queryBytes(StmtType stmtType, byte[]... params) {
+    protected ByteData getBytes(ResultSet resultSet, int index) throws SQLException {
+        Preconditions.checkArgument(resultSet != null, "null resultSet");
+        return Optional.ofNullable(resultSet.getBytes(index))
+          .map(ByteData::of)
+          .orElse(null);
+    }
+
+    protected ByteData queryBytes(StmtType stmtType, ByteData... params) {
         assert params.length == stmtType.getNumParams();
-        final byte[] result = this.query(stmtType, (stmt, rs) -> rs.next() ? rs.getBytes(1) : null, true, params);
+        final ByteData result = this.query(stmtType, (stmt, rs) -> rs.next() ? this.getBytes(rs, 1) : null, true, params);
         if (this.log.isTraceEnabled())
-            this.log.trace("SQL query returned {}", result != null ? result.length + " bytes" : "not found");
+            this.log.trace("SQL query returned {}", result != null ? result.size() + " bytes" : "not found");
         return result;
     }
 
-    protected KVPair queryKVPair(StmtType stmtType, byte[]... params) {
+    protected KVPair queryKVPair(StmtType stmtType, ByteData... params) {
         assert params.length == stmtType.getNumParams();
         final KVPair pair = this.query(stmtType,
-          (stmt, rs) -> rs.next() ? new KVPair(this.decodeKey(rs.getBytes(1)), rs.getBytes(2)) : null,
+          (stmt, rs) -> rs.next() ? new KVPair(this.decodeKey(this.getBytes(rs, 1)), this.getBytes(rs, 2)) : null,
           true, params);
         if (this.log.isTraceEnabled()) {
             this.log.trace("SQL query returned "
-              + (pair != null ? "(" + pair.getKey().length + ", " + pair.getValue().length + ") bytes" : "not found"));
+              + (pair != null ? "(" + pair.getKey().size() + ", " + pair.getValue().size() + ") bytes" : "not found"));
         }
         return pair;
     }
 
-    protected CloseableIterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
+    protected CloseableIterator<KVPair> queryIterator(StmtType stmtType, ByteData... params) {
         assert params.length == stmtType.getNumParams();
         final CloseableIterator<KVPair> i = this.query(stmtType, ResultSetIterator::new, false, params);
         if (this.log.isTraceEnabled())
@@ -405,7 +414,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         return i;
     }
 
-    protected <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
+    protected <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, ByteData... params) {
         assert params.length == stmtType.getNumParams();
         try {
             final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log);
@@ -413,7 +422,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             for (int i = 0; i < params.length && i < numParams; i++) {
                 if (this.log.isTraceEnabled())
                     this.log.trace("setting ?{} = {}", i + 1, ByteUtil.toString(params[i]));
-                preparedStatement.setBytes(i + 1, params[i]);
+                preparedStatement.setBytes(i + 1, params[i].toByteArray());
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
@@ -430,14 +439,14 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
     }
 
-    protected void update(StmtType stmtType, byte[]... params) {
+    protected void update(StmtType stmtType, ByteData... params) {
         assert params.length == stmtType.getNumParams();
         try (PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
                 if (this.log.isTraceEnabled())
                     this.log.trace("setting ?{} = {}", i + 1, ByteUtil.toString(params[i]));
-                preparedStatement.setBytes(i + 1, params[i]);
+                preparedStatement.setBytes(i + 1, params[i].toByteArray());
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
@@ -450,7 +459,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
     }
 
-    protected void updateBatch(StmtType stmtType, List<byte[]> paramList) {
+    protected void updateBatch(StmtType stmtType, List<ByteData> paramList) {
 
         // Each statement will consume this many parameters from paramList
         final int numStmtParams = stmtType.getNumParams();
@@ -474,11 +483,11 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
                 while (numStatementsInBatch < MAX_STATEMENTS_PER_BATCH
                   && batchTotalBytes < MAX_DATA_PER_BATCH && paramIndex < paramList.size()) {
                     for (int i = 0; i < numSqlParams; i++) {
-                        final byte[] param = paramList.get(paramIndex + i);
+                        final ByteData param = paramList.get(paramIndex + i);
                         if (this.log.isTraceEnabled())
                             this.log.trace("setting ?{} = {}", i + 1, ByteUtil.toString(param));
-                        preparedStatement.setBytes(i + 1, param);
-                        batchTotalBytes += param.length;
+                        preparedStatement.setBytes(i + 1, param.toByteArray());
+                        batchTotalBytes += param.size();
                     }
                     preparedStatement.addBatch();
                     paramIndex += numStmtParams;
@@ -509,7 +518,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
      * @return database value for key column
      * @see #decodeKey decodeKey()
      */
-    protected byte[] encodeKey(byte[] key) {
+    protected ByteData encodeKey(ByteData key) {
         return key;
     }
 
@@ -524,7 +533,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
      * @see #encodeKey encodeKey()
      */
 
-    protected byte[] decodeKey(byte[] dbkey) {
+    protected ByteData decodeKey(ByteData dbkey) {
         return dbkey;
     }
 
@@ -533,38 +542,38 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
     private class SQLView extends AbstractKVStore {
 
         @Override
-        public byte[] get(byte[] key) {
+        public ByteData get(ByteData key) {
             return SQLKVTransaction.this.getSQL(key);
         }
 
         @Override
-        public KVPair getAtLeast(byte[] minKey, byte[] maxKey) {
+        public KVPair getAtLeast(ByteData minKey, ByteData maxKey) {
 
             // Avoid range query when only a single key is in the range
             if (minKey != null && maxKey != null && ByteUtil.isConsecutive(minKey, maxKey)) {
-                final byte[] value = this.get(minKey);
+                final ByteData value = this.get(minKey);
                 return value != null ? new KVPair(minKey, value) : null;
             }
             return SQLKVTransaction.this.getAtLeastSQL(minKey, maxKey);
         }
 
         @Override
-        public KVPair getAtMost(byte[] maxKey, byte[] minKey) {
+        public KVPair getAtMost(ByteData maxKey, ByteData minKey) {
 
             // Avoid range query when only a single key is in the range
             if (minKey != null && maxKey != null && ByteUtil.isConsecutive(minKey, maxKey)) {
-                final byte[] value = this.get(minKey);
+                final ByteData value = this.get(minKey);
                 return value != null ? new KVPair(minKey, value) : null;
             }
             return SQLKVTransaction.this.getAtMostSQL(maxKey, minKey);
         }
 
         @Override
-        public CloseableIterator<KVPair> getRange(final byte[] minKey, final byte[] maxKey, final boolean reverse) {
+        public CloseableIterator<KVPair> getRange(final ByteData minKey, final ByteData maxKey, final boolean reverse) {
 
             // Avoid range query when only a single key is in the range
             if (minKey != null && maxKey != null && ByteUtil.isConsecutive(minKey, maxKey)) {
-                final byte[] value = this.get(minKey);
+                final ByteData value = this.get(minKey);
                 if (value == null) {
                     return new CloseableIterator<KVPair>() {
 
@@ -622,17 +631,17 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         }
 
         @Override
-        public void put(byte[] key, byte[] value) {
+        public void put(ByteData key, ByteData value) {
             SQLKVTransaction.this.putSQL(key, value);
         }
 
         @Override
-        public void remove(byte[] key) {
+        public void remove(ByteData key) {
             SQLKVTransaction.this.removeSQL(key);
         }
 
         @Override
-        public void removeRange(byte[] minKey, byte[] maxKey) {
+        public void removeRange(ByteData minKey, ByteData maxKey) {
             SQLKVTransaction.this.removeRangeSQL(minKey, maxKey);
         }
 
@@ -658,7 +667,7 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
         private boolean ready;
         private boolean closed;
-        private byte[] removeKey;
+        private ByteData removeKey;
 
         ResultSetIterator(PreparedStatement preparedStatement, ResultSet resultSet) {
             assert preparedStatement != null;
@@ -689,15 +698,15 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
         public synchronized KVPair next() {
             if (!this.hasNext())
                 throw new NoSuchElementException();
-            final byte[] key;
-            final byte[] value;
+            final ByteData key;
+            final ByteData value;
             try {
-                key = SQLKVTransaction.this.decodeKey(this.resultSet.getBytes(1));
-                value = this.resultSet.getBytes(2);
+                key = SQLKVTransaction.this.decodeKey(SQLKVTransaction.this.getBytes(this.resultSet, 1));
+                value = SQLKVTransaction.this.getBytes(this.resultSet, 2);
             } catch (SQLException e) {
                 throw SQLKVTransaction.this.handleException(e);
             }
-            this.removeKey = key.clone();
+            this.removeKey = key;
             this.ready = false;
             return new KVPair(key, value);
         }

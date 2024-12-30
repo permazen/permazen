@@ -523,15 +523,18 @@ public final class ByteData implements Comparable<ByteData> {
 
     @Override
     public int hashCode() {
-        if (this.hash == 0) {
-            if (this.min == 0 && this.max == this.data.length)
-                return Arrays.hashCode(this.data);
-            int value = 1;
-            for (int i = this.min; i < this.max; i++)
-                value = value * 31 + this.data[i];
-            this.hash = value;
-        }
+        if (this.hash == 0)
+            this.hash = this.computeHashCode();
         return this.hash;
+    }
+
+    private int computeHashCode() {
+        if (this.min == 0 && this.max == this.data.length)
+            return Arrays.hashCode(this.data);
+        int value = 1;
+        for (int i = this.min; i < this.max; i++)
+            value = value * 31 + this.data[i];
+        return value;
     }
 
     @Override
