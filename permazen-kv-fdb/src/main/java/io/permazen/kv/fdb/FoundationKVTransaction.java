@@ -33,9 +33,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public class FoundationKVTransaction implements KVTransaction {
 
-    private static final byte[] MIN_KEY = ByteUtil.EMPTY;                   // minimum possible key (inclusive)
-    private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
-
     private final FoundationKVDatabase kvdb;
     private final FoundationKVStore kvstore;
     private final Transaction tx;
