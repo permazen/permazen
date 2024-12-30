@@ -58,18 +58,11 @@ public final class ByteUtil {
         if (b1 == b2)
             return 0;
         for (int i = 0; i < sharedLength; i++) {
-            final int v1 = b1[i] & 0xff;
-            final int v2 = b2[i] & 0xff;
-            if (v1 < v2)
-                return -1;
-            if (v1 > v2)
-                return 1;
+            final int diff = (b1[i] & 0xff) - (b2[i] & 0xff);
+            if (diff != 0)
+                return Integer.signum(diff);
         }
-        if (b1.length < b2.length)
-            return -1;
-        if (b1.length > b2.length)
-            return 1;
-        return 0;
+        return Integer.signum(b1.length - b2.length);
     }
 
     /**
@@ -107,11 +100,7 @@ public final class ByteUtil {
     public static boolean isPrefixOf(byte[] prefix, byte[] value) {
         if (prefix.length > value.length)
             return false;
-        for (int i = 0; i < prefix.length; i++) {
-            if (value[i] != prefix[i])
-                return false;
-        }
-        return true;
+        return Arrays.equals(prefix, 0, prefix.length, value, 0, prefix.length);
     }
 
     /**
@@ -142,11 +131,7 @@ public final class ByteUtil {
             return false;
         if (key2[key1.length] != 0)
             return false;
-        for (int i = 0; i < key1.length; i++) {
-            if (key1[i] != key2[i])
-                return false;
-        }
-        return true;
+        return Arrays.equals(key1, 0, key1.length, key2, 0, key1.length);
     }
 
     /**
