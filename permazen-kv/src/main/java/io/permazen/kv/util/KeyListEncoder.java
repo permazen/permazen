@@ -20,7 +20,8 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 /**
- * Serializes a sequence of {@code byte[]} arrays, compressing consecutive common prefixes.
+ * Serializes a sequence of {@code byte[]} arrays, or {@code byte[]} key/value pairs, using a simple
+ * key prefix compression scheme.
  *
  * <p>
  * Keys are encoded/decoded by {@link #read read()} and {@link #write write()} in one of two forms:
@@ -28,8 +29,10 @@ import java.util.Iterator;
  *  <li>{@code total-length bytes...}
  *  <li>{@code -prefix-length suffix-length suffix-bytes ...}
  *  </ul>
- * The first length ({@code total-length} or negative {@code prefix-length}) is encoded using {@link LongEncoder}.
- * The {@code suffix-length}, if present, is encoded using {@link UnsignedIntEncoder}.
+ * In the first form, the {@code total-length} is encoded using {@link LongEncoder} as a positive number
+ * and is followed by that many bytes consituting the key. In the second form, the length of the key prefix
+ * that matches the previous key is encoded as a negative value using {@link LongEncoder}, followed by the
+ * number of suffix bytes encoded via {@link UnsignedIntEncoder}, followed by that many suffix bytes.
  *
  * <p>
  * Support for encoding and decoding an entire iteration of key/value pairs is supported via
@@ -144,6 +147,10 @@ public final class KeyListEncoder {
     /**
      * Encode an iteration of key/value pairs.
      *
+     * <p>
+     * Each key/value pair is encoded by encoding the key using prefix compression from the previous key,
+     * followed by the value with no prefix compression. A final {@code 0xff} byte terminates the sequence.
+     *
      * @param kvpairs key/value pair iteration
      * @param output encoded output
      * @throws IOException if an I/O error occurs
@@ -200,6 +207,9 @@ public final class KeyListEncoder {
      * <p>
      * If invalid input is encountered during iteration, the returned {@link Iterator}
      * will throw an {@link IllegalArgumentException}.
+     *
+     * <p>
+     * Decoding stops after reading the end of stream or a terminating {@code 0xff} byte.
      *
      * @param input encoded input
      * @return iteration of key/value pairs
