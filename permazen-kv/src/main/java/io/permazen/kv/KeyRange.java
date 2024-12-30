@@ -185,14 +185,7 @@ public class KeyRange {
      * @return true if this instance contains exactly one key, otherwise false
      */
     public boolean isSingleKey() {
-        final int lastIndex = this.min.length;
-        if (this.max == null || this.max.length != lastIndex + 1 || this.max[lastIndex] != 0)
-            return false;
-        for (int i = 0; i < lastIndex; i++) {
-            if (this.min[i] != this.max[i])
-                return false;
-        }
-        return true;
+        return this.max != null && ByteUtil.isConsecutive(this.min, this.max);
     }
 
     /**
