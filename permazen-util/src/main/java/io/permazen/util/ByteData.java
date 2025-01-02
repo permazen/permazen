@@ -603,10 +603,22 @@ public final class ByteData implements Comparable<ByteData> {
             this.size += len;
         }
 
+        /**
+         * Flush this instance.
+         *
+         * <p>
+         * The implementation in {@link Writer} does nothing.
+         */
         @Override
         public void flush() {
         }
 
+        /**
+         * Close this instance.
+         *
+         * <p>
+         * The implementation in {@link Writer} does nothing.
+         */
         @Override
         public void close() {
         }
