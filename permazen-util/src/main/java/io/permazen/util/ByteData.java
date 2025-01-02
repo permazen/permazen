@@ -603,6 +603,14 @@ public final class ByteData implements Comparable<ByteData> {
             this.size += len;
         }
 
+        @Override
+        public void flush() {
+        }
+
+        @Override
+        public void close() {
+        }
+
     // Other Methods
 
         /**
@@ -736,6 +744,33 @@ public final class ByteData implements Comparable<ByteData> {
             assert off >= 0 && len >= 0 && off + len >= 0 && off + len <= data.data.length;
             this.data = data;
         }
+
+    // InputStream
+
+        @Override
+        public int read(byte[] b) {
+            return this.read(b, 0, b.length);
+        }
+
+        @Override
+        public byte[] readNBytes(int len) {
+            try {
+                return super.readNBytes(len);
+            } catch (IOException e) {
+                throw new RuntimeException("unexpected error", e);
+            }
+        }
+
+        @Override
+        public void skipNBytes(long n) {
+            try {
+                super.skipNBytes(n);
+            } catch (IOException e) {
+                throw new RuntimeException("unexpected error", e);
+            }
+        }
+
+    // Other Methods
 
         /**
          * Peek at the next byte.
