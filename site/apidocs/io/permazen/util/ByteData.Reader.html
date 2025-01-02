@@ -131,7 +131,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getByteData()" class="member-name-link">getByteData</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Obtain the <a href="ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance underlying this reader.</div>
+<div class="block">Obtain the original <a href="ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance from which this reader was created.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOffset()" class="member-name-link">getOffset</a>()</code></div>
@@ -141,18 +141,24 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peek()" class="member-name-link">peek</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Peek at the next byte, if any.</div>
+<div class="block">Peek at the next byte.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readByte()" class="member-name-link">readByte</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#read(byte%5B%5D)" class="member-name-link">read</a><wbr>(byte[]&nbsp;b)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readByte()" class="member-name-link">readByte</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read the next byte as an unsigned value.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readBytes(int)" class="member-name-link">readBytes</a><wbr>(int&nbsp;len)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readBytes(int)" class="member-name-link">readBytes</a><wbr>(int&nbsp;len)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Read out the specified number of bytes.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>byte[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readNBytes(int)" class="member-name-link">readNBytes</a><wbr>(int&nbsp;len)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readRemaining()" class="member-name-link">readRemaining</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -164,13 +170,16 @@ loadScripts(document, 'script');</script>
 <div class="block">Get the number of bytes remaining.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#unread()" class="member-name-link">unread</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#skipNBytes(long)" class="member-name-link">skipNBytes</a><wbr>(long&nbsp;n)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#unread()" class="member-name-link">unread</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Unread the previously read byte.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#unread(int)" class="member-name-link">unread</a><wbr>(int&nbsp;len)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#unread(int)" class="member-name-link">unread</a><wbr>(int&nbsp;len)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Unread the specified number of previously read bytes.</div>
 </div>
 </div>
@@ -181,7 +190,7 @@ loadScripts(document, 'script');</script>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#available()" title="class or interface in java.io" class="external-link">available</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#close()" title="class or interface in java.io" class="external-link">close</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#mark(int)" title="class or interface in java.io" class="external-link">mark</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#markSupported()" title="class or interface in java.io" class="external-link">markSupported</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#read()" title="class or interface in java.io" class="external-link">read</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#read(byte%5B%5D,int,int)" title="class or interface in java.io" class="external-link">read</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#readAllBytes()" title="class or interface in java.io" class="external-link">readAllBytes</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#readNBytes(byte%5B%5D,int,int)" title="class or interface in java.io" class="external-link">readNBytes</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#reset()" title="class or interface in java.io" class="external-link">reset</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#skip(long)" title="class or interface in java.io" class="external-link">skip</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ByteArrayInputStream.html#transferTo(java.io.OutputStream)" title="class or interface in java.io" class="external-link">transferTo</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.io.InputStream">Methods inherited from class&nbsp;java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a></h3>
-<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#nullInputStream()" title="class or interface in java.io" class="external-link">nullInputStream</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#read(byte%5B%5D)" title="class or interface in java.io" class="external-link">read</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#readNBytes(int)" title="class or interface in java.io" class="external-link">readNBytes</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#skipNBytes(long)" title="class or interface in java.io" class="external-link">skipNBytes</a></code></div>
+<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#nullInputStream()" title="class or interface in java.io" class="external-link">nullInputStream</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -197,10 +206,40 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="read(byte[])">
+<h3>read</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">read</span><wbr><span class="parameters">(byte[]&nbsp;b)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#read(byte%5B%5D)" title="class or interface in java.io" class="external-link">read</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="readNBytes(int)">
+<h3>readNBytes</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">readNBytes</span><wbr><span class="parameters">(int&nbsp;len)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#readNBytes(int)" title="class or interface in java.io" class="external-link">readNBytes</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="skipNBytes(long)">
+<h3>skipNBytes</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">skipNBytes</span><wbr><span class="parameters">(long&nbsp;n)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html#skipNBytes(long)" title="class or interface in java.io" class="external-link">skipNBytes</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="peek()">
 <h3>peek</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">peek</span>()</div>
-<div class="block">Peek at the next byte, if any.
+<div class="block">Peek at the next byte.
 
  <p>
  This does not change the current read offset.</div>
@@ -286,7 +325,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>len</code> - number of bytes to read</dd>
 <dt>Returns:</dt>
-<dd>bytes read</dd>
+<dd>the next <code>len</code> bytes</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>len</code> is negative or greater than the number of bytes remaining</dd>
 </dl>
@@ -338,13 +377,13 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getByteData()">
 <h3>getByteData</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></span>&nbsp;<span class="element-name">getByteData</span>()</div>
-<div class="block">Obtain the <a href="ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance underlying this reader.
+<div class="block">Obtain the original <a href="ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance from which this reader was created.
 
  <p>
  This does not change the current read offset.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>copy of the entire buffer</dd>
+<dd>the entire underlying data</dd>
 </dl>
 </section>
 </li>
@@ -357,7 +396,7 @@ loadScripts(document, 'script');</script>
 </main>
 <footer role="contentinfo">
 <hr>
-<p class="legal-copy"><small>Copyright &#169; 2024. All rights reserved.</small></p>
+<p class="legal-copy"><small>Copyright &#169; 2025. All rights reserved.</small></p>
 </footer>
 </div>
 </div>

@@ -1344,7 +1344,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ByteData.Writer.html" class="type-name-link" title="class in io.permazen.util">ByteData.Writer</a> - Class in <a href="io/permazen/util/package-summary.html">io.permazen.util</a></dt>
 <dd>
-<div class="block">Gathers data used to build a <a href="io/permazen/util/ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance.</div>
+<div class="block">Gathers data from which to build a <a href="io/permazen/util/ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance.</div>
 </dd>
 <dt><a href="io/permazen/kv/mvstore/ByteDataDataType.html" class="type-name-link" title="class in io.permazen.kv.mvstore">ByteDataDataType</a> - Class in <a href="io/permazen/kv/mvstore/package-summary.html">io.permazen.kv.mvstore</a></dt>
 <dd>
@@ -2039,6 +2039,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/kv/xodus/XodusKVStore.html#close()" class="member-name-link">close()</a> - Method in class io.permazen.kv.xodus.<a href="io/permazen/kv/xodus/XodusKVStore.html" title="class in io.permazen.kv.xodus">XodusKVStore</a></dt>
 <dd>
 <div class="block">Close this instance, discarding any changes.</div>
+</dd>
+<dt><a href="io/permazen/util/ByteData.Writer.html#close()" class="member-name-link">close()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Writer.html" title="class in io.permazen.util">ByteData.Writer</a></dt>
+<dd>
+<div class="block">Close this instance.</div>
 </dd>
 <dt><a href="io/permazen/util/CloseableIterator.html#close()" class="member-name-link">close()</a> - Method in interface io.permazen.util.<a href="io/permazen/util/CloseableIterator.html" title="interface in io.permazen.util">CloseableIterator</a></dt>
 <dd>&nbsp;</dd>
@@ -3444,7 +3448,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/kv/raft/RaftKVDatabase.html#DEFAULT_COMMIT_TIMEOUT" class="member-name-link">DEFAULT_COMMIT_TIMEOUT</a> - Static variable in class io.permazen.kv.raft.<a href="io/permazen/kv/raft/RaftKVDatabase.html" title="class in io.permazen.kv.raft">RaftKVDatabase</a></dt>
 <dd>
-<div class="block">Default transaction commit timeout (5000).</div>
+<div class="block">Default transaction commit timeout (5000ms).</div>
 </dd>
 <dt><a href="io/permazen/kv/array/AtomicArrayKVStore.html#DEFAULT_COMPACTION_HIGH_WATER" class="member-name-link">DEFAULT_COMPACTION_HIGH_WATER</a> - Static variable in class io.permazen.kv.array.<a href="io/permazen/kv/array/AtomicArrayKVStore.html" title="class in io.permazen.kv.array">AtomicArrayKVStore</a></dt>
 <dd>
@@ -4723,6 +4727,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Flush all three outputs.</div>
 </dd>
+<dt><a href="io/permazen/util/ByteData.Writer.html#flush()" class="member-name-link">flush()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Writer.html" title="class in io.permazen.util">ByteData.Writer</a></dt>
+<dd>
+<div class="block">Flush this instance.</div>
+</dd>
 <dt><a href="io/permazen/kv/raft/Follower.html" class="type-name-link" title="class in io.permazen.kv.raft">Follower</a> - Class in <a href="io/permazen/kv/raft/package-summary.html">io.permazen.kv.raft</a></dt>
 <dd>
 <div class="block">Contains information maintained by leaders about followers.</div>
@@ -5362,7 +5370,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ByteData.Reader.html#getByteData()" class="member-name-link">getByteData()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Reader.html" title="class in io.permazen.util">ByteData.Reader</a></dt>
 <dd>
-<div class="block">Obtain the <a href="io/permazen/util/ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance underlying this reader.</div>
+<div class="block">Obtain the original <a href="io/permazen/util/ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance from which this reader was created.</div>
 </dd>
 <dt><a href="io/permazen/core/ObjId.html#getBytes()" class="member-name-link">getBytes()</a> - Method in class io.permazen.core.<a href="io/permazen/core/ObjId.html" title="class in io.permazen.core">ObjId</a></dt>
 <dd>
@@ -8596,7 +8604,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="io/permazen/util/Bounds.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class io.permazen.util.<a href="io/permazen/util/Bounds.html" title="class in io.permazen.util">Bounds</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/ByteData.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.html" title="class in io.permazen.util">ByteData</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Compute the hash code for this instance.</div>
+</dd>
 <dt><a href="io/permazen/util/ConvertedSpliterator.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ConvertedSpliterator.html" title="class in io.permazen.util">ConvertedSpliterator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/ParseContext.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ParseContext.html" title="class in io.permazen.util">ParseContext</a></dt>
@@ -10975,7 +10985,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ByteData.Writer.html#makeRoom(int)" class="member-name-link">makeRoom(int)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Writer.html" title="class in io.permazen.util">ByteData.Writer</a></dt>
 <dd>
-<div class="block">Expand the internal buffer as needed to ensure there is room to add the specified number of new bytes.</div>
+<div class="block">Expand the internal buffer as needed to ensure there is room to add the specified number of additional bytes.</div>
 </dd>
 <dt><a href="io/permazen/ValidationMode.html#MANUAL" class="member-name-link">MANUAL</a> - Enum constant in enum class io.permazen.<a href="io/permazen/ValidationMode.html" title="enum class in io.permazen">ValidationMode</a></dt>
 <dd>
@@ -11899,7 +11909,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ByteData.html#of(int...)" class="member-name-link">of(int...)</a> - Static method in class io.permazen.util.<a href="io/permazen/util/ByteData.html" title="class in io.permazen.util">ByteData</a></dt>
 <dd>
-<div class="block">Obtain an instance containing a the given byte data.</div>
+<div class="block">Obtain an instance containing the given byte data expressed as integers.</div>
 </dd>
 <dt><a href="io/permazen/kv/raft/Timestamp.html#offset(int)" class="member-name-link">offset(int)</a> - Method in class io.permazen.kv.raft.<a href="io/permazen/kv/raft/Timestamp.html" title="class in io.permazen.kv.raft">Timestamp</a></dt>
 <dd>
@@ -12198,7 +12208,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ByteData.Reader.html#peek()" class="member-name-link">peek()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Reader.html" title="class in io.permazen.util">ByteData.Reader</a></dt>
 <dd>
-<div class="block">Peek at the next byte, if any.</div>
+<div class="block">Peek at the next byte.</div>
 </dd>
 <dt><a href="io/permazen/util/ParseContext.html#peek()" class="member-name-link">peek()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ParseContext.html" title="class in io.permazen.util">ParseContext</a></dt>
 <dd>
@@ -13006,6 +13016,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Read and advance past the next character.</div>
 </dd>
+<dt><a href="io/permazen/util/ByteData.Reader.html#read(byte%5B%5D)" class="member-name-link">read(byte[])</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Reader.html" title="class in io.permazen.util">ByteData.Reader</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/core/ObjIdEncoding.html#read(io.permazen.util.ByteData.Reader)" class="member-name-link">read(ByteData.Reader)</a> - Method in class io.permazen.core.<a href="io/permazen/core/ObjIdEncoding.html" title="class in io.permazen.core">ObjIdEncoding</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/encoding/Inet6AddressEncoding.html#read(io.permazen.util.ByteData.Reader)" class="member-name-link">read(ByteData.Reader)</a> - Method in class io.permazen.encoding.<a href="io/permazen/encoding/Inet6AddressEncoding.html" title="class in io.permazen.encoding">Inet6AddressEncoding</a></dt>
@@ -13223,6 +13235,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Read a map field.</div>
 </dd>
+<dt><a href="io/permazen/util/ByteData.Reader.html#readNBytes(int)" class="member-name-link">readNBytes(int)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Reader.html" title="class in io.permazen.util">ByteData.Reader</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/cli/config/CliConfig.html#readOnlyOption" class="member-name-link">readOnlyOption</a> - Variable in class io.permazen.cli.config.<a href="io/permazen/cli/config/CliConfig.html" title="class in io.permazen.cli.config">CliConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/kv/array/AtomicArrayKVStore.html#readOnlySnapshot()" class="member-name-link">readOnlySnapshot()</a> - Method in class io.permazen.kv.array.<a href="io/permazen/kv/array/AtomicArrayKVStore.html" title="class in io.permazen.kv.array">AtomicArrayKVStore</a></dt>
@@ -15438,6 +15452,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Skip over the remainder of the current XML element, including any nested elements,
  until the closing XML tag is seen and consumed.</div>
 </dd>
+<dt><a href="io/permazen/util/ByteData.Reader.html#skipNBytes(long)" class="member-name-link">skipNBytes(long)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Reader.html" title="class in io.permazen.util">ByteData.Reader</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/ParseContext.html#skipWhitespace()" class="member-name-link">skipWhitespace()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ParseContext.html" title="class in io.permazen.util">ParseContext</a></dt>
 <dd>
 <div class="block">Skip leading whitespace, if any.</div>
@@ -15897,11 +15913,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/permazen/util/ByteData.html#substring(int)" class="member-name-link">substring(int)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.html" title="class in io.permazen.util">ByteData</a></dt>
 <dd>
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance starting at the given offset.</div>
 </dd>
 <dt><a href="io/permazen/util/ByteData.html#substring(int,int)" class="member-name-link">substring(int, int)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.html" title="class in io.permazen.util">ByteData</a></dt>
 <dd>
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance between the given offsets.</div>
 </dd>
 <dt><a href="io/permazen/kv/fdb/ErrorCode.html#SUCCESS" class="member-name-link">SUCCESS</a> - Enum constant in enum class io.permazen.kv.fdb.<a href="io/permazen/kv/fdb/ErrorCode.html" title="enum class in io.permazen.kv.fdb">ErrorCode</a></dt>
 <dd>
@@ -16112,11 +16128,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/permazen/util/ByteData.html#toByteArray()" class="member-name-link">toByteArray()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.html" title="class in io.permazen.util">ByteData</a></dt>
 <dd>
-<div class="block">Obtain the data as a <code>byte[]</code> array.</div>
+<div class="block">Obtain the data in this instance as a <code>byte[]</code> array.</div>
 </dd>
 <dt><a href="io/permazen/util/ByteData.Writer.html#toByteData()" class="member-name-link">toByteData()</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.Writer.html" title="class in io.permazen.util">ByteData.Writer</a></dt>
 <dd>
-<div class="block">Return a <a href="io/permazen/util/ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> containing the data written to this instance.</div>
+<div class="block">Return a <a href="io/permazen/util/ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> containing the data written to this instance so far.</div>
 </dd>
 <dt><a href="io/permazen/cli/cmd/AbstractKVCommand.html#toCString(io.permazen.util.ByteData)" class="member-name-link">toCString(ByteData)</a> - Static method in class io.permazen.cli.cmd.<a href="io/permazen/cli/cmd/AbstractKVCommand.html" title="class in io.permazen.cli.cmd">AbstractKVCommand</a></dt>
 <dd>
@@ -17884,7 +17900,7 @@ the order they are declared.</div>
 </dd>
 <dt><a href="io/permazen/util/ByteData.html#writeTo(byte%5B%5D,int)" class="member-name-link">writeTo(byte[], int)</a> - Method in class io.permazen.util.<a href="io/permazen/util/ByteData.html" title="class in io.permazen.util">ByteData</a></dt>
 <dd>
-<div class="block">Write the data into a <code>byte[]</code> array.</div>
+<div class="block">Write the data in this instance into a <code>byte[]</code> array.</div>
 </dd>
 <dt><a href="io/permazen/core/SchemaBundle.Encoded.html#writeTo(io.permazen.kv.KVStore)" class="member-name-link">writeTo(KVStore)</a> - Method in class io.permazen.core.<a href="io/permazen/core/SchemaBundle.Encoded.html" title="class in io.permazen.core">SchemaBundle.Encoded</a></dt>
 <dd>
@@ -18075,7 +18091,7 @@ the order they are declared.</div>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:Y">Y</a>&nbsp;<a href="#I:Z">Z</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
 <footer role="contentinfo">
 <hr>
-<p class="legal-copy"><small>Copyright &#169; 2024. All rights reserved.</small></p>
+<p class="legal-copy"><small>Copyright &#169; 2025. All rights reserved.</small></p>
 </footer>
 </div>
 </div>

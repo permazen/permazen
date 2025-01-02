@@ -2695,7 +2695,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code><a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">ByteData.Reader.</span><code><a href="../ByteData.Reader.html#getByteData()" class="member-name-link">getByteData</a>()</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Obtain the <a href="../ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance underlying this reader.</div>
+<div class="block">Obtain the original <a href="../ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance from which this reader was created.</div>
 </div>
 <div class="col-first even-row-color"><code>static <a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">ByteUtil.</span><code><a href="../ByteUtil.html#getKeyAfterPrefix(io.permazen.util.ByteData)" class="member-name-link">getKeyAfterPrefix</a><wbr>(<a href="../ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;prefix)</code></div>
@@ -2735,7 +2735,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static <a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">ByteData.</span><code><a href="../ByteData.html#of(int...)" class="member-name-link">of</a><wbr>(int...&nbsp;data)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Obtain an instance containing a the given byte data.</div>
+<div class="block">Obtain an instance containing the given byte data expressed as integers.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">ByteData.Reader.</span><code><a href="../ByteData.Reader.html#readBytes(int)" class="member-name-link">readBytes</a><wbr>(int&nbsp;len)</code></div>
@@ -2750,18 +2750,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code><a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">ByteData.</span><code><a href="../ByteData.html#substring(int)" class="member-name-link">substring</a><wbr>(int&nbsp;beginIndex)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance starting at the given offset.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">ByteData.</span><code><a href="../ByteData.html#substring(int,int)" class="member-name-link">substring</a><wbr>(int&nbsp;beginIndex,
  int&nbsp;endIndex)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance between the given offsets.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">ByteData.Writer.</span><code><a href="../ByteData.Writer.html#toByteData()" class="member-name-link">toByteData</a>()</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Return a <a href="../ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> containing the data written to this instance.</div>
+<div class="block">Return a <a href="../ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> containing the data written to this instance so far.</div>
 </div>
 <div class="col-first even-row-color"><code>static <a href="../ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">ByteData.</span><code><a href="../ByteData.html#zeros(int)" class="member-name-link">zeros</a><wbr>(int&nbsp;len)</code></div>
@@ -2859,7 +2859,7 @@ loadScripts(document, 'script');</script>
 </main>
 <footer role="contentinfo">
 <hr>
-<p class="legal-copy"><small>Copyright &#169; 2024. All rights reserved.</small></p>
+<p class="legal-copy"><small>Copyright &#169; 2025. All rights reserved.</small></p>
 </footer>
 </div>
 </div>

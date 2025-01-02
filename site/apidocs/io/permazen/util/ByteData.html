@@ -111,7 +111,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="col-first odd-row-color"><code>static final class&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="ByteData.Writer.html" class="type-name-link" title="class in io.permazen.util">ByteData.Writer</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Gathers data used to build a <a href="ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance.</div>
+<div class="block">Gathers data from which to build a <a href="ByteData.html" title="class in io.permazen.util"><code>ByteData</code></a> instance.</div>
 </div>
 </div>
 </section>
@@ -162,7 +162,9 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Compute the hash code for this instance.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty()" class="member-name-link">isEmpty</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -211,7 +213,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(int...)" class="member-name-link">of</a><wbr>(int...&nbsp;data)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Obtain an instance containing a the given byte data.</div>
+<div class="block">Obtain an instance containing the given byte data expressed as integers.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#size()" class="member-name-link">size</a>()</code></div>
@@ -231,18 +233,18 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#substring(int)" class="member-name-link">substring</a><wbr>(int&nbsp;beginIndex)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance starting at the given offset.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#substring(int,int)" class="member-name-link">substring</a><wbr>(int&nbsp;beginIndex,
  int&nbsp;endIndex)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance between the given offsets.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>byte[]</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toByteArray()" class="member-name-link">toByteArray</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Obtain the data as a <code>byte[]</code> array.</div>
+<div class="block">Obtain the data in this instance as a <code>byte[]</code> array.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toHex()" class="member-name-link">toHex</a>()</code></div>
@@ -266,7 +268,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeTo(byte%5B%5D,int)" class="member-name-link">writeTo</a><wbr>(byte[]&nbsp;dest,
  int&nbsp;off)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Write the data into a <code>byte[]</code> array.</div>
+<div class="block">Write the data in this instance into a <code>byte[]</code> array.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writeTo(java.io.OutputStream)" class="member-name-link">writeTo</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output)</code></div>
@@ -325,10 +327,10 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <section class="detail" id="of(int...)">
 <h3>of</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(int...&nbsp;data)</span></div>
-<div class="block">Obtain an instance containing a the given byte data.</div>
+<div class="block">Obtain an instance containing the given byte data expressed as integers.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>data</code> - byte data as integers; all but the lower 8 bits are ignored</dd>
+<dd><code>data</code> - bytes expressed as integers; only the lower 8 bits of each value are used</dd>
 <dt>Returns:</dt>
 <dd>instance containing a copy of <code>data</code></dd>
 <dt>Throws:</dt>
@@ -352,7 +354,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dd>instance containing a copy of the specified region of <code>data</code></dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>data</code> is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>off</code> and/or <code>len</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>off</code> and/or <code>len</code> is invalid</dd>
 </dl>
 </section>
 </li>
@@ -439,8 +441,8 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 
  <p>
  A starting offset is given for each instance. This method returns the number of consecutive pairs of bytes that are
- equal in both instances, starting at the given offsets. The comparison stops when the a non-equal byte pair is found,
- or one of the offsets would exceed the length of the corresponding instance.</div>
+ equal in both instances, starting at the corresponding offsets. The comparison stops when a non-equal pair of bytes
+ is encountered, or the end of either array is reached.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>data1</code> - first instance</dd>
@@ -451,7 +453,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dd>the number of bytes that agree starting at <code>off1</code> in <code>data1</code> and <code>off2</code> in <code>data2</code></dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>data1</code> or <code>data2</code> is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>off1</code> or <code>off2</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>off1</code> or <code>off2</code> is invalid</dd>
 </dl>
 </section>
 </li>
@@ -491,7 +493,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Returns:</dt>
 <dd>data input stream starting at offset <code>off</code></dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>off</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>off</code> is invalid</dd>
 </dl>
 </section>
 </li>
@@ -538,7 +540,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Returns:</dt>
 <dd>the byte at <code>index</code></dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>index</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>index</code> is invalid</dd>
 </dl>
 </section>
 </li>
@@ -553,7 +555,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Returns:</dt>
 <dd>the byte at <code>index</code> as a integer in the range 0 to 255</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>index</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>index</code> is invalid</dd>
 </dl>
 </section>
 </li>
@@ -583,14 +585,14 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <section class="detail" id="substring(int)">
 <h3>substring</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></span>&nbsp;<span class="element-name">substring</span><wbr><span class="parameters">(int&nbsp;beginIndex)</span></div>
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance starting at the given offset.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>beginIndex</code> - starting offset (inclusive)</dd>
 <dt>Returns:</dt>
 <dd>substring of this instance from <code>beginIndex</code> to the end of this instance</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>beginIndex</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>beginIndex</code> is invalid</dd>
 </dl>
 </section>
 </li>
@@ -599,7 +601,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <h3>substring</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ByteData.html" title="class in io.permazen.util">ByteData</a></span>&nbsp;<span class="element-name">substring</span><wbr><span class="parameters">(int&nbsp;beginIndex,
  int&nbsp;endIndex)</span></div>
-<div class="block">Obtain an instance containing a substring of the data contained by this instance.</div>
+<div class="block">Obtain an instance containing the subsequence of this instance between the given offsets.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>beginIndex</code> - starting offset (inclusive)</dd>
@@ -620,7 +622,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Parameters:</dt>
 <dd><code>next</code> - the instance to append</dd>
 <dt>Returns:</dt>
-<dd>concatenation of this instance and <code>next</code></dd>
+<dd>concatenation of this instance followed by <code>next</code></dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>next</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the concatenation would be longer than <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="external-link"><code>Integer.MAX_VALUE</code></a></dd>
@@ -651,7 +653,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Parameters:</dt>
 <dd><code>suffix</code> - suffix data</dd>
 <dt>Returns:</dt>
-<dd>true if this instance starts with <code>suffix</code></dd>
+<dd>true if this instance ends with <code>suffix</code></dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>suffix</code> is null</dd>
 </dl>
@@ -661,7 +663,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <section class="detail" id="toByteArray()">
 <h3>toByteArray</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">byte[]</span>&nbsp;<span class="element-name">toByteArray</span>()</div>
-<div class="block">Obtain the data as a <code>byte[]</code> array.</div>
+<div class="block">Obtain the data in this instance as a <code>byte[]</code> array.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>byte[]</code> array containing a copy of this instance's data</dd>
@@ -673,13 +675,13 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <h3>writeTo</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">writeTo</span><wbr><span class="parameters">(byte[]&nbsp;dest,
  int&nbsp;off)</span></div>
-<div class="block">Write the data into a <code>byte[]</code> array.</div>
+<div class="block">Write the data in this instance into a <code>byte[]</code> array.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>dest</code> - destination for data</dd>
 <dd><code>off</code> - offset into <code>dest</code> to write</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>index</code> is out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>off</code> is invalid</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>dest</code> is null</dd>
 </dl>
 </section>
@@ -694,9 +696,8 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Parameters:</dt>
 <dd><code>output</code> - destination for data</dd>
 <dt>Throws:</dt>
-<dd><code>IOExeption</code> - if an I/O error occurs</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - if an I/O error occurs</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>output</code> is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code></dd>
 </dl>
 </section>
 </li>
@@ -709,7 +710,8 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Parameters:</dt>
 <dd><code>buf</code> - destination for data</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if the data goes out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/BufferOverflowException.html" title="class or interface in java.nio" class="external-link">BufferOverflowException</a></code> - if <code>buf</code> has insufficient space</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/ReadOnlyBufferException.html" title="class or interface in java.nio" class="external-link">ReadOnlyBufferException</a></code> - if <code>buf</code> is read only</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>buf</code> is null</dd>
 </dl>
 </section>
@@ -725,7 +727,9 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dd><code>buf</code> - destination for data</dd>
 <dd><code>index</code> - absolute index in <code>buf</code> at which to write the data</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if the data goes out of bounds</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/BufferOverflowException.html" title="class or interface in java.nio" class="external-link">BufferOverflowException</a></code> - if <code>buf</code> has insufficient space</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/ReadOnlyBufferException.html" title="class or interface in java.nio" class="external-link">ReadOnlyBufferException</a></code> - if <code>buf</code> is read only</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="external-link">IndexOutOfBoundsException</a></code> - if <code>index</code> is invalid</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>buf</code> is null</dd>
 </dl>
 </section>
@@ -738,8 +742,6 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="class or interface in java.lang" class="external-link">compareTo</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;<a href="ByteData.html" title="class in io.permazen.util">ByteData</a>&gt;</code></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>that</code> is null</dd>
 </dl>
 </section>
 </li>
@@ -757,6 +759,10 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">hashCode</span>()</div>
+<div class="block">Compute the hash code for this instance.
+
+ <p>
+ This returns the same hash code as <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Arrays.html#hashCode(byte%5B%5D)" title="class or interface in java.util" class="external-link"><code>Arrays.hashCode(byte[])</code></a> would on the result from <a href="#toByteArray()"><code>toByteArray()</code></a>.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -782,7 +788,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 </main>
 <footer role="contentinfo">
 <hr>
-<p class="legal-copy"><small>Copyright &#169; 2024. All rights reserved.</small></p>
+<p class="legal-copy"><small>Copyright &#169; 2025. All rights reserved.</small></p>
 </footer>
 </div>
 </div>
