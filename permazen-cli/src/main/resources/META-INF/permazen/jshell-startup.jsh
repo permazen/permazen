@@ -37,16 +37,16 @@ You can access the current io.permazen.cli.Session instance as "session", and th
 io.permazen.cli.jshell.PermazenJShellShellSession instance as "jshell".
 
 In this version of JShell, snippets execute in the context of an open Permazen transaction.
-By default, a new transaction is automatically created before and committed after each snippet
-execution. Alternatively, you may create "extended" transactions that remain open until you
-close them (these can also be branched transactions).
+By default, a new transaction is automatically created before, and committed after, each snippet
+execution, or rolled back if an exception is thrown. Alternatively, you may create "extended"
+transactions that remain open until you close them (these can also be branched transactions).
 
 Use these "commands" to manage extended transactions:
 
-  begin()     Open an extended transaction
-  branch()    Open a branched extended transaction
-  commit()    Commit the current transaction
-  rollback()  Abort the current transaction
+  begin()     Start a normal extended transaction
+  branch()    Start a branched extended transaction
+  commit()    Commit the current extended transaction
+  rollback()  Abort the current extended transaction (if any)
 
 As long as an extended transaction remains open, snippets will particiate in it.
 """);

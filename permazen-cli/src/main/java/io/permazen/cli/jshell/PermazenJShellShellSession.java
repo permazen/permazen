@@ -135,33 +135,41 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
 // Snippet Transactions
 
     /**
-     * Commit the current snippet transaction and open a new non-extended transaction.
+     * Commit the current extended snippet transaction and open a new non-extended transaction.
      *
      * <p>
      * This method is only intended to be invoked from JShell snippets.
      *
      * @throws IllegalStateException if there is no current snippet transaction
+     * @throws IllegalStateException if the current transaction is not an extended transaction
      */
     public void commit() {
-        this.endTransaction(true);
+        this.endTransaction(true, true);
         this.session.openTransaction(null, null);
     }
 
     /**
-     * Abort the current snippet transaction and open a new non-extended transaction.
+     * Abort the current extended snippet transaction, if any, and open a new non-extended transaction.
+     *
+     * <p>
+     * If there is no current extended snippet transaction, then this method does nothing.
      *
      * <p>
      * This method is only intended to be invoked from JShell snippets.
-     *
-     * @throws IllegalStateException if there is no current snippet transaction
      */
     public void rollback() {
-        this.endTransaction(false);
-        this.session.openTransaction(null, null);
+        if (this.session.hasTransaction() && this.extended) {
+            this.endTransaction(false, true);
+            this.session.openTransaction(null, null);
+        }
     }
 
-    private void endTransaction(boolean commit) {
+    private void endTransaction(boolean commit, boolean expectExtended) {
         Preconditions.checkState(this.session.hasTransaction(), "there is no current snippet transaction");
+        if (expectExtended)
+            Preconditions.checkState(this.extended, "the current snippet transaction is not an extended transaction");
+        else
+            Preconditions.checkState(!this.extended, "there is already an extended transaction open");
         this.extended = false;
         this.session.closeTransaction(commit);
     }
@@ -170,15 +178,14 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
      * Convert the current snippet transaction into an extended transaction.
      *
      * <p>
-     * If the current transaction is already extended, nothing happens.
-     *
-     * <p>
      * This method is only intended to be invoked from JShell snippets.
      *
      * @throws IllegalStateException if there is no current snippet transaction
+     * @throws IllegalStateException if the current transaction is already extended
      */
     public void begin() {
         Preconditions.checkState(this.session.hasTransaction(), "there is no current snippet transaction");
+        Preconditions.checkState(!this.extended, "there is already an extended transaction open");
         this.extended = true;
     }
 
@@ -189,6 +196,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
      * This method is only intended to be invoked from JShell snippets.
      *
      * @throws IllegalStateException if there is no current snippet transaction
+     * @throws IllegalStateException if the current transaction is already extended
      */
     public void branch() {
         this.branch(null, null);
@@ -203,9 +211,10 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
      * @param openOptions {@link KVDatabase}-specific transaction options for the branch's opening transaction, or null for none
      * @param syncOptions {@link KVDatabase}-specific transaction options for the branch's commit transaction, or null for none
      * @throws IllegalStateException if there is no current snippet transaction
+     * @throws IllegalStateException if the current transaction is already extended
      */
     public void branch(Map<String, ?> openOptions, Map<String, ?> syncOptions) {
-        this.endTransaction(true);
+        this.endTransaction(true, false);
         this.session.openBranchedTransaction(null, openOptions, syncOptions);
         this.extended = true;
     }
