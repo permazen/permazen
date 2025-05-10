@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.dellroad</groupId>
         <artifactId>dellroad-dependencies</artifactId>
-        <version>3.2.7.0</version>
+        <version>3.4.5.2</version>
     </parent>
     <groupId>io.permazen</groupId>
     <artifactId>permazen</artifactId>
