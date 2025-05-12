@@ -93,14 +93,14 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
  is evicted and a corresponding spurious notification occurs.
 
  <p>
- Instances can optionally be configured to only weakly reference the returned <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>'s.
+ Instances can optionally be configured to only weakly reference the returned <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>'s.
  This prevents memory leaks if the user of this class is sloppy and fails to <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Future.html#cancel(boolean)" title="class or interface in java.util.concurrent" class="external-link"><code>cancel()</code></a>
  them when no longer needed; however, it can also lead to missed notifications if the user of this class relies
- on the <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html#addListener(java.lang.Runnable,java.util.concurrent.Executor)" title="class or interface in com.google.common.util.concurrent" class="external-link">listener registration functionality</a> provided in the
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a> interface, because with a listener registration, there is no longer any need
- to directly reference the <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>, and so it may be reclaimed before firing. Therefore,
+ on the <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html#addListener(java.lang.Runnable,java.util.concurrent.Executor)" title="class or interface in com.google.common.util.concurrent" class="external-link">listener registration functionality</a> provided in the
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a> interface, because with a listener registration, there is no longer any need
+ to directly reference the <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>, and so it may be reclaimed before firing. Therefore,
  by default strong references are used.
- In any case, <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a> notifications are performed on a separate dedicated notification
+ In any case, <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a> notifications are performed on a separate dedicated notification
  thread to avoid re-entrancy issues.
 
  <p>
@@ -199,7 +199,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Count the number of keys being watched.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#register(io.permazen.util.ByteData)" class="member-name-link">register</a><wbr>(<a href="../../util/ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;key)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Register a new watch.</div>
@@ -321,7 +321,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Parameters:</dt>
 <dd><code>capacity</code> - maximum number of key watches allowed</dd>
 <dd><code>maxLifetime</code> - maximum lifetime for a key watch in seconds</dd>
-<dd><code>weakReferences</code> - true to only weakly reference registered <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>s</dd>
+<dd><code>weakReferences</code> - true to only weakly reference registered <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>s</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>capacity</code> or <code>maxLifetime</code> is zero or negative</dd>
 </dl>
@@ -338,7 +338,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <li>
 <section class="detail" id="register(io.permazen.util.ByteData)">
 <h3>register</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(<a href="../../util/ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(<a href="../../util/ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;key)</span></div>
 <div class="block">Register a new watch.
 
  <p>
@@ -348,7 +348,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <dt>Parameters:</dt>
 <dd><code>key</code> - the key to watch</dd>
 <dt>Returns:</dt>
-<dd>a <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a> that returns <code>key</code> when the value associated with <code>key</code> is modified</dd>
+<dd>a <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a> that returns <code>key</code> when the value associated with <code>key</code> is modified</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>key</code> is null</dd>
 </dl>

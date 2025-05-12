@@ -99,10 +99,10 @@ loadScripts(document, 'script');</script>
 
  <p>
  This class provides a convenient way to implement custom <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a>s when the target values can be converted
- into some other form for which another <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> (the "delegate") already exists. A Guava <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>
+ into some other form for which another <a href="Encoding.html" title="interface in io.permazen.encoding"><code>Encoding</code></a> (the "delegate") already exists. A Guava <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a>
  converts values between the type supported by this encoding and the type supported by the delegate encoding.
- It's <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html#convert(A)" title="class or interface in com.google.common.base" class="external-link"><code>convert()</code></a> method must throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> if an unsupported
- value is encountered. The <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> should be <i>non-lossy</i> when supported values are round-tripped.
+ It's <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html#convert(A)" title="class or interface in com.google.common.base" class="external-link"><code>convert()</code></a> method must throw <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> if an unsupported
+ value is encountered. The <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> should be <i>non-lossy</i> when supported values are round-tripped.
 
  <p>
  This encoding will sort values in the same order as the delegate sorts the corresponding converted values.
@@ -116,7 +116,7 @@ loadScripts(document, 'script');</script>
  therefore want to override <a href="#toString(T)"><code>toString()</code></a> and <a href="#fromString(java.lang.String)"><code>fromString()</code></a>.
 
  <p>
- The <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> must be <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a> in order for an instance of this class to also be
+ The <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link"><code>Converter</code></a> must be <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a> in order for an instance of this class to also be
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link"><code>Serializable</code></a>.</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -138,7 +138,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>protected final <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</code></div>
+<div class="col-first even-row-color"><code>protected final <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#converter" class="member-name-link">converter</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected final <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</code></div>
@@ -162,9 +162,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Primary constructor.</div>
@@ -172,17 +172,17 @@ loadScripts(document, 'script');</script>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,io.permazen.encoding.Encoding,com.google.common.base.Converter)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</code></div>
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Convenience constructor for when the new <a href="ConvertedEncoding.html" title="class in io.permazen.encoding"><code>ConvertedEncoding</code></a> does not sort naturally.</div>
 </div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,java.lang.Class,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)" class="member-name-link">ConvertedEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
+<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 </div>
 </div>
 </section>
@@ -301,7 +301,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="converter">
 <h3>converter</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</span>&nbsp;<span class="element-name">converter</span></div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;</span>&nbsp;<span class="element-name">converter</span></div>
 </section>
 </li>
 </ul>
@@ -316,9 +316,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,io.permazen.encoding.Encoding,com.google.common.base.Converter,boolean)">
 <h3>ConvertedEncoding</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ConvertedEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</span></div>
 <div class="block">Primary constructor.</div>
 <dl class="notes">
@@ -339,9 +339,9 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ConvertedEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter,
  boolean&nbsp;sortsNaturally)</span></div>
-<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
+<div class="block">Convenience constructor taking <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link"><code>Class</code></a> instead of <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link"><code>TypeToken</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>encodingId</code> - encoding ID for this encoding, or null to be anonymous</dd>
@@ -360,7 +360,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ConvertedEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>&gt;&nbsp;type,
  <a href="Encoding.html" title="interface in io.permazen.encoding">Encoding</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;delegate,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</span></div>
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/base/Converter.html" title="class or interface in com.google.common.base" class="external-link">Converter</a>&lt;<a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">T</a>,<wbr><a href="ConvertedEncoding.html" title="type parameter in ConvertedEncoding">S</a>&gt;&nbsp;converter)</span></div>
 <div class="block">Convenience constructor for when the new <a href="ConvertedEncoding.html" title="class in io.permazen.encoding"><code>ConvertedEncoding</code></a> does not sort naturally.</div>
 <dl class="notes">
 <dt>Parameters:</dt>

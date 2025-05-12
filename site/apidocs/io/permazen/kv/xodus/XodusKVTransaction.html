@@ -374,7 +374,7 @@ implements <a href="../KVTransaction.html" title="interface in io.permazen.kv">K
 
  <p>
  Note: many <a href="../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementations actually return a
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>. However, listeners must not perform any
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>. However, listeners must not perform any
  long running or blocking operations. Also, because the semantics of <a href="../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> allow for
  the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
 

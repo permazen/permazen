@@ -120,7 +120,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <div class="col-first even-row-color"><code>protected final <a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a></code></div>
 <div class="col-second even-row-color"><code><a href="#encodingId" class="member-name-link">encodingId</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected final <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></div>
+<div class="col-first odd-row-color"><code>protected final <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></div>
 <div class="col-second odd-row-color"><code><a href="#typeToken" class="member-name-link">typeToken</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
@@ -139,13 +139,13 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.google.common.reflect.TypeToken)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;type)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.google.common.reflect.TypeToken)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;type)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor for anonymous encodings with no default value.</div>
 </div>
 <div class="col-first odd-row-color"><code>protected </code></div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,java.util.function.Supplier)" class="member-name-link">AbstractEncoding</a><wbr>(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;typeToken,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;defaultValueSupplier)</code></div>
 <div class="col-last odd-row-color">
 <div class="block">Constructor.</div>
@@ -194,7 +194,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the globally unique encoding ID that identifies this encoding, if any.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTypeToken()" class="member-name-link">getTypeToken</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the Java type corresponding to this encoding's values.</div>
@@ -240,7 +240,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <li>
 <section class="detail" id="typeToken">
 <h3>typeToken</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">typeToken</span></div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">typeToken</span></div>
 </section>
 </li>
 </ul>
@@ -255,7 +255,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <section class="detail" id="&lt;init&gt;(io.permazen.encoding.EncodingId,com.google.common.reflect.TypeToken,java.util.function.Supplier)">
 <h3>AbstractEncoding</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">AbstractEncoding</span><wbr><span class="parameters">(<a href="EncodingId.html" title="class in io.permazen.encoding">EncodingId</a>&nbsp;encodingId,
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;typeToken,
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;typeToken,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;? extends <a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;defaultValueSupplier)</span></div>
 <div class="block">Constructor.</div>
 <dl class="notes">
@@ -290,7 +290,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <li>
 <section class="detail" id="&lt;init&gt;(com.google.common.reflect.TypeToken)">
 <h3>AbstractEncoding</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">AbstractEncoding</span><wbr><span class="parameters">(<a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;type)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">AbstractEncoding</span><wbr><span class="parameters">(<a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;&nbsp;type)</span></div>
 <div class="block">Constructor for anonymous encodings with no default value.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -344,7 +344,7 @@ implements <a href="Encoding.html" title="interface in io.permazen.encoding">Enc
 <li>
 <section class="detail" id="getTypeToken()">
 <h3>getTypeToken</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">getTypeToken</span>()</div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/reflect/TypeToken.html" title="class or interface in com.google.common.reflect" class="external-link">TypeToken</a>&lt;<a href="AbstractEncoding.html" title="type parameter in AbstractEncoding">T</a>&gt;</span>&nbsp;<span class="element-name">getTypeToken</span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="Encoding.html#getTypeToken()">Encoding</a></code></span></div>
 <div class="block">Get the Java type corresponding to this encoding's values.</div>
 <dl class="notes">

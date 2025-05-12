@@ -155,7 +155,7 @@ implements <a href="../../KVTransaction.html" title="interface in io.permazen.kv
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#watchKey(io.permazen.util.ByteData)" class="member-name-link">watchKey</a><wbr>(<a href="../../../util/ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;key)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Watch a key to monitor for changes in its value.</div>
@@ -243,7 +243,7 @@ implements <a href="../../KVTransaction.html" title="interface in io.permazen.kv
 <li>
 <section class="detail" id="watchKey(io.permazen.util.ByteData)">
 <h3>watchKey</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">watchKey</span><wbr><span class="parameters">(<a href="../../../util/ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link">ListenableFuture</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">watchKey</span><wbr><span class="parameters">(<a href="../../../util/ByteData.html" title="class in io.permazen.util">ByteData</a>&nbsp;key)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="../../KVTransaction.html#watchKey(io.permazen.util.ByteData)">KVTransaction</a></code></span></div>
 <div class="block">Watch a key to monitor for changes in its value.
 
@@ -285,7 +285,7 @@ implements <a href="../../KVTransaction.html" title="interface in io.permazen.kv
 
  <p>
  Note: many <a href="../../KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a> implementations actually return a
- <a href="https://guava.dev/releases/33.2.1-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>. However, listeners must not perform any
+ <a href="https://guava.dev/releases/33.4.8-jre/api/docs/com/google/common/util/concurrent/ListenableFuture.html" title="class or interface in com.google.common.util.concurrent" class="external-link"><code>ListenableFuture</code></a>. However, listeners must not perform any
  long running or blocking operations. Also, because the semantics of <a href="../../RetryKVTransactionException.html" title="class in io.permazen.kv"><code>RetryKVTransactionException</code></a> allow for
  the possibility that the transaction actually did commit, "duplicate" listener notifications could occur.
 

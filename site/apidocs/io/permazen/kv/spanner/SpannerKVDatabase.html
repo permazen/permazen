@@ -119,8 +119,8 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
  <p>
  In Spring applications, the transaction consistency level may be configured through the Spring
  <a href="../../spring/PermazenTransactionManager.html" title="class in io.permazen.spring"><code>PermazenTransactionManager</code></a> by (ab)using the transaction isolation level setting,
- for example, via the <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation's
- <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Transactional.html#isolation()" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>isolation()</code></a> property:
+ for example, via the <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation's
+ <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Transactional.html#isolation()" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>isolation()</code></a> property:
 
  <div style="margin-left: 20px;">
  <table class="striped">
@@ -130,23 +130,23 @@ implements <a href="../KVDatabase.html" title="interface in io.permazen.kv">KVDa
   <th style="font-weight: bold; text-align: left"><a href="SpannerKVDatabase.html" title="class in io.permazen.kv.spanner"><code>SpannerKVDatabase</code></a> consistency level</th>
  </tr>
  <tr>
-  <td><a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Isolation.html#DEFAULT" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>DEFAULT</code></a></td>
+  <td><a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Isolation.html#DEFAULT" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>DEFAULT</code></a></td>
   <td>Strong consistency</td>
  </tr>
  <tr>
-  <td><a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Isolation.html#SERIALIZABLE" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>SERIALIZABLE</code></a></td>
+  <td><a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Isolation.html#SERIALIZABLE" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>SERIALIZABLE</code></a></td>
   <td>Strong consistency</td>
  </tr>
  <tr>
-  <td><a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Isolation.html#READ_COMMITTED" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>READ_COMMITTED</code></a></td>
+  <td><a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Isolation.html#READ_COMMITTED" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>READ_COMMITTED</code></a></td>
   <td>Exact staleness of ten seconds</td>
  </tr>
  <tr>
-  <td><a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Isolation.html#REPEATABLE_READ" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>REPEATABLE_READ</code></a></td>
+  <td><a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Isolation.html#REPEATABLE_READ" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>REPEATABLE_READ</code></a></td>
   <td>Exact staleness of three seconds</td>
  </tr>
  <tr>
-  <td><a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Isolation.html#READ_UNCOMMITTED" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>READ_UNCOMMITTED</code></a></td>
+  <td><a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Isolation.html#READ_UNCOMMITTED" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>READ_UNCOMMITTED</code></a></td>
   <td>N/A</td>
  </tr>
  </table>

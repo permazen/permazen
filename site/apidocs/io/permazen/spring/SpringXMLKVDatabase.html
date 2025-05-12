@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SpringXMLKVDatabase</span>
 <span class="extends-implements">extends <a href="../kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple">XMLKVDatabase</a></span></div>
-<div class="block"><a href="../kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.
+<div class="block"><a href="../kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.
  For example, this allows initial content to be loaded from the classpath.
 
  <p>
@@ -153,12 +153,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInitialContentFile(java.io.File)" class="member-name-link">setInitialContentFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link">File</a>&nbsp;initialContentFile)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database from the specified file.</div>
+<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database from the specified file.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInitialContentResource(org.springframework.core.io.Resource)" class="member-name-link">setInitialContentResource</a><wbr>(<a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link">Resource</a>&nbsp;initialContentResource)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInitialContentResource(org.springframework.core.io.Resource)" class="member-name-link">setInitialContentResource</a><wbr>(<a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link">Resource</a>&nbsp;initialContentResource)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database.</div>
+<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database.</div>
 </div>
 </div>
 </div>
@@ -220,8 +220,8 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="setInitialContentResource(org.springframework.core.io.Resource)">
 <h3>setInitialContentResource</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setInitialContentResource</span><wbr><span class="parameters">(<a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link">Resource</a>&nbsp;initialContentResource)</span></div>
-<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database. This method is invoked
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setInitialContentResource</span><wbr><span class="parameters">(<a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link">Resource</a>&nbsp;initialContentResource)</span></div>
+<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database. This method is invoked
  by <a href="#getInitialContent()"><code>getInitialContent()</code></a> when, on the first load, the backing XML file is not found.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -233,7 +233,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setInitialContentFile(java.io.File)">
 <h3>setInitialContentFile</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setInitialContentFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/File.html" title="class or interface in java.io" class="external-link">File</a>&nbsp;initialContentFile)</span></div>
-<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database from the specified file.</div>
+<div class="block">Configure the <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a> containing default initial content for an uninitialized database from the specified file.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../kv/simple/XMLKVDatabase.html#setInitialContentFile(java.io.File)">setInitialContentFile</a></code>&nbsp;in class&nbsp;<code><a href="../kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple">XMLKVDatabase</a></code></dd>
@@ -252,7 +252,7 @@ loadScripts(document, 'script');</script>
  if any, otherwise null.
 
  <p>
- The implementation in <a href="SpringXMLKVDatabase.html" title="class in io.permazen.spring"><code>SpringXMLKVDatabase</code></a> returns an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link"><code>InputStream</code></a> acquired from the <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>
+ The implementation in <a href="SpringXMLKVDatabase.html" title="class in io.permazen.spring"><code>SpringXMLKVDatabase</code></a> returns an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link"><code>InputStream</code></a> acquired from the <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>
  configured by <a href="#setInitialContentResource(org.springframework.core.io.Resource)"><code>setInitialContentResource()</code></a>, if any, otherwise null.</div>
 <dl class="notes">
 <dt>Overrides:</dt>

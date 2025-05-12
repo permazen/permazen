@@ -75,7 +75,7 @@ loadScripts(document, 'script');</script>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/DirectExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">jdk.jshell.execution.DirectExecutionControl</a>
 <div class="inheritance"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">jdk.jshell.execution.LocalExecutionControl</a>
-<div class="inheritance">org.dellroad.jct.jshell.LocalContextExecutionControl
+<div class="inheritance">org.dellroad.javabox.execution.LocalContextExecutionControl
 <div class="inheritance">io.permazen.cli.jshell.PermazenExecutionControl</div>
 </div>
 </div>
@@ -88,7 +88,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PermazenExecutionControl</span>
-<span class="extends-implements">extends org.dellroad.jct.jshell.LocalContextExecutionControl</span></div>
+<span class="extends-implements">extends org.dellroad.javabox.execution.LocalContextExecutionControl</span></div>
 <div class="block">Permazen-aware <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link"><code>LocalExecutionControl</code></a>.
 
  <p>
@@ -138,14 +138,15 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#enterContext()" class="member-name-link">enterContext</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#leaveContext(boolean)" class="member-name-link">leaveContext</a><wbr>(boolean&nbsp;success)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#leaveContext(java.lang.Object,java.lang.Throwable)" class="member-name-link">leaveContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;returnValue,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;error)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-org.dellroad.jct.jshell.LocalContextExecutionControl">Methods inherited from class&nbsp;org.dellroad.jct.jshell.LocalContextExecutionControl</h3>
-<code>decodeWithContext, invoke, invokeWithContext, invokeWrapper</code></div>
+<h3 id="methods-inherited-from-class-org.dellroad.javabox.execution.LocalContextExecutionControl">Methods inherited from class&nbsp;org.dellroad.javabox.execution.LocalContextExecutionControl</h3>
+<code>invoke, invokeWithContext, invokeWrapper, valueStringWithContext</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-jdk.jshell.execution.LocalExecutionControl">Methods inherited from class&nbsp;jdk.jshell.execution.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html" title="class or interface in jdk.jshell.execution" class="external-link">LocalExecutionControl</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#clientCodeEnter()" title="class or interface in jdk.jshell.execution" class="external-link">clientCodeEnter</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#clientCodeLeave()" title="class or interface in jdk.jshell.execution" class="external-link">clientCodeLeave</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/jdk.jshell/jdk/jshell/execution/LocalExecutionControl.html#stop()" title="class or interface in jdk.jshell.execution" class="external-link">stop</a></code></div>
@@ -191,17 +192,18 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">enterContext</span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code>enterContext</code>&nbsp;in class&nbsp;<code>org.dellroad.jct.jshell.LocalContextExecutionControl</code></dd>
+<dd><code>enterContext</code>&nbsp;in class&nbsp;<code>org.dellroad.javabox.execution.LocalContextExecutionControl</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="leaveContext(boolean)">
+<section class="detail" id="leaveContext(java.lang.Object,java.lang.Throwable)">
 <h3>leaveContext</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">leaveContext</span><wbr><span class="parameters">(boolean&nbsp;success)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">leaveContext</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;returnValue,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;error)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code>leaveContext</code>&nbsp;in class&nbsp;<code>org.dellroad.jct.jshell.LocalContextExecutionControl</code></dd>
+<dd><code>leaveContext</code>&nbsp;in class&nbsp;<code>org.dellroad.javabox.execution.LocalContextExecutionControl</code></dd>
 </dl>
 </section>
 </li>

@@ -165,7 +165,7 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commit()" class="member-name-link">commit</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Commit the current snippet transaction and open a new non-extended transaction.</div>
+<div class="block">Commit the current extended snippet transaction and open a new non-extended transaction.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doExecute()" class="member-name-link">doExecute</a>()</code></div>
@@ -188,7 +188,7 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#leaveTransaction(boolean)" class="member-name-link">leaveTransaction</a><wbr>(boolean&nbsp;success)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Invoked by <a href="PermazenExecutionControl.html#leaveContext(boolean)"><code>PermazenExecutionControl.leaveContext(boolean)</code></a> to commit or leave the snippet transaction.</div>
+<div class="block">Invoked by <a href="PermazenExecutionControl.html#leaveContext(java.lang.Object,java.lang.Throwable)"><code>PermazenExecutionControl.leaveContext(java.lang.Object, java.lang.Throwable)</code></a> to commit or leave the snippet transaction.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#modifyJShellParams(java.util.List)" class="member-name-link">modifyJShellParams</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;params)</code></div>
@@ -201,7 +201,7 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rollback()" class="member-name-link">rollback</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Abort the current snippet transaction and open a new non-extended transaction.</div>
+<div class="block">Abort the current extended snippet transaction, if any, and open a new non-extended transaction.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRunStandardStartup(boolean)" class="member-name-link">setRunStandardStartup</a><wbr>(boolean&nbsp;runStandardStartup)</code></div>
@@ -344,13 +344,14 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <section class="detail" id="commit()">
 <h3>commit</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">commit</span>()</div>
-<div class="block">Commit the current snippet transaction and open a new non-extended transaction.
+<div class="block">Commit the current extended snippet transaction and open a new non-extended transaction.
 
  <p>
  This method is only intended to be invoked from JShell snippets.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the current transaction is not an extended transaction</dd>
 </dl>
 </section>
 </li>
@@ -358,14 +359,13 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <section class="detail" id="rollback()">
 <h3>rollback</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">rollback</span>()</div>
-<div class="block">Abort the current snippet transaction and open a new non-extended transaction.
+<div class="block">Abort the current extended snippet transaction, if any, and open a new non-extended transaction.
+
+ <p>
+ If there is no current extended snippet transaction, then this method does nothing.
 
  <p>
  This method is only intended to be invoked from JShell snippets.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -375,13 +375,11 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <div class="block">Convert the current snippet transaction into an extended transaction.
 
  <p>
- If the current transaction is already extended, nothing happens.
-
- <p>
  This method is only intended to be invoked from JShell snippets.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the current transaction is already extended</dd>
 </dl>
 </section>
 </li>
@@ -396,6 +394,7 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the current transaction is already extended</dd>
 </dl>
 </section>
 </li>
@@ -414,6 +413,7 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <dd><code>syncOptions</code> - <a href="../../kv/KVDatabase.html" title="interface in io.permazen.kv"><code>KVDatabase</code></a>-specific transaction options for the branch's commit transaction, or null for none</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the current transaction is already extended</dd>
 </dl>
 </section>
 </li>
@@ -433,8 +433,10 @@ implements <a href="../HasPermazenSession.html" title="interface in io.permazen.
 <section class="detail" id="leaveTransaction(boolean)">
 <h3>leaveTransaction</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">leaveTransaction</span><wbr><span class="parameters">(boolean&nbsp;success)</span></div>
-<div class="block">Invoked by <a href="PermazenExecutionControl.html#leaveContext(boolean)"><code>PermazenExecutionControl.leaveContext(boolean)</code></a> to commit or leave the snippet transaction.</div>
+<div class="block">Invoked by <a href="PermazenExecutionControl.html#leaveContext(java.lang.Object,java.lang.Throwable)"><code>PermazenExecutionControl.leaveContext(java.lang.Object, java.lang.Throwable)</code></a> to commit or leave the snippet transaction.</div>
 <dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>succes</code> - true to commit transaction, false to rollback</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is no current snippet transaction</dd>
 </dl>

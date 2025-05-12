@@ -75,13 +75,13 @@ loadScripts(document, 'script');</script>
  <a href="http://projects.spring.io/spring-framework/">Spring</a>:
  <ul>
   <li>Custom XML tags for Spring declarative XML (see below)</li>
-  <li>A Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link"><code>PlatformTransactionManager</code></a> that integrates
+  <li>A Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link"><code>PlatformTransactionManager</code></a> that integrates
       into Spring's transaction infrastructure and enables the
-      <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation for
+      <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation for
       <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> transactions.</li>
-  <li>A <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a>
+  <li>A <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a>
       <a href="PermazenExceptionTranslator.html" title="class in io.permazen.spring">implementation</a> suitable for use with Permazen</li>
-  <li>Various <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>'s that bring Permazen's encoding,
+  <li>Various <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>'s that bring Permazen's encoding,
       indexing, and schema management features to data being sent over a network:
       <ul>
       <li><a href="KVStoreHttpMessageConverter.html" title="class in io.permazen.spring"><code>KVStoreHttpMessageConverter</code></a> for encoding/decoding a raw
@@ -146,7 +146,7 @@ loadScripts(document, 'script');</script>
 
  <p>
  An example Spring XML configuration using an in-memory key/value store and supporting Spring's
- <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation:
+ <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a> annotation:
  <pre><code class="language-xml">
  &lt;beans xmlns="http://www.springframework.org/schema/beans"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -217,13 +217,13 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="DetachedPermazenTransactionHttpMessageConverter.html" title="class in io.permazen.spring">DetachedPermazenTransactionHttpMessageConverter</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
  encoding and decoding a graph of <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a> that is
  backed by a <a href="../kv/util/MemoryKVStore.html" title="class in io.permazen.kv.util"><code>MemoryKVStore</code></a>.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="KVStoreHttpMessageConverter.html" title="class in io.permazen.spring">KVStoreHttpMessageConverter</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a>
  capable of encoding and decoding a <a href="../kv/KVStore.html" title="interface in io.permazen.kv"><code>KVStore</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenClassScanner.html" title="class in io.permazen.spring">PermazenClassScanner</a></div>
@@ -232,33 +232,33 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenExceptionTranslator.html" title="class in io.permazen.spring">PermazenExceptionTranslator</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Permazen implementation of Spring's <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a> interface.</div>
+<div class="block">Permazen implementation of Spring's <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html" title="class or interface in org.springframework.dao.support" class="external-link"><code>PersistenceExceptionTranslator</code></a> interface.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenNamespaceHandler.html" title="class in io.permazen.spring">PermazenNamespaceHandler</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link"><code>NamespaceHandler</code></a>
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html" title="class or interface in org.springframework.beans.factory.xml" class="external-link"><code>NamespaceHandler</code></a>
  for the <code>permazen</code> XML namespace.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenObjectHttpMessageConverter.html" title="class in io.permazen.spring">PermazenObjectHttpMessageConverter</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
+<div class="block">Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html" title="class or interface in org.springframework.http.converter" class="external-link"><code>HttpMessageConverter</code></a> capable of
  encoding and decoding one or more <a href="../PermazenObject.html" title="interface in io.permazen"><code>PermazenObject</code></a>s contained in a <a href="../DetachedPermazenTransaction.html" title="class in io.permazen"><code>DetachedPermazenTransaction</code></a>.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PermazenTransactionManager.html" title="class in io.permazen.spring">PermazenTransactionManager</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Permazen implementation of Spring's
- <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link"><code>PlatformTransactionManager</code></a> interface,
- allowing methods annotated with Spring's <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a>
+ <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/PlatformTransactionManager.html" title="class or interface in org.springframework.transaction" class="external-link"><code>PlatformTransactionManager</code></a> interface,
+ allowing methods annotated with Spring's <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/annotation/Transactional.html" title="class or interface in org.springframework.transaction.annotation" class="external-link"><code>&#64;Transactional</code></a>
  annotation to perform transactions on a <a href="../Permazen.html" title="class in io.permazen"><code>Permazen</code></a> database.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="PermazenTransactionManager.TransactionSynchronizationCallback.html" title="class in io.permazen.spring">PermazenTransactionManager.TransactionSynchronizationCallback</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Adapter class that wraps a Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html" title="class or interface in org.springframework.transaction.support" class="external-link"><code>TransactionSynchronization</code></a> in the
+<div class="block">Adapter class that wraps a Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html" title="class or interface in org.springframework.transaction.support" class="external-link"><code>TransactionSynchronization</code></a> in the
  <a href="../core/Transaction.Callback.html" title="interface in io.permazen.core"><code>Transaction.Callback</code></a> interface.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SpringXMLKVDatabase.html" title="class in io.permazen.spring">SpringXMLKVDatabase</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block"><a href="../kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.1.10/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.</div>
+<div class="block"><a href="../kv/simple/XMLKVDatabase.html" title="class in io.permazen.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="https://docs.spring.io/spring-framework/docs/6.2.6/javadoc-api/org/springframework/core/io/Resource.html" title="class or interface in org.springframework.core.io" class="external-link"><code>Resource</code></a>.</div>
 </div>
 </div>
 </div>
