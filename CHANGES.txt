@@ -1,4 +1,4 @@
-Version 5.2.0 Released May 10, 2025
+Version 5.2.0 Released May 12, 2025
 
     - Update LMDB to fix failure to run on ARM architecture.
     - Removed dependency of permazen-encoding on permazen-kv.
