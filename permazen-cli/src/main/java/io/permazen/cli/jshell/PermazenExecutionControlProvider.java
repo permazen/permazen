@@ -7,8 +7,8 @@ package io.permazen.cli.jshell;
 
 import io.permazen.util.ApplicationClassLoader;
 
-import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
-import org.dellroad.jct.jshell.MemoryLoaderDelegate;
+import org.dellroad.javabox.execution.LocalContextExecutionControlProvider;
+import org.dellroad.javabox.execution.MemoryLoaderDelegate;
 import org.dellroad.stuff.java.MemoryClassLoader;
 
 /**

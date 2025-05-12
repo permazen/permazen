@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.dellroad.javabox.execution.LocalContextExecutionControlProvider;
 import org.dellroad.jct.jshell.JShellShellSession;
-import org.dellroad.jct.jshell.LocalContextExecutionControlProvider;
 
 /**
  * A version of the JCT {@link JShellShellSession} that is Permazen aware.
@@ -245,6 +245,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     /**
      * Invoked by {@link PermazenExecutionControl#leaveContext} to commit or leave the snippet transaction.
      *
+     * @param succes true to commit transaction, false to rollback
      * @throws IllegalStateException if there is no current snippet transaction
      */
     protected void leaveTransaction(boolean success) {

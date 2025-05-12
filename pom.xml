@@ -88,6 +88,7 @@
 
         <!-- Override the setting in dellroad-dependencies -->
         <permazen.version>${project.version}</permazen.version>
+        <biz-aqute-bnd.version>7.1.0</biz-aqute-bnd.version>
 
         <!-- Versions for dependencies used by multiple modules -->
         <testng.version>7.7.1</testng.version>
@@ -254,11 +255,12 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- JOpt-Simple -->
+            <!-- Whatever this is -->
             <dependency>
-                <groupId>net.sf.jopt-simple</groupId>
-                <artifactId>jopt-simple</artifactId>
-                <version>${jopt-simple.version}</version>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>biz.aQute.bnd.annotation</artifactId>
+                <version>${biz-aqute-bnd.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- TestNG -->

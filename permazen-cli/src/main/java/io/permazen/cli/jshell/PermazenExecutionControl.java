@@ -12,7 +12,7 @@ import io.permazen.cli.Session;
 import jdk.jshell.execution.LoaderDelegate;
 import jdk.jshell.execution.LocalExecutionControl;
 
-import org.dellroad.jct.jshell.LocalContextExecutionControl;
+import org.dellroad.javabox.execution.LocalContextExecutionControl;
 
 /**
  * Permazen-aware {@link LocalExecutionControl}.
@@ -48,7 +48,7 @@ public class PermazenExecutionControl extends LocalContextExecutionControl {
     }
 
     @Override
-    protected void leaveContext(boolean success) {
-        this.session.leaveTransaction(success);
+    protected void leaveContext(Object returnValue, Throwable error) {
+        this.session.leaveTransaction(error == null);
     }
 }

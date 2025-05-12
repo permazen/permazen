@@ -28,6 +28,10 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
         </dependency>
@@ -42,6 +46,10 @@
         <dependency>
             <groupId>org.dellroad</groupId>
             <artifactId>java-console-toolkit-jshell</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dellroad</groupId>
+            <artifactId>javabox-execution</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
