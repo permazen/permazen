@@ -31,18 +31,20 @@ import java.util.function.Consumer;
 import org.dellroad.stuff.spring.RetryTransactionProvider;
 
 /**
- * A {@link KVTransaction} that is based on a snapshot from an original {@link KVTransaction} and that can, at some arbitrary
- * later time, be merged back into a new {@link KVTransaction} from the same database, assuming no conflicting changes
- * have occurred in the meantime.
+ * An in-memory {@link KVTransaction} that is based on a {@link KVTransaction#readOnlySnapshot readOnlySnapshot()} of some
+ * original {@link KVTransaction} and that can, after an arbitrary amount of time has passed and changes have been made, be
+ * commited back to the database within a new {@link KVTransaction}, as long as no conflicting changes have been written
+ * to the databse since the original transaction.
  *
  * <p>
  * In effect, this class gives the appearance of a regular {@link KVTransaction} that can stay open for an arbitrarily long time,
- * with the same consistency guarantees as a normal single transaction. It can be useful in certain scenarios, for example,
- * to support editing an entity in a GUI application where the user may take several minutes to complete a form, while also
- * ensuring that everything the user sees while editing the form is still up to date when the form is actually submitted.
+ * detached from the database, and still be committed with the same consistency guarantees as a normal transaction. It can be
+ * useful in certain scenarios, for example, to support editing an entity in a GUI application where the user could take several
+ * minutes to complete a form, while also ensuring that everything the user sees while editing the form is still up to date when
+ * the form is actually submitted.
  *
  * <p>
- * Instances support {@link #readOnlySnapshot} and {@link #withWeakConsistency withWeakConsistency()}.
+ * Instances themselves support {@link #readOnlySnapshot} and {@link #withWeakConsistency withWeakConsistency()}.
  *
  * <p>
  * Instances do not support {@link #setTimeout setTimeout()} or {@link #watchKey watchKey()}.
@@ -54,12 +56,12 @@ import org.dellroad.stuff.spring.RetryTransactionProvider;
  * a {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database taken, and then that transaction is immediately closed.
  * Reads and writes in this transaction are then tracked and kept entirely in memory; no regular transaction remains open.
  * Later, when this transaction is {@link #commit}'ed, a new regular database transaction is opened, a conflict check is
- * performed (to determine whether any of the keys read by this transaction have since changed), and then if there are no
- * conflicts, all of this transaction's accumulated writes are applied; otherwise, {@link TransactionConflictException} is thrown.
+ * performed (to determine whether any of the keys read by this transaction have since changed), and if there are no conflicts,
+ * all of this transaction's accumulated writes are applied; otherwise, {@link TransactionConflictException} is thrown.
  *
  * <p>
- * The conflict check can also be performed on demand at any time while leaving this transaction open via
- * {@link #checkForConflicts()}.
+ * The conflict check can also be performed on demand at any time (based on all keys read so far) while leaving this transaction
+ * open via {@link #checkForConflicts()}.
  *
  * <p>
  * Because open instances retain an underlying snaphot which consumes resources, callers should ensure that instances are always
