@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@link #nulls} is irrelevant and ignored, so {@link #nonNulls} by itself matches all values.
  *
  * <p>
- * It is an error to combine {@link #nonNulls} with {@link #value}, as that would be redundant.
+ * It is an error to combine {@link #nonNulls} with {@link #value} and/or {@link #ranges}, because that would be redundant.
  *
  * @see PermazenField#uniqueExcludes
  * @see PermazenCompositeIndex#uniqueExcludes

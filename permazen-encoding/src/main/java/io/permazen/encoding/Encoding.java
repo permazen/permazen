@@ -197,7 +197,8 @@ public interface Encoding<T> extends Comparator<T>, NaturalSortAware, Serializab
      * {@code encoding.}{@link #toString(Object) toString(value)} to convert {@code value} into a {@link String}, and then
      * attempts to parse that string via {@code this.}{@link #fromString fromString()}; if the parse fails,
      * an {@link IllegalArgumentException} is thrown. Note this means that any value will convert successfully
-     * to a {@link String}, as long as it doesn't contain an invalid escape sequence (see {@link StringEncoding#toString}).
+     * to a {@link String}, as long as it doesn't contain an invalid escape sequence (see
+     * {@link StringEncoding#toString StringEncoding.toString()}).
      *
      * <p>
      * If {@code value} is null, the implementation in {@link Encoding} returns null, unless this encoding does not support

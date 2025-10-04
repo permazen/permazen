@@ -85,7 +85,7 @@ import org.slf4j.LoggerFactory;
  *      It sits on top of the core API layer and provides a fully "Java" view of the underlying data where all data access
  *      is through user-supplied Java model classes. All schema definition and listener registrations are inferred from
  *      {@linkplain io.permazen.annotation Java annotations}. Incremental JSR 303 validation is supported.
- *      The {@link Permazen} class represents an instance of this top layer database, and {@link PermazenTransaction}
+ *      This {@link Permazen} class represents an instance of this top layer database, and {@link PermazenTransaction}
  *      represents the corresonding transactions.</li>
  *  </ul>
  *
@@ -127,7 +127,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Branched transactions behave like normal transactions, but internally they are constructed from two separate
  * key/value transactions, one that occurs when the branched transaction is opened and one that occurs at commit time.
- * When a branched transaction is opened, the first key/value transaction is opened just long enoughh to create a read-only
+ * When a branched transaction is opened, the first key/value transaction is opened just long enough to create a read-only
  * {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database and then closed. The branched transaction then
  * operates entirely in memory, based on the snapshot, and it keeps track of all keys read and written. At commit time,
  * a new key/value transaction is opened and a conflict check is performed. If successful, the accumulated writes are
