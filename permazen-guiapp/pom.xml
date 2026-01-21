@@ -21,7 +21,7 @@
     </distributionManagement>
     <properties>
         <automatic.module.name>io.permazen.guiapp</automatic.module.name>
-        <jetty.version>9.4.49.v20220914</jetty.version>
+        <jetty.version>9.4.51.v20230217</jetty.version>
     </properties>
     <dependencies>
         <dependency>
