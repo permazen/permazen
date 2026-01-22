@@ -124,7 +124,7 @@ import org.slf4j.LoggerFactory;
  * Indexes may be added and removed across different schemas without losing information, however,
  * indexes will only contain those objects whose schema includes the index. In other words, it's not
  * possible to find an object using an index that was added after the object was created until the object
- * is migrated to a newer schema. The same principle applies to other schema-defined behavior, for example,
+ * is migrated to the newer schema. The same principle applies to other schema-defined behavior, for example,
  * the {@link DeleteAction} taken when a referenced object is deleted depends on the {@link DeleteAction}
  * configured in the schema of the object containing the reference.
  *

@@ -40,8 +40,8 @@ import org.dellroad.stuff.spring.RetryTransactionProvider;
  * In effect, this class gives the appearance of a regular {@link KVTransaction} that can stay open for an arbitrarily long time,
  * detached from the database, and still be committed with the same consistency guarantees as a normal transaction. It can be
  * useful in certain scenarios, for example, to support editing an entity in a GUI application where the user could take several
- * minutes to complete a form, while also ensuring that everything the user sees while editing the form is still up to date when
- * the form is actually submitted.
+ * minutes to complete a form, while also ensuring that everything the user sees while editing the form is still up to date at
+ * the time the form is actually submitted.
  *
  * <p>
  * Instances themselves support {@link #readOnlySnapshot} and {@link #withWeakConsistency withWeakConsistency()}.
@@ -52,8 +52,8 @@ import org.dellroad.stuff.spring.RetryTransactionProvider;
  * <p><b>Transaction Management</b></p>
  *
  * <p>
- * New instances must be explicitly opened via {@link #open}. At that time a regular database transaction is opened,
- * a {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database taken, and then that transaction is immediately closed.
+ * New instances must be explicitly opened via {@link #open}. At that time a regular database transaction is opened, a read-only
+ * {@linkplain KVTransaction#readOnlySnapshot snapshot} of the database taken, and then that transaction is immediately closed.
  * Reads and writes in this transaction are then tracked and kept entirely in memory; no regular transaction remains open.
  * Later, when this transaction is {@link #commit}'ed, a new regular database transaction is opened, a conflict check is
  * performed (to determine whether any of the keys read by this transaction have since changed), and if there are no conflicts,

@@ -109,16 +109,16 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Reference cascades allow you to define an arbitrary graph of objects by specifying the reference fields that constitute
- * the edges of the graph. Reference cascades are identified by name, and a reference field is included in a reference cascade
+ * the edges in the graph. Reference cascades are identified by name, and a reference field is included in a reference cascade
  * when that name appears in {@link #forwardCascades} and/or {@link #inverseCascades}. Reference fields in reference cascades
- * can be traversed in either the forward or reverse directions.
+ * can be traversed in either the forward or reverse direction.
  *
  * <p>
  * For example, the {@link PermazenObject} methods {@link PermazenObject#copyIn copyIn()},
  * {@link PermazenObject#copyOut copyOut()}, and {@link PermazenObject#copyTo copyTo()}
  * copy a graph of related objects between transactions by first copying a starting object and then cascading through matching
  * reference fields, repeating recursively. There is also {@link PermazenTransaction#cascade PermazenTransaction.cascade()} which
- * performs a general purpose cascade exploration and returns the corresponding set of objects.
+ * performs a general purpose cascade exploration and returns the corresponding set of objects found.
  *
  * <p>
  * Which reference fields are traversed in a particular find or copy operation is determined by the supplied <i>cascade name</i>.

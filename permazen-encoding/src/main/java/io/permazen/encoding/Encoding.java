@@ -54,7 +54,7 @@ import java.util.OptionalInt;
  *  <li>All values, including null if supported, can be encoded/decoded into a self-delimiting binary string without
  *      losing information (see {@link #read read()} and {@link #write write()}). Moreover, these binary strings,
  *      when sorted lexicographically as unsigned values, sort consistently with {@link #compare compare()}.
- *  <li>An {@link Encoding}'s string and binary encodings and sort ordering is guaranteed to <i>never change</i>, unless the
+ *  <li>An {@link Encoding}'s string and binary encodings and sort ordering are guaranteed to <i>never change</i>, unless the
  *      {@link EncodingId} is also changed, which effectively defines a new encoding (in such scenarios, automatic schema
  *      migration is possible by adding the appropriate logic to {@link #convert convert()}).
  * </ul>
