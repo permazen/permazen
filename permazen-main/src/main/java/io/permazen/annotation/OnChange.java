@@ -7,6 +7,7 @@ package io.permazen.annotation;
 
 import io.permazen.Counter;
 import io.permazen.DetachedPermazenTransaction;
+import io.permazen.PermazenObject;
 import io.permazen.ReferencePath;
 import io.permazen.change.FieldChange;
 import io.permazen.change.SetFieldAdd;
@@ -310,8 +311,10 @@ import java.lang.annotation.Target;
  * need to count references, you just need to check whether any references still exist at the appropriate times.
  *
  * <p>
- * You could do something like the example below. It defers the cleanup until validation time to avoid objects being deleted
- * accidentally due to transient reference manipulation.
+ * You could do something like the example below. The strategy is to ensure we are notified whenever any change happens that
+ * could possibly result in there being zero remaining references to an {@code Addresss}. When that happens, we enqueue the
+ * {@code Addresss} for validation, during which our custom {@link OnValidate &#64;OnValidate} method will check if the number
+ * of references is in fact zero and delete the instance if so.
  *
  * <pre><code class="language-java">
  *   &#64;PermazenType
@@ -341,11 +344,13 @@ import java.lang.annotation.Target;
  *
  *   // Dependent Object Checks
  *
+ *       // Invoked whenever a Person referring to this address is deleted
  *       &#64;OnDelete(path = "&lt;-Person.address")
  *       private void onOccupantDelete(Person person) {
  *           this.revalidate();
  *       }
  *
+ *       // Invoked whenever a Person's address changes from this to some other address
  *       &#64;OnChange(path = "&lt;-Person.address", value = "address")
  *       private void onOccupantChange(SimpleFieldChange&lt;Person, Address&gt; change) {
  *           this.revalidate();
@@ -357,6 +362,17 @@ import java.lang.annotation.Target;
  *               this.delete();
  *       }
  *   }
+ * </code></pre>
+ *
+ * <p>
+ * Note, we could perform this check immediately instead of waiting for the end of the transaction (which we do by
+ * invoking {@link PermazenObject#revalidate revalidate()}), but that could cause an {@code Addresss} that's merely
+ * "in transit" from one {@code Person} to another to be deleted prematurely, for example, if someone did this:
+ *
+ * <pre><code class="language-java">
+ *  Address addr = person1.getAddress();
+ *  person1.setAddress(null);   // "addr" would be deleted here
+ *  person2.setAddress(addr);   // DeletedObjectException thrown here
  * </code></pre>
  *
  * <p><b>Notification Delivery</b></p>
