@@ -1,3 +1,7 @@
+Version Next
+
+    - Fix bug where PatternEncoding was ignoring flags.
+
 Version 5.2.0 Released May 12, 2025
 
     - Update LMDB to fix failure to run on ARM architecture.

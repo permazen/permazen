@@ -394,9 +394,29 @@ public class EncodingTest extends TestSupport {
             }},
 
             {   Pattern.class.getSimpleName(), new Pattern[] {
+
+                Pattern.compile("!_)(*&^%$#@!~", Pattern.LITERAL),
+
                 Pattern.compile("(foo)?(bar)?"),
+                Pattern.compile("(foo)?(bar)?", Pattern.LITERAL),
+
                 Pattern.compile("^.*([\\s@]+)$"),
+                Pattern.compile("^.*([\\s@]+)$",
+                  Pattern.DOTALL
+                  | Pattern.COMMENTS),
+
                 Pattern.compile("ab*c"),
+                Pattern.compile("ab*c",
+                  Pattern.CANON_EQ
+                  | Pattern.CASE_INSENSITIVE
+                  | Pattern.COMMENTS
+                  | Pattern.DOTALL
+                  | Pattern.LITERAL
+                  | Pattern.MULTILINE
+                  | Pattern.UNICODE_CASE
+                  | Pattern.UNICODE_CHARACTER_CLASS
+                  | Pattern.UNIX_LINES),
+
                 null
             }},
 
