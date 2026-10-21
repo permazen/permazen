@@ -416,8 +416,11 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
 
     protected <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, ByteData... params) {
         assert params.length == stmtType.getNumParams();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        boolean successful = false;
         try {
-            final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log);
+            preparedStatement = stmtType.create(this.database, this.connection, this.log);
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
             for (int i = 0; i < params.length && i < numParams; i++) {
                 if (this.log.isTraceEnabled())
@@ -427,15 +430,27 @@ public class SQLKVTransaction extends ForwardingKVStore implements KVTransaction
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
                 this.log.trace("executing SQL query");
-            final ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             final T result = resultSetFunction.apply(preparedStatement, resultSet);
-            if (close) {
-                resultSet.close();
-                preparedStatement.close();
-            }
+            successful = true;
             return result;
         } catch (SQLException e) {
             throw this.handleException(e);
+        } finally {
+            if (close || !successful) {
+                try {
+                    if (resultSet != null)
+                        resultSet.close();
+                } catch (Exception e) {
+                    // ignore
+                }
+                try {
+                    if (preparedStatement != null)
+                        preparedStatement.close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
         }
     }
 
