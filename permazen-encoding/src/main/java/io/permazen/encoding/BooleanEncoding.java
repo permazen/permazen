@@ -48,7 +48,7 @@ public class BooleanEncoding extends PrimitiveEncoding<Boolean> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(1);
+        reader.advance(1);
     }
 
     @Override

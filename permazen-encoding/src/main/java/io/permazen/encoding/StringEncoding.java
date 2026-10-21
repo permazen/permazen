@@ -91,10 +91,10 @@ public class StringEncoding extends AbstractEncoding<String> {
             case END:
                 return;
             case ESCAPE:
-                reader.skip(1);
+                reader.advance(1);
                 break;
             default:
-                reader.skip(UnsignedIntEncoder.decodeLength(value) - 1);
+                reader.advance(UnsignedIntEncoder.decodeLength(value) - 1);
                 break;
             }
             value = reader.readByte();

@@ -77,9 +77,9 @@ public class BigIntegerEncoding extends AbstractEncoding<BigInteger> {
     public void skip(ByteData.Reader reader) {
         final int numBytes = this.readSignedNumBytes(reader);
         if (numBytes > 0)
-            reader.skip(numBytes);
+            reader.advance(numBytes);
         else if (numBytes < 0)
-            reader.skip(-numBytes);
+            reader.advance(-numBytes);
     }
 
     // Read flag value (number of bytes * signum) and validate the sign bit on the first (high-order) byte is consistent with it

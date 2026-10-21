@@ -61,7 +61,7 @@ abstract class AbstractInetAddressEncoding<T extends InetAddress> extends Abstra
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(this.getLength(reader));
+        reader.advance(this.getLength(reader));
     }
 
     @Override

@@ -72,7 +72,7 @@ public class BitSetEncoding extends AbstractEncoding<BitSet> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(UnsignedIntEncoder.read(reader));
+        reader.advance(UnsignedIntEncoder.read(reader));
     }
 
     @Override

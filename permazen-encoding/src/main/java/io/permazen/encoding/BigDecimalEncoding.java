@@ -160,7 +160,7 @@ public class BigDecimalEncoding extends AbstractEncoding<BigDecimal> {
     @Override
     public void skip(ByteData.Reader reader) {
         final int flag = reader.readByte();
-        reader.skip(LongEncoder.decodeLength(reader.peek()));
+        reader.advance(LongEncoder.decodeLength(reader.peek()));
         if (flag == FLAG_ZERO)
             return;
         while (true) {

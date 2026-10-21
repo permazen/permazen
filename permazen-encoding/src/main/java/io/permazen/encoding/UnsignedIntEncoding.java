@@ -51,7 +51,7 @@ public class UnsignedIntEncoding extends AbstractEncoding<Integer> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(UnsignedIntEncoder.decodeLength(reader.peek()));
+        reader.advance(UnsignedIntEncoder.decodeLength(reader.peek()));
     }
 
     @Override

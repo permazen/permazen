@@ -41,7 +41,7 @@ public abstract class IntegralEncoding<T extends Number> extends NumberEncoding<
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(LongEncoder.decodeLength(reader.peek()));
+        reader.advance(LongEncoder.decodeLength(reader.peek()));
     }
 
     @Override

@@ -49,7 +49,7 @@ public class LocalTimeEncoding extends AbstractEncoding<LocalTime> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(LongEncoder.decodeLength(reader.peek()));
+        reader.advance(LongEncoder.decodeLength(reader.peek()));
     }
 
     @Override

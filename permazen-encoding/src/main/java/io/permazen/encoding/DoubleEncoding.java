@@ -48,7 +48,7 @@ public class DoubleEncoding extends NumberEncoding<Double> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(8);
+        reader.advance(8);
     }
 
     @Override

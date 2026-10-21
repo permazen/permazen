@@ -74,7 +74,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
         Preconditions.checkArgument(reader != null);
         if (this.inline) {
             if (reader.peek() == NULL_SENTINEL) {
-                reader.skip(1);
+                reader.advance(1);
                 return null;
             }
             return this.inner.read(reader);
@@ -109,7 +109,7 @@ public class NullSafeEncoding<T> extends AbstractEncoding<T> {
             final int prefix = reader.peek();
             switch (prefix) {
             case NULL_SENTINEL:
-                reader.skip(1);
+                reader.advance(1);
                 break;
             default:
                 this.inner.skip(reader);

@@ -53,7 +53,7 @@ public class UUIDEncoding extends AbstractEncoding<UUID> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(16);
+        reader.advance(16);
     }
 
     @Override

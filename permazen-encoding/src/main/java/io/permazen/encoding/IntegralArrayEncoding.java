@@ -44,7 +44,7 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
         while (true) {
             final int first = reader.peek();
             if (first == END) {
-                reader.skip(1);
+                reader.advance(1);
                 break;
             }
             list.add(this.getIntegralEncoding().downCast(LongEncoder.read(reader)));
@@ -68,10 +68,10 @@ public abstract class IntegralArrayEncoding<T, E extends Number> extends Base64A
         while (true) {
             final int first = reader.peek();
             if (first == END) {
-                reader.skip(1);
+                reader.advance(1);
                 break;
             }
-            reader.skip(LongEncoder.decodeLength(first));
+            reader.advance(LongEncoder.decodeLength(first));
         }
     }
 

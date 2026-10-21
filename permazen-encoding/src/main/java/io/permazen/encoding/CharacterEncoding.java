@@ -45,7 +45,7 @@ public class CharacterEncoding extends PrimitiveEncoding<Character> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(2);
+        reader.advance(2);
     }
 
     @Override

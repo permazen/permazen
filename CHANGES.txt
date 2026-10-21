@@ -2,6 +2,7 @@ Version Next
 
     - Fix bug where PatternEncoding was ignoring flags.
     - Fix bugs in method ByteData.newReader(int).
+    - Fix various Encoding,skip() methods when EOF is reached.
     - Remove inappropriate skipNBytes() override from ByteData.Reader.
 
 Version 5.2.0 Released May 12, 2025

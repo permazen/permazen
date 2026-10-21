@@ -50,8 +50,8 @@ public class DurationEncoding extends AbstractEncoding<Duration> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(LongEncoder.decodeLength(reader.peek()));
-        reader.skip(LongEncoder.decodeLength(reader.peek()));
+        reader.advance(LongEncoder.decodeLength(reader.peek()));
+        reader.advance(LongEncoder.decodeLength(reader.peek()));
     }
 
     @Override

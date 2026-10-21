@@ -48,7 +48,7 @@ public class FloatEncoding extends NumberEncoding<Float> {
     @Override
     public void skip(ByteData.Reader reader) {
         Preconditions.checkArgument(reader != null);
-        reader.skip(4);
+        reader.advance(4);
     }
 
     @Override
