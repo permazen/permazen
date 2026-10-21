@@ -312,8 +312,8 @@ import java.lang.annotation.Target;
  *
  * <p>
  * You could do something like the example below. The strategy is to ensure we are notified whenever any change happens that
- * could possibly result in there being zero remaining references to an {@code Addresss}. When that happens, we enqueue the
- * {@code Addresss} for validation, during which our custom {@link OnValidate &#64;OnValidate} method will check if the number
+ * could possibly result in there being zero remaining references to an {@code Address}. When that happens, we enqueue the
+ * {@code Address} for validation, during which our custom {@link OnValidate &#64;OnValidate} method will check if the number
  * of references is in fact zero and delete the instance if so.
  *
  * <pre><code class="language-java">
@@ -366,7 +366,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Note, we could perform this check immediately instead of waiting for the end of the transaction (which we do by
- * invoking {@link PermazenObject#revalidate revalidate()}), but that could cause an {@code Addresss} that's merely
+ * invoking {@link PermazenObject#revalidate revalidate()}), but that could cause an {@code Address} that's merely
  * "in transit" from one {@code Person} to another to be deleted prematurely, for example, if someone did this:
  *
  * <pre><code class="language-java">
