@@ -453,12 +453,7 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
     }
 
     private static boolean add(ObjIdMap<ObjIdSet> map, ObjId source, ObjId target) {
-        ObjIdSet set = map.get(source);
-        if (set == null) {
-            set = new ObjIdSet();
-            map.put(source, set);
-        }
-        return set.add(target);
+        return map.computeIfAbsent(source, s -> new ObjIdSet()).add(target);
     }
 
     private static boolean remove(ObjIdMap<ObjIdSet> map, ObjId source, ObjId target) {
