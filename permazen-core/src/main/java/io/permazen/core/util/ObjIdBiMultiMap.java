@@ -62,15 +62,12 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
 
     // Internal constructor
     private ObjIdBiMultiMap(ObjIdBiMultiMap inverse, ObjIdMap<ObjIdSet> forward, ObjIdMap<ObjIdSet> reverse) {
-        if (inverse != null) {
-            this.lock = inverse.lock;
+        this.lock = inverse != null ? inverse.lock : new Object();
+        synchronized (this.lock) {
             this.inverse = inverse;
-        } else {
-            this.lock = new Object();
-            this.inverse = null;
+            this.forward = forward;
+            this.reverse = reverse;
         }
-        this.forward = forward;
-        this.reverse = reverse;
     }
 
 // Public methods
@@ -203,7 +200,7 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         synchronized (this.lock) {
             if (!ObjIdBiMultiMap.add(this.forward, source, target))
                 return false;
-            ObjIdBiMultiMap.add(this.reverse, target, source);
+            ObjIdBiMultiMap.add(this.reverse, target, source);      // this should always return true
             return true;
         }
     }
@@ -266,7 +263,7 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         synchronized (this.lock) {
             if (!ObjIdBiMultiMap.remove(this.forward, source, target))
                 return false;
-            ObjIdBiMultiMap.remove(this.reverse, target, source);
+            ObjIdBiMultiMap.remove(this.reverse, target, source);       // this should always return true
             return true;
         }
     }
@@ -370,7 +367,9 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
      * @return inverse view of this instance
      */
     public ObjIdBiMultiMap inverse() {
-        return this.inverse != null ? this.inverse : new ObjIdBiMultiMap(this, this.reverse, this.forward);
+        synchronized (this.lock) {
+            return this.inverse != null ? this.inverse : new ObjIdBiMultiMap(this, this.reverse, this.forward);
+        }
     }
 
 // Object
