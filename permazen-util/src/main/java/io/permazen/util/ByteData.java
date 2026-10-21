@@ -772,15 +772,6 @@ public final class ByteData implements Comparable<ByteData> {
             }
         }
 
-        @Override
-        public void skipNBytes(long n) {
-            try {
-                super.skipNBytes(n);
-            } catch (IOException e) {
-                throw new RuntimeException("unexpected error", e);
-            }
-        }
-
     // Other Methods
 
         /**
