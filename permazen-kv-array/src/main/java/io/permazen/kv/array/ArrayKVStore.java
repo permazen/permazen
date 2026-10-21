@@ -72,7 +72,7 @@ public class ArrayKVStore extends AbstractKVStore {
         if (index == this.size)
             return null;
         final KVPair pair = this.finder.readKV(index);
-        assert pair.getKey().compareTo(minKey) >= 0;
+        assert minKey == null || pair.getKey().compareTo(minKey) >= 0;
         return maxKey == null || pair.getKey().compareTo(maxKey) < 0 ? pair : null;
     }
 
@@ -86,7 +86,7 @@ public class ArrayKVStore extends AbstractKVStore {
         if (index == 0)
             return null;
         final KVPair pair = this.finder.readKV(index - 1);
-        assert pair.getKey().compareTo(maxKey) < 0;
+        assert maxKey == null || pair.getKey().compareTo(maxKey) < 0;
         return minKey == null || pair.getKey().compareTo(minKey) >= 0 ? pair : null;
     }
 
