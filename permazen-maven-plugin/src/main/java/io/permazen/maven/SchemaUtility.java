@@ -58,7 +58,7 @@ public interface SchemaUtility {
     /**
      * Verify schema does not conflict with any of the specified files.
      *
-     * @param file expected schema file
+     * @param files schema files to check for conflicts
      * @return true if schema does not conflict with any file, otherwise false
      * @throws MojoExecutionException if a fatal error occurs
      * @throws IllegalArgumentException if {@code files} is null

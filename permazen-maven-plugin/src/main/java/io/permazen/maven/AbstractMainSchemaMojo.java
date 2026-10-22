@@ -27,7 +27,7 @@ public abstract class AbstractMainSchemaMojo extends AbstractSchemaMojo {
     @Override
     @SuppressWarnings("unchecked")
     protected void addDependencyClasspathElements(List<String> elements) throws DependencyResolutionRequiredException {
-        elements.addAll((List<String>)this.project.getCompileClasspathElements());
-        elements.addAll((List<String>)this.project.getRuntimeClasspathElements());
+        elements.addAll(this.project.getCompileClasspathElements());
+        elements.addAll(this.project.getRuntimeClasspathElements());
     }
 }
