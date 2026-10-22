@@ -1,4 +1,4 @@
-Version Next
+Version 5.2.1 Released October 22, 2026
 
     - Fix bug where PatternEncoding was ignoring flags.
     - API and Javadoc improvements to ByteData.Reader.
