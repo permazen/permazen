@@ -775,6 +775,21 @@ public final class ByteData implements Comparable<ByteData> {
     // Other Methods
 
         /**
+         * Advance past the specified number of bytes.
+         *
+         * <p>
+         * If there are fewer than {@code skip} bytes remaining, an {@link IndexOutOfBoundsException} exception is thrown.
+         *
+         * @param skip numer of bytes to skip
+         * @throws IndexOutOfBoundsException if there are fewer than {@code skip} bytes remaining
+         * @throws IndexOutOfBoundsException if {@code skip} is negative
+         */
+        public synchronized void advance(int skip) {
+            Objects.checkFromIndexSize(this.pos, skip, this.count);
+            this.pos += skip;
+        }
+
+        /**
          * Peek at the next byte.
          *
          * <p>
