@@ -1,7 +1,7 @@
 Version Next
 
     - Fix bug where PatternEncoding was ignoring flags.
-    - Fix bugs in method ByteData.newReader(int).
+    - API and Javadoc improvements to ByteData.Reader.
     - Fix various Encoding,skip() methods when EOF is reached.
     - Remove inappropriate skipNBytes() override from ByteData.Reader.
 
