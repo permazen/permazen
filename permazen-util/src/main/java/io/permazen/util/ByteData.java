@@ -223,23 +223,22 @@ public final class ByteData implements Comparable<ByteData> {
      * @return data input stream
      */
     public Reader newReader() {
-        return new Reader(this, this.min, this.size());
+        return new Reader(this, this.min, this.max);
     }
 
     /**
-     * Create a {@link Reader} input stream from this instance starting at the given offset.
+     * Create a {@link Reader} input stream from this instance positioned at the given offset.
      *
      * <p>
-     * Equivalent to: {@code substring(off).newReader()}.
+     * Equivalent to invoking {@link #newReader} and then {@link Reader#skipNBytes Reader.skipNBytes}{@code (off)}.
      *
      * @param off starting offset
      * @return data input stream starting at offset {@code off}
      * @throws IndexOutOfBoundsException if {@code off} is invalid
      */
     public Reader newReader(int off) {
-        final int size = this.size();
-        Preconditions.checkArgument(off >= 0 && off <= size, "invalid offset");
-        return new Reader(this, this.min + off, size - off);
+        Preconditions.checkArgument(off >= 0 && off <= this.size(), "invalid offset");
+        return new Reader(this, this.min + off, this.max);
     }
 
     /**
@@ -751,9 +750,9 @@ public final class ByteData implements Comparable<ByteData> {
 
         private final ByteData data;
 
-        private Reader(ByteData data, int off, int len) {
-            super(data.data, off, len);
-            assert off >= 0 && len >= 0 && off + len >= 0 && off + len <= data.data.length;
+        private Reader(ByteData data, int min, int max) {
+            super(data.data, min, max - min);
+            assert min >= 0 && max >= 0 && max >= min && max <= data.data.length;
             this.data = data;
         }
 
@@ -849,7 +848,7 @@ public final class ByteData implements Comparable<ByteData> {
         }
 
         /**
-         * Get the current offset into the underlying data.
+         * Get the current offset into the underlying {@link ByteData}.
          *
          * @return current offset
          */
@@ -865,16 +864,10 @@ public final class ByteData implements Comparable<ByteData> {
          * @throws IndexOutOfBoundsException if {@code len} is negative or greater than the number of bytes remaining
          */
         public synchronized ByteData readBytes(int len) {
-            final int offset = this.pos - this.data.min;
-            final ByteData result;
-            try {
-                result = this.data.substring(offset, offset + len);
-            } catch (IndexOutOfBoundsException e) {
-                final int maxLen = this.count - this.pos;
+            final int maxLen = this.count - this.pos;
+            if (len < 0 || len > maxLen)
                 throw new IndexOutOfBoundsException(String.format("invalid length %d not in the range 0..%d", len, maxLen));
-            }
-            this.pos += len;
-            return result;
+            return new ByteData(this.buf, this.pos, this.pos += len);
         }
 
         /**
@@ -886,7 +879,7 @@ public final class ByteData implements Comparable<ByteData> {
          * @return all data read so far
          */
         public synchronized ByteData dataReadSoFar() {
-            return this.data.substring(0, this.pos - this.data.min);
+            return new ByteData(this.buf, this.data.min, this.pos);
         }
 
         /**
@@ -898,7 +891,7 @@ public final class ByteData implements Comparable<ByteData> {
          * @return all unread data
          */
         public synchronized ByteData dataNotYetRead() {
-            return this.data.substring(this.pos - this.data.min);
+            return new ByteData(this.buf, this.pos, this.count);
         }
 
         /**

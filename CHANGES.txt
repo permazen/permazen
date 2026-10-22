@@ -1,6 +1,7 @@
 Version Next
 
     - Fix bug where PatternEncoding was ignoring flags.
+    - Fix bugs in method ByteData.newReader(int).
 
 Version 5.2.0 Released May 12, 2025
 

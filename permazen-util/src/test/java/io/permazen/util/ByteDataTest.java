@@ -177,5 +177,25 @@ public class ByteDataTest extends TestSupport {
         r.unread(5);
         assert r.readRemaining().equals(data5.substring(2));
         assert r.getByteData().equals(data5);
+
+        // Test bug fix for ByteData.newReader(int)
+        ByteData data6 = ByteData.of(1, 2, 3, 4, 5, 6, 7);
+        r = data6.newReader(3);
+        assert r.getOffset() == 3;
+        assert r.getByteData() == data6;
+        assert r.dataReadSoFar().equals(ByteData.of(1, 2, 3));
+        assert r.dataNotYetRead().equals(ByteData.of(4, 5, 6, 7));
+        r.unread();
+        assert r.getOffset() == 2;
+        assert r.read() == 3;
+        assert r.getOffset() == 3 && r.remain() == 4;
+        assert r.read() == 4;
+        assert r.getOffset() == 4 && r.remain() == 3;
+        assert r.peek() == 5;
+        r.read(new byte[3], 1, 1);
+        assert r.getOffset() == 5 && r.remain() == 2;
+        assert r.dataReadSoFar().equals(ByteData.of(1, 2, 3, 4, 5));
+        assert r.dataNotYetRead().equals(ByteData.of(6, 7));
+        assert r.readBytes(1).equals(ByteData.of(6));
     }
 }
