@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.dellroad</groupId>
         <artifactId>dellroad-dependencies</artifactId>
-        <version>3.4.5.2</version>
+        <version>3.4.5.5</version>
     </parent>
     <groupId>io.permazen</groupId>
     <artifactId>permazen</artifactId>
@@ -88,7 +88,6 @@
 
         <!-- Override the setting in dellroad-dependencies -->
         <permazen.version>${project.version}</permazen.version>
-        <biz-aqute-bnd.version>7.1.0</biz-aqute-bnd.version>
 
         <!-- Versions for dependencies used by multiple modules -->
         <testng.version>7.7.1</testng.version>
