@@ -40,6 +40,8 @@ io.permazen.kv.sqlite
 io.permazen.kv.test
 io.permazen.kv.util
 io.permazen.kv.xodus
+io.permazen.maven
+io.permazen.permazen_maven_plugin
 io.permazen.schema
 io.permazen.spring
 io.permazen.test
