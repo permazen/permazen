@@ -245,7 +245,7 @@ public class PermazenJShellShellSession extends JShellShellSession implements Ha
     /**
      * Invoked by {@link PermazenExecutionControl#leaveContext} to commit or leave the snippet transaction.
      *
-     * @param succes true to commit transaction, false to rollback
+     * @param success true to commit transaction, false to rollback
      * @throws IllegalStateException if there is no current snippet transaction
      */
     protected void leaveTransaction(boolean success) {
